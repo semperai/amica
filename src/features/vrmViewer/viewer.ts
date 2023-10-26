@@ -100,12 +100,18 @@ export class Viewer {
       this._camera,
       this._renderer.domElement
     );
+
     this._cameraControls.screenSpacePanning = true;
+
+    this._cameraControls.minDistance = 0.5;
+    this._cameraControls.maxDistance = 4;
+
     this._cameraControls.update();
 
     window.addEventListener("resize", () => {
       this.resize();
     });
+
     this.isReady = true;
     this.update();
   }
