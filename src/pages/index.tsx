@@ -144,16 +144,16 @@ export default function Home() {
 
           receivedMessage += value;
 
-          // 返答内容のタグ部分の検出
+          // Detection of tag part of reply content
           const tagMatch = receivedMessage.match(/^\[(.*?)\]/);
           if (tagMatch && tagMatch[0]) {
             tag = tagMatch[0];
             receivedMessage = receivedMessage.slice(tag.length);
           }
 
-          // 返答を一文単位で切り出して処理する
+          // Cut out and process the response sentence by sentence
           const sentenceMatch = receivedMessage.match(
-            /^(.+[。．！？\n]|.{10,}[、,])/,
+            /^(.+[\.!\?\n]|.{10,}[,])/,
           );
           if (sentenceMatch && sentenceMatch[0]) {
             const sentence = sentenceMatch[0];
@@ -162,7 +162,7 @@ export default function Home() {
               .slice(sentence.length)
               .trimStart();
 
-            // 発話不要/不可能な文字列だった場合はスキップ
+            // Skip if the string is unnecessary/impossible to utter.
             if (
               !sentence.replace(
                 /^[\s\[\(\{「［（【『〈《〔｛«‹〘〚〛〙›»〕》〉』】）］」\}\)\]]+$/g,
@@ -176,7 +176,7 @@ export default function Home() {
             const aiTalks = textsToScreenplay([aiText], koeiroParam);
             aiTextLog += aiText;
 
-            // 文ごとに音声を生成 & 再生、返答を表示
+            // Generate & play audio for each sentence, display responses
             const currentAssistantMessage = sentences.join(" ");
             handleSpeakAi(aiTalks[0], () => {
               setAssistantMessage(currentAssistantMessage);
