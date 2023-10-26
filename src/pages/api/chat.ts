@@ -34,5 +34,7 @@ export default async function handler(
   const [aiRes] = data.choices;
   const message = aiRes.message?.content || "エラーが発生しました";
 
+  console.log('message response', message);
+
   res.status(200).json({ message: message });
 }

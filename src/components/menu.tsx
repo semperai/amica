@@ -6,6 +6,7 @@ import React, { useCallback, useContext, useRef, useState } from "react";
 import { Settings } from "./settings";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { AssistantText } from "./assistantText";
+import { useI18n } from "@/components/I18nProvider";
 
 type Props = {
   openAiKey: string;
@@ -18,9 +19,9 @@ type Props = {
   onChangeAiKey: (key: string) => void;
   onChangeChatLog: (index: number, text: string) => void;
   onChangeKoeiromapParam: (param: KoeiroParam) => void;
-  handleClickResetChatLog: () => void;
-  handleClickResetSystemPrompt: () => void;
-  onChangeKoeiromapKey: (key: string) => void;
+  onClickResetChatLog: () => void;
+  onClickResetSystemPrompt: () => void;
+  onChangeKoeiromapKey: (koeiromapKey: string) => void;
 };
 export const Menu = ({
   openAiKey,
@@ -33,14 +34,15 @@ export const Menu = ({
   onChangeAiKey,
   onChangeChatLog,
   onChangeKoeiromapParam,
-  handleClickResetChatLog,
-  handleClickResetSystemPrompt,
+  onClickResetChatLog,
+  onClickResetSystemPrompt,
   onChangeKoeiromapKey,
 }: Props) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const { viewer } = useContext(ViewerContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lang = useI18n()
 
   const handleChangeSystemPrompt = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -104,21 +106,21 @@ export const Menu = ({
         <div className="grid grid-flow-col gap-[8px]">
           <IconButton
             iconName="24/Menu"
-            label="設定"
+            label={lang.DaboardSettings}
             isProcessing={false}
             onClick={() => setShowSettings(true)}
           ></IconButton>
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
-              label="会話ログ"
+              label={lang.DaboardConversationLog}
               isProcessing={false}
               onClick={() => setShowChatLog(false)}
             />
           ) : (
             <IconButton
               iconName="24/CommentFill"
-              label="会話ログ"
+              label={lang.DaboardConversationLog}
               isProcessing={false}
               disabled={chatLog.length <= 0}
               onClick={() => setShowChatLog(true)}
@@ -140,8 +142,8 @@ export const Menu = ({
           onChangeChatLog={onChangeChatLog}
           onChangeKoeiroParam={handleChangeKoeiroParam}
           onClickOpenVrmFile={handleClickOpenVrmFile}
-          onClickResetChatLog={handleClickResetChatLog}
-          onClickResetSystemPrompt={handleClickResetSystemPrompt}
+          onClickResetChatLog={onClickResetChatLog}
+          onClickResetSystemPrompt={onClickResetSystemPrompt}
           onChangeKoeiromapKey={handleChangeKoeiromapKey}
         />
       )}

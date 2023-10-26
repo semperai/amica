@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { M_PLUS_2, Montserrat } from "next/font/google";
 import VrmViewer from "@/components/vrmViewer";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import {
@@ -15,6 +16,20 @@ import { Introduction } from "@/components/introduction";
 import { Menu } from "@/components/menu";
 import { GitHubLink } from "@/components/githubLink";
 import { Meta } from "@/components/meta";
+import { I18nProvider } from "@/components/I18nProvider";
+import lang, { setLan, TLangs, langs } from "@/i18n";
+
+ const m_plus_2 = M_PLUS_2({
+   variable: "--font-m-plus-2",
+   display: "swap",
+   preload: false,
+ });
+ 
+ const montserrat = Montserrat({
+   variable: "--font-montserrat",
+   display: "swap",
+   subsets: ["latin"],
+ });
 
 export default function Home() {
   const { viewer } = useContext(ViewerContext);
@@ -26,6 +41,8 @@ export default function Home() {
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
+  const [lan, applyLan] = useState(lang);
+  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     if (window.localStorage.getItem("chatVRMParams")) {
@@ -34,7 +51,8 @@ export default function Home() {
       );
       setSystemPrompt(params.systemPrompt);
       setKoeiroParam(params.koeiroParam);
-      setChatLog(params.chatLog);
+      setOpenAiKey(params.openAiKey);
+      // setChatLog(params.chatLog);
     }
   }, []);
 
@@ -42,7 +60,7 @@ export default function Home() {
     process.nextTick(() =>
       window.localStorage.setItem(
         "chatVRMParams",
-        JSON.stringify({ systemPrompt, koeiroParam, chatLog })
+        JSON.stringify({ systemPrompt, koeiroParam, openAiKey, chatLog })
       )
     );
   }, [systemPrompt, koeiroParam, chatLog]);
@@ -55,7 +73,7 @@ export default function Home() {
 
       setChatLog(newChatLog);
     },
-    [chatLog]
+    [chatLog],
   );
 
   /**
@@ -65,11 +83,11 @@ export default function Home() {
     async (
       screenplay: Screenplay,
       onStart?: () => void,
-      onEnd?: () => void
+      onEnd?: () => void,
     ) => {
       speakCharacter(screenplay, viewer, koeiromapKey, onStart, onEnd);
     },
-    [viewer, koeiromapKey]
+    [viewer],
   );
 
   /**
@@ -78,7 +96,7 @@ export default function Home() {
   const handleSendChat = useCallback(
     async (text: string) => {
       if (!openAiKey) {
-        setAssistantMessage("APIキーが入力されていません");
+        setAssistantMessage(lang.DaboardAPIKeyNotEntered);
         return;
       }
 
@@ -107,7 +125,7 @@ export default function Home() {
         (e) => {
           console.error(e);
           return null;
-        }
+        },
       );
       if (stream == null) {
         setChatProcessing(false);
@@ -135,7 +153,7 @@ export default function Home() {
 
           // 返答を一文単位で切り出して処理する
           const sentenceMatch = receivedMessage.match(
-            /^(.+[。．！？\n]|.{10,}[、,])/
+            /^(.+[。．！？\n]|.{10,}[、,])/,
           );
           if (sentenceMatch && sentenceMatch[0]) {
             const sentence = sentenceMatch[0];
@@ -148,7 +166,7 @@ export default function Home() {
             if (
               !sentence.replace(
                 /^[\s\[\(\{「［（【『〈《〔｛«‹〘〚〛〙›»〕》〉』】）］」\}\)\]]+$/g,
-                ""
+                "",
               )
             ) {
               continue;
@@ -181,39 +199,56 @@ export default function Home() {
       setChatLog(messageLogAssistant);
       setChatProcessing(false);
     },
-    [systemPrompt, chatLog, handleSpeakAi, openAiKey, koeiroParam]
+    [systemPrompt, chatLog, handleSpeakAi, openAiKey, koeiroParam],
   );
 
+  useEffect(() => {
+    let lan = "en" as TLangs;
+    if (!localStorage.getItem("chatvrm_language")) {
+      setLan("en");
+    }
+    lan = (localStorage.getItem("chatvrm_language") ?? "en") as TLangs;
+    applyLan(langs[lan]);
+    setSystemPrompt(langs[lan].SettingsCharacterSettingsPrompt);
+    setShowContent(true);
+  }, []);
+
+  useEffect(() => {
+    const base64APIKey = localStorage.getItem("chatvrm_apikey") ?? "";
+    if (base64APIKey.length) {
+      const apiKey = atob(base64APIKey);
+      setOpenAiKey(apiKey);
+    }
+  }, []);
+
+  if (!showContent) return <></>;
   return (
-    <div className={"font-M_PLUS_2"}>
-      <Meta />
-      <Introduction
-        openAiKey={openAiKey}
-        koeiroMapKey={koeiromapKey}
-        onChangeAiKey={setOpenAiKey}
-        onChangeKoeiromapKey={setKoeiromapKey}
-      />
-      <VrmViewer />
-      <MessageInputContainer
-        isChatProcessing={chatProcessing}
-        onChatProcessStart={handleSendChat}
-      />
-      <Menu
-        openAiKey={openAiKey}
-        systemPrompt={systemPrompt}
-        chatLog={chatLog}
-        koeiroParam={koeiroParam}
-        assistantMessage={assistantMessage}
-        koeiromapKey={koeiromapKey}
-        onChangeAiKey={setOpenAiKey}
-        onChangeSystemPrompt={setSystemPrompt}
-        onChangeChatLog={handleChangeChatLog}
-        onChangeKoeiromapParam={setKoeiroParam}
-        handleClickResetChatLog={() => setChatLog([])}
-        handleClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
-        onChangeKoeiromapKey={setKoeiromapKey}
-      />
-      <GitHubLink />
-    </div>
+    <I18nProvider value={lan}>
+      <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
+        <Meta />
+        <Introduction openAiKey={openAiKey} onChangeAiKey={setOpenAiKey} />
+        <VrmViewer />
+        <MessageInputContainer
+          isChatProcessing={chatProcessing}
+          onChatProcessStart={handleSendChat}
+        />
+        <Menu
+          openAiKey={openAiKey}
+          systemPrompt={systemPrompt}
+          chatLog={chatLog}
+          koeiroParam={koeiroParam}
+          koeiromapKey={koeiromapKey}
+          assistantMessage={assistantMessage}
+          onChangeAiKey={setOpenAiKey}
+          onChangeSystemPrompt={setSystemPrompt}
+          onChangeChatLog={handleChangeChatLog}
+          onChangeKoeiromapParam={setKoeiroParam}
+          onClickResetChatLog={() => setChatLog([])}
+          onClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
+          onChangeKoeiromapKey={setKoeiromapKey}
+        />
+        <GitHubLink />
+      </div>
+    </I18nProvider>
   );
 }

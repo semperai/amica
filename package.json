@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@charcoal-ui/icons": "^2.6.0",
+    "@charcoal-ui/theme": "^2.7.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/dom-speech-recognition": "^0.0.1",
     "eslint": "8.36.0",
@@ -33,6 +34,8 @@
     "@types/three": "0.149.0",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.21",
+    "prettier": "^2.8.8",
+    "prettier-plugin-tailwindcss": "^0.2.8",
     "tailwindcss": "^3.3.1"
   },
   "engines": {
