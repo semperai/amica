@@ -153,7 +153,9 @@ export const Settings = ({
           </div>
           {chatLog.length > 0 && (
             <div className="my-40">
-              <div className="my-16 font-bold typography-20">会話履歴</div>
+              <div className="my-16 font-bold typography-20">
+                {lang.DaboardConversationLog}
+              </div>
               <div className="my-8">
                 {chatLog.map((value, index) => {
                   return (
