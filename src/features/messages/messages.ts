@@ -1,5 +1,4 @@
 import { VRMExpression, VRMExpressionPresetName } from "@pixiv/three-vrm";
-import { KoeiroParam } from "../constants/koeiroParam";
 
 // ChatGPT API
 export type Message = {
@@ -19,8 +18,6 @@ export type TalkStyle = (typeof talkStyles)[number];
 
 export type Talk = {
   style: TalkStyle;
-  speakerX: number;
-  speakerY: number;
   message: string;
 };
 
@@ -42,7 +39,6 @@ export const splitSentence = (text: string): string[] => {
 
 export const textsToScreenplay = (
   texts: string[],
-  koeiroParam: KoeiroParam
 ): Screenplay[] => {
   const screenplays: Screenplay[] = [];
   let prevExpression = "neutral";
@@ -65,8 +61,6 @@ export const textsToScreenplay = (
       expression: expression as EmotionType,
       talk: {
         style: emotionToTalkStyle(expression as EmotionType),
-        speakerX: koeiroParam.speakerX,
-        speakerY: koeiroParam.speakerY,
         message: message,
       },
     });

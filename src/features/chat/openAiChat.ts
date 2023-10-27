@@ -1,7 +1,8 @@
 import { Configuration, OpenAIApi } from "openai";
 import { Message } from "../messages/messages";
 
-export async function getChatResponse(messages: Message[], apiKey: string) {
+export async function getChatResponse(messages: Message[]) {
+  const apiKey = atob(localStorage.getItem("chatvrm_openai_apikey") ?? "");
   if (!apiKey) {
     throw new Error("Invalid API Key");
   }
@@ -9,7 +10,7 @@ export async function getChatResponse(messages: Message[], apiKey: string) {
   const configuration = new Configuration({
     apiKey: apiKey,
   });
-  // ブラウザからAPIを叩くときに発生するエラーを無くすworkaround
+  // Workaround to eliminate errors that occur when accessing the API from the browser
   // https://github.com/openai/openai-node/issues/6#issuecomment-1492814621
   delete configuration.baseOptions.headers["User-Agent"];
 
@@ -26,10 +27,8 @@ export async function getChatResponse(messages: Message[], apiKey: string) {
   return { message: message };
 }
 
-export async function getChatResponseStream(
-  messages: Message[],
-  apiKey: string
-) {
+export async function getChatResponseStream(messages: Message[]) {
+  const apiKey = atob(localStorage.getItem("chatvrm_openai_apikey") ?? "");
   if (!apiKey) {
     throw new Error("Invalid API Key");
   }

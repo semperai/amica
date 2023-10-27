@@ -1,53 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
+import { SecretTextInput } from "./secretTextInput";
 import { Message } from "@/features/messages/messages";
-import {
-  KoeiroParam,
-  PRESET_A,
-  PRESET_B,
-  PRESET_C,
-  PRESET_D,
-} from "@/features/constants/koeiroParam";
 import { Link } from "./link";
 import { setLan, TLangs } from "@/i18n";
 import { useI18n } from "@/components/I18nProvider";
 
 type Props = {
-  openAiKey: string;
   systemPrompt: string;
   chatLog: Message[];
-  koeiroParam: KoeiroParam;
-  koeiromapKey: string;
   onClickClose: () => void;
-  onChangeAiKey: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onChangeSystemPrompt: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onChangeChatLog: (index: number, text: string) => void;
-  onChangeKoeiroParam: (x: number, y: number) => void;
   onClickOpenVrmFile: () => void;
   onClickResetChatLog: () => void;
   onClickResetSystemPrompt: () => void;
-  onChangeKoeiromapKey: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 export const Settings = ({
-  openAiKey,
   chatLog,
   systemPrompt,
-  koeiroParam,
-  koeiromapKey,
   onClickClose,
   onChangeSystemPrompt,
-  onChangeAiKey,
   onChangeChatLog,
-  onChangeKoeiroParam,
   onClickOpenVrmFile,
   onClickResetChatLog,
   onClickResetSystemPrompt,
-  onChangeKoeiromapKey,
 }: Props) => {
   const lang = useI18n();
   const lan = (localStorage.getItem("chatvrm_language") ?? "en") as TLangs;
+  const [chatbotBackend, setChatbotBackend] = useState(localStorage.getItem("chatvrm_chatbot_backend") ?? "chatgpt");
+  const [openAIApiKey, setOpenAIApiKey] = useState(atob(localStorage.getItem("chatvrm_openai_apikey") ?? ""));
+  const [ttsBackend, setTTSBackend] = useState(localStorage.getItem("chatvrm_tts_backend") ?? "elevenlabs");
+  const [elevenlabsApiKey, setElevenlabsApiKey] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_apikey") ?? ""));
 
   return (
     <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
@@ -55,50 +41,15 @@ export const Settings = ({
         <IconButton
           iconName="24/Close"
           isProcessing={false}
-          onClick={onClickClose}></IconButton>
+          onClick={onClickClose} />
       </div>
       <div className="max-h-full overflow-auto">
         <div className="mx-auto max-w-3xl px-24 py-64 text-text1 ">
-          <div className="my-24 font-bold typography-32">{lang.Settings}</div>
-          <div className="my-24">
-            <div className="my-16 font-bold typography-20">
-              {lang.SettingsOpenAIAPIKey}
-            </div>
-            <input
-              className="w-col-span-2 text-ellipsis rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"
-              type="text"
-              placeholder="sk-..."
-              value={openAiKey}
-              onChange={onChangeAiKey}
-            />
-            <TextButton
-              onClick={() => {
-                localStorage.setItem("chatvrm_apikey", btoa(openAiKey));
-              }}
-              className="ml-8  bg-secondary hover:bg-secondary-hover">
-              {lang.SettingsOpenAIAPISaveBtn}
-            </TextButton>
-            <div className="mt-4 font-bold text-secondary-hover">
-              {lang.SettingsOpenAIAPISaveNoti}
-            </div>
-            <div className="mt-8">
-              {lang.SettingsOpenAIAPIKeyDetail1}
-              <Link
-                url="https://platform.openai.com/account/api-keys"
-                label={lang.SettingsOpenAIAPIKeyDetail2}
-              />
-              {lang.SettingsOpenAIAPIKeyDetail3}
-            </div>
-            <div className="my-16">
-              {lang.SettingsOpenAIAPIKeyDetail4}
-              <br />
-              {lang.SettingsOpenAIAPIKeyDetail5}
-            </div>
+          <div className="my-24 font-bold typography-32">
+            {lang.Settings}
           </div>
+
           <div className="my-40">
-            <div className="my-16 font-bold typography-20">
-              {lang.SettingsLanguage}
-            </div>
             <div className="my-8">
               <TextButton
                 onClick={() => {
@@ -132,6 +83,94 @@ export const Settings = ({
               </TextButton>
             </div>
           </div>
+
+
+          <div className="my-24">
+            <div className="my-16 font-bold typography-20">
+              Chatbot Backend
+            </div>
+            <div className="my-8">
+              <TextButton
+                onClick={() => {
+                  setChatbotBackend("chatgpt");
+                  localStorage.setItem("chatvrm_chatbot_backend", "chatgpt");
+                }}
+                className="mx-4"
+                disabled={chatbotBackend === 'chatgpt'}
+                >
+                ChatGPT
+              </TextButton>
+              <TextButton
+                onClick={() => {
+                  setChatbotBackend("claude");
+                  localStorage.setItem("chatvrm_chatbot_backend", "claude");
+                }}
+                className="mx-4"
+                disabled={chatbotBackend === 'claude'}
+                >
+                Claude
+              </TextButton>
+            </div>
+          </div>
+          
+          { chatbotBackend === 'chatgpt' && (
+            <div className="my-24">
+              <div className="my-16 font-bold typography-16">
+                OpenAI API Key
+              </div>
+              <SecretTextInput
+                value={openAIApiKey}
+                onChange={(event: React.ChangeEvent<any>) => {
+                  setOpenAIApiKey(event.target.value);
+                  localStorage.setItem("chatvrm_openai_apikey", btoa(event.target.value));
+                }}
+              />
+            </div>
+          )}
+
+          <div className="my-24">
+            <div className="my-16 font-bold typography-20">
+              Text to Speech
+            </div>
+            <div className="my-8">
+              <TextButton
+                onClick={() => {
+                  setTTSBackend("elevenlabs");
+                  localStorage.setItem("chatvrm_tts_backend", "elevenlabs");
+                }}
+                className="mx-4"
+                disabled={ttsBackend === 'elevenlabs'}
+                >
+                ElevenLabs
+              </TextButton>
+              <TextButton
+                onClick={() => {
+                  setTTSBackend("silero");
+                  localStorage.setItem("chatvrm_tts_backend", "silero");
+                }}
+                className="mx-4"
+                disabled={chatbotBackend === 'silero'}
+                >
+                Silero
+              </TextButton>
+            </div>
+          </div>
+
+          { ttsBackend === 'elevenlabs' && (
+            <div className="my-24">
+              <div className="my-16 font-bold typography-16">
+                ElevenLabs API Key
+              </div>
+              <SecretTextInput
+                value={elevenlabsApiKey}
+                onChange={(event: React.ChangeEvent<any>) => {
+                  setElevenlabsApiKey(event.target.value);
+                  localStorage.setItem("chatvrm_elevenlabs_apikey", btoa(event.target.value));
+                }}
+              />
+            </div>
+          )}
+
           <div className="my-40">
             <div className="my-16 font-bold typography-20">
               {lang.SettingsCharacterModel}
@@ -142,6 +181,7 @@ export const Settings = ({
               </TextButton>
             </div>
           </div>
+
           <div className="my-40">
             <div className="my-16 font-bold typography-20">
               {lang.SettingsCharacterSettings}
@@ -151,6 +191,7 @@ export const Settings = ({
               onChange={onChangeSystemPrompt}
               className="h-168 w-full  rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"></textarea>
           </div>
+
           {chatLog.length > 0 && (
             <div className="my-40">
               <div className="my-16 font-bold typography-20">

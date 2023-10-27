@@ -33,17 +33,8 @@ const en = {
   IntroStart: "Start by entering your API key",
 
   Settings: "Settings",
-  SettingsOpenAIAPIKey: "OpenAI API key",
+  SettingsOpenAIAPIKey: "ChatGPT Settings",
   SettingsOpenAIAPISaveBtn: "Save",
-  SettingsOpenAIAPISaveNoti: "If you choose to save locally, the data will be saved in local storage. If you don't know why you save it, please do not save it.",
-  SettingsOpenAIAPIKeyDetail1: "An API key is obtained from",
-  SettingsOpenAIAPIKeyDetail2: "The OpenAI website.",
-  SettingsOpenAIAPIKeyDetail3:
-    "Please enter the obtained API key into the form.",
-  SettingsOpenAIAPIKeyDetail4:
-    "By entering the API key, you will directly use OpenAI's API from your browser, and it will not be saved on any servers or other locations. The model being used is GPT-3.",
-  SettingsOpenAIAPIKeyDetail5:
-    "The API key and conversation data are not sent to Pixiv's servers.",
   SettingsLanguage: "Language",
   SettingsCharacterModel: "Character model",
   SettingsCharacterSelectBtn: "Open VRM",

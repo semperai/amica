@@ -10,7 +10,6 @@ import {
 import { speakCharacter } from "@/features/messages/speakCharacter";
 import { MessageInputContainer } from "@/components/messageInputContainer";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
-import { KoeiroParam, DEFAULT_PARAM } from "@/features/constants/koeiroParam";
 import { getChatResponseStream } from "@/features/chat/openAiChat";
 import { Introduction } from "@/components/introduction";
 import { Menu } from "@/components/menu";
@@ -34,9 +33,6 @@ export default function Home() {
   const { viewer } = useContext(ViewerContext);
 
   const [systemPrompt, setSystemPrompt] = useState(SYSTEM_PROMPT);
-  const [openAiKey, setOpenAiKey] = useState("");
-  const [koeiromapKey, setKoeiromapKey] = useState("");
-  const [koeiroParam, setKoeiroParam] = useState<KoeiroParam>(DEFAULT_PARAM);
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
@@ -49,8 +45,6 @@ export default function Home() {
         window.localStorage.getItem("chatVRMParams") as string
       );
       setSystemPrompt(params.systemPrompt);
-      setKoeiroParam(params.koeiroParam);
-      setOpenAiKey(params.openAiKey);
       // setChatLog(params.chatLog);
     }
   }, []);
@@ -59,10 +53,10 @@ export default function Home() {
     process.nextTick(() =>
       window.localStorage.setItem(
         "chatVRMParams",
-        JSON.stringify({ systemPrompt, koeiroParam, openAiKey, chatLog })
+        JSON.stringify({ systemPrompt, chatLog })
       )
     );
-  }, [systemPrompt, koeiroParam, chatLog]);
+  }, [systemPrompt, chatLog]);
 
   const handleChangeChatLog = useCallback(
     (targetIndex: number, text: string) => {
@@ -84,7 +78,7 @@ export default function Home() {
       onStart?: () => void,
       onEnd?: () => void,
     ) => {
-      speakCharacter(screenplay, viewer, koeiromapKey, onStart, onEnd);
+      speakCharacter(screenplay, viewer, onStart, onEnd);
     },
     [viewer],
   );
@@ -94,10 +88,13 @@ export default function Home() {
    */
   const handleSendChat = useCallback(
     async (text: string) => {
-      if (!openAiKey) {
+      /*
+       * TODO
+      if (!openAIAPIKey) {
         setAssistantMessage(lang.DaboardAPIKeyNotEntered);
         return;
       }
+      */
 
       const newMessage = text;
 
@@ -120,7 +117,7 @@ export default function Home() {
         ...messageLog,
       ];
 
-      const stream = await getChatResponseStream(messages, openAiKey).catch(
+      const stream = await getChatResponseStream(messages).catch(
         (e) => {
           console.error(e);
           return null;
@@ -172,7 +169,7 @@ export default function Home() {
             }
 
             const aiText = `${tag} ${sentence}`;
-            const aiTalks = textsToScreenplay([aiText], koeiroParam);
+            const aiTalks = textsToScreenplay([aiText]);
             aiTextLog += aiText;
 
             // Generate & play audio for each sentence, display responses
@@ -198,7 +195,7 @@ export default function Home() {
       setChatLog(messageLogAssistant);
       setChatProcessing(false);
     },
-    [systemPrompt, chatLog, handleSpeakAi, openAiKey, koeiroParam],
+    [systemPrompt, chatLog, handleSpeakAi],
   );
 
   useEffect(() => {
@@ -212,39 +209,25 @@ export default function Home() {
     setShowContent(true);
   }, []);
 
-  useEffect(() => {
-    const base64APIKey = localStorage.getItem("chatvrm_apikey") ?? "";
-    if (base64APIKey.length) {
-      const apiKey = atob(base64APIKey);
-      setOpenAiKey(apiKey);
-    }
-  }, []);
-
   if (!showContent) return <></>;
   return (
     <I18nProvider value={lan}>
       <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
         <Meta />
-        <Introduction openAiKey={openAiKey} onChangeAiKey={setOpenAiKey} open={false} />
+        <Introduction open={false} />
         <VrmViewer />
         <MessageInputContainer
           isChatProcessing={chatProcessing}
           onChatProcessStart={handleSendChat}
         />
         <Menu
-          openAiKey={openAiKey}
           systemPrompt={systemPrompt}
           chatLog={chatLog}
-          koeiroParam={koeiroParam}
-          koeiromapKey={koeiromapKey}
           assistantMessage={assistantMessage}
-          onChangeAiKey={setOpenAiKey}
           onChangeSystemPrompt={setSystemPrompt}
           onChangeChatLog={handleChangeChatLog}
-          onChangeKoeiromapParam={setKoeiroParam}
           onClickResetChatLog={() => setChatLog([])}
           onClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
-          onChangeKoeiromapKey={setKoeiromapKey}
         />
       </div>
     </I18nProvider>
