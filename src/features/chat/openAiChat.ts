@@ -1,33 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
-import { Message } from "../messages/messages";
+import { Message } from "@/features/messages/messages";
 
-export async function getChatResponse(messages: Message[]) {
-  const apiKey = atob(localStorage.getItem("chatvrm_openai_apikey") ?? "");
-  if (!apiKey) {
-    throw new Error("Invalid API Key");
-  }
-
-  const configuration = new Configuration({
-    apiKey: apiKey,
-  });
-  // Workaround to eliminate errors that occur when accessing the API from the browser
-  // https://github.com/openai/openai-node/issues/6#issuecomment-1492814621
-  delete configuration.baseOptions.headers["User-Agent"];
-
-  const openai = new OpenAIApi(configuration);
-
-  const { data } = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: messages,
-  });
-
-  const [aiRes] = data.choices;
-  const message = aiRes.message?.content || "An error has occurred, no message data was received";
-
-  return { message: message };
-}
-
-export async function getChatResponseStream(messages: Message[]) {
+export async function getOpenAiChatResponseStream(messages: Message[]) {
   const apiKey = atob(localStorage.getItem("chatvrm_openai_apikey") ?? "");
   if (!apiKey) {
     throw new Error("Invalid API Key");
