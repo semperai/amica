@@ -2,7 +2,7 @@ const en = {
   DaboardSettings: "Settings",
   DaboardConversationLog: "Conversation Log",
   DaboardLanguage: "Language",
-  DaboardInputPlaceHolder: "Please enter what you would like to hear",
+  DaboardInputPlaceHolder: "Write message here...",
   DaboardAPIKeyNotEntered: "An API key has not been entered",
 
   IntroAboutThisApp: "About this application",
@@ -47,7 +47,7 @@ const en = {
   SettingsLanguage: "Language",
   SettingsCharacterModel: "Character model",
   SettingsCharacterSelectBtn: "Open VRM",
-  SettingsCharacterSettings: "Character settings (system prompt)",
+  SettingsCharacterSettings: "System Prompt",
   SettingsCharacterSettingsPrompt: `You will behave as a friendly human and engage in conversation with the user. There are five types of emotions: 'neutral' which indicates normal, 'happy' which indicates joy, 'angry' which indicates anger, 'sad' which indicates sadness, and 'relaxed' which indicates calmness.
 The format of the conversation is as follows:
 [{neutral|happy|angry|sad|relaxed}] {conversation}
