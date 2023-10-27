@@ -1,4 +1,5 @@
 import React from "react";
+import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
 import { Message } from "@/features/messages/messages";
@@ -176,6 +177,10 @@ export const Settings = ({
               </div>
             </div>
           )}
+
+          <div className="my-24">
+            <GitHubLink />
+          </div>
         </div>
       </div>
     </div>

@@ -14,7 +14,6 @@ import { KoeiroParam, DEFAULT_PARAM } from "@/features/constants/koeiroParam";
 import { getChatResponseStream } from "@/features/chat/openAiChat";
 import { Introduction } from "@/components/introduction";
 import { Menu } from "@/components/menu";
-import { GitHubLink } from "@/components/githubLink";
 import { Meta } from "@/components/meta";
 import { I18nProvider } from "@/components/I18nProvider";
 import lang, { setLan, TLangs, langs } from "@/i18n";
@@ -247,7 +246,6 @@ export default function Home() {
           onClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
           onChangeKoeiromapKey={setKoeiromapKey}
         />
-        <GitHubLink />
       </div>
     </I18nProvider>
   );
