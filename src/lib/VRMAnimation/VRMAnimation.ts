@@ -54,13 +54,39 @@ export class VRMAnimation {
       const nodeName = humanoid.getNormalizedBoneNode(name)?.name;
 
       if (nodeName != null) {
-        const track = new THREE.VectorKeyframeTrack(
-          `${nodeName}.quaternion`,
-          origTrack.times,
-          origTrack.values.map((v, i) =>
-            metaVersion === "0" && i % 2 === 0 ? -v : v
-          )
-        );
+        const newValues: number[] = [];
+        const metaVersionZero = metaVersion === "0";
+        let sign = metaVersionZero ? -1 : 1;
+        let opposite = metaVersionZero ? 1 : 1;
+        let prevQuaternion = new THREE.Quaternion();
+
+        if (origTrack.values.length % 4 !== 0) {
+          throw new Error("Invalid origTrack values length");
+        }
+
+        for (let i = 0; i < origTrack.values.length; i += 4) {
+          const quaternion = new THREE.Quaternion(
+            origTrack.values[i],
+            origTrack.values[i + 1],
+            origTrack.values[i + 2],
+            origTrack.values[i + 3]
+          );
+          if (prevQuaternion.dot(quaternion) < 0 && metaVersionZero) {
+            sign *= -1;
+            opposite *= -1;
+          }
+          newValues.push(
+            sign * origTrack.values[i],
+            opposite * origTrack.values[i + 1],
+            sign * origTrack.values[i + 2],
+            opposite * origTrack.values[i + 3]
+          );
+          prevQuaternion = quaternion;
+        }
+        const track = origTrack.clone();
+        track.values = new Float32Array(newValues);
+        track.name = `${nodeName}.quaternion`;
+
         tracks.push(track);
       }
     }
