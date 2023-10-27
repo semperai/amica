@@ -46,9 +46,6 @@ const jp = {
   SettingsOpenAIAPIKeyDetail5:
     "APIキーや会話文はピクシブのサーバーに送信されません。",
   SettingsLanguage: "言語",
-  SettingsLanguageCN: "中国語",
-  SettingsLanguageJP: "日本語",
-  SettingsLanguageEN: "英語",
   SettingsCharacterModel: "キャラクターモデル",
   SettingsCharacterSelectBtn: "VRMを開く",
   SettingsCharacterSettings: "キャラクター設定（システムプロンプト）",

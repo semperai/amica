@@ -45,9 +45,6 @@ const en = {
   SettingsOpenAIAPIKeyDetail5:
     "The API key and conversation data are not sent to Pixiv's servers.",
   SettingsLanguage: "Language",
-  SettingsLanguageCN: "Chinese",
-  SettingsLanguageJP: "Japanese",
-  SettingsLanguageEN: "English",
   SettingsCharacterModel: "Character model",
   SettingsCharacterSelectBtn: "Open VRM",
   SettingsCharacterSettings: "Character settings (system prompt)",
