@@ -5,9 +5,10 @@ import { useI18n } from "@/components/I18nProvider";
 type Props = {
   openAiKey: string;
   onChangeAiKey: (openAiKey: string) => void;
+  open: boolean;
 };
-export const Introduction = ({ openAiKey, onChangeAiKey }: Props) => {
-  const [opened, setOpened] = useState(true);
+export const Introduction = ({ openAiKey, onChangeAiKey, open }: Props) => {
+  const [opened, setOpened] = useState(open);
   const lang = useI18n();
 
   const handleAiKeyChange = useCallback(

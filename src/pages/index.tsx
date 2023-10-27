@@ -226,7 +226,7 @@ export default function Home() {
     <I18nProvider value={lan}>
       <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
         <Meta />
-        <Introduction openAiKey={openAiKey} onChangeAiKey={setOpenAiKey} />
+        <Introduction openAiKey={openAiKey} onChangeAiKey={setOpenAiKey} open={false} />
         <VrmViewer />
         <MessageInputContainer
           isChatProcessing={chatProcessing}
