@@ -50,6 +50,9 @@ export async function getChatResponseStream(messages: Message[]) {
 
   const reader = res.body?.getReader();
   if (res.status !== 200 || !reader) {
+    if (res.status === 401) {
+      throw new Error('Invalid OpenAI authentication');
+    }
     throw new Error("Something went wrong");
   }
 

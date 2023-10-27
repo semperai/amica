@@ -70,7 +70,7 @@ export default function Home() {
   );
 
   /**
-   * 文ごとに音声を直列でリクエストしながら再生する
+   * Playback while requesting audio serially for each sentence
    */
   const handleSpeakAi = useCallback(
     async (
@@ -84,7 +84,7 @@ export default function Home() {
   );
 
   /**
-   * アシスタントとの会話を行う
+   * Have a conversation with your assistant
    */
   const handleSendChat = useCallback(
     async (text: string) => {
@@ -120,6 +120,15 @@ export default function Home() {
       const stream = await getChatResponseStream(messages).catch(
         (e) => {
           console.error(e);
+          const errMsg = e.toString();
+          setAssistantMessage(errMsg);
+          const messageLogAssistant: Message[] = [
+            ...messageLog,
+            { role: "assistant", content: errMsg },
+          ];
+
+          setChatLog(messageLogAssistant);
+          setChatProcessing(false);
           return null;
         },
       );
@@ -186,7 +195,7 @@ export default function Home() {
         reader.releaseLock();
       }
 
-      // アシスタントの返答をログに追加
+      // Add assistant responses to log
       const messageLogAssistant: Message[] = [
         ...messageLog,
         { role: "assistant", content: aiTextLog },
