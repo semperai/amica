@@ -22,7 +22,7 @@ export async function getChatResponse(messages: Message[]) {
   });
 
   const [aiRes] = data.choices;
-  const message = aiRes.message?.content || "エラーが発生しました";
+  const message = aiRes.message?.content || "An error has occurred, no message data was received";
 
   return { message: message };
 }
@@ -32,16 +32,18 @@ export async function getChatResponseStream(messages: Message[]) {
   if (!apiKey) {
     throw new Error("Invalid API Key");
   }
+  const openaiUrl = localStorage.getItem("chatvrm_openai_url") ?? "https://api.openai.com";
+  const openaiModel = localStorage.getItem("chatvrm_openai_model") ?? "gpt-3.5-turbo";
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${apiKey}`,
   };
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch(`${openaiUrl}/v1/chat/completions`, {
     headers: headers,
     method: "POST",
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: openaiModel,
       messages: messages,
       stream: true,
       max_tokens: 200,
@@ -49,10 +51,11 @@ export async function getChatResponseStream(messages: Message[]) {
   });
 
   const reader = res.body?.getReader();
-  if (res.status !== 200 || !reader) {
+  if (res.status !== 200 || ! reader) {
     if (res.status === 401) {
       throw new Error('Invalid OpenAI authentication');
     }
+
     throw new Error("Something went wrong");
   }
 

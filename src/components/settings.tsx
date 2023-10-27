@@ -3,6 +3,7 @@ import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
 import { SecretTextInput } from "./secretTextInput";
+import { TextInput } from "./textInput";
 import { Message } from "@/features/messages/messages";
 import { Link } from "./link";
 import { setLan, TLangs } from "@/i18n";
@@ -30,10 +31,15 @@ export const Settings = ({
 }: Props) => {
   const lang = useI18n();
   const lan = (localStorage.getItem("chatvrm_language") ?? "en") as TLangs;
-  const [chatbotBackend, setChatbotBackend] = useState(localStorage.getItem("chatvrm_chatbot_backend") ?? "chatgpt");
+
+  const [chatbotBackend, setChatbotBackend] = useState(localStorage.getItem("chatvrm_chatbot_backend") ?? "echo");
   const [openAIApiKey, setOpenAIApiKey] = useState(atob(localStorage.getItem("chatvrm_openai_apikey") ?? ""));
-  const [ttsBackend, setTTSBackend] = useState(localStorage.getItem("chatvrm_tts_backend") ?? "elevenlabs");
+  const [openAIUrl, setOpenAIUrl] = useState(localStorage.getItem("chatvrm_openai_url") ?? "https://api.openai.com");
+  const [openAIModel, setOpenAIModel] = useState(localStorage.getItem("chatvrm_openai_model") ?? "gpt-3.5-turbo");
+
+  const [ttsBackend, setTTSBackend] = useState(localStorage.getItem("chatvrm_tts_backend") ?? "none");
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_apikey") ?? ""));
+  const [elevenlabsVoiceId, setElevenlabsVoiceId] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_voiceid") ?? btoa("GTYtUrlPOOn3WGf39gSO")));
 
   return (
     <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
@@ -92,6 +98,16 @@ export const Settings = ({
             <div className="my-8">
               <TextButton
                 onClick={() => {
+                  setChatbotBackend("echo");
+                  localStorage.setItem("chatvrm_chatbot_backend", "echo");
+                }}
+                className="mx-4"
+                disabled={chatbotBackend === 'echo'}
+                >
+                Echo
+              </TextButton>
+              <TextButton
+                onClick={() => {
                   setChatbotBackend("chatgpt");
                   localStorage.setItem("chatvrm_chatbot_backend", "chatgpt");
                 }}
@@ -114,18 +130,44 @@ export const Settings = ({
           </div>
           
           { chatbotBackend === 'chatgpt' && (
-            <div className="my-24">
-              <div className="my-16 font-bold typography-16">
-                OpenAI API Key
+            <>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  OpenAI API Key
+                </div>
+                <SecretTextInput
+                  value={openAIApiKey}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setOpenAIApiKey(event.target.value);
+                    localStorage.setItem("chatvrm_openai_apikey", btoa(event.target.value));
+                  }}
+                />
               </div>
-              <SecretTextInput
-                value={openAIApiKey}
-                onChange={(event: React.ChangeEvent<any>) => {
-                  setOpenAIApiKey(event.target.value);
-                  localStorage.setItem("chatvrm_openai_apikey", btoa(event.target.value));
-                }}
-              />
-            </div>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  OpenAI URL
+                </div>
+                <TextInput
+                  value={openAIUrl}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setOpenAIUrl(event.target.value);
+                    localStorage.setItem("chatvrm_openai_url", event.target.value);
+                  }}
+                />
+              </div>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  OpenAI Model
+                </div>
+                <TextInput
+                  value={openAIModel}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setOpenAIModel(event.target.value);
+                    localStorage.setItem("chatvrm_openai_model", event.target.value);
+                  }}
+                />
+              </div>
+            </>
           )}
 
           <div className="my-24">
@@ -133,6 +175,16 @@ export const Settings = ({
               Text to Speech
             </div>
             <div className="my-8">
+              <TextButton
+                onClick={() => {
+                  setTTSBackend("none");
+                  localStorage.setItem("chatvrm_tts_backend", "none");
+                }}
+                className="mx-4"
+                disabled={ttsBackend === 'none'}
+                >
+                None
+              </TextButton>
               <TextButton
                 onClick={() => {
                   setTTSBackend("elevenlabs");
@@ -157,18 +209,32 @@ export const Settings = ({
           </div>
 
           { ttsBackend === 'elevenlabs' && (
-            <div className="my-24">
-              <div className="my-16 font-bold typography-16">
-                ElevenLabs API Key
+            <>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  ElevenLabs API Key
+                </div>
+                <SecretTextInput
+                  value={elevenlabsApiKey}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setElevenlabsApiKey(event.target.value);
+                    localStorage.setItem("chatvrm_elevenlabs_apikey", btoa(event.target.value));
+                  }}
+                />
               </div>
-              <SecretTextInput
-                value={elevenlabsApiKey}
-                onChange={(event: React.ChangeEvent<any>) => {
-                  setElevenlabsApiKey(event.target.value);
-                  localStorage.setItem("chatvrm_elevenlabs_apikey", btoa(event.target.value));
-                }}
-              />
-            </div>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  ElevenLabs Voice ID
+                </div>
+                <TextInput
+                  value={elevenlabsVoiceId}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setElevenlabsVoiceId(event.target.value);
+                    localStorage.setItem("chatvrm_elevenlabs_voiceid", btoa(event.target.value));
+                  }}
+                />
+              </div>
+            </>
           )}
 
           <div className="my-40">

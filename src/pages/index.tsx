@@ -101,7 +101,7 @@ export default function Home() {
       if (newMessage == null) return;
 
       setChatProcessing(true);
-      // ユーザーの発言を追加して表示
+      // Add and display user comments
       const messageLog: Message[] = [
         ...chatLog,
         { role: "user", content: newMessage },
