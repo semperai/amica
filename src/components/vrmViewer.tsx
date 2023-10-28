@@ -9,7 +9,8 @@ export default function VrmViewer() {
     (canvas: HTMLCanvasElement) => {
       if (canvas) {
         viewer.setup(canvas);
-        viewer.loadVrm(buildUrl("/AvatarSample_A.vrm"));
+        const vrmUrl = localStorage.getItem("chatvrm_vrm_url") ?? "AvatarSample_A.vrm";
+        viewer.loadVrm(buildUrl(vrmUrl));
 
         // Drag and DropでVRMを差し替え
         canvas.addEventListener("dragover", function (event) {

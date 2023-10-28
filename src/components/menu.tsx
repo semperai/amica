@@ -71,6 +71,7 @@ export const Menu = ({
             iconName="24/Menu"
             label={lang.DaboardSettings}
             isProcessing={false}
+            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
             onClick={() => setShowSettings(true)}
           ></IconButton>
           {showChatLog ? (

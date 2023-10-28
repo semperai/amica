@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { buildUrl } from "@/utils/buildUrl";
 import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "./iconButton";
@@ -6,6 +6,7 @@ import { TextButton } from "./textButton";
 import { SecretTextInput } from "./secretTextInput";
 import { TextInput } from "./textInput";
 import { Message } from "@/features/messages/messages";
+import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Link } from "./link";
 import { setLan, TLangs } from "@/i18n";
 import { useI18n } from "@/components/I18nProvider";
@@ -20,6 +21,12 @@ const bgImages = [
   "bg-room1.jpg",
   "bg-room2.jpg",
 ]
+
+const vrmList = [
+  "AvatarSample_A.vrm",
+  "AvatarSample_B.vrm",
+  "AvatarSample_C.vrm",
+];
 
 type Props = {
   systemPrompt: string;
@@ -43,6 +50,7 @@ export const Settings = ({
 }: Props) => {
   const lang = useI18n();
   const lan = (localStorage.getItem("chatvrm_language") ?? "en") as TLangs;
+  const { viewer } = useContext(ViewerContext);
 
   const [chatbotBackend, setChatbotBackend] = useState(localStorage.getItem("chatvrm_chatbot_backend") ?? "echo");
   const [openAIApiKey, setOpenAIApiKey] = useState(atob(localStorage.getItem("chatvrm_openai_apikey") ?? ""));
@@ -58,6 +66,9 @@ export const Settings = ({
   const [sileroVoiceId, setSileroVoiceId] = useState(localStorage.getItem("chatvrm_silero_voiceid") ?? "en_42");
 
 
+  const [bgUrl, setBgUrl] = useState(localStorage.getItem("chatvrm_bg_url") ?? bgImages[0]);
+  const [vrmUrl, setVrmUrl] = useState(localStorage.getItem("chatvrm_vrm_url") ?? vrmList[0]);
+
 
   return (
     <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
@@ -65,6 +76,7 @@ export const Settings = ({
         <IconButton
           iconName="24/Close"
           isProcessing={false}
+          className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
           onClick={onClickClose} />
       </div>
       <div className="max-h-full overflow-auto">
@@ -305,12 +317,13 @@ export const Settings = ({
                 <TextButton
                   key={url}
                   onClick={() => {
-                    document.body.style.backgroundImage = `url(${buildUrl(url)})`;
-                    localStorage.setItem("chatvrm_bg_url", buildUrl(url));
+                    document.body.style.backgroundImage = `url(${url})`;
+                    localStorage.setItem("chatvrm_bg_url", url);
+                    setBgUrl(url);
                   }}
-                  className="mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4"
+                  className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
                   >
-                    <img src={buildUrl(`thumb-${url}`)} width="160" height="93" className="m-0 rounded-4" />
+                    <img src={`thumb-${url}`} width="160" height="93" className="m-0 rounded-4" />
                 </TextButton>
               )}
             </div>
@@ -320,6 +333,21 @@ export const Settings = ({
           <div className="my-40">
             <div className="my-16 font-bold typography-20">
               {lang.SettingsCharacterModel}
+            </div>
+            <div className="my-8">
+              {vrmList.map((url) =>
+                <TextButton
+                  key={url}
+                  onClick={() => {
+                    viewer.loadVrm(url);
+                    localStorage.setItem("chatvrm_vrm_url", url);
+                    setVrmUrl(url);
+                  }}
+                  className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
+                  >
+                    <img src={`thumb-${url}.jpg`} width="160" height="93" className="m-0 rounded-4" />
+                </TextButton>
+              )}
             </div>
             <div className="my-8">
               <TextButton onClick={onClickOpenVrmFile}>
