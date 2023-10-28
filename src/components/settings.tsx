@@ -11,11 +11,14 @@ import { setLan, TLangs } from "@/i18n";
 import { useI18n } from "@/components/I18nProvider";
 
 const bgImages = [
-  "./bg-landscape1.jpg",
-  "./bg-landscape2.jpg",
-  "./bg-sunset1.jpg",
-  "./bg-forest1.jpg",
-  "./bg-train1.jpg",
+  "bg-landscape1.jpg",
+  "bg-landscape2.jpg",
+  "bg-landscape3.jpg",
+  "bg-sunset1.jpg",
+  "bg-forest1.jpg",
+  "bg-town1.jpg",
+  "bg-room1.jpg",
+  "bg-room2.jpg",
 ]
 
 type Props = {
@@ -307,7 +310,7 @@ export const Settings = ({
                   }}
                   className="mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4"
                   >
-                    <img src={buildUrl(url)} width="160" height="93" className="m-0 rounded-4" />
+                    <img src={buildUrl(`thumb-${url}`)} width="160" height="93" className="m-0 rounded-4" />
                 </TextButton>
               )}
             </div>
