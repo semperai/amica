@@ -39,16 +39,23 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
       try {
         while (true) {
           const { done, value } = await reader.read();
+          console.debug(done, value)
           if (done) break;
           const data = decoder.decode(value);
           const chunks = data
             .split("data:")
             .filter((val) => !!val && val.trim() !== "[DONE]");
           for (const chunk of chunks) {
-            const json = JSON.parse(chunk);
-            const messagePiece = json.choices[0].delta.content;
-            if (!!messagePiece) {
-              controller.enqueue(messagePiece);
+            console.debug('chunk', chunk);
+            try {
+              const json = JSON.parse(chunk);
+              const messagePiece = json.choices[0].delta.content;
+              console.log('messagePiece', messagePiece)
+              if (!!messagePiece) {
+                controller.enqueue(messagePiece);
+              }
+            } catch (error) {
+              console.error(error);
             }
           }
         }

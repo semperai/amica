@@ -3,6 +3,7 @@ import { getEchoChatResponseStream } from './echoChat';
 import { getOpenAiChatResponseStream } from './openAiChat';
 
 export async function getChatResponseStream(messages: Message[]) {
+  console.log('getChatResponseStream', messages);
   const chatbotBackend = localStorage.getItem("chatvrm_chatbot_backend") ?? "echo";
 
   if (chatbotBackend === 'chatgpt') {

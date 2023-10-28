@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { buildUrl } from "@/utils/buildUrl";
 import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
@@ -8,6 +9,14 @@ import { Message } from "@/features/messages/messages";
 import { Link } from "./link";
 import { setLan, TLangs } from "@/i18n";
 import { useI18n } from "@/components/I18nProvider";
+
+const bgImages = [
+  "./bg-landscape1.jpg",
+  "./bg-landscape2.jpg",
+  "./bg-sunset1.jpg",
+  "./bg-forest1.jpg",
+  "./bg-train1.jpg",
+]
 
 type Props = {
   systemPrompt: string;
@@ -40,6 +49,12 @@ export const Settings = ({
   const [ttsBackend, setTTSBackend] = useState(localStorage.getItem("chatvrm_tts_backend") ?? "none");
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_apikey") ?? ""));
   const [elevenlabsVoiceId, setElevenlabsVoiceId] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_voiceid") ?? btoa("GTYtUrlPOOn3WGf39gSO")));
+
+  const [sileroUrl, setSileroUrl] = useState(localStorage.getItem("chatvrm_silero_url") ?? "http://127.0.0.1:8001");
+  const [sileroSessionPath, setSileroSessionPath] = useState(localStorage.getItem("chatvrm_silero_sessionpath") ?? "/tmp");
+  const [sileroVoiceId, setSileroVoiceId] = useState(localStorage.getItem("chatvrm_silero_voiceid") ?? "en_42");
+
+
 
   return (
     <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
@@ -201,7 +216,7 @@ export const Settings = ({
                   localStorage.setItem("chatvrm_tts_backend", "silero");
                 }}
                 className="mx-4"
-                disabled={chatbotBackend === 'silero'}
+                disabled={ttsBackend === 'silero'}
                 >
                 Silero
               </TextButton>
@@ -236,6 +251,68 @@ export const Settings = ({
               </div>
             </>
           )}
+
+          { ttsBackend === 'silero' && (
+            <>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  Silero URL
+                </div>
+                <TextInput
+                  value={sileroUrl}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setSileroUrl(event.target.value);
+                    localStorage.setItem("chatvrm_silero_url", event.target.value);
+                  }}
+                />
+              </div>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  Silero Session Path
+                </div>
+                <TextInput
+                  value={sileroSessionPath}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setSileroSessionPath(event.target.value);
+                    localStorage.setItem("chatvrm_silero_sessionpath", event.target.value);
+                  }}
+                />
+              </div>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  Silero Voice ID
+                </div>
+                <TextInput
+                  value={sileroVoiceId}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setSileroVoiceId(event.target.value);
+                    localStorage.setItem("chatvrm_silero_voiceid", event.target.value);
+                  }}
+                />
+              </div>
+            </>
+          )}
+
+          <div className="my-24">
+            <div className="my-16 font-bold typography-20">
+              Background
+            </div>
+            <div className="my-8">
+              { bgImages.map((url) =>
+                <TextButton
+                  key={url}
+                  onClick={() => {
+                    document.body.style.backgroundImage = `url(${buildUrl(url)})`;
+                    localStorage.setItem("chatvrm_bg_url", buildUrl(url));
+                  }}
+                  className="mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4"
+                  >
+                    <img src={buildUrl(url)} width="160" height="93" className="m-0 rounded-4" />
+                </TextButton>
+              )}
+            </div>
+          </div>
+
 
           <div className="my-40">
             <div className="my-16 font-bold typography-20">

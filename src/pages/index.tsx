@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { buildUrl } from "@/utils/buildUrl";
 import { M_PLUS_2, Montserrat } from "next/font/google";
 import VrmViewer from "@/components/vrmViewer";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
@@ -38,6 +39,13 @@ export default function Home() {
   const [assistantMessage, setAssistantMessage] = useState("");
   const [lan, applyLan] = useState(lang);
   const [showContent, setShowContent] = useState(false);
+
+
+  useEffect(() => {
+    const url = localStorage.getItem("chatvrm_bg_url") ?? buildUrl("/bg-landscape1.jpg");
+    document.body.style.backgroundImage = `url(${url})`;
+  }, []);
+
 
   useEffect(() => {
     if (window.localStorage.getItem("chatVRMParams")) {
