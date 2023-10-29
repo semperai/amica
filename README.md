@@ -1,34 +1,32 @@
-# ChatVRM
+# Amica
 
-[English](./README.md) | [中文](./README-CN.md) | [日本語](./README-JP.md)
+![](/public/intro.png)
 
-ChatVRM is a demonstration application that allows you to easily converse with 3D characters in your browser.
+Amica is an application that allows you to easily converse with 3D characters in your browser.
 
 You can import VRM files, adjust the voice to fit the character, and generate response text that includes emotional expressions.
 
-The various features of ChatVRM mainly use the following technologies:
+The various features of Amica mainly use the following technologies:
 
+- Displaying 3D characters
+  - [@pixiv/three-vrm](https://github.com/pixiv/three-vrm)
+- Running Transformers in the browser
+  - [Transformers.js](https://huggingface.co/docs/transformers.js/index)
+- Media Processing
+  - [FFmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)
 - User speech recognition
-  - [Web Speech API(SpeechRecognition)](https://developer.mozilla.org/ja/docs/Web/API/SpeechRecognition)
+  - [Whisper](https://openai.com/research/whisper)
 - Generating response text
   - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat)
 - Generating spoken voice
-  - [Koeiro API](http://koeiromap.rinna.jp/)
-- Displaying 3D characters
-  - [@pixiv/three-vrm](https://github.com/pixiv/three-vrm)
-
-## Demo
-
-This project has been published on GitHub Pages for demonstration.
-
-[https://pixiv.github.io/ChatVRM](https://pixiv.github.io/ChatVRM)
+  - [Eleven Labs API](https://elevenlabs.io/)
 
 ## Running
 
 To run this project locally, clone or download the repository.
 
 ```bash
-git clone git@github.com:pixiv/ChatVRM.git
+git clone git@github.com:semperai/amica.git
 ```
 
 Install the required packages.
@@ -47,26 +45,19 @@ Once started, please visit the following URL to confirm that it is working prope
 
 [http://localhost:3000](http://localhost:3000)
 
----
+## Local LLM
 
-# ChatVRM API Documentation
+Set up a local LLM server for testing.
 
-ChatVRM uses the ChatGPT API to generate response messages.
+e.g. on mac:
+```sh
+CMAKE_ARGS="-DLLAMA_METAL=on" FORCE_CMAKE=1 pip install --upgrade --force-reinstall llama-cpp-python --no-cache-dir
+python3 -m llama_cpp.server --port 8002 --model models/dolphin-2.0-mistral-7b.Q5_K_M.gguf --n_gpu_layers 35
+```
 
-Please refer to the following links and official website to obtain the specifications and terms of use for the ChatGPT API.
+## History
 
-- [https://platform.openai.com/docs/api-reference/chat](https://platform.openai.com/docs/api-reference/chat)
-- [https://openai.com/policies/api-data-usage-policies](https://openai.com/policies/api-data-usage-policies)
+This project originated as a fork of ChatVRM by Pixiv:
 
-## Koeiro API
+[https://pixiv.github.io/ChatVRM](https://pixiv.github.io/ChatVRM)
 
-ChatVRM uses the Koeiro API for voice reading of response messages.
-
-Please refer to the following links and official website to obtain the specifications and terms of use for the Koeiro API.
-
-- [http://koeiromap.rinna.jp/](http://koeiromap.rinna.jp/)
-
-# Other Documentation
-
-- [https://vrm.dev/](https://vrm.dev/)
-- [https://github.com/pixiv/three-vrm](https://github.com/pixiv/three-vrm)
