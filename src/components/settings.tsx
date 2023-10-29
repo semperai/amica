@@ -148,6 +148,7 @@ export const Settings = ({
                 >
                 ChatGPT
               </TextButton>
+              {/*
               <TextButton
                 onClick={() => {
                   setChatbotBackend("claude");
@@ -158,6 +159,7 @@ export const Settings = ({
                 >
                 Claude
               </TextButton>
+              */}
             </div>
           </div>
           
@@ -227,6 +229,7 @@ export const Settings = ({
                 >
                 ElevenLabs
               </TextButton>
+              {/*
               <TextButton
                 onClick={() => {
                   setTTSBackend("silero");
@@ -237,6 +240,7 @@ export const Settings = ({
                 >
                 Silero
               </TextButton>
+              */}
             </div>
           </div>
 
