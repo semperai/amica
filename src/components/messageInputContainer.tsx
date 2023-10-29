@@ -21,7 +21,7 @@ export const MessageInputContainer = ({
 }: Props) => {
   const [userMessage, setUserMessage] = useState("");
 
-  const ffmpeg = useRef(new FFmpeg());
+  // const ffmpeg = useRef(new FFmpeg());
   const transcriptionWorker = useRef<Worker>(null);
   const [transcriptionResult, setTranscriptionResult] = useState("");
   // this is used to ensure that useEffect below is triggered
@@ -146,6 +146,7 @@ export const MessageInputContainer = ({
         console.log(s);
         console.log(recordingBlob);
 
+          /*
         let wav = new WaveFile(await recordingBlob.arrayBuffer());
         wav.toBitDepth('32f'); // Pipeline expects input as a Float32Array
         wav.toSampleRate(16000); // Whisper expects audio with a sampling rate of
@@ -164,9 +165,10 @@ export const MessageInputContainer = ({
           // Select first channel
           audioData = audioData[0];
         }
+        */
 
 
-        // const audioData = new Float64Array(176000);
+        const audioData = new Float64Array(176000);
         transcribe(audioData);
       })();
 
