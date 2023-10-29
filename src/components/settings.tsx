@@ -85,6 +85,7 @@ export const Settings = ({
             {lang.Settings}
           </div>
 
+          {/*
           <div className="my-40">
             <div className="my-8">
               <TextButton
@@ -119,6 +120,7 @@ export const Settings = ({
               </TextButton>
             </div>
           </div>
+          */}
 
 
           <div className="my-24">
