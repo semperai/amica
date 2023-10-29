@@ -12,6 +12,7 @@
   "dependencies": {
     "@charcoal-ui/icons": "^2.6.0",
     "@charcoal-ui/theme": "^2.7.0",
+    "@headlessui/react": "^1.7.17",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/dom-speech-recognition": "^0.0.1",
     "@xenova/transformers": "^2.7.0",
@@ -21,11 +22,9 @@
     "node-fetch": "^3.3.1",
     "openai": "^3.2.1",
     "react": "18.2.0",
-    "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "18.2.0",
     "three": "^0.149.0",
-    "typescript": "5.0.2",
-    "wavefile": "^11.0.0"
+    "typescript": "5.0.2"
   },
   "devDependencies": {
     "@charcoal-ui/tailwind-config": "^2.6.0",
