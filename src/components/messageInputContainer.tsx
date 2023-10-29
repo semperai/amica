@@ -56,7 +56,7 @@ export const MessageInputContainer = ({
   useEffect(() => {
     console.log('downloadProgress', downloadProgress);
     if (downloadProgress.size === 0) {
-      setDownloadProgressChildren(<>nothing</>);
+      setDownloadProgressChildren(<></>);
       return;
     }
 
