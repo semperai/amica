@@ -4,7 +4,7 @@ export const GitHubLink = () => {
   return (
     <a
       draggable={false}
-      href="https://github.com/pixiv/ChatVRM"
+      href="https://github.com/semperai/amica"
       rel="noopener noreferrer"
       target="_blank"
     >
