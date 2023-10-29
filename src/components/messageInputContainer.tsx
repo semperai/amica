@@ -1,6 +1,8 @@
 import { MessageInput } from "@/components/messageInput";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { WaveFile } from 'wavefile';
+import { useAudioRecorder } from 'react-audio-voice-recorder';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
 
 type Props = {
   isChatProcessing: boolean;
@@ -18,109 +20,161 @@ export const MessageInputContainer = ({
   onChatProcessStart,
 }: Props) => {
   const [userMessage, setUserMessage] = useState("");
-    useState<SpeechRecognition>();
-  const [isMicRecording, setIsMicRecording] = useState(false);
 
-  const worker = useRef<Worker>(null);
+  const ffmpeg = useRef(new FFmpeg());
+  const transcriptionWorker = useRef<Worker>(null);
   const [transcriptionResult, setTranscriptionResult] = useState("");
+  // this is used to ensure that useEffect below is triggered
+  // in case transcriptionResult is the same as the previous one
+  const [transcriptionIndex, setTranscriptionIndex] = useState(0);
   const [transcriptionReady, setTranscriptionReady] = useState(false);
+
+  const [downloadProgress, setDownloadProgress] = useState<Map<string, number>>(new Map());
+  const [downloadProgressChildren, setDownloadProgressChildren] = useState<React.ReactElement>(<>hello</>);
+
+
+  const {
+    startRecording,
+    stopRecording,
+    recordingBlob,
+    isRecording,
+  } = useAudioRecorder(
+    {
+      noiseSuppression: true,
+      echoCancellation: true,
+    },
+    // onNotAllowedOrFound
+    (e: DOMException) => {
+      console.error(e);
+    },
+    {
+      // mimeType: 'audio/wav',
+    }
+  );
 
 
   useEffect(() => {
-    if (!worker.current) {
+    console.log('downloadProgress', downloadProgress);
+    if (downloadProgress.size === 0) {
+      setDownloadProgressChildren(<>nothing</>);
+      return;
+    }
+
+    const children = [];
+    for (const [key, value] of downloadProgress.entries()) {
+      children.push(<div key={key}>{key}: {value}</div>);
+    }
+    setDownloadProgressChildren(<div>{children}</div>);
+  }, [downloadProgress]);
+
+  useEffect(() => {
+    setUserMessage(transcriptionResult);
+  }, [transcriptionResult, transcriptionIndex]);
+
+  useEffect(() => {
+    if (!transcriptionWorker.current) {
       // Create the worker if it does not yet exist.
       // @ts-ignore current is mutable
-      worker.current = new Worker(new URL('./../features/transformers/worker.ts', import.meta.url), {
+      transcriptionWorker.current = new Worker(new URL('./../features/transformers/transcriptionWorker.ts', import.meta.url), {
         type: 'module'
       });
     }
+
     // Create a callback function for messages from the worker thread.
-      const onMessageReceived = (e: MessageEvent) => {
-        switch (e.data.status) {
-          case 'initiate':
-            setTranscriptionReady(false);
-            break;
-          case 'ready':
-            setTranscriptionReady(true);
-            break;
-          case 'complete':
-            setTranscriptionResult(e.data.output[0])
-            break;
-        }
-      };
+    const onMessageReceived = (e: MessageEvent) => {
+      // console.log('messageReceived', e);
+      switch (e.data.status) {
+        // TODO show download, progress, done in a panel on screen
+        // add new rows when download is seen, remove them when done is seen
+        case 'download':
+          // name, file
+          downloadProgress.set(e.data.file, 0);
+          setDownloadProgress(downloadProgress);
+          break;
+        case 'progress':
+          // file, progress, loaded, total, name
+          downloadProgress.set(e.data.file, e.data.progress);
+          setDownloadProgress(downloadProgress);
+          break;
+        case 'done':
+          // file, name
+          downloadProgress.delete(e.data.file);
+          setDownloadProgress(downloadProgress);
+          break;
+
+        case 'initiate':
+          // file, name
+          setTranscriptionReady(false);
+          break;
+        case 'ready':
+          // model, task
+          setTranscriptionReady(true);
+          break;
+        case 'complete':
+          // output.chunks[].{text, timestamp[2]}
+          // output.text
+          setTranscriptionResult(e.data.output.text);
+          setTranscriptionIndex(transcriptionIndex + 1);
+          break;
+      }
+    };
 
     // Attach the callback function as an event listener.
-    worker.current.addEventListener('message', onMessageReceived);
+    transcriptionWorker.current.addEventListener('message', onMessageReceived);
 
     // Define a cleanup function for when the component is unmounted.
     return () => {
-      if (worker.current !== null) {
-        worker.current.removeEventListener('message', onMessageReceived);
+      if (transcriptionWorker.current !== null) {
+        transcriptionWorker.current.removeEventListener('message', onMessageReceived);
       }
     };
   });
 
   const transcribe = useCallback((audioData: Float64Array) => {
-    console.log('transcribe', worker.current);
-    if (worker.current) {
+    console.log('transcribe', transcriptionWorker.current);
+    if (transcriptionWorker.current) {
       console.log('current');
-      worker.current.postMessage({ audioData });
+      transcriptionWorker.current.postMessage({ audioData });
     }
   }, []);
 
 
-  // Process speech recognition results
-  const handleRecognitionResult = useCallback(
-    (event: SpeechRecognitionEvent) => {
-      const text = event.results[0][0].transcript;
-      setUserMessage(text);
-
-      // At the end of the speech
-      if (event.results[0].isFinal) {
-        setUserMessage(text);
-        // Start generating response text
-        onChatProcessStart(text);
-      }
-    },
-    [onChatProcessStart]
-  );
-
   const handleClickMicButton = useCallback(() => {
-    if (isMicRecording) {
+    if (isRecording) {
       (async () => {
-        const url = '/jfk.wav';
-        const buf = Buffer.from(await fetch(url).then(x => x.arrayBuffer()))
+        const s = stopRecording();
+        console.log(s);
+        console.log(recordingBlob);
 
-        // Read .wav file and convert it to required format
-        let wav = new WaveFile(buf);
+        let wav = new WaveFile(await recordingBlob.arrayBuffer());
         wav.toBitDepth('32f'); // Pipeline expects input as a Float32Array
-        wav.toSampleRate(16000); // Whisper expects audio with a sampling rate of 16000
+        wav.toSampleRate(16000); // Whisper expects audio with a sampling rate of
+6000
         let audioData = wav.getSamples();
         if (Array.isArray(audioData)) {
           if (audioData.length > 1) {
             const SCALING_FACTOR = Math.sqrt(2);
-        
+
             // Merge channels (into first channel to save memory)
             for (let i = 0; i < audioData[0].length; ++i) {
               audioData[0][i] = SCALING_FACTOR * (audioData[0][i] + audioData[1][i]) / 2;
             }
           }
-        
+
           // Select first channel
           audioData = audioData[0];
         }
 
-        console.log('typeof', typeof(audioData));
 
-        await transcribe(audioData);
-        setIsMicRecording(false);
+        // const audioData = new Float64Array(176000);
+        transcribe(audioData);
       })();
 
       return;
     }
 
-    setIsMicRecording(true);
-  }, [isMicRecording]);
+    startRecording();
+  }, [isRecording]);
 
   const handleClickSendButton = useCallback(() => {
     onChatProcessStart(userMessage);
@@ -136,10 +190,11 @@ export const MessageInputContainer = ({
     <MessageInput
       userMessage={userMessage}
       isChatProcessing={isChatProcessing}
-      isMicRecording={isMicRecording}
+      isMicRecording={isRecording}
       onChangeUserMessage={(e) => setUserMessage(e.target.value)}
       onClickMicButton={handleClickMicButton}
       onClickSendButton={handleClickSendButton}
+      downloadProgressChildren={downloadProgressChildren}
     />
   );
 };
