@@ -67,9 +67,7 @@ export const Settings = ({
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_apikey") ?? ""));
   const [elevenlabsVoiceId, setElevenlabsVoiceId] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_voiceid") ?? btoa("GTYtUrlPOOn3WGf39gSO")));
 
-  const [sileroUrl, setSileroUrl] = useState(localStorage.getItem("chatvrm_silero_url") ?? "http://127.0.0.1:8001");
-  const [sileroSessionPath, setSileroSessionPath] = useState(localStorage.getItem("chatvrm_silero_sessionpath") ?? "/tmp");
-  const [sileroVoiceId, setSileroVoiceId] = useState(localStorage.getItem("chatvrm_silero_voiceid") ?? "en_42");
+  const [speechT5SpeakerEmbeddingsUrl, setSpeechT5SpeakerEmbeddingsUrl] = useState(localStorage.getItem("chatvrm_speecht5_speaker_embedding_url") ?? "/cmu_us_slt_arctic-wav-arctic_a0001.bin");
 
 
   const [bgUrl, setBgUrl] = useState(localStorage.getItem("chatvrm_bg_url") ?? bgImages[0]);
@@ -260,41 +258,17 @@ export const Settings = ({
             </>
           )}
 
-          { ttsBackend === 'silero' && (
+          { ttsBackend === 'speecht5' && (
             <>
               <div className="my-24">
                 <div className="my-16 font-bold typography-16">
-                  Silero URL
+                  SpeechT5 Speaker Embeddings URL
                 </div>
                 <TextInput
-                  value={sileroUrl}
+                  value={speechT5SpeakerEmbeddingsUrl}
                   onChange={(event: React.ChangeEvent<any>) => {
-                    setSileroUrl(event.target.value);
-                    localStorage.setItem("chatvrm_silero_url", event.target.value);
-                  }}
-                />
-              </div>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
-                  Silero Session Path
-                </div>
-                <TextInput
-                  value={sileroSessionPath}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    setSileroSessionPath(event.target.value);
-                    localStorage.setItem("chatvrm_silero_sessionpath", event.target.value);
-                  }}
-                />
-              </div>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
-                  Silero Voice ID
-                </div>
-                <TextInput
-                  value={sileroVoiceId}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    setSileroVoiceId(event.target.value);
-                    localStorage.setItem("chatvrm_silero_voiceid", event.target.value);
+                    setSpeechT5SpeakerEmbeddingsUrl(event.target.value);
+                    localStorage.setItem("chatvrm_speecht5_speaker_embedding_url", event.target.value);
                   }}
                 />
               </div>
