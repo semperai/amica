@@ -9,7 +9,7 @@ export async function synthesizeVoice(
   const ttsBackend = localStorage.getItem('chatvrm_tts_backend') ?? 'none';
 
   if (ttsBackend === 'elevenlabs') {
-    const voiceId = localStorage.getItem('chatvrm_elevenlabs_voiceid') ?? 'GTYtUrlPOOn3WGf39gSO';
+    const voiceId = atob(localStorage.getItem('chatvrm_elevenlabs_voiceid') ?? btoa('21m00Tcm4TlvDq8ikWAM'));
     const voice = await elevenlabs(message, voiceId, style);
     return { audio: voice.audio };
   }
