@@ -28,6 +28,7 @@ export function AudioManager(props: { transcriber: Transcriber }) {
   const [audioDownloadUrl, setAudioDownloadUrl] = useState<
     string | undefined
   >(undefined);
+  const [audioBlob, setAudioBlob] = useState<Blob>();
 
   const isAudioLoading = progress !== undefined;
 
@@ -135,11 +136,17 @@ export function AudioManager(props: { transcriber: Transcriber }) {
         <div>
           {navigator.mediaDevices && (
             <>
-              <RecordTile
-                setAudioData={async (e) => {
-                  console.log('set audio data', audioData);
-                  props.transcriber.onInputChange();
-                  await setAudioFromRecording(e);
+              <AudioRecorder
+                isProcessing={props.transcriber.isModelLoading || props.transcriber.isBusy}
+                onRecordingComplete={(blob: Blob) => {
+                  const setAudioData = async (blob: Blob) => {
+                    console.log('set audio data', audioData);
+                    props.transcriber.onInputChange();
+                    await setAudioFromRecording(blob);
+                  }
+
+                  setAudioBlob(blob);
+                  setAudioData(blob);
                 }}
               />
             </>
@@ -191,23 +198,5 @@ function ProgressBar(props: { progress: string }) {
         style={{ width: props.progress }}
       ></div>
     </div>
-  );
-}
-
-function RecordTile(props: {
-  setAudioData: (data: Blob) => void;
-}) {
-  const [audioBlob, setAudioBlob] = useState<Blob>();
-
-  const onRecordingComplete = (blob: Blob) => {
-    setAudioBlob(blob);
-    props.setAudioData(blob);
-  };
-
-  return (
-    <AudioRecorder
-      isProcessing={false}
-      onRecordingComplete={onRecordingComplete}
-      />
   );
 }

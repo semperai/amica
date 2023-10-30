@@ -126,12 +126,12 @@ export default function AudioRecorder(props: {
       <IconButton
         iconName={recording ? "24/PauseAlt" : "24/Microphone"}
         className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
-        isProcessing={isBusy || isModelLoading}
-        disabled={isBusy || isModelLoading}
+        isProcessing={props.isProcessing}
+        disabled={props.isProcessing}
         onClick={handleToggleRecording}
       />
       {recordedBlob && (
-        <audio ref={audioRef} controls>
+        <audio ref={audioRef} /*controls*/ className="hidden">
           <source
             src={URL.createObjectURL(recordedBlob)}
             type={recordedBlob.type}
