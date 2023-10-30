@@ -1,6 +1,6 @@
 import { WaveFile } from 'wavefile';
 import { TalkStyle } from "@/features/messages/messages";
-
+import { updateFileProgress } from "@/utils/progress";
 
 export async function speecht5(
   message: string,
@@ -22,6 +22,12 @@ export async function speecht5(
       switch (message.status) {
         case "ready":
           console.log("speecht5 worker ready");
+          break;
+        case "progress":
+          updateFileProgress(message.file, message.progress);
+          break;
+        case "done":
+          updateFileProgress(message.file, 100);
           break;
         case "complete":
           console.log("complete");

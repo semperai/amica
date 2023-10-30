@@ -5,7 +5,6 @@ import { UrlInput } from "./urlInput";
 import AudioPlayer from "./audioPlayer";
 import Constants from "@/utils/constants";
 import { Transcriber } from "../hooks/useTranscriber";
-import Progress from "./progress";
 import AudioRecorder from "./audioRecorder";
 
 export enum AudioSource {
@@ -159,28 +158,10 @@ export function AudioManager(props: { transcriber: Transcriber }) {
         }
       </div>
       {audioData && (
-        <>
-          <AudioPlayer
-            audioUrl={audioData.url}
-            mimeType={audioData.mimeType}
-          />
-
-          {props.transcriber.progressItems.length > 0 && (
-            <div className='absolute z-10 top-0 right-0 p-4 w-full'>
-              <label>
-                Loading model files... (only run once)
-              </label>
-              {props.transcriber.progressItems.map((data) => (
-                <div key={data.file}>
-                  <Progress
-                    text={data.file}
-                    percentage={data.progress}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </>
+        <AudioPlayer
+          audioUrl={audioData.url}
+          mimeType={audioData.mimeType}
+        />
       )}
     </>
   );

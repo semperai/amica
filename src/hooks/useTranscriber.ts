@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useWorker } from "./useWorker";
 import Constants from "@/utils/constants";
+import { updateFileProgress } from "@/utils/progress";
 
 interface ProgressItem {
   file: string;
@@ -36,7 +37,6 @@ export interface Transcriber {
   onInputChange: () => void;
   isBusy: boolean;
   isModelLoading: boolean;
-  progressItems: ProgressItem[];
   start: (audioData: AudioBuffer | undefined) => void;
   output?: TranscriberData;
   model: string;
@@ -58,22 +58,13 @@ export function useTranscriber(): Transcriber {
   const [isBusy, setIsBusy] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
 
-  const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
-
   const webWorker = useWorker("whisper", (event) => {
     const message = event.data;
     // Update the state with the result
     switch (message.status) {
       case "progress":
         // Model file progress: update one of the progress items.
-        setProgressItems((prev) =>
-          prev.map((item) => {
-            if (item.file === message.file) {
-              return { ...item, progress: message.progress };
-            }
-            return item;
-          }),
-        );
+        updateFileProgress(message.file, message.progress);
         break;
       case "update":
         // Received partial update
@@ -102,7 +93,6 @@ export function useTranscriber(): Transcriber {
       case "initiate":
         // Model file start load: add a new progress item to the list.
         setIsModelLoading(true);
-        setProgressItems((prev) => [...prev, message]);
         break;
       case "ready":
         setIsModelLoading(false);
@@ -115,9 +105,7 @@ export function useTranscriber(): Transcriber {
         break;
       case "done":
         // Model file loaded: remove the progress item from the list.
-        setProgressItems((prev) =>
-          prev.filter((item) => item.file !== message.file),
-        );
+        updateFileProgress(message.file, 100);
         break;
 
       default:
@@ -166,7 +154,6 @@ export function useTranscriber(): Transcriber {
       onInputChange,
       isBusy,
       isModelLoading,
-      progressItems,
       start: postRequest,
       output: transcript,
       model,
@@ -183,7 +170,6 @@ export function useTranscriber(): Transcriber {
   }, [
     isBusy,
     isModelLoading,
-    progressItems,
     postRequest,
     transcript,
     model,

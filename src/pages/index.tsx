@@ -13,6 +13,7 @@ import { MessageInputContainer } from "@/components/messageInputContainer";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
 import { getChatResponseStream } from "@/features/chat/chat";
 import { Introduction } from "@/components/introduction";
+import { LoadingProgress } from "@/components/loadingProgress";
 import { Menu } from "@/components/menu";
 import { Meta } from "@/components/meta";
 import { I18nProvider } from "@/components/I18nProvider";
@@ -232,6 +233,7 @@ export default function Home() {
       <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
         <Meta />
         <Introduction open={false} />
+        <LoadingProgress />
         <VrmViewer />
         <MessageInputContainer
           isChatProcessing={chatProcessing}
