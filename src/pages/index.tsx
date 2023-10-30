@@ -228,7 +228,7 @@ export default function Home() {
     <I18nProvider value={lan}>
       <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
         <Meta />
-        <Introduction open={false} />
+        <Introduction open={config("show_introduction") === 'true'} />
         <LoadingProgress />
         <VrmViewer />
         <MessageInputContainer

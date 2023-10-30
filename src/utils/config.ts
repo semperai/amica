@@ -1,5 +1,6 @@
 const defaults = {
   language: 'en',
+  show_introduction: 'true',
   bg_url: 'bg-landscape1.jpg',
   vrm_url: 'AvatarSample_A.vrm',
   chatbot_backend: 'echo',
