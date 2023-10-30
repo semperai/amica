@@ -25,7 +25,9 @@ export default function VrmViewer() {
           setIsLoading(false);
         })
         .catch((e) => {
+          console.error("vrm loading error", e);
           setLoadingError(true);
+          setIsLoading(false);
         });
 
 
