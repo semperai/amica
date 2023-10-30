@@ -12,14 +12,13 @@ The various features of Amica mainly use the following technologies:
   - [@pixiv/three-vrm](https://github.com/pixiv/three-vrm)
 - Running Transformers in the browser
   - [Transformers.js](https://huggingface.co/docs/transformers.js/index)
-- Media Processing
-  - [FFmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)
-- User speech recognition
+- Speech recognition
   - [Whisper](https://openai.com/research/whisper)
-- Generating response text
-  - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat)
-- Generating spoken voice
+- ChatBot
+  - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat) (compatible with projects such as llama-cpp-server and openrouter)
+- Text-to-Speech
   - [Eleven Labs API](https://elevenlabs.io/)
+  - [Speech T5](https://huggingface.co/microsoft/speecht5_tts)
 
 ## Running
 
@@ -45,15 +44,9 @@ Once started, please visit the following URL to confirm that it is working prope
 
 [http://localhost:3000](http://localhost:3000)
 
-## Local LLM
+## Documentation
 
-Set up a local LLM server for testing.
-
-e.g. on mac:
-```sh
-CMAKE_ARGS="-DLLAMA_METAL=on" FORCE_CMAKE=1 pip install --upgrade --force-reinstall llama-cpp-python --no-cache-dir
-python3 -m llama_cpp.server --port 8002 --model models/dolphin-2.0-mistral-7b.Q5_K_M.gguf --n_gpu_layers 35
-```
+View the [documentation](./docs/README.md) for more information on how to configure and use Amica.
 
 ## History
 
