@@ -28,6 +28,12 @@ const vrmList = [
   "AvatarSample_C.vrm",
 ];
 
+const ttsEngines = [
+  {key: "none",       label: "None"},
+  {key: "elevenlabs", label: "ElevenLabs"},
+  {key: "speecht5",   label: "SpeechT5"},
+];
+
 type Props = {
   systemPrompt: string;
   chatLog: Message[];
@@ -209,38 +215,19 @@ export const Settings = ({
               Text to Speech
             </div>
             <div className="my-8">
-              <TextButton
-                onClick={() => {
-                  setTTSBackend("none");
-                  localStorage.setItem("chatvrm_tts_backend", "none");
-                }}
-                className="mx-4"
-                disabled={ttsBackend === 'none'}
-                >
-                None
-              </TextButton>
-              <TextButton
-                onClick={() => {
-                  setTTSBackend("elevenlabs");
-                  localStorage.setItem("chatvrm_tts_backend", "elevenlabs");
-                }}
-                className="mx-4"
-                disabled={ttsBackend === 'elevenlabs'}
-                >
-                ElevenLabs
-              </TextButton>
-              {/*
-              <TextButton
-                onClick={() => {
-                  setTTSBackend("silero");
-                  localStorage.setItem("chatvrm_tts_backend", "silero");
-                }}
-                className="mx-4"
-                disabled={ttsBackend === 'silero'}
-                >
-                Silero
-              </TextButton>
-              */}
+              {ttsEngines.map((engine) => (
+                <TextButton
+                  key={engine.key}
+                  onClick={() => {
+                    setTTSBackend(engine.key);
+                    localStorage.setItem("chatvrm_tts_backend", engine.key);
+                  }}
+                  className="mx-4"
+                  disabled={ttsBackend === engine.key}
+                  >
+                  {engine.label}
+                </TextButton>
+              ))}
             </div>
           </div>
 
