@@ -32,6 +32,7 @@ export const MessageInputContainer = ({
   return (
     <MessageInput
       userMessage={userMessage}
+      setUserMessage={setUserMessage}
       isChatProcessing={isChatProcessing}
       onChangeUserMessage={(e) => setUserMessage(e.target.value)}
       onClickSendButton={handleClickSendButton}

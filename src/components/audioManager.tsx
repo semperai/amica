@@ -1,128 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { IconButton } from "./iconButton";
 import axios from "axios";
-import Modal from "./modal";
 import { UrlInput } from "./urlInput";
 import AudioPlayer from "./audioPlayer";
-import { TranscribeButton } from "./transcribeButton";
 import Constants from "@/utils/constants";
 import { Transcriber } from "../hooks/useTranscriber";
 import Progress from "./progress";
 import AudioRecorder from "./audioRecorder";
-
-function titleCase(str: string) {
-  str = str.toLowerCase();
-  return (str.match(/\w+.?/g) || [])
-    .map((word) => {
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    })
-    .join("");
-}
-
-// List of supported languages:
-// https://help.openai.com/en/articles/7031512-whisper-api-faq
-// https://github.com/openai/whisper/blob/248b6cb124225dd263bb9bd32d060b6517e067f8/whisper/tokenizer.py#L79
-const LANGUAGES = {
-  en: "english",
-  zh: "chinese",
-  de: "german",
-  es: "spanish/castilian",
-  ru: "russian",
-  ko: "korean",
-  fr: "french",
-  ja: "japanese",
-  pt: "portuguese",
-  tr: "turkish",
-  pl: "polish",
-  ca: "catalan/valencian",
-  nl: "dutch/flemish",
-  ar: "arabic",
-  sv: "swedish",
-  it: "italian",
-  id: "indonesian",
-  hi: "hindi",
-  fi: "finnish",
-  vi: "vietnamese",
-  he: "hebrew",
-  uk: "ukrainian",
-  el: "greek",
-  ms: "malay",
-  cs: "czech",
-  ro: "romanian/moldavian/moldovan",
-  da: "danish",
-  hu: "hungarian",
-  ta: "tamil",
-  no: "norwegian",
-  th: "thai",
-  ur: "urdu",
-  hr: "croatian",
-  bg: "bulgarian",
-  lt: "lithuanian",
-  la: "latin",
-  mi: "maori",
-  ml: "malayalam",
-  cy: "welsh",
-  sk: "slovak",
-  te: "telugu",
-  fa: "persian",
-  lv: "latvian",
-  bn: "bengali",
-  sr: "serbian",
-  az: "azerbaijani",
-  sl: "slovenian",
-  kn: "kannada",
-  et: "estonian",
-  mk: "macedonian",
-  br: "breton",
-  eu: "basque",
-  is: "icelandic",
-  hy: "armenian",
-  ne: "nepali",
-  mn: "mongolian",
-  bs: "bosnian",
-  kk: "kazakh",
-  sq: "albanian",
-  sw: "swahili",
-  gl: "galician",
-  mr: "marathi",
-  pa: "punjabi/panjabi",
-  si: "sinhala/sinhalese",
-  km: "khmer",
-  sn: "shona",
-  yo: "yoruba",
-  so: "somali",
-  af: "afrikaans",
-  oc: "occitan",
-  ka: "georgian",
-  be: "belarusian",
-  tg: "tajik",
-  sd: "sindhi",
-  gu: "gujarati",
-  am: "amharic",
-  yi: "yiddish",
-  lo: "lao",
-  uz: "uzbek",
-  fo: "faroese",
-  ht: "haitian creole/haitian",
-  ps: "pashto/pushto",
-  tk: "turkmen",
-  nn: "nynorsk",
-  mt: "maltese",
-  sa: "sanskrit",
-  lb: "luxembourgish/letzeburgesch",
-  my: "myanmar/burmese",
-  bo: "tibetan",
-  tl: "tagalog",
-  mg: "malagasy",
-  as: "assamese",
-  tt: "tatar",
-  haw: "hawaiian",
-  ln: "lingala",
-  ha: "hausa",
-  ba: "bashkir",
-  jw: "javanese",
-  su: "sundanese",
-};
 
 export enum AudioSource {
   URL = "URL",
@@ -238,6 +122,13 @@ export function AudioManager(props: { transcriber: Transcriber }) {
     }
   }, [audioDownloadUrl]);
 
+
+  useEffect(() => {
+    if (audioData) {
+      props.transcriber.start(audioData.buffer);
+    }
+  }, [audioData]);
+
   return (
     <>
       <div>
@@ -245,9 +136,10 @@ export function AudioManager(props: { transcriber: Transcriber }) {
           {navigator.mediaDevices && (
             <>
               <RecordTile
-                setAudioData={(e) => {
+                setAudioData={async (e) => {
+                  console.log('set audio data', audioData);
                   props.transcriber.onInputChange();
-                  setAudioFromRecording(e);
+                  await setAudioFromRecording(e);
                 }}
               />
             </>
@@ -266,17 +158,6 @@ export function AudioManager(props: { transcriber: Transcriber }) {
             mimeType={audioData.mimeType}
           />
 
-          <div className='flex justify-center items-center'>
-            <TranscribeButton
-              onClick={() => {
-                props.transcriber.start(audioData.buffer);
-              }}
-              isModelLoading={props.transcriber.isModelLoading}
-              // isAudioLoading ||
-              isTranscribing={props.transcriber.isBusy}
-            />
-
-          </div>
           {props.transcriber.progressItems.length > 0 && (
             <div className='absolute z-10 top-0 right-0 p-4 w-full'>
               <label>
@@ -316,76 +197,17 @@ function ProgressBar(props: { progress: string }) {
 function RecordTile(props: {
   setAudioData: (data: Blob) => void;
 }) {
-  const [showModal, setShowModal] = useState(false);
-
-  const onClick = () => {
-    setShowModal(true);
-  };
-
-  const onClose = () => {
-    setShowModal(false);
-  };
-
-  const onSubmit = (data: Blob | undefined) => {
-    if (data) {
-      props.setAudioData(data);
-      onClose();
-    }
-  };
-
-  return (
-    <>
-      <IconButton
-        iconName="24/Microphone"
-        className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
-        isProcessing={false/*isMicRecording*/}
-        disabled={false/*isChatProcessing*/}
-        onClick={onClick}
-      />
-      <RecordModal
-        show={showModal}
-        onSubmit={onSubmit}
-        onClose={onClose}
-      />
-    </>
-  );
-}
-
-function RecordModal(props: {
-  show: boolean;
-  onSubmit: (data: Blob | undefined) => void;
-  onClose: () => void;
-}) {
   const [audioBlob, setAudioBlob] = useState<Blob>();
 
   const onRecordingComplete = (blob: Blob) => {
     setAudioBlob(blob);
-  };
-
-  const onSubmit = () => {
-    props.onSubmit(audioBlob);
-    setAudioBlob(undefined);
-  };
-
-  const onClose = () => {
-    props.onClose();
-    setAudioBlob(undefined);
+    props.setAudioData(blob);
   };
 
   return (
-    <Modal
-      show={props.show}
-      title={"From Recording"}
-      content={
-        <>
-          {"Record audio using your microphone"}
-          <AudioRecorder onRecordingComplete={onRecordingComplete} />
-        </>
-      }
-      onClose={onClose}
-      submitText={"Load"}
-      submitEnabled={audioBlob !== undefined}
-      onSubmit={onSubmit}
-    />
+    <AudioRecorder
+      isProcessing={false}
+      onRecordingComplete={onRecordingComplete}
+      />
   );
 }

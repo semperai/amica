@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-
-import { formatAudioTimestamp } from "@/utils/audioUtils";
+import { IconButton } from "./iconButton";
 import { webmFixDuration } from "@/utils/blobFix";
+import { useTranscriber } from "@/hooks/useTranscriber";
 
 function getMimeType() {
   const types = [
@@ -21,6 +21,7 @@ function getMimeType() {
 
 export default function AudioRecorder(props: {
   onRecordingComplete: (blob: Blob) => void;
+  isProcessing: boolean;
 }) {
   const [recording, setRecording] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -31,6 +32,8 @@ export default function AudioRecorder(props: {
   const chunksRef = useRef<Blob[]>([]);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const { isBusy, isModelLoading } = useTranscriber();
 
   const startRecording = async () => {
     // Reset recording (if any)
@@ -120,22 +123,15 @@ export default function AudioRecorder(props: {
 
   return (
     <div className='flex flex-col justify-center items-center'>
-      <button
-        type='button'
-        className={`m-2 inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all duration-200 ${
-          recording
-            ? "bg-red-500 hover:bg-red-600"
-            : "bg-green-500 hover:bg-green-600"
-        }`}
+      <IconButton
+        iconName={recording ? "24/PauseAlt" : "24/Microphone"}
+        className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
+        isProcessing={isBusy || isModelLoading}
+        disabled={isBusy || isModelLoading}
         onClick={handleToggleRecording}
-      >
-        {recording
-          ? `Stop Recording (${formatAudioTimestamp(duration)})`
-          : "Start Recording"}
-      </button>
-
+      />
       {recordedBlob && (
-        <audio className='w-full' ref={audioRef} controls>
+        <audio ref={audioRef} controls>
           <source
             src={URL.createObjectURL(recordedBlob)}
             type={recordedBlob.type}
