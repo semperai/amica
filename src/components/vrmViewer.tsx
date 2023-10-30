@@ -1,16 +1,33 @@
-import { useContext, useCallback } from "react";
+import { useContext, useCallback, useState } from "react";
 import { ViewerContext } from "../features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState(false);
 
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
       if (canvas) {
         viewer.setup(canvas);
         const vrmUrl = localStorage.getItem("chatvrm_vrm_url") ?? "AvatarSample_A.vrm";
-        viewer.loadVrm(buildUrl(vrmUrl));
+        (new Promise(async (resolve, reject) => {
+          try {
+            const loaded = await viewer.loadVrm(buildUrl(vrmUrl));
+            resolve(true);
+          } catch (e) {
+            reject();
+          }
+        }))
+        .then(() => {
+          console.log("vrm loaded");
+          setIsLoading(false);
+        })
+        .catch((e) => {
+          setLoadingError(true);
+        });
+
 
         // Drag and DropでVRMを差し替え
         canvas.addEventListener("dragover", function (event) {
@@ -45,6 +62,16 @@ export default function VrmViewer() {
   return (
     <div className={"absolute top-0 left-0 w-screen h-[100svh] -z-10"}>
       <canvas ref={canvasRef} className={"h-full w-full"}></canvas>
+      {isLoading && (
+        <div className={"absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"}>
+          <div className={"text-white text-2xl"}>Loading...</div>
+        </div>
+      )}
+      {loadingError && (
+        <div className={"absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"}>
+          <div className={"text-white text-2xl"}>Error loading VRM model...</div>
+        </div>
+      )}
     </div>
   );
 }
