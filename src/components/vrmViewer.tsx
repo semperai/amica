@@ -1,6 +1,7 @@
 import { useContext, useCallback, useState } from "react";
 import { ViewerContext } from "../features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
+import { config } from "@/utils/config";
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
@@ -11,7 +12,7 @@ export default function VrmViewer() {
     (canvas: HTMLCanvasElement) => {
       if (canvas) {
         viewer.setup(canvas);
-        const vrmUrl = localStorage.getItem("chatvrm_vrm_url") ?? "AvatarSample_A.vrm";
+        const vrmUrl = config("vrm_url");
         (new Promise(async (resolve, reject) => {
           try {
             const loaded = await viewer.loadVrm(buildUrl(vrmUrl));

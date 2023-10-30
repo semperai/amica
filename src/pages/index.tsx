@@ -18,6 +18,7 @@ import { Menu } from "@/components/menu";
 import { Meta } from "@/components/meta";
 import { I18nProvider } from "@/components/I18nProvider";
 import lang, { setLan, TLangs, langs } from "@/i18n";
+import { config } from '@/utils/config';
 
  const m_plus_2 = M_PLUS_2({
    variable: "--font-m-plus-2",
@@ -43,8 +44,7 @@ export default function Home() {
 
 
   useEffect(() => {
-    const url = localStorage.getItem("chatvrm_bg_url") ?? buildUrl("/bg-landscape1.jpg");
-    document.body.style.backgroundImage = `url(${url})`;
+    document.body.style.backgroundImage = `url(${config("bg_url")})`;
   }, []);
 
 
@@ -217,11 +217,7 @@ export default function Home() {
   );
 
   useEffect(() => {
-    let lan = "en" as TLangs;
-    if (!localStorage.getItem("chatvrm_language")) {
-      setLan("en");
-    }
-    lan = (localStorage.getItem("chatvrm_language") ?? "en") as TLangs;
+    const lan = config("language") as TLangs;
     applyLan(langs[lan]);
     setSystemPrompt(langs[lan].SettingsCharacterSettingsPrompt);
     setShowContent(true);

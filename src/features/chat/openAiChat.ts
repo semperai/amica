@@ -1,23 +1,21 @@
 import { Configuration, OpenAIApi } from "openai";
 import { Message } from "@/features/messages/messages";
+import { config } from '@/utils/config';
 
 export async function getOpenAiChatResponseStream(messages: Message[]) {
-  const apiKey = atob(localStorage.getItem("chatvrm_openai_apikey") ?? "");
+  const apiKey = config("openai_apikey");
   if (!apiKey) {
     throw new Error("Invalid API Key");
   }
-  const openaiUrl = localStorage.getItem("chatvrm_openai_url") ?? "https://api.openai.com";
-  const openaiModel = localStorage.getItem("chatvrm_openai_model") ?? "gpt-3.5-turbo";
-
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${apiKey}`,
   };
-  const res = await fetch(`${openaiUrl}/v1/chat/completions`, {
+  const res = await fetch(`${config("openai_url")}/v1/chat/completions`, {
     headers: headers,
     method: "POST",
     body: JSON.stringify({
-      model: openaiModel,
+      model: config("openai_model"),
       messages: messages,
       stream: true,
       max_tokens: 200,
@@ -37,20 +35,23 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
     async start(controller: ReadableStreamDefaultController) {
       const decoder = new TextDecoder("utf-8");
       try {
+        // sometimes the response is chunked, so we need to combine the chunks
+        let combined = "";
         while (true) {
           const { done, value } = await reader.read();
-          console.debug(done, value)
           if (done) break;
           const data = decoder.decode(value);
           const chunks = data
             .split("data:")
             .filter((val) => !!val && val.trim() !== "[DONE]");
+
           for (const chunk of chunks) {
-            console.debug('chunk', chunk);
+            combined += chunk;
+
             try {
-              const json = JSON.parse(chunk);
+              const json = JSON.parse(combined);
               const messagePiece = json.choices[0].delta.content;
-              console.log('messagePiece', messagePiece)
+              combined = "";
               if (!!messagePiece) {
                 controller.enqueue(messagePiece);
               }

@@ -1,19 +1,20 @@
 import { TalkStyle } from "@/features/messages/messages";
+import { config } from '@/utils/config';
 
 export async function elevenlabs(
   message: string,
-  voice_id: string,
+  voiceId: string,
   style: TalkStyle,
 ) {
-  const apiKey = atob(localStorage.getItem("chatvrm_elevenlabs_apikey") ?? "");
+  const apiKey = config("elevenlabs_apikey");
   if (! apiKey) {
-    throw new Error("Invalid EleveLabs API Key");
+    throw new Error("Invalid ElevenLabs API Key");
   }
 
   // Request body
   const body = {
     text: message,
-    model_id: "eleven_monolingual_v1",
+    model_id: config("elevenlabs_model"),
     voice_settings: {
       stability: 0,
       similarity_boost: 0,
@@ -23,7 +24,7 @@ export async function elevenlabs(
   };
 
   try {
-    const elevenlabsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}?optimize_streaming_latency=0&output_format=mp3_44100_128`, {
+    const elevenlabsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?optimize_streaming_latency=0&output_format=mp3_44100_128`, {
       method: "POST",
       body: JSON.stringify(body),
       headers: {

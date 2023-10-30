@@ -10,6 +10,7 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Link } from "./link";
 import { setLan, TLangs } from "@/i18n";
 import { useI18n } from "@/components/I18nProvider";
+import { config, updateConfig } from "@/utils/config";
 
 const bgImages = [
   "bg-landscape1.jpg",
@@ -26,6 +27,11 @@ const vrmList = [
   "AvatarSample_A.vrm",
   "AvatarSample_B.vrm",
   "AvatarSample_C.vrm",
+];
+
+const chatbotBackends = [
+  {key: "echo",       label: "Echo"},
+  {key: "chatgpt",    label: "ChatGPT"},
 ];
 
 const ttsEngines = [
@@ -55,23 +61,23 @@ export const Settings = ({
   onClickResetSystemPrompt,
 }: Props) => {
   const lang = useI18n();
-  const lan = (localStorage.getItem("chatvrm_language") ?? "en") as TLangs;
+  const lan = config("language") as TLangs;
   const { viewer } = useContext(ViewerContext);
 
-  const [chatbotBackend, setChatbotBackend] = useState(localStorage.getItem("chatvrm_chatbot_backend") ?? "echo");
-  const [openAIApiKey, setOpenAIApiKey] = useState(atob(localStorage.getItem("chatvrm_openai_apikey") ?? ""));
-  const [openAIUrl, setOpenAIUrl] = useState(localStorage.getItem("chatvrm_openai_url") ?? "https://api.openai.com");
-  const [openAIModel, setOpenAIModel] = useState(localStorage.getItem("chatvrm_openai_model") ?? "gpt-3.5-turbo");
+  const [chatbotBackend, setChatbotBackend] = useState(config("chatbot_backend"));
+  const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
+  const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
+  const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
 
-  const [ttsBackend, setTTSBackend] = useState(localStorage.getItem("chatvrm_tts_backend") ?? "none");
-  const [elevenlabsApiKey, setElevenlabsApiKey] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_apikey") ?? ""));
-  const [elevenlabsVoiceId, setElevenlabsVoiceId] = useState(atob(localStorage.getItem("chatvrm_elevenlabs_voiceid") ?? btoa("21m00Tcm4TlvDq8ikWAM")));
+  const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
+  const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
+  const [elevenlabsVoiceId, setElevenlabsVoiceId] = useState(config("elevenlabs_voiceid"));
 
-  const [speechT5SpeakerEmbeddingsUrl, setSpeechT5SpeakerEmbeddingsUrl] = useState(localStorage.getItem("chatvrm_speecht5_speaker_embedding_url") ?? "/cmu_us_slt_arctic-wav-arctic_a0001.bin");
+  const [speechT5SpeakerEmbeddingsUrl, setSpeechT5SpeakerEmbeddingsUrl] = useState(config("speecht5_speaker_embedding_url"));
 
 
-  const [bgUrl, setBgUrl] = useState(localStorage.getItem("chatvrm_bg_url") ?? bgImages[0]);
-  const [vrmUrl, setVrmUrl] = useState(localStorage.getItem("chatvrm_vrm_url") ?? vrmList[0]);
+  const [bgUrl, setBgUrl] = useState(config("bg_url"));
+  const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
 
 
   return (
@@ -132,38 +138,19 @@ export const Settings = ({
               Chatbot Backend
             </div>
             <div className="my-8">
-              <TextButton
-                onClick={() => {
-                  setChatbotBackend("echo");
-                  localStorage.setItem("chatvrm_chatbot_backend", "echo");
-                }}
-                className="mx-4"
-                disabled={chatbotBackend === 'echo'}
-                >
-                Echo
-              </TextButton>
-              <TextButton
-                onClick={() => {
-                  setChatbotBackend("chatgpt");
-                  localStorage.setItem("chatvrm_chatbot_backend", "chatgpt");
-                }}
-                className="mx-4"
-                disabled={chatbotBackend === 'chatgpt'}
-                >
-                ChatGPT
-              </TextButton>
-              {/*
-              <TextButton
-                onClick={() => {
-                  setChatbotBackend("claude");
-                  localStorage.setItem("chatvrm_chatbot_backend", "claude");
-                }}
-                className="mx-4"
-                disabled={chatbotBackend === 'claude'}
-                >
-                Claude
-              </TextButton>
-              */}
+              {chatbotBackends.map((engine) => (
+                <TextButton
+                  key={engine.key}
+                  onClick={() => {
+                    setChatbotBackend(engine.key);
+                    updateConfig("chatbot_backend", engine.key);
+                  }}
+                  className="mx-4"
+                  disabled={chatbotBackend === engine.key}
+                  >
+                  {engine.label}
+                </TextButton>
+              ))}
             </div>
           </div>
           
@@ -177,7 +164,7 @@ export const Settings = ({
                   value={openAIApiKey}
                   onChange={(event: React.ChangeEvent<any>) => {
                     setOpenAIApiKey(event.target.value);
-                    localStorage.setItem("chatvrm_openai_apikey", btoa(event.target.value));
+                    updateConfig("openai_apikey", event.target.value);
                   }}
                 />
               </div>
@@ -189,7 +176,7 @@ export const Settings = ({
                   value={openAIUrl}
                   onChange={(event: React.ChangeEvent<any>) => {
                     setOpenAIUrl(event.target.value);
-                    localStorage.setItem("chatvrm_openai_url", event.target.value);
+                    updateConfig("openai_url", event.target.value);
                   }}
                 />
               </div>
@@ -201,7 +188,7 @@ export const Settings = ({
                   value={openAIModel}
                   onChange={(event: React.ChangeEvent<any>) => {
                     setOpenAIModel(event.target.value);
-                    localStorage.setItem("chatvrm_openai_model", event.target.value);
+                    updateConfig("openai_model", event.target.value);
                   }}
                 />
               </div>
@@ -218,7 +205,7 @@ export const Settings = ({
                   key={engine.key}
                   onClick={() => {
                     setTTSBackend(engine.key);
-                    localStorage.setItem("chatvrm_tts_backend", engine.key);
+                    updateConfig("tts_backend", engine.key);
                   }}
                   className="mx-4"
                   disabled={ttsBackend === engine.key}
@@ -239,7 +226,7 @@ export const Settings = ({
                   value={elevenlabsApiKey}
                   onChange={(event: React.ChangeEvent<any>) => {
                     setElevenlabsApiKey(event.target.value);
-                    localStorage.setItem("chatvrm_elevenlabs_apikey", btoa(event.target.value));
+                    updateConfig("elevenlabs_apikey", event.target.value);
                   }}
                 />
               </div>
@@ -251,7 +238,7 @@ export const Settings = ({
                   value={elevenlabsVoiceId}
                   onChange={(event: React.ChangeEvent<any>) => {
                     setElevenlabsVoiceId(event.target.value);
-                    localStorage.setItem("chatvrm_elevenlabs_voiceid", btoa(event.target.value));
+                    updateConfig("elevenlabs_voiceid", event.target.value);
                   }}
                 />
               </div>
@@ -268,7 +255,7 @@ export const Settings = ({
                   value={speechT5SpeakerEmbeddingsUrl}
                   onChange={(event: React.ChangeEvent<any>) => {
                     setSpeechT5SpeakerEmbeddingsUrl(event.target.value);
-                    localStorage.setItem("chatvrm_speecht5_speaker_embedding_url", event.target.value);
+                    updateConfig("speecht5_speaker_embedding_url", event.target.value);
                   }}
                 />
               </div>
@@ -285,7 +272,7 @@ export const Settings = ({
                   key={url}
                   onClick={() => {
                     document.body.style.backgroundImage = `url(${url})`;
-                    localStorage.setItem("chatvrm_bg_url", url);
+                    updateConfig("bg_url", url);
                     setBgUrl(url);
                   }}
                   className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
@@ -307,7 +294,7 @@ export const Settings = ({
                   key={url}
                   onClick={() => {
                     viewer.loadVrm(url);
-                    localStorage.setItem("chatvrm_vrm_url", url);
+                    updateConfig("vrm_url", url);
                     setVrmUrl(url);
                   }}
                   className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
