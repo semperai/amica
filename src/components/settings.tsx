@@ -92,6 +92,7 @@ export const Settings = ({
             <TextButton
               onClick={() => {
                 resetConfig();
+                window.location.reload();
               }}
               className="mx-4 text-xs bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
               >
