@@ -50,6 +50,10 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
             .filter((val) => !!val && val.trim() !== "[DONE]");
 
           for (const chunk of chunks) {
+            // skip comments
+            if (chunk.length > 0 && chunk[0] === ":") {
+              continue;
+            }
             combined += chunk;
 
             try {
