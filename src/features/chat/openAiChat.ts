@@ -28,6 +28,9 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
     if (res.status === 401) {
       throw new Error('Invalid OpenAI authentication');
     }
+    if (res.status === 402) {
+      throw new Error('Payment required');
+    }
 
     throw new Error("Something went wrong");
   }
