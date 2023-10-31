@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next build && next start",
-    "export": "next export",
-    "lint": "next lint"
+    "dev": "npm run generate:paths && next dev",
+    "build": "npm run generate:paths && next build",
+    "start": "npm run build && next start",
+    "export": "npm run generate:paths && next export",
+    "lint": "next lint",
+    "generate:paths": "npx node scripts/generate_paths.js"
   },
   "dependencies": {
     "@charcoal-ui/icons": "^2.6.0",
@@ -18,12 +19,15 @@
     "@xenova/transformers": "^2.7.0",
     "eslint": "8.36.0",
     "eslint-config-next": "13.2.4",
+    "fast-glob": "^3.3.1",
     "next": "13.2.4",
     "node-fetch": "^3.3.1",
     "openai": "^3.2.1",
+    "outfront": "^1.4.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "three": "^0.149.0",
+    "ts-node": "^10.9.1",
     "typescript": "5.0.2",
     "wavefile": "^11.0.0"
   },

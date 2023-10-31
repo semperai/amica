@@ -1,3 +1,4 @@
+import { GetStaticProps } from "next";
 import React, { useContext, useState } from "react";
 import { buildUrl } from "@/utils/buildUrl";
 import { GitHubLink } from "@/components/githubLink";
@@ -10,24 +11,9 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Link } from "./link";
 import { setLan, TLangs } from "@/i18n";
 import { useI18n } from "@/components/I18nProvider";
-import { config, updateConfig } from "@/utils/config";
+import { config, updateConfig, resetConfig } from "@/utils/config";
+import { bgImages, vrmList } from "@/paths";
 
-const bgImages = [
-  "bg-landscape1.jpg",
-  "bg-landscape2.jpg",
-  "bg-landscape3.jpg",
-  "bg-sunset1.jpg",
-  "bg-forest1.jpg",
-  "bg-town1.jpg",
-  "bg-room1.jpg",
-  "bg-room2.jpg",
-]
-
-const vrmList = [
-  "AvatarSample_A.vrm",
-  "AvatarSample_B.vrm",
-  "AvatarSample_C.vrm",
-];
 
 const chatbotBackends = [
   {key: "echo",       label: "Echo"},
@@ -39,6 +25,12 @@ const ttsEngines = [
   {key: "elevenlabs", label: "ElevenLabs"},
   {key: "speecht5",   label: "SpeechT5"},
 ];
+
+function thumbPrefix(path: string) {
+  const a = path.split("/");
+  a[a.length - 1] = "thumb-" + a[a.length - 1];
+  return a.join("/");
+}
 
 type Props = {
   systemPrompt: string;
@@ -92,46 +84,21 @@ export const Settings = ({
       <div className="max-h-full overflow-auto">
         <div className="mx-auto max-w-3xl px-24 py-64 text-text1 ">
           <div className="my-24 font-bold typography-32">
-            {lang.Settings}
+            Settings
           </div>
 
-          {/*
-          <div className="my-40">
-            <div className="my-8">
-              <TextButton
-                onClick={() => {
-                  setLan("cn");
-                  location.reload();
-                }}
-                className="mx-4"
-                disabled={lan === 'cn'}
-                >
-                中国語
-              </TextButton>
-              <TextButton
-                onClick={() => {
-                  setLan("jp");
-                  location.reload();
-                }}
-                className="mx-4"
-                disabled={lan === 'jp'}
-                >
-                日文
-              </TextButton>
-              <TextButton
-                onClick={() => {
-                  setLan("en");
-                  location.reload();
-                }}
-                className="mx-4"
-                disabled={lan === 'en'}
-                >
-                English
-              </TextButton>
-            </div>
+          <div className="my-24">
+            <p className="mx-8 my-4 p-2 text-xs">Click this to reset all settings to default.</p>
+            <TextButton
+              onClick={() => {
+                resetConfig();
+              }}
+              className="mx-4 text-xs bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+              >
+              Reset All Settings
+            </TextButton>
           </div>
-          */}
-
+            
 
           <div className="my-24">
             <div className="my-16 font-bold typography-20">
@@ -277,16 +244,15 @@ export const Settings = ({
                   }}
                   className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
                   >
-                    <img src={`thumb-${url}`} width="160" height="93" className="m-0 rounded-4" />
+                    <img src={`${thumbPrefix(url)}`} width="160" height="93" className="m-0 rounded-4" />
                 </TextButton>
               )}
             </div>
           </div>
 
-
           <div className="my-40">
             <div className="my-16 font-bold typography-20">
-              {lang.SettingsCharacterModel}
+              Character Model
             </div>
             <div className="my-8">
               {vrmList.map((url) =>
@@ -299,20 +265,20 @@ export const Settings = ({
                   }}
                   className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
                   >
-                    <img src={`thumb-${url}.jpg`} width="160" height="93" className="m-0 rounded-4" />
+                    <img src={`${thumbPrefix(url)}.jpg`} width="160" height="93" className="m-0 rounded-4" />
                 </TextButton>
               )}
             </div>
             <div className="my-8">
               <TextButton onClick={onClickOpenVrmFile}>
-                {lang.SettingsCharacterSelectBtn}
+                Load .VRM
               </TextButton>
             </div>
           </div>
 
           <div className="my-40">
             <div className="my-16 font-bold typography-20">
-              {lang.SettingsCharacterSettings}
+              System Prompt
             </div>
             <textarea
               value={systemPrompt}
