@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Model } from "./model";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
+import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { buildUrl } from "@/utils/buildUrl";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { config } from "@/utils/config";
@@ -57,7 +58,9 @@ export class Viewer {
 
       this._scene.add(this.model.vrm.scene);
 
-      const vrma = await loadVRMAnimation(config("idle_animation_url"));
+      const vrma = await loadVRMAnimation(config("animation_url"));
+      // TODO support mixamo
+      // const vrma = await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
       if (vrma) this.model.loadAnimation(vrma);
 
       // HACK: アニメーションの原点がずれているので再生後にカメラ位置を調整する

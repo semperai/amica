@@ -8,9 +8,15 @@ import { SecretTextInput } from "./secretTextInput";
 import { TextInput } from "./textInput";
 import { Message } from "@/features/messages/messages";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
+import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { Link } from "./link";
 import { config, updateConfig, resetConfig } from "@/utils/config";
-import { bgImages, vrmList } from "@/paths";
+import {
+  bgImages,
+  vrmList,
+  speechT5SpeakerEmbeddingsList,
+  animationList,
+} from "@/paths";
 
 
 const chatbotBackends = [
@@ -28,6 +34,11 @@ function thumbPrefix(path: string) {
   const a = path.split("/");
   a[a.length - 1] = "thumb-" + a[a.length - 1];
   return a.join("/");
+}
+
+function basename(path: string) {
+  const a = path.split("/");
+  return a[a.length - 1];
 }
 
 type Props = {
@@ -60,6 +71,7 @@ export const Settings = ({
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
+  const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
@@ -210,13 +222,23 @@ export const Settings = ({
                 <div className="my-16 font-bold typography-16">
                   SpeechT5 Speaker Embeddings URL
                 </div>
-                <TextInput
-                  value={speechT5SpeakerEmbeddingsUrl}
+                <select
                   onChange={(event: React.ChangeEvent<any>) => {
+                    event.preventDefault();
                     setSpeechT5SpeakerEmbeddingsUrl(event.target.value);
                     updateConfig("speecht5_speaker_embedding_url", event.target.value);
                   }}
-                />
+                >
+                  {speechT5SpeakerEmbeddingsList.map((url) =>
+                    <option
+                      key={url}
+                      value={url}
+                      selected={url === speechT5SpeakerEmbeddingsUrl}
+                    >
+                      {basename(url)}
+                    </option>
+                  )}
+                </select>
               </div>
             </>
           )}
@@ -236,7 +258,17 @@ export const Settings = ({
                   }}
                   className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
                   >
-                    <img src={`${thumbPrefix(url)}`} width="160" height="93" className="m-0 rounded-4" />
+                    <img
+                      src={`${thumbPrefix(url)}`}
+                      alt={url}
+                      width="160"
+                      height="93"
+                      className="m-0 rounded-4"
+                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = url;
+                      }}
+                    />
                 </TextButton>
               )}
             </div>
@@ -257,7 +289,17 @@ export const Settings = ({
                   }}
                   className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
                   >
-                    <img src={`${thumbPrefix(url)}.jpg`} width="160" height="93" className="m-0 rounded-4" />
+                    <img
+                      src={`${thumbPrefix(url)}.jpg`}
+                      alt={basename(url)}
+                      width="160"
+                      height="93"
+                      className="m-0 rounded-4"
+                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.style.backgroundColor = "gray";
+                      }}
+                  />
                 </TextButton>
               )}
             </div>
@@ -265,6 +307,37 @@ export const Settings = ({
               <TextButton onClick={onClickOpenVrmFile}>
                 Load .VRM
               </TextButton>
+            </div>
+          </div>
+
+          <div className="my-40">
+            <div className="my-16 font-bold typography-20">
+              Character Animation
+            </div>
+            <div className="my-8">
+              <select
+                onChange={async (event: React.ChangeEvent<any>) => {
+                  event.preventDefault();
+                  const url = event.target.value;
+                  setAnimationUrl(url);
+                  updateConfig("animation_url", url);
+                  // @ts-ignore
+                  const vrma = await loadMixamoAnimation(url, viewer.model!.vrm);
+
+                  // @ts-ignore
+                  viewer.model!.loadAnimation(vrma);
+                }}
+              >
+                {animationList.map((url) =>
+                  <option
+                    key={url}
+                    value={url}
+                    selected={url === animationUrl}
+                  >
+                    {basename(url)}
+                  </option>
+                )}
+              </select>
             </div>
           </div>
 
@@ -299,7 +372,7 @@ export const Settings = ({
                         key={index}
                         className="w-full rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"
                         type="text"
-                        value={value.content}
+                        value={value.content.trim()}
                         onChange={(event) => {
                           onChangeChatLog(index, event.target.value);
                         }}></input>

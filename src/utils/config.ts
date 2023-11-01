@@ -3,7 +3,7 @@ const defaults = {
   show_introduction: 'true',
   bg_url: 'bg/bg-landscape1.jpg',
   vrm_url: 'vrm/AvatarSample_A.vrm',
-  idle_animation_url: 'animations/idle_loop.vrma',
+  animation_url: 'vrm/idle_animation.vrma',
   chatbot_backend: 'echo',
   openai_apikey: '',
   openai_url: 'https://api.openai.com',
