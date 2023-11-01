@@ -41,7 +41,7 @@ export function LoadingProgress() {
       )}
       {files.map((row) => (
         <div key={row.file}>
-          {row.file}: {(row.progress * 100)|0/100}%
+          {row.file}: {((row.progress * 100)|0)/100}%
         </div>
       ))}
     </div>
