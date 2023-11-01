@@ -11,6 +11,7 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
     "Content-Type": "application/json",
     "Authorization": `Bearer ${apiKey}`,
     "HTTP-Referer": "https://amica.arbius.ai",
+    "X-Title": "Amica",
   };
   const res = await fetch(`${config("openai_url")}/v1/chat/completions`, {
     headers: headers,
