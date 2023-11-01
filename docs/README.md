@@ -29,15 +29,21 @@ SpeechT5 in browser uses xvector embeddings. You can select a url from this data
 
 ## Running Local LLM
 
+### LM Studio
+
+[LM Studio](https://lmstudio.ai/) can be used to run an OpenAI compatible API. Just install, then click the "Local Server" icon. Ensure CORS is enabled. I recommend installing `TheBloke/dolphin-2.1-mistral-7B-GGUF`.
+
+
 ### llama.cpp server
 
-[abetlen/llama-cpp-python](https://github.com/abetlen/llama-cpp-python) is a nice program which exposes an OpenAI compatible API.
-
-For building an optimized version on macOS, you can use the following commands:
-
-```sh
-CMAKE_ARGS="-DLLAMA_METAL=on" FORCE_CMAKE=1 pip install --upgrade --force-reinstall llama-cpp-python --no-cache-dir
-python3 -m llama_cpp.server --port 8002 --model models/llama-2-7b.Q5_K_M.gguf --n_gpu_layers 35
+```
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+make server
+./server -t 4 -c 4096 -m models/mistral-7b-instruct-v0.1.Q6_K.gguf
+cd examples/server
+# ensure you have cors enabled on server
+python3 api_like_OAI.py
 ```
 
 ## System Prompt
