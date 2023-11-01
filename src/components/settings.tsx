@@ -33,24 +33,18 @@ function thumbPrefix(path: string) {
 }
 
 type Props = {
-  systemPrompt: string;
   chatLog: Message[];
   onClickClose: () => void;
-  onChangeSystemPrompt: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onChangeChatLog: (index: number, text: string) => void;
   onClickOpenVrmFile: () => void;
   onClickResetChatLog: () => void;
-  onClickResetSystemPrompt: () => void;
 };
 export const Settings = ({
   chatLog,
-  systemPrompt,
   onClickClose,
-  onChangeSystemPrompt,
   onChangeChatLog,
   onClickOpenVrmFile,
   onClickResetChatLog,
-  onClickResetSystemPrompt,
 }: Props) => {
   const lang = useI18n();
   const lan = config("language") as TLangs;
@@ -71,6 +65,7 @@ export const Settings = ({
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
 
+  const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
   return (
     <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
@@ -283,7 +278,10 @@ export const Settings = ({
             </div>
             <textarea
               value={systemPrompt}
-              onChange={onChangeSystemPrompt}
+              onChange={(e) => {
+                setSystemPrompt(e.target.value);
+                updateConfig("system_prompt", e.target.value);
+              }}
               className="h-168 w-full  rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"></textarea>
           </div>
 

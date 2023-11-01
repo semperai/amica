@@ -10,7 +10,6 @@ import {
 } from "@/features/messages/messages";
 import { speakCharacter } from "@/features/messages/speakCharacter";
 import { MessageInputContainer } from "@/components/messageInputContainer";
-import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
 import { getChatResponseStream } from "@/features/chat/chat";
 import { Introduction } from "@/components/introduction";
 import { LoadingProgress } from "@/components/loadingProgress";
@@ -34,7 +33,6 @@ import { config } from '@/utils/config';
 export default function Home() {
   const { viewer } = useContext(ViewerContext);
 
-  const [systemPrompt, setSystemPrompt] = useState(SYSTEM_PROMPT);
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
@@ -52,7 +50,6 @@ export default function Home() {
       const params = JSON.parse(
         window.localStorage.getItem("chatVRMParams") as string
       );
-      setSystemPrompt(params.systemPrompt);
       // setChatLog(params.chatLog);
     }
   }, []);
@@ -61,10 +58,10 @@ export default function Home() {
     process.nextTick(() =>
       window.localStorage.setItem(
         "chatVRMParams",
-        JSON.stringify({ systemPrompt, chatLog })
+        JSON.stringify({ chatLog })
       )
     );
-  }, [systemPrompt, chatLog]);
+  }, [chatLog]);
 
   const handleChangeChatLog = useCallback(
     (targetIndex: number, text: string) => {
@@ -120,7 +117,7 @@ export default function Home() {
       const messages: Message[] = [
         {
           role: "system",
-          content: systemPrompt,
+          content: config("system_prompt"),
         },
         ...messageLog,
       ];
@@ -212,13 +209,12 @@ export default function Home() {
       setChatLog(messageLogAssistant);
       setChatProcessing(false);
     },
-    [systemPrompt, chatLog, handleSpeakAi],
+    [chatLog, handleSpeakAi],
   );
 
   useEffect(() => {
     const lan = config("language") as TLangs;
     applyLan(langs[lan]);
-    setSystemPrompt(langs[lan].SettingsCharacterSettingsPrompt);
     setShowContent(true);
   }, []);
 
@@ -234,13 +230,10 @@ export default function Home() {
           onChatProcessStart={handleSendChat}
         />
         <Menu
-          systemPrompt={systemPrompt}
           chatLog={chatLog}
           assistantMessage={assistantMessage}
-          onChangeSystemPrompt={setSystemPrompt}
           onChangeChatLog={handleChangeChatLog}
           onClickResetChatLog={() => setChatLog([])}
-          onClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
         />
       </div>
     </I18nProvider>

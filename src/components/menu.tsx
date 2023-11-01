@@ -5,38 +5,23 @@ import React, { useCallback, useContext, useRef, useState } from "react";
 import { Settings } from "./settings";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { AssistantText } from "./assistantText";
-import { useI18n } from "@/components/I18nProvider";
 
 type Props = {
-  systemPrompt: string;
   chatLog: Message[];
   assistantMessage: string;
-  onChangeSystemPrompt: (systemPrompt: string) => void;
   onChangeChatLog: (index: number, text: string) => void;
   onClickResetChatLog: () => void;
-  onClickResetSystemPrompt: () => void;
 };
 export const Menu = ({
-  systemPrompt,
   chatLog,
   assistantMessage,
-  onChangeSystemPrompt,
   onChangeChatLog,
   onClickResetChatLog,
-  onClickResetSystemPrompt,
 }: Props) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const { viewer } = useContext(ViewerContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const lang = useI18n()
-
-  const handleChangeSystemPrompt = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onChangeSystemPrompt(event.target.value);
-    },
-    [onChangeSystemPrompt]
-  );
 
   const handleClickOpenVrmFile = useCallback(() => {
     fileInputRef.current?.click();
@@ -96,13 +81,10 @@ export const Menu = ({
       {showSettings && (
         <Settings
           chatLog={chatLog}
-          systemPrompt={systemPrompt}
           onClickClose={() => setShowSettings(false)}
-          onChangeSystemPrompt={handleChangeSystemPrompt}
           onChangeChatLog={onChangeChatLog}
           onClickOpenVrmFile={handleClickOpenVrmFile}
           onClickResetChatLog={onClickResetChatLog}
-          onClickResetSystemPrompt={onClickResetSystemPrompt}
         />
       )}
       {!showChatLog && assistantMessage && (
