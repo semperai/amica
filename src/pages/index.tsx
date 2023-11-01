@@ -15,7 +15,6 @@ import { Introduction } from "@/components/introduction";
 import { LoadingProgress } from "@/components/loadingProgress";
 import { Menu } from "@/components/menu";
 import { I18nProvider } from "@/components/I18nProvider";
-import lang, { setLan, TLangs, langs } from "@/i18n";
 import { config } from '@/utils/config';
 
  const m_plus_2 = M_PLUS_2({
@@ -36,7 +35,6 @@ export default function Home() {
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
-  const [lan, applyLan] = useState(lang);
   const [showContent, setShowContent] = useState(false);
 
 
@@ -93,14 +91,6 @@ export default function Home() {
    */
   const handleSendChat = useCallback(
     async (text: string) => {
-      /*
-       * TODO
-      if (!openAIAPIKey) {
-        setAssistantMessage(lang.DaboardAPIKeyNotEntered);
-        return;
-      }
-      */
-
       const newMessage = text;
 
       if (newMessage == null) return;
@@ -213,14 +203,12 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const lan = config("language") as TLangs;
-    applyLan(langs[lan]);
     setShowContent(true);
   }, []);
 
   if (!showContent) return <></>;
   return (
-    <I18nProvider value={lan}>
+    <I18nProvider value="en">
       <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
         <Introduction open={config("show_introduction") === 'true'} />
         <LoadingProgress />

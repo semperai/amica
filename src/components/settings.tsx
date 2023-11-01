@@ -9,8 +9,6 @@ import { TextInput } from "./textInput";
 import { Message } from "@/features/messages/messages";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Link } from "./link";
-import { setLan, TLangs } from "@/i18n";
-import { useI18n } from "@/components/I18nProvider";
 import { config, updateConfig, resetConfig } from "@/utils/config";
 import { bgImages, vrmList } from "@/paths";
 
@@ -46,8 +44,6 @@ export const Settings = ({
   onClickOpenVrmFile,
   onClickResetChatLog,
 }: Props) => {
-  const lang = useI18n();
-  const lan = config("language") as TLangs;
   const { viewer } = useContext(ViewerContext);
 
   const [chatbotBackend, setChatbotBackend] = useState(config("chatbot_backend"));

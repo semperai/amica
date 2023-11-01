@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { IconButton } from "./iconButton";
-import { useI18n } from "@/components/I18nProvider";
 import { AudioManager } from "./audioManager";
 import Transcript from "./transcript";
 import { useTranscriber } from "@/hooks/useTranscriber";
@@ -23,7 +22,6 @@ export const MessageInput = ({
   onChangeUserMessage,
   onClickSendButton,
 }: Props) => {
-  const lang = useI18n();
   const transcriber = useTranscriber();
 
   useEffect(() => {
