@@ -14,6 +14,7 @@ import { getChatResponseStream } from "@/features/chat/chat";
 import { Introduction } from "@/components/introduction";
 import { LoadingProgress } from "@/components/loadingProgress";
 import { Menu } from "@/components/menu";
+import { EmbeddedWebcam } from "@/components/embeddedWebcam";
 import { config } from '@/utils/config';
 
  const m_plus_2 = M_PLUS_2({
@@ -210,6 +211,7 @@ export default function Home() {
     <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
       <Introduction open={config("show_introduction") === 'true'} />
       <LoadingProgress />
+      {/* <EmbeddedWebcam /> */}
       <VrmViewer />
       <MessageInputContainer
         isChatProcessing={chatProcessing}
