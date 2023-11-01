@@ -290,7 +290,7 @@ export const Settings = ({
           {chatLog.length > 0 && (
             <div className="my-40">
               <div className="my-16 font-bold typography-20">
-                {lang.DaboardConversationLog}
+                Conversation Log
               </div>
               <div className="my-8">
                 {chatLog.map((value, index) => {

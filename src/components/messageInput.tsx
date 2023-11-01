@@ -41,7 +41,7 @@ export const MessageInput = ({
 
             <input
               type="text"
-              placeholder={lang.DaboardInputPlaceHolder}
+              placeholder="Write message here..."
               onChange={onChangeUserMessage}
               onKeyDown={(e) => {
                 if (e.key === "Enter") onClickSendButton();

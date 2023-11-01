@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { Link } from "./link";
-import { useI18n } from "@/components/I18nProvider";
 import { updateConfig } from "@/utils/config";
 
 type Props = {
@@ -8,7 +7,6 @@ type Props = {
 };
 export const Introduction = ({ open }: Props) => {
   const [opened, setOpened] = useState(open);
-  const lang = useI18n();
 
   return opened ? (
     <div className="absolute z-40 h-full w-full bg-black/30 px-24  py-40 font-M_PLUS_2">

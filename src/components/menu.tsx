@@ -69,7 +69,7 @@ export const Menu = ({
         <div className="grid grid-flow-col gap-[8px]">
           <IconButton
             iconName="24/Menu"
-            label={lang.DaboardSettings}
+            label="Settings"
             isProcessing={false}
             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
             onClick={() => setShowSettings(true)}
@@ -77,14 +77,14 @@ export const Menu = ({
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
-              label={lang.DaboardConversationLog}
+              label="Conversation Log"
               isProcessing={false}
               onClick={() => setShowChatLog(false)}
             />
           ) : (
             <IconButton
               iconName="24/CommentFill"
-              label={lang.DaboardConversationLog}
+              label="Conversation Log"
               isProcessing={false}
               disabled={chatLog.length <= 0}
               onClick={() => setShowChatLog(true)}
