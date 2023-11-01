@@ -14,7 +14,6 @@ import { getChatResponseStream } from "@/features/chat/chat";
 import { Introduction } from "@/components/introduction";
 import { LoadingProgress } from "@/components/loadingProgress";
 import { Menu } from "@/components/menu";
-import { I18nProvider } from "@/components/I18nProvider";
 import { config } from '@/utils/config';
 
  const m_plus_2 = M_PLUS_2({
@@ -208,22 +207,20 @@ export default function Home() {
 
   if (!showContent) return <></>;
   return (
-    <I18nProvider value="en">
-      <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
-        <Introduction open={config("show_introduction") === 'true'} />
-        <LoadingProgress />
-        <VrmViewer />
-        <MessageInputContainer
-          isChatProcessing={chatProcessing}
-          onChatProcessStart={handleSendChat}
-        />
-        <Menu
-          chatLog={chatLog}
-          assistantMessage={assistantMessage}
-          onChangeChatLog={handleChangeChatLog}
-          onClickResetChatLog={() => setChatLog([])}
-        />
-      </div>
-    </I18nProvider>
+    <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
+      <Introduction open={config("show_introduction") === 'true'} />
+      <LoadingProgress />
+      <VrmViewer />
+      <MessageInputContainer
+        isChatProcessing={chatProcessing}
+        onChatProcessStart={handleSendChat}
+      />
+      <Menu
+        chatLog={chatLog}
+        assistantMessage={assistantMessage}
+        onChangeChatLog={handleChangeChatLog}
+        onClickResetChatLog={() => setChatLog([])}
+      />
+    </div>
   );
 }
