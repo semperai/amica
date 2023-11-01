@@ -18,25 +18,27 @@ export function EmbeddedWebcam() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
 
   return (
-    <div className="absolute top-0 right-0">
-      <IconButton
-        iconName={webcamEnabled ? "24/Close" : "24/CameraVideo"}
-        isProcessing={false}
-        className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-        onClick={() => {
-          setWebcamEnabled(!webcamEnabled);
-        }} />
-      {webcamEnabled && (
-        <Webcam
-          audio={false}
-          width={320}
-          height={240}
-          screenshotFormat="image/jpeg"
-          videoConstraints={{
-            facingMode: "user",
-          }}
-          />
-      )}
+    <div className="relative">
+      <div className="fixed">
+        <IconButton
+          iconName={webcamEnabled ? "24/Close" : "24/CameraVideo"}
+          isProcessing={false}
+          className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+          onClick={() => {
+            setWebcamEnabled(!webcamEnabled);
+          }} />
+        {webcamEnabled && (
+          <Webcam
+            audio={false}
+            width={320}
+            height={240}
+            screenshotFormat="image/jpeg"
+            videoConstraints={{
+              facingMode: "user",
+            }}
+            />
+        )}
+      </div>
     </div>
   )
 }

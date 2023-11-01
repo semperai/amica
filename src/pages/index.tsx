@@ -243,13 +243,13 @@ export default function Home() {
     <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
       <Introduction open={config("show_introduction") === 'true'} />
       <LoadingProgress />
-      {/* <EmbeddedWebcam /> */}
       <VrmViewer />
       <MessageInputContainer
         isChatProcessing={chatProcessing}
         onChatProcessStart={handleSendChat}
       />
 
+      {/* main menu */}
       <div className="absolute z-10 m-24">
         <div className="grid grid-flow-col gap-[8px]">
           <IconButton
@@ -259,6 +259,7 @@ export default function Home() {
             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
             onClick={() => setShowSettings(true)}
           ></IconButton>
+          >
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
@@ -275,9 +276,13 @@ export default function Home() {
               onClick={() => setShowChatLog(true)}
             />
           )}
+
+          <EmbeddedWebcam />
         </div>
       </div>
+
       {showChatLog && <ChatLog messages={chatLog} />}
+
       {showSettings && (
         <Settings
           chatLog={chatLog}
@@ -287,9 +292,11 @@ export default function Home() {
           onClickResetChatLog={() => setChatLog([])}
         />
       )}
+
       {!showChatLog && assistantMessage && (
         <AssistantText message={assistantMessage} />
       )}
+
       <input
         type="file"
         className="hidden"
