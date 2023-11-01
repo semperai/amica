@@ -15,7 +15,6 @@ import { getChatResponseStream } from "@/features/chat/chat";
 import { Introduction } from "@/components/introduction";
 import { LoadingProgress } from "@/components/loadingProgress";
 import { Menu } from "@/components/menu";
-import { Meta } from "@/components/meta";
 import { I18nProvider } from "@/components/I18nProvider";
 import lang, { setLan, TLangs, langs } from "@/i18n";
 import { config } from '@/utils/config';
@@ -227,7 +226,6 @@ export default function Home() {
   return (
     <I18nProvider value={lan}>
       <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
-        <Meta />
         <Introduction open={config("show_introduction") === 'true'} />
         <LoadingProgress />
         <VrmViewer />
