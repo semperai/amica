@@ -1,35 +1,11 @@
 import { useEffect, useState } from "react";
 import { IconButton } from "@/components/iconButton";
 
-type Log = {
-  type: "error" | "warn" | "log" | "info";
-  ts: number;
-  arguments: any[];
-};
-
 export function DebugPane({ onClickClose }: {
   onClickClose: () => void
 }) {
-  const [logs, setLogs] = useState<Log[]>([]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (! (window as any).error_handler_installed) {
-        return;
-      }
-      if (! (window as any).error_handler_logs) {
-        return;
-      }
-      if (logs.length === (window as any).error_handler_logs.length) {
-        return;
-      }
-
-      setLogs((window as any).error_handler_logs);
-    }
-  }, []);
-
   function onClickCopy() {
-    navigator.clipboard.writeText(JSON.stringify(logs));
+    navigator.clipboard.writeText(JSON.stringify((window as any).error_handler_logs));
   }
 
   return (
@@ -45,7 +21,7 @@ export function DebugPane({ onClickClose }: {
         className="bg-primary hover:bg-primary-hover active:bg-primary-active ml-4"
         onClick={onClickCopy} />
       <div className="relative overflow-y-scroll inline-block ">
-        {logs.slice(-5).map((log, idx) => (
+        {(window as any).error_handler_logs.slice(-5).map((log: any, idx: number) => (
           <div key={idx}>
             {log.type} {log.ts} {JSON.stringify(log.arguments)}
           </div>
