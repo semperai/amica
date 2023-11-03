@@ -63,7 +63,7 @@ export default function VrmViewer() {
   );
 
   return (
-    <div className={"absolute top-0 left-0 w-screen h-[100svh] -z-10"}>
+    <div className={"absolute top-0 left-0 w-screen h-[100svh] z-1"}>
       <canvas ref={canvasRef} className={"h-full w-full"}></canvas>
       {isLoading && (
         <div className={"absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"}>

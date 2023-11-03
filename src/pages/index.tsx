@@ -241,6 +241,15 @@ export default function Home() {
   if (!showContent) return <></>;
   return (
     <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
+      { config("youtube_videoid") !== '' && (
+        <div className="absolute video-container w-screen h-screen z-0">
+          <iframe
+            className="w-screen h-screen"
+            src={`https://www.youtube.com/embed/${config("youtube_videoid")}?&autoplay=1&mute=1&playsinline=1&loop=1&controls=0&disablekb=1&fs=0&playlist=${config("youtube_videoid")}`}
+            frameBorder="0"></iframe>
+        </div>
+      )}
+
       <Introduction open={config("show_introduction") === 'true'} />
       <LoadingProgress />
       <VrmViewer />
@@ -259,7 +268,7 @@ export default function Home() {
             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
             onClick={() => setShowSettings(true)}
           ></IconButton>
-          >
+
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"

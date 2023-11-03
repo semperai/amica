@@ -71,6 +71,7 @@ export const Settings = ({
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
+  const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
@@ -222,6 +223,7 @@ export const Settings = ({
                 <div className="my-16 font-bold typography-16">
                   SpeechT5 Speaker Embeddings URL
                 </div>
+                <p>Note: requires restart</p>
                 <select
                   onChange={(event: React.ChangeEvent<any>) => {
                     event.preventDefault();
@@ -271,6 +273,25 @@ export const Settings = ({
                     />
                 </TextButton>
               )}
+            </div>
+          </div>
+
+          <div className="my-24">
+            <div className="my-16 font-bold typography-20">
+              Background Video
+            </div>
+            <div className="my-8">
+              <p>Copy this from youtube embed, it will look something like <pre>kDCXBwzSI-4</pre></p>
+              <input
+                type="text"
+                value={youtubeVideoID}
+                placeholder="YouTube Video ID"
+                onChange={(event: React.ChangeEvent<any>) => {
+                  const id = event.target.value.trim();
+                  setYoutubeVideoID(id);
+                  updateConfig("youtube_videoid", id);
+                }}
+                />
             </div>
           </div>
 
