@@ -9,6 +9,7 @@ import { MessageInputContainer } from "@/components/messageInputContainer";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Introduction } from "@/components/introduction";
 import { LoadingProgress } from "@/components/loadingProgress";
+import { DebugPane } from "@/components/debugPane";
 import { Settings } from "@/components/settings";
 import { EmbeddedWebcam } from "@/components/embeddedWebcam";
 import {
@@ -43,6 +44,7 @@ export default function Home() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleClickOpenVrmFile = useCallback(() => {
@@ -252,6 +254,7 @@ export default function Home() {
 
       <Introduction open={config("show_introduction") === 'true'} />
       <LoadingProgress />
+      { showDebug && <DebugPane onClickClose={() => setShowDebug(false) }/> }
       <VrmViewer />
       <MessageInputContainer
         isChatProcessing={chatProcessing}
@@ -289,6 +292,14 @@ export default function Home() {
           { config("show_webcam") === 'true' && (
             <EmbeddedWebcam />
           )}
+
+          <IconButton
+            iconName="24/Error"
+            label="Debug"
+            isProcessing={false}
+            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+            onClick={() => setShowDebug(true)}
+          ></IconButton>
         </div>
       </div>
 

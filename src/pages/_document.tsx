@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { buildUrl } from "@/utils/buildUrl";
 import { Html, Head, Main, NextScript } from "next/document";
+import Script from 'next/script'
 
 export default function Document() {
   const title = "Amica";
@@ -37,6 +38,10 @@ export default function Document() {
         <link
           href="https://fonts.googleapis.com/css2?family=M+PLUS+2&family=Montserrat&display=swap"
           rel="stylesheet"
+        />
+        <Script
+          src="/debugLogger.js"
+          strategy="beforeInteractive"
         />
       </Head>
       <body>
