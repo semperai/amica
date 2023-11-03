@@ -277,7 +277,9 @@ export default function Home() {
             />
           )}
 
-          <EmbeddedWebcam />
+          { config("show_webcam") === 'true' && (
+            <EmbeddedWebcam />
+          )}
         </div>
       </div>
 
