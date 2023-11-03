@@ -22,6 +22,7 @@ import {
 const chatbotBackends = [
   {key: "echo",       label: "Echo"},
   {key: "chatgpt",    label: "ChatGPT"},
+  {key: "llamacpp",   label: "LLama.cpp"},
 ];
 
 const ttsEngines = [
@@ -61,6 +62,8 @@ export const Settings = ({
   const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
   const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
+
+  const [llamaCppUrl, setLlamaCppUrl] = useState(config("llamacpp_url"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -161,6 +164,24 @@ export const Settings = ({
                   onChange={(event: React.ChangeEvent<any>) => {
                     setOpenAIModel(event.target.value);
                     updateConfig("openai_model", event.target.value);
+                  }}
+                />
+              </div>
+            </>
+          )}
+
+          { chatbotBackend === 'llamacpp' && (
+            <>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  API URL
+                </div>
+                <p>This is the url of the llama.cpp server</p>
+                <TextInput
+                  value={llamaCppUrl}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    setLlamaCppUrl(event.target.value);
+                    updateConfig("llamacpp_url", event.target.value);
                   }}
                 />
               </div>

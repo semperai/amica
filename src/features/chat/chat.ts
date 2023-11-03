@@ -1,6 +1,7 @@
 import { Message } from "@/features/messages/messages";
 import { getEchoChatResponseStream } from './echoChat';
 import { getOpenAiChatResponseStream } from './openAiChat';
+import { getLlamaCppChatResponseStream } from './llamaCppChat';
 import { config } from '@/utils/config';
 
 export async function getChatResponseStream(messages: Message[]) {
@@ -9,6 +10,9 @@ export async function getChatResponseStream(messages: Message[]) {
 
   if (chatbotBackend === 'chatgpt') {
     return getOpenAiChatResponseStream(messages);
+  }
+  if (chatbotBackend === 'llamacpp') {
+    return getLlamaCppChatResponseStream(messages);
   }
 
   return getEchoChatResponseStream(messages);

@@ -1,5 +1,4 @@
 export function updateFileProgress(file: string, progress: number) {
-  console.log('progress', file, progress);
   if (typeof window !== "undefined") {
     if(! (<any>window).chatvrm_loading_progress) {
       (<any>window).chatvrm_loading_progress = {};

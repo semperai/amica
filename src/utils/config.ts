@@ -11,6 +11,7 @@ const defaults = {
   openai_apikey: '',
   openai_url: 'https://api.openai.com',
   openai_model: 'gpt-3.5-turbo',
+  llamacpp_url: 'http://127.0.0.1:8080',
   tts_backend: 'none',
   elevenlabs_apikey: '',
   elevenlabs_voiceid: '21m00Tcm4TlvDq8ikWAM',

@@ -19,6 +19,12 @@ if (typeof window !== "undefined") {
         window.error_handler_logs.push({ type: 'error', ts: +new Date, arguments });
         old.error.apply(null, arguments);
       },
+      time: function() {
+        old.time.apply(null, arguments);
+      },
+      timeEnd: function() {
+        old.timeEnd.apply(null, arguments);
+      },
     }))(window.console);
     window.console = cons;
 

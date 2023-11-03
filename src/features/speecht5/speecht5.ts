@@ -1,24 +1,34 @@
 import { WaveFile } from 'wavefile';
 import { TalkStyle } from "@/features/messages/messages";
 import { updateFileProgress } from "@/utils/progress";
+import { convertNumberToWordsEN } from "@/utils/numberSpelling";
 
 export async function speecht5(
   message: string,
   speakerEmbeddingsUrl: string,
   style: TalkStyle,
 ) {
+  // empty cache
   (<any>window).chatvrm_worker_speecht5_audiocache = null;
+
+  message = message.trim().split(/(-?\d+)/).map((s) => {
+    if (s.match(/^-?\d+$/)) {
+      return convertNumberToWordsEN(parseInt(s));
+    } else {
+      return s;
+    }
+  }).join("");
 
   // initialize worker if not already initialized
   if (! window.hasOwnProperty('chatvrm_worker_speecht5')) {
     (<any>window).chatvrm_worker_speecht5 = new Worker(new URL("../../workers/speecht5.js", import.meta.url), {
       type: "module",
     });
-    console.log((<any>window).chatvrm_worker_speecht5);
+    // console.log((<any>window).chatvrm_worker_speecht5);
   
     (<any>window).chatvrm_worker_speecht5.addEventListener("message", (event: any) => {
       const message = event.data;
-      console.log(message);
+      // console.log(message);
       switch (message.status) {
         case "ready":
           console.log("speecht5 worker ready");
@@ -27,6 +37,7 @@ export async function speecht5(
           updateFileProgress(message.file, message.progress);
           break;
         case "done":
+          console.log("speecht5 done: ", message.file);
           updateFileProgress(message.file, 100);
           break;
         case "complete":
@@ -48,9 +59,8 @@ export async function speecht5(
 
   // wait for job to complete
   await new Promise(async (resolve) => {
+    console.log("speecht5 waiting for job to complete");
     while (true) {
-      console.log('waiting...');
-
       if((<any>window).chatvrm_worker_speecht5_audiocache !== null) {
         resolve(null);
         break;

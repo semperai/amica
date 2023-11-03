@@ -187,7 +187,7 @@ export default function Home() {
 
           // Cut out and process the response sentence by sentence
           const sentenceMatch = receivedMessage.match(
-            /^(.+[\.!\?\n]|.{10,}[,])/,
+            /^(.+[\.\!\?\n]|.{10,}[,])/,
           );
           if (sentenceMatch && sentenceMatch[0]) {
             const sentence = sentenceMatch[0];
