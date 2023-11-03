@@ -1,4 +1,5 @@
 const defaults = {
+  debug_gfx: 'false',
   language: 'en',
   show_introduction: 'true',
   bg_url: 'bg/bg-landscape1.jpg',

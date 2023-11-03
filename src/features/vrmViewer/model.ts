@@ -7,6 +7,7 @@ import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { LipSync } from "../lipSync/lipSync";
 import { EmoteController } from "../emoteController/emoteController";
 import { Screenplay } from "../messages/messages";
+import { config } from "@/utils/config";
 
 /**
  * 3Dキャラクターを管理するクラス
@@ -26,11 +27,23 @@ export class Model {
 
   public async loadVRM(url: string): Promise<void> {
     const loader = new GLTFLoader();
+
+    // used for debug rendering
+    const helperRoot = new THREE.Group();
+    helperRoot.renderOrder = 10000;
+
     loader.register(
-      (parser) =>
-        new VRMLoaderPlugin(parser, {
+      (parser) => {
+        const options: any = {
           lookAtPlugin: new VRMLookAtSmootherLoaderPlugin(parser),
-        })
+        };
+
+        if (config("debug_gfx") === 'true') {
+          options.helperRoot = helperRoot;
+        }
+
+        return new VRMLoaderPlugin(parser, options)
+      }
     );
 
     const gltf = await loader.loadAsync(url);
@@ -38,10 +51,16 @@ export class Model {
     const vrm = (this.vrm = gltf.userData.vrm);
     vrm.scene.name = "VRMRoot";
 
-    VRMUtils.rotateVRM0(vrm);
+    if (config("debug_gfx") === 'true') {
+      vrm.scene.add(helperRoot);
+    }
+
     this.mixer = new THREE.AnimationMixer(vrm.scene);
 
     this.emoteController = new EmoteController(vrm, this._lookAtTargetParent);
+
+    // TODO this causes helperRoot to be rendered to side
+    VRMUtils.rotateVRM0(vrm);
   }
 
   public unLoadVrm() {
