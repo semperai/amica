@@ -36,6 +36,7 @@ export default function AudioRecorder(props: {
   const { isBusy, isModelLoading } = useTranscriber();
 
   const startRecording = async () => {
+    console.time('record audio');
     // Reset recording (if any)
     setRecordedBlob(null);
 
@@ -87,6 +88,7 @@ export default function AudioRecorder(props: {
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state === "recording"
     ) {
+      console.timeEnd('record audio');
       mediaRecorderRef.current.stop(); // set state to inactive
       setDuration(0);
       setRecording(false);

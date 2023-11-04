@@ -33,7 +33,7 @@ export function LoadingProgress() {
   }, []);
 
   return (
-    <div className="absolute top-16 right-0 mt-40 pt-16 w-30 text-white text-xs z-5 text-right">
+    <div className="absolute top-16 right-0 mt-40 pt-16 w-30 text-white text-xs z-20 text-right">
       {files.length > 0 && (
         <div>
           loading files...

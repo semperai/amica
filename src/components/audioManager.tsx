@@ -139,7 +139,6 @@ export function AudioManager(props: { transcriber: Transcriber }) {
                 isProcessing={props.transcriber.isModelLoading || props.transcriber.isBusy}
                 onRecordingComplete={(blob: Blob) => {
                   const setAudioData = async (blob: Blob) => {
-                    console.log('set audio data', audioData);
                     props.transcriber.onInputChange();
                     await setAudioFromRecording(blob);
                   }
@@ -151,11 +150,6 @@ export function AudioManager(props: { transcriber: Transcriber }) {
             </>
           )}
         </div>
-        {
-          <AudioDataBar
-            progress={isAudioLoading ? progress : +!!audioData}
-          />
-        }
       </div>
       {audioData && (
         <AudioPlayer
@@ -164,20 +158,5 @@ export function AudioManager(props: { transcriber: Transcriber }) {
         />
       )}
     </>
-  );
-}
-
-function AudioDataBar(props: { progress: number }) {
-  return <ProgressBar progress={`${Math.round(props.progress * 100)}%`} />;
-}
-
-function ProgressBar(props: { progress: string }) {
-  return (
-    <div className='w-full bg-gray-200 rounded-full h-1 dark:bg-gray-700'>
-      <div
-        className='bg-blue-600 h-1 rounded-full transition-all duration-100'
-        style={{ width: props.progress }}
-      ></div>
-    </div>
   );
 }

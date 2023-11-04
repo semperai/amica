@@ -39,16 +39,6 @@ export interface Transcriber {
   isModelLoading: boolean;
   start: (audioData: AudioBuffer | undefined) => void;
   output?: TranscriberData;
-  model: string;
-  setModel: (model: string) => void;
-  multilingual: boolean;
-  setMultilingual: (model: boolean) => void;
-  quantized: boolean;
-  setQuantized: (model: boolean) => void;
-  subtask: string;
-  setSubtask: (subtask: string) => void;
-  language?: string;
-  setLanguage: (language: string) => void;
 }
 
 export function useTranscriber(): Transcriber {
@@ -78,6 +68,7 @@ export function useTranscriber(): Transcriber {
         });
         break;
       case "complete":
+        console.timeEnd('transcribe');
         // Received complete transcript
         // console.log("complete", message);
         // eslint-disable-next-line no-case-declarations
@@ -114,18 +105,6 @@ export function useTranscriber(): Transcriber {
     }
   });
 
-  const [model, setModel] = useState<string>(Constants.DEFAULT_MODEL);
-  const [subtask, setSubtask] = useState<string>(Constants.DEFAULT_SUBTASK);
-  const [quantized, setQuantized] = useState<boolean>(
-    Constants.DEFAULT_QUANTIZED,
-  );
-  const [multilingual, setMultilingual] = useState<boolean>(
-    Constants.DEFAULT_MULTILINGUAL,
-  );
-  const [language, setLanguage] = useState<string>(
-    Constants.DEFAULT_LANGUAGE,
-  );
-
   const onInputChange = useCallback(() => {
     setTranscript(undefined);
   }, []);
@@ -133,20 +112,15 @@ export function useTranscriber(): Transcriber {
   const postRequest = useCallback(
     async (audioData: AudioBuffer | undefined) => {
       if (audioData) {
+        console.time('transcribe');
         setTranscript(undefined);
         setIsBusy(true);
         webWorker.postMessage({
           audio: audioData.getChannelData(0),
-          model,
-          multilingual,
-          quantized,
-          subtask: multilingual ? subtask : null,
-          language:
-            multilingual && language !== "auto" ? language : null,
         });
       }
     },
-    [webWorker, model, multilingual, quantized, subtask, language],
+    [webWorker],
   );
 
   const transcriber = useMemo(() => {
@@ -156,27 +130,12 @@ export function useTranscriber(): Transcriber {
       isModelLoading,
       start: postRequest,
       output: transcript,
-      model,
-      setModel,
-      multilingual,
-      setMultilingual,
-      quantized,
-      setQuantized,
-      subtask,
-      setSubtask,
-      language,
-      setLanguage,
     };
   }, [
     isBusy,
     isModelLoading,
     postRequest,
     transcript,
-    model,
-    multilingual,
-    quantized,
-    subtask,
-    language,
   ]);
 
   return transcriber;

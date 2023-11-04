@@ -35,14 +35,7 @@ self.addEventListener("message", async (event) => {
 
   // Do some work...
   // TODO use message data
-  let transcript = await transcribe(
-    message.audio,
-    message.model,
-    message.multilingual,
-    message.quantized,
-    message.subtask,
-    message.language,
-  );
+  let transcript = await transcribe(message.audio);
   if (transcript === null) return;
 
   // Send the result back to the main thread
@@ -55,24 +48,20 @@ self.addEventListener("message", async (event) => {
 
 class AutomaticSpeechRecognitionPipelineFactory extends PipelineFactory {
   static task = "automatic-speech-recognition";
-  static model = null;
-  static quantized = null;
+  // TODO load this from config
+  static model = "Xenova/whisper-tiny.en";
+  // static model = "distil-whisper/distil-medium.en";
+  static quantized = true;
 }
 
-const transcribe = async (
-  audio,
-  model,
-  multilingual,
-  quantized,
-  subtask,
-  language,
-) => {
+const transcribe = async (audio) => {
   // TODO use subtask and language
 
-  const modelName = `Xenova/whisper-${model}${multilingual ? "" : ".en"}`;
-
+  // TODO load from config
   const p = AutomaticSpeechRecognitionPipelineFactory;
-  if (p.model !== modelName || p.quantized !== quantized) {
+  /*
+   * TODO invalidate model if different
+   * check p.model !== modelName || p.quantized !== quantized) {
     // Invalidate model if different
     p.model = modelName;
     p.quantized = quantized;
@@ -82,6 +71,7 @@ const transcribe = async (
       p.instance = null;
     }
   }
+  */
 
   // Load transcriber model
   let transcriber = await p.getInstance((data) => {
@@ -152,8 +142,8 @@ const transcribe = async (
     stride_length_s: 5,
 
     // Language and task
-    language: language,
-    task: subtask,
+    language: null,
+    task: null,
 
     // Return timestamps
     return_timestamps: true,
