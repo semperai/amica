@@ -18,12 +18,13 @@ export async function synthesizeVoice(
     }
     case 'speecht5': {
       const speakerEmbeddingUrl = config('speecht5_speaker_embedding_url');
-      const voice = await speecht5(message, speakerEmbeddingUrl, style);
+      const voice = await speecht5(message, speakerEmbeddingUrl);
       return { audio: voice.audio };
     }
     case 'coqui': {
       const speakerId = config('coqui_speaker_id');
-      const voice = await coqui(message, speakerId);
+      const styleUrl = config('coqui_style_url');
+      const voice = await coqui(message, speakerId, styleUrl);
       return { audio: voice.audio };
     }
   }

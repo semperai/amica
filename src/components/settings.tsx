@@ -73,6 +73,8 @@ export const Settings = ({
   const [speechT5SpeakerEmbeddingsUrl, setSpeechT5SpeakerEmbeddingsUrl] = useState(config("speecht5_speaker_embedding_url"));
 
   const [coquiUrl, setCoquiUrl] = useState(config("coqui_url"));
+  const [coquiSpeakerId, setCoquiSpeakerId] = useState(config("coqui_speaker_id"));
+  const [coquiStyleUrl, setCoquiStyleUrl] = useState(config("coqui_style_url"));
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
@@ -279,6 +281,32 @@ export const Settings = ({
                     event.preventDefault();
                     setCoquiUrl(event.target.value);
                     updateConfig("coqui_url", event.target.value);
+                  }}
+                />
+              </div>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  Coqui Speaker Id
+                </div>
+                <TextInput
+                  value={coquiSpeakerId}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    event.preventDefault();
+                    setCoquiSpeakerId(event.target.value);
+                    updateConfig("coqui_speaker_id", event.target.value);
+                  }}
+                />
+              </div>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  Coqui Style URL
+                </div>
+                <TextInput
+                  value={coquiStyleUrl}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    event.preventDefault();
+                    setCoquiStyleUrl(event.target.value);
+                    updateConfig("coqui_style_url", event.target.value);
                   }}
                 />
               </div>

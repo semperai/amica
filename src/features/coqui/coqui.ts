@@ -3,11 +3,12 @@ import { config } from '@/utils/config';
 export async function coqui(
   message: string,
   speakerId: string,
+  styleUrl: string,
 ) {
   try {
     const res = await fetch(`${config("coqui_url")}/api/tts?text=${
       encodeURIComponent(message)
-    }&speaker_id=${speakerId}&style_wav=&language_id=`, {
+    }&speaker_id=${speakerId}&style_wav=${styleUrl}&language_id=en`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

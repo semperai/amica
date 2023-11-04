@@ -1,12 +1,10 @@
 import { WaveFile } from 'wavefile';
-import { TalkStyle } from "@/features/messages/messages";
 import { updateFileProgress } from "@/utils/progress";
 import { convertNumberToWordsEN } from "@/utils/numberSpelling";
 
 export async function speecht5(
   message: string,
   speakerEmbeddingsUrl: string,
-  style: TalkStyle,
 ) {
   // empty cache
   (<any>window).chatvrm_worker_speecht5_audiocache = null;
