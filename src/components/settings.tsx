@@ -29,6 +29,7 @@ const ttsEngines = [
   {key: "none",       label: "None"},
   {key: "elevenlabs", label: "ElevenLabs"},
   {key: "speecht5",   label: "SpeechT5"},
+  {key: "coqui",      label: "Coqui TTS"},
 ];
 
 function thumbPrefix(path: string) {
@@ -71,6 +72,7 @@ export const Settings = ({
 
   const [speechT5SpeakerEmbeddingsUrl, setSpeechT5SpeakerEmbeddingsUrl] = useState(config("speecht5_speaker_embedding_url"));
 
+  const [coquiUrl, setCoquiUrl] = useState(config("coqui_url"));
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
@@ -246,6 +248,7 @@ export const Settings = ({
                 </div>
                 <p>Note: requires restart</p>
                 <select
+                  value={speechT5SpeakerEmbeddingsUrl}
                   onChange={(event: React.ChangeEvent<any>) => {
                     event.preventDefault();
                     setSpeechT5SpeakerEmbeddingsUrl(event.target.value);
@@ -256,12 +259,28 @@ export const Settings = ({
                     <option
                       key={url}
                       value={url}
-                      selected={url === speechT5SpeakerEmbeddingsUrl}
                     >
                       {basename(url)}
                     </option>
                   )}
                 </select>
+              </div>
+            </>
+          )}
+          { ttsBackend === 'coqui' && (
+            <>
+              <div className="my-24">
+                <div className="my-16 font-bold typography-16">
+                  Coqui Server URL
+                </div>
+                <TextInput
+                  value={coquiUrl}
+                  onChange={(event: React.ChangeEvent<any>) => {
+                    event.preventDefault();
+                    setCoquiUrl(event.target.value);
+                    updateConfig("coqui_url", event.target.value);
+                  }}
+                />
               </div>
             </>
           )}
@@ -358,6 +377,7 @@ export const Settings = ({
             </div>
             <div className="my-8">
               <select
+                value={animationUrl}
                 onChange={async (event: React.ChangeEvent<any>) => {
                   event.preventDefault();
                   const url = event.target.value;
@@ -374,7 +394,6 @@ export const Settings = ({
                   <option
                     key={url}
                     value={url}
-                    selected={url === animationUrl}
                   >
                     {basename(url)}
                   </option>

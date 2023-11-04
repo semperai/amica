@@ -27,6 +27,25 @@ Inside the [VoiceLab](https://elevenlabs.io/voice-lab) click the "Potion" icon t
 
 SpeechT5 in browser uses xvector embeddings. You can select a url from this dataset [here](https://huggingface.co/datasets/Xenova/cmu-arctic-xvectors-extracted/tree/main) or generate your own xvector embeddings from audio. 
 
+### Coqui TTS
+
+Coqui is a locally run TTS server. You can find more information [here](https://tts.readthedocs.io/).
+
+```
+pip install TTS
+tts-server --model_name MODEL_NAME
+```
+
+#### Running CORS proxy
+
+You may need to run a CORS proxy to get around CORS issues. You can use [local-cors-proxy](https://www.npmjs.com/package/local-cors-proxy) to do this.
+
+```
+npm install -g local-cors-proxy
+lcp --proxyUrl http://127.0.0.1:5002/api/tts
+```
+
+
 ## Running Local LLM
 
 ### LM Studio
