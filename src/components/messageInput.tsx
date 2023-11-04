@@ -40,7 +40,7 @@ export const MessageInput = ({
   return (
     <div className="absolute bottom-0 z-20 w-screen">
       <div className="bg-base text-black">
-        <div className="mx-auto max-w-4xl p-16">
+        <div className="mx-auto max-w-4xl p-2">
           <div className="grid grid-flow-col grid-cols-[min-content_1fr_min-content] gap-[8px]">
             <AudioManager transcriber={transcriber} />
 
@@ -55,7 +55,7 @@ export const MessageInput = ({
                 }
               }}
               disabled={false/*isChatProcessing*/}
-              className="disabled w-full rounded-16 bg-surface1 px-16 font-M_PLUS_2 font-bold text-text-primary typography-16 hover:bg-surface1-hover focus:bg-surface1 disabled:bg-surface1-disabled disabled:text-primary-disabled"
+              className="disabled w-full rounded-md bg-surface1 px-4 font-M_PLUS_2 font-bold text-text-primary typography-16 hover:bg-surface1-hover focus:bg-surface1 disabled:bg-surface1-disabled disabled:text-primary-disabled"
               value={userMessage}></input>
   
             <IconButton

@@ -1,19 +1,10 @@
 const { light, dark } = require("@charcoal-ui/theme");
-const { createTailwindConfig } = require("@charcoal-ui/tailwind-config");
 /**
  * @type {import('tailwindcss/tailwind-config').TailwindConfig}
  */
 module.exports = {
   darkMode: true,
   content: ["./src/**/*.tsx", "./src/**/*.html"],
-  presets: [
-    createTailwindConfig({
-      version: "v3",
-      theme: {
-        ":root": light,
-      },
-    }),
-  ],
   theme: {
     extend: {
       colors: {

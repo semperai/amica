@@ -51,32 +51,7 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleClickOpenVrmFile = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
-
-  const handleChangeVrmFile = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (!files) return;
-
-      const file = files[0];
-      if (!file) return;
-
-      const file_type = file.name.split(".").pop();
-
-      if (file_type === "vrm") {
-        const blob = new Blob([file], { type: "application/octet-stream" });
-        const url = window.URL.createObjectURL(blob);
-        viewer.loadVrm(url);
-      }
-
-      event.target.value = "";
-    },
-    [viewer]
-  );
 
   useEffect(() => {
     document.body.style.backgroundImage = `url(${config("bg_url")})`;
@@ -280,7 +255,7 @@ export default function Home() {
       />
 
       {/* main menu */}
-      <div className="absolute z-10 m-24">
+      <div className="absolute z-10 m-2">
         <div className="grid grid-flow-col gap-[8px]">
           <IconButton
             iconName="24/Menu"
@@ -325,11 +300,7 @@ export default function Home() {
 
       {showSettings && (
         <Settings
-          chatLog={chatLog}
           onClickClose={() => setShowSettings(false)}
-          onChangeChatLog={handleChangeChatLog}
-          onClickOpenVrmFile={handleClickOpenVrmFile}
-          onClickResetChatLog={() => setChatLog([])}
         />
       )}
 
@@ -344,13 +315,6 @@ export default function Home() {
         </>
       )}
 
-      <input
-        type="file"
-        className="hidden"
-        accept=".vrm"
-        ref={fileInputRef}
-        onChange={handleChangeVrmFile}
-      />
     </div>
   );
 }

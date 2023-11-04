@@ -5,7 +5,7 @@ export const TextButton = (props: Props) => {
   return (
     <button
       {...props}
-      className={`px-24 py-8 text-white font-bold bg-primary hover:bg-primary-hover active:bg-primary-press-press disabled:bg-primary-disabled rounded-4  ${props.className}`}
+      className={`px-4 py-2 text-white font-bold bg-primary hover:bg-primary-hover active:bg-primary-press-press disabled:bg-primary-disabled rounded-lg ${props.className}`}
     >
       {props.children}
     </button>

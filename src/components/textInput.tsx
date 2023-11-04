@@ -10,7 +10,7 @@ export const TextInput = ({
 }: Props) => {
   return (
     <input
-      className="w-col-span-4 text-ellipsis rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"
+      className="w-col-span-4 text-ellipsis rounded-md bg-surface1 px-2 py-2 hover:bg-surface1-hover"
       type="text"
       value={value}
       onChange={onChange}

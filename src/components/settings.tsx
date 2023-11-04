@@ -1,5 +1,5 @@
 import { GetStaticProps } from "next";
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useState, useRef } from "react";
 import { buildUrl } from "@/utils/buildUrl";
 import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "./iconButton";
@@ -44,18 +44,10 @@ function basename(path: string) {
 }
 
 type Props = {
-  chatLog: Message[];
   onClickClose: () => void;
-  onChangeChatLog: (index: number, text: string) => void;
-  onClickOpenVrmFile: () => void;
-  onClickResetChatLog: () => void;
 };
 export const Settings = ({
-  chatLog,
   onClickClose,
-  onChangeChatLog,
-  onClickOpenVrmFile,
-  onClickResetChatLog,
 }: Props) => {
   const { viewer } = useContext(ViewerContext);
 
@@ -83,9 +75,36 @@ export const Settings = ({
 
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleClickOpenVrmFile = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleChangeVrmFile = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files) return;
+
+      const file = files[0];
+      if (!file) return;
+
+      const file_type = file.name.split(".").pop();
+
+      if (file_type === "vrm") {
+        const blob = new Blob([file], { type: "application/octet-stream" });
+        const url = window.URL.createObjectURL(blob);
+        viewer.loadVrm(url);
+      }
+
+      event.target.value = "";
+    },
+    [viewer]
+  );
+
   return (
     <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
-      <div className="absolute m-24">
+      <div className="absolute m-2">
         <IconButton
           iconName="24/Close"
           isProcessing={false}
@@ -93,12 +112,12 @@ export const Settings = ({
           onClick={onClickClose} />
       </div>
       <div className="max-h-full overflow-auto">
-        <div className="mx-auto max-w-3xl px-24 py-64 text-text1 ">
-          <div className="my-24 font-bold typography-32">
+        <div className="mx-auto max-w-3xl px-24 py-16 text-text1 ">
+          <div className="my-2 font-bold text-4xl">
             Settings
           </div>
 
-          <div className="my-24">
+          <div className="my-2">
             <p className="mx-8 my-4 p-2 text-xs">Click this to reset all settings to default.</p>
             <TextButton
               onClick={() => {
@@ -112,8 +131,8 @@ export const Settings = ({
           </div>
             
 
-          <div className="my-24">
-            <div className="my-16 font-bold typography-20">
+          <div className="my-2">
+            <div className="my-1 font-bold text-lg">
               Chatbot Backend
             </div>
             <div className="my-8">
@@ -135,8 +154,8 @@ export const Settings = ({
           
           { chatbotBackend === 'chatgpt' && (
             <>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   OpenAI API Key
                 </div>
                 <SecretTextInput
@@ -147,8 +166,8 @@ export const Settings = ({
                   }}
                 />
               </div>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   OpenAI URL
                 </div>
                 <TextInput
@@ -159,8 +178,8 @@ export const Settings = ({
                   }}
                 />
               </div>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   OpenAI Model
                 </div>
                 <TextInput
@@ -176,8 +195,8 @@ export const Settings = ({
 
           { chatbotBackend === 'llamacpp' && (
             <>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   API URL
                 </div>
                 <p>This is the url of the llama.cpp server</p>
@@ -192,8 +211,8 @@ export const Settings = ({
             </>
           )}
 
-          <div className="my-24">
-            <div className="my-16 font-bold typography-20">
+          <div className="my-2">
+            <div className="my-1 font-bold typography-20">
               Text to Speech
             </div>
             <div className="my-8">
@@ -215,8 +234,8 @@ export const Settings = ({
 
           { ttsBackend === 'elevenlabs' && (
             <>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   ElevenLabs API Key
                 </div>
                 <SecretTextInput
@@ -227,8 +246,8 @@ export const Settings = ({
                   }}
                 />
               </div>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   ElevenLabs Voice ID
                 </div>
                 <TextInput
@@ -244,8 +263,8 @@ export const Settings = ({
 
           { ttsBackend === 'speecht5' && (
             <>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   SpeechT5 Speaker Embeddings URL
                 </div>
                 <p>Note: requires restart</p>
@@ -271,8 +290,8 @@ export const Settings = ({
           )}
           { ttsBackend === 'coqui' && (
             <>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   Coqui Server URL
                 </div>
                 <TextInput
@@ -284,8 +303,8 @@ export const Settings = ({
                   }}
                 />
               </div>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   Coqui Speaker Id
                 </div>
                 <TextInput
@@ -297,8 +316,8 @@ export const Settings = ({
                   }}
                 />
               </div>
-              <div className="my-24">
-                <div className="my-16 font-bold typography-16">
+              <div className="my-2">
+                <div className="my-1 font-bold typography-16">
                   Coqui Style URL
                 </div>
                 <TextInput
@@ -313,8 +332,8 @@ export const Settings = ({
             </>
           )}
 
-          <div className="my-24">
-            <div className="my-16 font-bold typography-20">
+          <div className="my-2">
+            <div className="my-1 font-bold typography-20">
               Background
             </div>
             <div className="my-8">
@@ -333,7 +352,7 @@ export const Settings = ({
                       alt={url}
                       width="160"
                       height="93"
-                      className="m-0 rounded-4"
+                      className="m-0 rounded-md"
                       onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = url;
@@ -344,16 +363,14 @@ export const Settings = ({
             </div>
           </div>
 
-          <div className="my-24">
-            <div className="my-16 font-bold typography-20">
+          <div className="my-2">
+            <div className="my-1 font-bold typography-20">
               Background Video
             </div>
             <div className="my-8">
               <p>Copy this from youtube embed, it will look something like <pre>kDCXBwzSI-4</pre></p>
-              <input
-                type="text"
+              <TextInput
                 value={youtubeVideoID}
-                placeholder="YouTube Video ID"
                 onChange={(event: React.ChangeEvent<any>) => {
                   const id = event.target.value.trim();
                   setYoutubeVideoID(id);
@@ -364,7 +381,7 @@ export const Settings = ({
           </div>
 
           <div className="my-40">
-            <div className="my-16 font-bold typography-20">
+            <div className="my-1 font-bold typography-20">
               Character Model
             </div>
             <div className="my-8">
@@ -393,14 +410,14 @@ export const Settings = ({
               )}
             </div>
             <div className="my-8">
-              <TextButton onClick={onClickOpenVrmFile}>
+              <TextButton onClick={handleClickOpenVrmFile}>
                 Load .VRM
               </TextButton>
             </div>
           </div>
 
           <div className="my-40">
-            <div className="my-16 font-bold typography-20">
+            <div className="my-1 font-bold typography-20">
               Character Animation
             </div>
             <div className="my-8">
@@ -431,7 +448,7 @@ export const Settings = ({
           </div>
 
           <div className="my-40">
-            <div className="my-16 font-bold typography-20">
+            <div className="my-1 font-bold typography-20">
               System Prompt
             </div>
             <textarea
@@ -443,38 +460,17 @@ export const Settings = ({
               className="h-168 w-full  rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"></textarea>
           </div>
 
-          {chatLog.length > 0 && (
-            <div className="my-40">
-              <div className="my-16 font-bold typography-20">
-                Conversation Log
-              </div>
-              <div className="my-8">
-                {chatLog.map((value, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="my-8 grid grid-flow-col  grid-cols-[min-content_1fr] gap-x-fixed">
-                      <div className="w-[64px] py-8">
-                        {value.role === "assistant" ? "Amica" : "You"}
-                      </div>
-                      <input
-                        key={index}
-                        className="w-full rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"
-                        type="text"
-                        value={value.content.trim()}
-                        onChange={(event) => {
-                          onChangeChatLog(index, event.target.value);
-                        }}></input>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          <div className="my-24">
+          <div className="my-2">
             <GitHubLink />
           </div>
+
+          <input
+            type="file"
+            className="hidden"
+            accept=".vrm"
+            ref={fileInputRef}
+            onChange={handleChangeVrmFile}
+          />
         </div>
       </div>
     </div>

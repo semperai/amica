@@ -10,7 +10,7 @@ export function DebugPane({ onClickClose }: {
 
   return (
     <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 max-h-screen overflow-y-auto">
-      <div className="p-8 bg-white">
+      <div className="p-2 bg-white">
         <IconButton
           iconName="24/Close"
           isProcessing={false}
@@ -19,9 +19,9 @@ export function DebugPane({ onClickClose }: {
         <IconButton
           iconName="24/Description"
           isProcessing={false}
-          className="bg-primary hover:bg-primary-hover active:bg-primary-active ml-16"
+          className="bg-primary hover:bg-primary-hover active:bg-primary-active ml-8"
           onClick={onClickCopy} />
-        <span className="text-xl ml-8">Debug Logs</span>
+        <span className="font-bold text-xl ml-2">Debug Logs</span>
       </div>
       <div className="relative w-screen overflow-y-scroll inline-block px-8 bg-white opacity-90">
         {(window as any).error_handler_logs.slice(-5).map((log: any, idx: number) => (
