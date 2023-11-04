@@ -14,6 +14,8 @@
     "@charcoal-ui/icons": "^2.6.0",
     "@charcoal-ui/theme": "^2.7.0",
     "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
+    "@tailwindcss/forms": "^0.5.6",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/dom-speech-recognition": "^0.0.1",
     "@xenova/transformers": "^2.7.0",
