@@ -145,6 +145,7 @@ export default function Home() {
 
         setChatLog(messageLogAssistant);
         setChatProcessing(false);
+        setShownMessage('assistant');
       }
 
       if (stream == null) {
@@ -268,14 +269,14 @@ export default function Home() {
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
-              label="Conversation Log"
+              label="Conversation"
               isProcessing={false}
               onClick={() => setShowChatLog(false)}
             />
           ) : (
             <IconButton
               iconName="24/CommentFill"
-              label="Conversation Log"
+              label="Conversation"
               isProcessing={false}
               disabled={chatLog.length <= 0}
               onClick={() => setShowChatLog(true)}

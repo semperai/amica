@@ -1,5 +1,8 @@
 import { GetStaticProps } from "next";
 import React, { useCallback, useContext, useState, useRef } from "react";
+import { ChevronRightIcon, HomeIcon } from '@heroicons/react/20/solid'
+
+
 import { buildUrl } from "@/utils/buildUrl";
 import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "./iconButton";
@@ -43,13 +46,25 @@ function basename(path: string) {
   return a[a.length - 1];
 }
 
-type Props = {
-  onClickClose: () => void;
-};
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(' ')
+}
+
+type Link = {
+  key: string;
+  label: string;
+}
+
+
 export const Settings = ({
   onClickClose,
-}: Props) => {
+}: {
+    onClickClose: () => void;
+}) => {
   const { viewer } = useContext(ViewerContext);
+
+  const [page, setPage] = useState('main_menu');
+  const [breadcrumbs, setBreadcrumbs] = useState<Link[]>([]);
 
   const [chatbotBackend, setChatbotBackend] = useState(config("chatbot_backend"));
   const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
@@ -102,6 +117,262 @@ export const Settings = ({
     [viewer]
   );
 
+
+  function pageWithMenu(keys: string[]) {
+    const links = keysToLinks(keys);
+    return (
+      <ul role="list" className="divide-y divide-black/5">
+        {links.map((link) => (
+          <li
+            key={link.key}
+            className="relative flex items-center space-x-4 py-4 cursor-pointer bg-white hover:bg-grey-50 hover:opacity-95 p-4 transition-all"
+            onClick={() => {
+              setPage(link.key)
+              setBreadcrumbs([...breadcrumbs, link]);
+            }}
+          >
+            <div className="min-w-0 flex-auto">
+              <div className="flex items-center gap-x-3">
+                <h2 className="min-w-0 text-sm font-semibold leading-6">
+                  <span className="whitespace-nowrap">{link.label}</span>
+                </h2>
+              </div>
+            </div>
+            <ChevronRightIcon className="h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
+          </li>
+        ))}
+      </ul>
+    );  
+  }
+
+  function keysToLinks(keys: string[]): Link[] {
+    const links: Link[] = [];
+    for (const key of keys) {
+      function getLabel(page: string) {
+        switch(page) {
+          case 'appearance': return 'Appearance';
+          case 'chatbot': return 'ChatBot';
+          case 'tts': return 'Text-to-Speech';
+          case 'character': return 'Character';
+          case 'reset_settings': return 'Reset Settings';
+          case 'background_img': return 'Background Image';
+          case 'background_video': return 'Background Video';
+          case 'chatbot_backend': return 'ChatBot Backend';
+          case 'chatgpt_settings': return 'ChatGPT Settings';
+          case 'llaamcpp_settings': return 'LLama.cpp Settings';
+          case 'tts_backend': return 'Text-to-Speech Backend';
+          case 'elevenlabs_settings': return 'ElevenLabs Settings';
+          case 'speecht5_settings': return 'SpeechT5 Settings';
+          case 'coqui_settings': return 'Coqui TTS Settings';
+          case 'system_prompt': return 'System Prompt';
+          case 'character_model': return 'Character Model';
+          case 'character_animation': return 'Character Animation';
+          case 'reset_settings': return 'Reset Settings';
+
+        }
+        return 'Unknown';
+      }
+
+      links.push({
+        key,
+        label: getLabel(key),
+      });
+    }
+    return links;
+  }
+
+  function pageMainMenu() {
+    return pageWithMenu(["appearance", "chatbot", "tts", "character", "reset_settings"]);
+  }
+
+  function pageAppearance() {
+    return pageWithMenu(["background_img", "background_video"]);
+  }
+
+  function pageChatbot() {
+    return pageWithMenu(["chatbot_backend", "chatgpt_settings", "llamacpp_settings"]);
+  }
+
+  function pageTTS() {
+    return pageWithMenu(["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings"]);
+  }
+
+  function pageCharacter() {
+    return pageWithMenu(["system_prompt", "character_model", "character_animation"]);
+  }
+
+  function pageResetSettings() {
+    return (
+      <>
+        reset settings
+      </>
+    );
+  }
+
+  function pageBackgroundImg() {
+    return (
+      <>
+        <div className="rounded-lg shadow bg-white flex flex-wrap justify-center space-x-4 space-y-4">
+          { bgImages.map((url) =>
+            <TextButton
+              key={url}
+              onClick={() => {
+                document.body.style.backgroundImage = `url(${url})`;
+                updateConfig("bg_url", url);
+                setBgUrl(url);
+              }}
+              className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
+              >
+                <img
+                  src={`${thumbPrefix(url)}`}
+                  alt={url}
+                  width="160"
+                  height="93"
+                  className="m-0 rounded-md"
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = url;
+                  }}
+                />
+            </TextButton>
+          )}
+        </div>
+      </>
+    );
+  }
+
+  function pageBackgroundVideo() {
+    return (
+      <>
+        <div className="rounded-lg shadow bg-white p-4">
+          <p>Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code></p>
+
+          <div className="mt-4">
+            <label>Youtube Video ID: </label>
+            <TextInput
+              value={youtubeVideoID}
+              onChange={(event: React.ChangeEvent<any>) => {
+                const id = event.target.value.trim();
+                setYoutubeVideoID(id);
+                updateConfig("youtube_videoid", id);
+              }}
+              />
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  function pageChatbotBackend() {
+    return (
+      <>
+        <select
+          className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          value={chatbotBackend}
+          onChange={(event: React.ChangeEvent<any>) => {
+            setChatbotBackend(event.target.value);
+            updateConfig("chatbot_backend", event.target.value);
+          }}
+        >
+          {chatbotBackends.map((engine) => (
+            <option key={engine.key} value={engine.key}>{engine.label}</option>
+          ))}
+        </select>
+      </>
+    );
+  }
+
+  function getPage() {
+    switch(page) {
+      case 'main_menu':        return pageMainMenu();
+      case 'appearance':       return pageAppearance();
+      case 'chatbot':          return pageChatbot();
+      case 'tts':              return pageTTS();
+      case 'character':        return pageCharacter();
+      case 'reset_settings':   return pageResetSettings();
+      case 'background_img':   return pageBackgroundImg();
+      case 'background_video': return pageBackgroundVideo();
+      case 'chatbot_backend':  return pageChatbotBackend();
+
+      default: return <>Unknown page</>;
+    }
+  }
+
+
+  return (
+    <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 overflow-y-auto backdrop-blur">
+      <div className="fixed w-screen top-0 left-0 z-50 p-2 bg-white">
+        <IconButton
+          iconName="24/Close"
+          isProcessing={false}
+          className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+          onClick={onClickClose} />
+
+        <span className="font-bold text-xl ml-2">Settings</span>
+      </div>
+      <div className="h-screen overflow-auto opacity-90 backdrop-blur">
+        <div className="mx-auto max-w-3xl px-24 py-16 text-text1 ">
+          <nav className="flex" aria-label="Breadcrumb">
+            <ol role="list" className="flex space-x-4 rounded-md bg-white px-6 shadow">
+              {breadcrumbs.length > 0 && (
+                <>
+                  <li className="flex">
+                    <div className="flex items-center">
+                      <span
+                        onClick={() => {
+                          setPage('main_menu');
+                          setBreadcrumbs([]);
+                        }}
+                        className="text-gray-400 hover:text-gray-500 cursor-pointer">
+                        <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                        <span className="sr-only">Home</span>
+                      </span>
+                    </div>
+                  </li>
+                </>
+              )}
+              {breadcrumbs.map((breadcrumb) => (
+                <li key={breadcrumb.key} className="flex">
+                  <div className="flex items-center">
+                    <svg
+                      className="h-full w-6 flex-shrink-0 text-gray-200"
+                      viewBox="0 0 24 44"
+                      preserveAspectRatio="none"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                    </svg>
+                    <span
+                      onClick={() => {
+                        setPage(breadcrumb.key);
+                        const nb = [];
+                        for (let b of breadcrumbs) {
+                          nb.push(b);
+                          if (b.key === breadcrumb.key) {
+                            break;
+                          }
+                        }
+                        setBreadcrumbs(nb);
+                      }}
+                      className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer"
+                    >
+                      {breadcrumb.label}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </nav>
+
+          <div className="mt-16">
+            {getPage()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
       <div className="absolute m-2">
@@ -136,19 +407,6 @@ export const Settings = ({
               Chatbot Backend
             </div>
             <div className="my-8">
-              {chatbotBackends.map((engine) => (
-                <TextButton
-                  key={engine.key}
-                  onClick={() => {
-                    setChatbotBackend(engine.key);
-                    updateConfig("chatbot_backend", engine.key);
-                  }}
-                  className="mx-4"
-                  disabled={chatbotBackend === engine.key}
-                  >
-                  {engine.label}
-                </TextButton>
-              ))}
             </div>
           </div>
           
@@ -337,29 +595,6 @@ export const Settings = ({
               Background
             </div>
             <div className="my-8">
-              { bgImages.map((url) =>
-                <TextButton
-                  key={url}
-                  onClick={() => {
-                    document.body.style.backgroundImage = `url(${url})`;
-                    updateConfig("bg_url", url);
-                    setBgUrl(url);
-                  }}
-                  className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
-                  >
-                    <img
-                      src={`${thumbPrefix(url)}`}
-                      alt={url}
-                      width="160"
-                      height="93"
-                      className="m-0 rounded-md"
-                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = url;
-                      }}
-                    />
-                </TextButton>
-              )}
             </div>
           </div>
 
@@ -368,15 +603,6 @@ export const Settings = ({
               Background Video
             </div>
             <div className="my-8">
-              <p>Copy this from youtube embed, it will look something like <pre>kDCXBwzSI-4</pre></p>
-              <TextInput
-                value={youtubeVideoID}
-                onChange={(event: React.ChangeEvent<any>) => {
-                  const id = event.target.value.trim();
-                  setYoutubeVideoID(id);
-                  updateConfig("youtube_videoid", id);
-                }}
-                />
             </div>
           </div>
 

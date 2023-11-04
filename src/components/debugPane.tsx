@@ -9,7 +9,7 @@ export function DebugPane({ onClickClose }: {
   }
 
   return (
-    <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 max-h-screen overflow-y-auto">
+    <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 overflow-y-auto">
       <div className="p-2 bg-white">
         <IconButton
           iconName="24/Close"
