@@ -6,7 +6,7 @@ const defaults = {
   bg_url: 'bg/bg-landscape1.jpg',
   vrm_url: 'vrm/AvatarSample_A.vrm',
   youtube_videoid: '',
-  animation_url: 'vrm/idle_animation.vrma',
+  animation_url: 'animations/idle_animation.vrma',
   chatbot_backend: 'echo',
   openai_apikey: '',
   openai_url: 'https://api.openai.com',
