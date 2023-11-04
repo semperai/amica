@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { IconButton } from "./iconButton";
 import { AudioManager } from "./audioManager";
 import Transcript from "./transcript";
@@ -23,12 +23,19 @@ export const MessageInput = ({
   onClickSendButton,
 }: Props) => {
   const transcriber = useTranscriber();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (transcriber.output) {
       setUserMessage(transcriber.output?.text);
     }
   }, [transcriber]);
+
+  function send() {
+    onClickSendButton();
+    inputRef.current?.focus();
+    setUserMessage("");
+  }
 
   return (
     <div className="absolute bottom-0 z-20 w-screen">
@@ -39,12 +46,15 @@ export const MessageInput = ({
 
             <input
               type="text"
+              ref={inputRef}
               placeholder="Write message here..."
               onChange={onChangeUserMessage}
               onKeyDown={(e) => {
-                if (e.key === "Enter") onClickSendButton();
+                if (e.key === "Enter") {
+                  send();
+                }
               }}
-              disabled={isChatProcessing}
+              disabled={false/*isChatProcessing*/}
               className="disabled w-full rounded-16 bg-surface1 px-16 font-M_PLUS_2 font-bold text-text-primary typography-16 hover:bg-surface1-hover focus:bg-surface1 disabled:bg-surface1-disabled disabled:text-primary-disabled"
               value={userMessage}></input>
   
@@ -53,7 +63,7 @@ export const MessageInput = ({
               className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
               isProcessing={isChatProcessing}
               disabled={isChatProcessing || !userMessage}
-              onClick={onClickSendButton}
+              onClick={send}
             />
           </div>
         </div>
