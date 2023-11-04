@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState, useRef } from "react";
 import { buildUrl } from "@/utils/buildUrl";
 import { M_PLUS_2, Montserrat } from "next/font/google";
 import { AssistantText } from "@/components/assistantText";
+import { UserText } from "@/components/userText";
 import { IconButton } from "@/components/iconButton";
 import { ChatLog } from "@/components/chatLog";
 import VrmViewer from "@/components/vrmViewer";
@@ -39,6 +40,11 @@ export default function Home() {
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
+  const [userMessage, setUserMessage] = useState("");
+  const [shownMessage, setShownMessage] = useState("system");
+
+  // showContent exists to allow ssr
+  // otherwise issues from usage of localStorage and window will occur
   const [showContent, setShowContent] = useState(false);
 
 
@@ -115,6 +121,7 @@ export default function Home() {
       onStart?: () => void,
       onEnd?: () => void,
     ) => {
+      setShownMessage('assistant');
       speakCharacter(screenplay, viewer, onStart, onEnd);
     },
     [viewer],
@@ -125,9 +132,12 @@ export default function Home() {
    */
   const handleSendChat = useCallback(
     async (text: string) => {
+      console.time('chat stream first message');
       const newMessage = text;
 
       if (newMessage == null) return;
+      setUserMessage(newMessage);
+      setShownMessage('user');
 
       setChatProcessing(true);
       // Add and display user comments
@@ -146,26 +156,28 @@ export default function Home() {
         ...messageLog,
       ];
 
-      const stream = await getChatResponseStream(messages).catch(
-        (e) => {
-          console.error(e);
-          const errMsg = e.toString();
-          setAssistantMessage(errMsg);
-          const messageLogAssistant: Message[] = [
-            ...messageLog,
-            { role: "assistant", content: errMsg },
-          ];
+      let stream = null;
+      try {
+        stream = await getChatResponseStream(messages);
+      } catch(e: any) {
+        console.error(e);
+        const errMsg = e.toString();
+        setAssistantMessage(errMsg);
+        const messageLogAssistant: Message[] = [
+          ...messageLog,
+          { role: "assistant", content: errMsg },
+        ];
 
-          setChatLog(messageLogAssistant);
-          setChatProcessing(false);
-          return null;
-        },
-      );
+        setChatLog(messageLogAssistant);
+        setChatProcessing(false);
+      }
+
       if (stream == null) {
         setChatProcessing(false);
         return;
       }
 
+      console.time('chat stream processing');
       const reader = stream.getReader();
       let receivedMessage = "";
       let aiTextLog = "";
@@ -213,6 +225,7 @@ export default function Home() {
             // Generate & play audio for each sentence, display responses
             const currentAssistantMessage = sentences.join(" ");
             handleSpeakAi(aiTalks[0], () => {
+              console.timeEnd('chat stream first message');
               setAssistantMessage(currentAssistantMessage);
             });
           }
@@ -222,6 +235,7 @@ export default function Home() {
         console.error(e);
       } finally {
         reader.releaseLock();
+        console.timeEnd('chat stream processing');
       }
 
       // reduce unnecessary spaces in response
@@ -319,8 +333,15 @@ export default function Home() {
         />
       )}
 
-      {!showChatLog && assistantMessage && (
-        <AssistantText message={assistantMessage} />
+      {! showChatLog && (
+        <>
+          { shownMessage === 'assistant' && (
+            <AssistantText message={assistantMessage} />
+          )}
+          { shownMessage === 'user' && (
+            <UserText message={userMessage} />
+          )}
+        </>
       )}
 
       <input
