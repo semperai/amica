@@ -224,6 +224,10 @@ export default function Home() {
         reader.releaseLock();
       }
 
+      // reduce unnecessary spaces in response
+      // improves performance for some models
+      aiTextLog = aiTextLog.trim();
+
       // Add assistant responses to log
       const messageLogAssistant: Message[] = [
         ...messageLog,
