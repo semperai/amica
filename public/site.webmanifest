@@ -16,5 +16,5 @@
     "theme_color": "#ffffff",
     "background_color": "#ffffff",
     "display": "standalone",
-    "start_url": "https://amica.arbius.ai"
+    "start_url": "/"
 }
