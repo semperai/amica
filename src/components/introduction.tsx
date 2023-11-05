@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { Link } from "./link";
 import { updateConfig } from "@/utils/config";
 
 type Props = {

@@ -25,7 +25,6 @@ import { TextInput } from "./textInput";
 import { Message } from "@/features/messages/messages";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
-import { Link } from "./link";
 import { config, updateConfig, resetConfig } from "@/utils/config";
 import {
   bgImages,
@@ -227,6 +226,7 @@ export const Settings = ({
           case 'tts': return 'Text-to-Speech';
           case 'character': return 'Character';
           case 'reset_settings': return 'Reset Settings';
+          case 'community': return 'Community';
           case 'background_img': return 'Background Image';
           case 'background_video': return 'Background Video';
           case 'chatbot_backend': return 'ChatBot Backend';
@@ -254,7 +254,7 @@ export const Settings = ({
   }
 
   function pageMainMenu() {
-    return menuPage(["appearance", "chatbot", "tts", "character", "reset_settings"]);
+    return menuPage(["appearance", "chatbot", "tts", "character", "reset_settings", "community"]);
   }
 
   function pageAppearance() {
@@ -274,10 +274,54 @@ export const Settings = ({
   }
 
   function pageResetSettings() {
-    return (
-      <>
-        reset settings
-      </>
+    return basicPage(
+      "Reset Settings",
+      "Reset all settings to default",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="Reset All Settings">
+            <TextButton
+              onClick={() => {
+                resetConfig();
+                window.location.reload();
+              }}
+              className="mx-4 text-xs bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+              >
+              Reset All Settings
+            </TextButton>
+          </FormRow>
+        </li>
+      </ul>
+    );
+  }
+
+  function pageCommunity() {
+    return basicPage(
+      "Community",
+      "Join the community",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <a
+            href="https://t.me/arbius_ai"
+            target="_blank"
+            className="rounded bg-indigo-600 px-2 py-1 text-lg font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+            Telegram
+          </a>
+        </li>
+        <li className="py-4">
+          <a
+            href="https://twitter.com/arbius_ai"
+            target="_blank"
+            className="rounded bg-indigo-600 px-2 py-1 text-lg font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+            Twitter
+          </a>
+        </li>
+        <li className="py-4">
+          <GitHubLink />
+        </li>
+      </ul>
     );
   }
 
@@ -647,6 +691,101 @@ export const Settings = ({
     );
   }
 
+  function pageSystemPrompt() {
+    return basicPage(
+      "System Prompt",
+      "Configure the system prompt",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="System Prompt">
+            <textarea
+              value={systemPrompt}
+              rows={8}
+              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              onChange={(event: React.ChangeEvent<any>) => {
+                event.preventDefault();
+                setSystemPrompt(event.target.value);
+                updateConfig("system_prompt", event.target.value);
+                setSettingsUpdated(true);
+              }}></textarea>
+          </FormRow>
+        </li>
+      </ul>
+    );
+  }
+
+  function pageCharacterModel() {
+    return (
+      <>
+        <div className="rounded-lg shadow-lg bg-white flex flex-wrap justify-center space-x-4 space-y-4 p-4">
+          { vrmList.map((url) =>
+            <button
+              key={url}
+              onClick={() => {
+                viewer.loadVrm(url);
+                updateConfig("vrm_url", url);
+                setVrmUrl(url);
+                setSettingsUpdated(true);
+              }}
+              className={"mx-4 py-2 rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100 rounded-xl " + (vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
+              >
+                <img
+                  src={`${thumbPrefix(url)}.jpg`}
+                  alt={url}
+                  width="160"
+                  height="93"
+                  className="m-0 rounded-md bg-white mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
+                />
+            </button>
+          )}
+        </div>
+        <TextButton
+          className="rounded-t-none text-lg ml-4 px-8 shadow-lg bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+          onClick={handleClickOpenVrmFile}
+        >
+          Load .VRM
+        </TextButton>
+      </>
+    );
+  }
+
+  function pageCharacterAnimation() {
+    return basicPage(
+      "Character Animation",
+      "Select the animation to play",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="Animation">
+            <select
+              value={animationUrl}
+              className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              onChange={async (event: React.ChangeEvent<any>) => {
+                event.preventDefault();
+                const url = event.target.value;
+                setAnimationUrl(url);
+                updateConfig("animation_url", url);
+                setSettingsUpdated(true);
+                // @ts-ignore
+                const vrma = await loadMixamoAnimation(url, viewer.model!.vrm);
+
+                // @ts-ignore
+                viewer.model!.loadAnimation(vrma);
+              }}
+            >
+              {animationList.map((url) =>
+                <option
+                  key={url}
+                  value={url}
+                >
+                  {basename(url)}
+                </option>
+              )}
+            </select>
+          </FormRow>
+        </li>
+      </ul>
+    );
+  }
 
   function getPage() {
     switch(page) {
@@ -656,6 +795,7 @@ export const Settings = ({
       case 'tts':                 return pageTTS();
       case 'character':           return pageCharacter();
       case 'reset_settings':      return pageResetSettings();
+      case 'community':           return pageCommunity();
       case 'background_img':      return pageBackgroundImg();
       case 'background_video':    return pageBackgroundVideo();
       case 'chatbot_backend':     return pageChatbotBackend();
@@ -665,6 +805,9 @@ export const Settings = ({
       case 'elevenlabs_settings': return pageElevenLabsSettings();
       case 'speecht5_settings':   return pageSpeechT5Settings();
       case 'coqui_settings':      return pageCoquiSettings();
+      case 'system_prompt':       return pageSystemPrompt();
+      case 'character_model':     return pageCharacterModel();
+      case 'character_animation': return pageCharacterAnimation();
 
       default: return <>Unknown page</>;
     }
@@ -778,181 +921,14 @@ export const Settings = ({
           </Transition>
         </div>
       </div>
+
+      <input
+        type="file"
+        className="hidden"
+        accept=".vrm"
+        ref={fileInputRef}
+        onChange={handleChangeVrmFile}
+      />
     </div>
   );
-
-    /*
-  return (
-    <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
-      <div className="max-h-full overflow-auto">
-        <div className="mx-auto max-w-3xl px-24 py-16 text-text1 ">
-          <div className="my-2">
-            <p className="mx-8 my-4 p-2 text-xs">Click this to reset all settings to default.</p>
-            <TextButton
-              onClick={() => {
-                resetConfig();
-                window.location.reload();
-              }}
-              className="mx-4 text-xs bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-              >
-              Reset All Settings
-            </TextButton>
-          </div>
-            
-
-          <div className="my-2">
-            <div className="my-1 font-bold typography-20">
-              Text to Speech
-            </div>
-            <div className="my-8">
-              {ttsEngines.map((engine) => (
-                <TextButton
-                  key={engine.key}
-                  onClick={() => {
-                    setTTSBackend(engine.key);
-                    updateConfig("tts_backend", engine.key);
-                    setSettingsUpdated(true);
-                  }}
-                  className="mx-4"
-                  disabled={ttsBackend === engine.key}
-                  >
-                  {engine.label}
-                </TextButton>
-              ))}
-            </div>
-          </div>
-
-          { ttsBackend === 'speecht5' && (
-            <>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  SpeechT5 Speaker Embeddings URL
-                </div>
-                <p>Note: requires restart</p>
-              </div>
-            </>
-          )}
-          { ttsBackend === 'coqui' && (
-            <>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  Coqui Speaker Id
-                </div>
-                <TextInput
-                  value={coquiSpeakerId}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    event.preventDefault();
-                    setCoquiSpeakerId(event.target.value);
-                    updateConfig("coqui_speaker_id", event.target.value);
-                    setSettingsUpdated(true);
-                  }}
-                />
-              </div>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  Coqui Style URL
-                </div>
-              </div>
-            </>
-          )}
-
-          <div className="my-40">
-            <div className="my-1 font-bold typography-20">
-              Character Model
-            </div>
-            <div className="my-8">
-              {vrmList.map((url) =>
-                <TextButton
-                  key={url}
-                  onClick={() => {
-                    viewer.loadVrm(url);
-                    setVrmUrl(url);
-                    updateConfig("vrm_url", url);
-                    setSettingsUpdated(true);
-                  }}
-                  className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
-                  >
-                    <img
-                      src={`${thumbPrefix(url)}.jpg`}
-                      alt={basename(url)}
-                      width="160"
-                      height="93"
-                      className="m-0 rounded-4"
-                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.style.backgroundColor = "gray";
-                      }}
-                  />
-                </TextButton>
-              )}
-            </div>
-            <div className="my-8">
-              <TextButton onClick={handleClickOpenVrmFile}>
-                Load .VRM
-              </TextButton>
-            </div>
-          </div>
-
-          <div className="my-40">
-            <div className="my-1 font-bold typography-20">
-              Character Animation
-            </div>
-            <div className="my-8">
-              <select
-                value={animationUrl}
-                onChange={async (event: React.ChangeEvent<any>) => {
-                  event.preventDefault();
-                  const url = event.target.value;
-                  setAnimationUrl(url);
-                  updateConfig("animation_url", url);
-                  setSettingsUpdated(true);
-                  // @ts-ignore
-                  const vrma = await loadMixamoAnimation(url, viewer.model!.vrm);
-
-                  // @ts-ignore
-                  viewer.model!.loadAnimation(vrma);
-                }}
-              >
-                {animationList.map((url) =>
-                  <option
-                    key={url}
-                    value={url}
-                  >
-                    {basename(url)}
-                  </option>
-                )}
-              </select>
-            </div>
-          </div>
-
-          <div className="my-40">
-            <div className="my-1 font-bold typography-20">
-              System Prompt
-            </div>
-            <textarea
-              value={systemPrompt}
-              onChange={(e) => {
-                setSystemPrompt(e.target.value);
-                updateConfig("system_prompt", e.target.value);
-                setSettingsUpdated(true);
-              }}
-              className="h-168 w-full  rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"></textarea>
-          </div>
-
-          <div className="my-2">
-            <GitHubLink />
-          </div>
-
-          <input
-            type="file"
-            className="hidden"
-            accept=".vrm"
-            ref={fileInputRef}
-            onChange={handleChangeVrmFile}
-          />
-        </div>
-      </div>
-    </div>
-  );
-  */
 };
