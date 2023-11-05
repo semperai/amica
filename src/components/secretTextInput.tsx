@@ -78,7 +78,7 @@ export const SecretTextInput = ({
         </span>
       </Switch>
       <Switch.Label as="span" className="ml-3 text-sm">
-        <span className="font-medium text-gray-900">Show Password</span>
+        <span className="font-medium text-gray-900 whitespace-nowrap">Show Key</span>
       </Switch.Label>
     </Switch.Group>
   );

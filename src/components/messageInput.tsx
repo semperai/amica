@@ -5,7 +5,6 @@ import Transcript from "./transcript";
 import { useTranscriber } from "@/hooks/useTranscriber";
 
 
-
 type Props = {
   userMessage: string;
   setUserMessage: (message: string) => void;
@@ -28,6 +27,7 @@ export const MessageInput = ({
   useEffect(() => {
     if (transcriber.output) {
       setUserMessage(transcriber.output?.text);
+      inputRef.current?.focus();
     }
   }, [transcriber]);
 
