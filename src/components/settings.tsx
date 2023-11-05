@@ -918,6 +918,9 @@ export const Settings = ({
 
   return (
     <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 overflow-y-auto backdrop-blur">
+      <div
+        className="absolute top-0 left-0 w-screen h-screen bg-violet-700 opacity-10 z-index-50"
+      ></div>
       <div className="fixed w-screen top-0 left-0 z-50 p-2 bg-white">
         {breadcrumbs.length === 0 && (
           <IconButton

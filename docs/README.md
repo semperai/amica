@@ -42,8 +42,11 @@ You may need to run a CORS proxy to get around CORS issues. You can use [local-c
 
 ```
 npm install -g local-cors-proxy
-lcp --proxyUrl http://127.0.0.1:5002/api/tts
+# this will proxy 5002 -> 8010
+lcp --proxyUrl http://127.0.0.1:5002 -p 8010
 ```
+
+Now you can  `http://127.0.0.1:8010/proxy` as the `API URL` inside Coqui Settings.
 
 
 ## Running Local LLM

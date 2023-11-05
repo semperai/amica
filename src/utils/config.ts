@@ -3,6 +3,7 @@ const defaults = {
   show_webcam: 'false',
   language: 'en',
   show_introduction: 'true',
+  show_add_to_homescreen: 'true',
   bg_url: 'bg/bg-landscape1.jpg',
   vrm_url: 'vrm/AvatarSample_A.vrm',
   youtube_videoid: '',

@@ -1,18 +1,20 @@
 import { useCallback, useContext, useEffect, useState, useRef } from "react";
-import { buildUrl } from "@/utils/buildUrl";
 import { M_PLUS_2, Montserrat } from "next/font/google";
+
 import { AssistantText } from "@/components/assistantText";
+import { AddToHomescreen } from "@/components/addToHomescreen";
 import { UserText } from "@/components/userText";
 import { IconButton } from "@/components/iconButton";
 import { ChatLog } from "@/components/chatLog";
 import VrmViewer from "@/components/vrmViewer";
 import { MessageInputContainer } from "@/components/messageInputContainer";
-import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Introduction } from "@/components/introduction";
 import { LoadingProgress } from "@/components/loadingProgress";
 import { DebugPane } from "@/components/debugPane";
 import { Settings } from "@/components/settings";
 import { EmbeddedWebcam } from "@/components/embeddedWebcam";
+
+import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import {
   Message,
   textsToScreenplay,
@@ -20,6 +22,8 @@ import {
 } from "@/features/messages/messages";
 import { speakCharacter } from "@/features/messages/speakCharacter";
 import { getChatResponseStream } from "@/features/chat/chat";
+
+import { buildUrl } from "@/utils/buildUrl";
 import { config } from '@/utils/config';
 
  const m_plus_2 = M_PLUS_2({
@@ -327,6 +331,7 @@ export default function Home() {
         </>
       )}
 
+      <AddToHomescreen />
     </div>
   );
 }
