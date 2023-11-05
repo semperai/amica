@@ -182,19 +182,20 @@ function FormRow({label, children}: {
 function ResetSettingsPage() {
   return basicPage(
     "Reset Settings",
-    "Reset all settings to default",
+    "Reset all settings to default. This will reload the page. You will lose any unsaved changes.",
     <ul role="list" className="divide-y divide-gray-100 max-w-xs">
       <li className="py-4">
-        <FormRow label="Reset All Settings">
-          <TextButton
+        <FormRow label="">
+          <IconButton
+            iconName="24/Error"
+            isProcessing={false}
+            label="Reset All Settings"
             onClick={() => {
               resetConfig();
               window.location.reload();
             }}
             className="mx-4 text-xs bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-            >
-            Reset All Settings
-          </TextButton>
+            />
         </FormRow>
       </li>
     </ul>
