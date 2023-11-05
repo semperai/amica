@@ -1,6 +1,19 @@
 import { GetStaticProps } from "next";
-import React, { useCallback, useContext, useState, useRef } from "react";
-import { ChevronRightIcon, HomeIcon } from '@heroicons/react/20/solid'
+import React, {
+  Fragment,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+import { Transition } from '@headlessui/react'
+import { CheckCircleIcon } from '@heroicons/react/24/outline'
+import {
+  ChevronRightIcon,
+  HomeIcon,
+  XMarkIcon,
+} from '@heroicons/react/20/solid'
 
 
 import { buildUrl } from "@/utils/buildUrl";
@@ -65,6 +78,8 @@ export const Settings = ({
 
   const [page, setPage] = useState('main_menu');
   const [breadcrumbs, setBreadcrumbs] = useState<Link[]>([]);
+  const [showNotification, setShowNotification] = useState(false);
+  const [settingsUpdated, setSettingsUpdated] = useState(false);
 
   const [chatbotBackend, setChatbotBackend] = useState(config("chatbot_backend"));
   const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
@@ -116,6 +131,27 @@ export const Settings = ({
     },
     [viewer]
   );
+
+  useEffect(() => {
+    const timeOutId = setTimeout(() => {
+      if (settingsUpdated) {
+        setShowNotification(true);
+        setTimeout(() => {
+          setShowNotification(false);
+        }, 5000);
+      }
+    }, 1000);
+    return () => clearTimeout(timeOutId);
+  }, [
+    chatbotBackend, openAIApiKey, openAIUrl, openAIModel,
+    llamaCppUrl,
+    ttsBackend, elevenlabsApiKey, elevenlabsVoiceId,
+    speechT5SpeakerEmbeddingsUrl,
+    coquiUrl, coquiSpeakerId, coquiStyleUrl,
+    bgUrl, vrmUrl, youtubeVideoID, animationUrl,
+    systemPrompt,
+  ]);
+
 
 
   function menuPage(keys: string[]) {
@@ -256,6 +292,7 @@ export const Settings = ({
                 document.body.style.backgroundImage = `url(${url})`;
                 updateConfig("bg_url", url);
                 setBgUrl(url);
+                setSettingsUpdated(true);
               }}
               className={"mx-4 py-2 rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100 rounded-xl " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
               >
@@ -290,6 +327,8 @@ export const Settings = ({
                 const id = event.target.value.trim();
                 setYoutubeVideoID(id);
                 updateConfig("youtube_videoid", id);
+                setSettingsUpdated(true);
+                return false;
               }}
               />
            </FormRow>
@@ -310,6 +349,7 @@ export const Settings = ({
               onChange={(event: React.ChangeEvent<any>) => {
                 setOpenAIApiKey(event.target.value);
                 updateConfig("openai_apikey", event.target.value);
+                setSettingsUpdated(true);
               }}
             />
           </FormRow>
@@ -321,6 +361,7 @@ export const Settings = ({
               onChange={(event: React.ChangeEvent<any>) => {
                 setOpenAIUrl(event.target.value);
                 updateConfig("openai_url", event.target.value);
+                setSettingsUpdated(true);
               }}
             />
           </FormRow>
@@ -332,6 +373,7 @@ export const Settings = ({
               onChange={(event: React.ChangeEvent<any>) => {
                 setOpenAIModel(event.target.value);
                 updateConfig("openai_model", event.target.value);
+                setSettingsUpdated(true);
               }}
             />
           </FormRow>
@@ -352,6 +394,7 @@ export const Settings = ({
               onChange={(event: React.ChangeEvent<any>) => {
                 setLlamaCppUrl(event.target.value);
                 updateConfig("llamacpp_url", event.target.value);
+                setSettingsUpdated(true);
               }}
             />
           </FormRow>
@@ -373,6 +416,7 @@ export const Settings = ({
               onChange={(event: React.ChangeEvent<any>) => {
                 setChatbotBackend(event.target.value);
                 updateConfig("chatbot_backend", event.target.value);
+                setSettingsUpdated(true);
               }}
             >
               {chatbotBackends.map((engine) => (
@@ -417,19 +461,210 @@ export const Settings = ({
     );
   }
 
+  function pageTTSBackend() {
+    return basicPage(
+      "Text-to-Speech Backend",
+      "Select the TTS backend to use", 
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="TTS Backend">
+            <select
+              className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              value={ttsBackend}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setTTSBackend(event.target.value);
+                updateConfig("tts_backend", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            >
+              {ttsEngines.map((engine) => (
+                <option key={engine.key} value={engine.key}>{engine.label}</option>
+              ))}
+            </select>
+          </FormRow>
+        </li>
+        { ttsBackend === 'elevenlabs' && (
+          <li className="py-4">
+            <FormRow label="Configure ElevenLabs">
+              <button
+                type="button"
+                className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  setPage('elevenlabs_settings');
+                  setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'elevenlabs_settings', label: 'ElevenLabs Settings'}]));
+                }}
+              >
+                Click here to configure ElevenLabs
+              </button>
+            </FormRow>
+          </li>
+        )}
+        { ttsBackend === 'speecht5' && (
+          <li className="py-4">
+            <FormRow label="Configure SpeechT5">
+              <button
+                type="button"
+                className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  setPage('speecht5_settings');
+                  setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'speecht5_settings', label: 'SpeechT5 Settings'}]));
+                }}
+              >
+                Click here to configure SpeechT5
+              </button>
+            </FormRow>
+          </li>
+        )}
+        { ttsBackend === 'coqui' && (
+          <li className="py-4">
+            <FormRow label="Configure Coqui">
+              <button
+                type="button"
+                className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  setPage('coqui_settings');
+                  setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'coqui_settings', label: 'Coqui Settings'}]));
+                }}
+              >
+                Click here to configure Coqui
+              </button>
+            </FormRow>
+          </li>
+        )}
+      </ul>
+    );
+  }
+
+  function pageElevenLabsSettings() {
+    return basicPage(
+      "ElevenLabs Settings",
+      "Configure ElevenLabs",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="API Key">
+            <SecretTextInput
+              value={elevenlabsApiKey}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setElevenlabsApiKey(event.target.value);
+                updateConfig("elevenlabs_apikey", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            />
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label="Voice ID">
+            <TextInput
+              value={elevenlabsVoiceId}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setElevenlabsVoiceId(event.target.value);
+                updateConfig("elevenlabs_voiceid", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            />
+          </FormRow>
+        </li>
+      </ul>
+    );
+  }
+
+  function pageSpeechT5Settings() {
+    return basicPage(
+      "SpeechT5 Settings",
+      "Configure SpeechT5",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="Speaker Embeddings URL">
+            <select
+              value={speechT5SpeakerEmbeddingsUrl}
+              onChange={(event: React.ChangeEvent<any>) => {
+                event.preventDefault();
+                setSpeechT5SpeakerEmbeddingsUrl(event.target.value);
+                updateConfig("speecht5_speaker_embedding_url", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            >
+              {speechT5SpeakerEmbeddingsList.map((url) =>
+                <option
+                  key={url}
+                  value={url}
+                >
+                  {basename(url)}
+                </option>
+              )}
+            </select>
+          </FormRow>
+        </li>
+      </ul>
+    );
+  }
+
+  function pageCoquiSettings() {
+    return basicPage(
+      "Coqui Settings",
+      "Configure Coqui",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="API URL">
+            <TextInput
+              value={coquiUrl}
+              onChange={(event: React.ChangeEvent<any>) => {
+                event.preventDefault();
+                setCoquiUrl(event.target.value);
+                updateConfig("coqui_url", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            />
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label="Speaker Id">
+            <TextInput
+              value={coquiSpeakerId}
+              onChange={(event: React.ChangeEvent<any>) => {
+                event.preventDefault();
+                setCoquiSpeakerId(event.target.value);
+                updateConfig("coqui_speaker_id", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            />
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label="Style URL">
+            <TextInput
+              value={coquiStyleUrl}
+              onChange={(event: React.ChangeEvent<any>) => {
+                event.preventDefault();
+                setCoquiStyleUrl(event.target.value);
+                updateConfig("coqui_style_url", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            />
+          </FormRow>
+        </li>
+      </ul>
+    );
+  }
+
+
   function getPage() {
     switch(page) {
-      case 'main_menu':        return pageMainMenu();
-      case 'appearance':       return pageAppearance();
-      case 'chatbot':          return pageChatbot();
-      case 'tts':              return pageTTS();
-      case 'character':        return pageCharacter();
-      case 'reset_settings':   return pageResetSettings();
-      case 'background_img':   return pageBackgroundImg();
-      case 'background_video': return pageBackgroundVideo();
-      case 'chatbot_backend':  return pageChatbotBackend();
-      case 'chatgpt_settings': return pageChatGPTSettings();
-      case 'llamacpp_settings': return pageLlamaCppSettings();
+      case 'main_menu':           return pageMainMenu();
+      case 'appearance':          return pageAppearance();
+      case 'chatbot':             return pageChatbot();
+      case 'tts':                 return pageTTS();
+      case 'character':           return pageCharacter();
+      case 'reset_settings':      return pageResetSettings();
+      case 'background_img':      return pageBackgroundImg();
+      case 'background_video':    return pageBackgroundVideo();
+      case 'chatbot_backend':     return pageChatbotBackend();
+      case 'chatgpt_settings':    return pageChatGPTSettings();
+      case 'llamacpp_settings':   return pageLlamaCppSettings();
+      case 'tts_backend':         return pageTTSBackend();
+      case 'elevenlabs_settings': return pageElevenLabsSettings();
+      case 'speecht5_settings':   return pageSpeechT5Settings();
+      case 'coqui_settings':      return pageCoquiSettings();
 
       default: return <>Unknown page</>;
     }
@@ -445,86 +680,112 @@ export const Settings = ({
           className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
           onClick={onClickClose} />
 
-        <span className="font-bold text-xl ml-2">Settings</span>
-      </div>
-      <div className="h-screen overflow-auto opacity-95 backdrop-blur">
-        <div className="mx-auto max-w-3xl py-16 text-text1">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol role="list" className="flex space-x-4 rounded-md bg-white px-6 shadow">
-              {breadcrumbs.length > 0 && (
-                <>
-                  <li className="flex">
-                    <div className="flex items-center">
-                      <span
-                        onClick={() => {
-                          setPage('main_menu');
-                          setBreadcrumbs([]);
-                        }}
-                        className="text-gray-400 hover:text-gray-500 cursor-pointer">
-                        <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-                        <span className="sr-only">Home</span>
-                      </span>
-                    </div>
-                  </li>
-                </>
-              )}
-              {breadcrumbs.map((breadcrumb) => (
-                <li key={breadcrumb.key} className="flex">
+        <nav aria-label="Breadcrumb" className="inline-block ml-4">
+          <ol role="list" className="flex items-center space-x-4">
+            {breadcrumbs.length > 0 && (
+              <>
+                <li className="flex">
                   <div className="flex items-center">
-                    <svg
-                      className="h-full w-6 flex-shrink-0 text-gray-200"
-                      viewBox="0 0 24 44"
-                      preserveAspectRatio="none"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
-                    </svg>
                     <span
                       onClick={() => {
-                        setPage(breadcrumb.key);
-                        const nb = [];
-                        for (let b of breadcrumbs) {
-                          nb.push(b);
-                          if (b.key === breadcrumb.key) {
-                            break;
-                          }
-                        }
-                        setBreadcrumbs(nb);
+                        setPage('main_menu');
+                        setBreadcrumbs([]);
                       }}
-                      className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer"
-                    >
-                      {breadcrumb.label}
+                      className="text-gray-400 hover:text-gray-500 cursor-pointer">
+                      <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                      <span className="sr-only">Home</span>
                     </span>
                   </div>
                 </li>
-              ))}
-            </ol>
-          </nav>
+              </>
+            )}
+            {breadcrumbs.map((breadcrumb) => (
+              <li key={breadcrumb.key} className="flex">
+                <div className="flex items-center">
+                  <ChevronRightIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                  <span
+                    onClick={() => {
+                      setPage(breadcrumb.key);
+                      const nb = [];
+                      for (let b of breadcrumbs) {
+                        nb.push(b);
+                        if (b.key === breadcrumb.key) {
+                          break;
+                        }
+                      }
+                      setBreadcrumbs(nb);
+                    }}
+                    className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer"
+                  >
+                    {breadcrumb.label}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </div>
 
+      <div className="h-screen overflow-auto opacity-95 backdrop-blur">
+        <div className="mx-auto max-w-3xl py-16 text-text1">
           <div className="mt-16">
             {getPage()}
           </div>
         </div>
       </div>
+
+      <div
+        aria-live="assertive"
+        className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6 mt-4"
+      >
+        <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
+
+          <Transition
+            show={showNotification}
+            as={Fragment}
+            enter="transform ease-out duration-300 transition"
+            enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            enterTo="translate-y-0 opacity-100 sm:translate-x-0"
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+              <div className="p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <CheckCircleIcon className="h-6 w-6 text-green-400" aria-hidden="true" />
+                  </div>
+                  <div className="ml-3 w-0 flex-1 pt-0.5">
+                    <p className="text-sm font-medium text-gray-900">Successfully saved!</p>
+                    <p className="mt-1 text-sm text-gray-500">Your settings were updated successfully.</p>
+                  </div>
+                  <div className="ml-4 flex flex-shrink-0">
+                    <button
+                      type="button"
+                      className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      onClick={() => {
+                        setShowNotification(false)
+                      }}
+                    >
+                      <span className="sr-only">Close</span>
+                      <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </div>
     </div>
   );
 
+    /*
   return (
     <div className="absolute z-40 h-full w-full bg-white/80 backdrop-blur ">
-      <div className="absolute m-2">
-        <IconButton
-          iconName="24/Close"
-          isProcessing={false}
-          className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-          onClick={onClickClose} />
-      </div>
       <div className="max-h-full overflow-auto">
         <div className="mx-auto max-w-3xl px-24 py-16 text-text1 ">
-          <div className="my-2 font-bold text-4xl">
-            Settings
-          </div>
-
           <div className="my-2">
             <p className="mx-8 my-4 p-2 text-xs">Click this to reset all settings to default.</p>
             <TextButton
@@ -550,6 +811,7 @@ export const Settings = ({
                   onClick={() => {
                     setTTSBackend(engine.key);
                     updateConfig("tts_backend", engine.key);
+                    setSettingsUpdated(true);
                   }}
                   className="mx-4"
                   disabled={ttsBackend === engine.key}
@@ -560,35 +822,6 @@ export const Settings = ({
             </div>
           </div>
 
-          { ttsBackend === 'elevenlabs' && (
-            <>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  ElevenLabs API Key
-                </div>
-                <SecretTextInput
-                  value={elevenlabsApiKey}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    setElevenlabsApiKey(event.target.value);
-                    updateConfig("elevenlabs_apikey", event.target.value);
-                  }}
-                />
-              </div>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  ElevenLabs Voice ID
-                </div>
-                <TextInput
-                  value={elevenlabsVoiceId}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    setElevenlabsVoiceId(event.target.value);
-                    updateConfig("elevenlabs_voiceid", event.target.value);
-                  }}
-                />
-              </div>
-            </>
-          )}
-
           { ttsBackend === 'speecht5' && (
             <>
               <div className="my-2">
@@ -596,41 +829,11 @@ export const Settings = ({
                   SpeechT5 Speaker Embeddings URL
                 </div>
                 <p>Note: requires restart</p>
-                <select
-                  value={speechT5SpeakerEmbeddingsUrl}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    event.preventDefault();
-                    setSpeechT5SpeakerEmbeddingsUrl(event.target.value);
-                    updateConfig("speecht5_speaker_embedding_url", event.target.value);
-                  }}
-                >
-                  {speechT5SpeakerEmbeddingsList.map((url) =>
-                    <option
-                      key={url}
-                      value={url}
-                    >
-                      {basename(url)}
-                    </option>
-                  )}
-                </select>
               </div>
             </>
           )}
           { ttsBackend === 'coqui' && (
             <>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  Coqui Server URL
-                </div>
-                <TextInput
-                  value={coquiUrl}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    event.preventDefault();
-                    setCoquiUrl(event.target.value);
-                    updateConfig("coqui_url", event.target.value);
-                  }}
-                />
-              </div>
               <div className="my-2">
                 <div className="my-1 font-bold typography-16">
                   Coqui Speaker Id
@@ -641,6 +844,7 @@ export const Settings = ({
                     event.preventDefault();
                     setCoquiSpeakerId(event.target.value);
                     updateConfig("coqui_speaker_id", event.target.value);
+                    setSettingsUpdated(true);
                   }}
                 />
               </div>
@@ -648,33 +852,9 @@ export const Settings = ({
                 <div className="my-1 font-bold typography-16">
                   Coqui Style URL
                 </div>
-                <TextInput
-                  value={coquiStyleUrl}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    event.preventDefault();
-                    setCoquiStyleUrl(event.target.value);
-                    updateConfig("coqui_style_url", event.target.value);
-                  }}
-                />
               </div>
             </>
           )}
-
-          <div className="my-2">
-            <div className="my-1 font-bold typography-20">
-              Background
-            </div>
-            <div className="my-8">
-            </div>
-          </div>
-
-          <div className="my-2">
-            <div className="my-1 font-bold typography-20">
-              Background Video
-            </div>
-            <div className="my-8">
-            </div>
-          </div>
 
           <div className="my-40">
             <div className="my-1 font-bold typography-20">
@@ -686,8 +866,9 @@ export const Settings = ({
                   key={url}
                   onClick={() => {
                     viewer.loadVrm(url);
-                    updateConfig("vrm_url", url);
                     setVrmUrl(url);
+                    updateConfig("vrm_url", url);
+                    setSettingsUpdated(true);
                   }}
                   className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
                   >
@@ -724,6 +905,7 @@ export const Settings = ({
                   const url = event.target.value;
                   setAnimationUrl(url);
                   updateConfig("animation_url", url);
+                  setSettingsUpdated(true);
                   // @ts-ignore
                   const vrma = await loadMixamoAnimation(url, viewer.model!.vrm);
 
@@ -752,6 +934,7 @@ export const Settings = ({
               onChange={(e) => {
                 setSystemPrompt(e.target.value);
                 updateConfig("system_prompt", e.target.value);
+                setSettingsUpdated(true);
               }}
               className="h-168 w-full  rounded-8 bg-surface1 px-16 py-8 hover:bg-surface1-hover"></textarea>
           </div>
@@ -771,4 +954,5 @@ export const Settings = ({
       </div>
     </div>
   );
+  */
 };
