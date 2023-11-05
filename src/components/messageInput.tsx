@@ -54,17 +54,20 @@ export const MessageInput = ({
                   send();
                 }
               }}
-              disabled={false/*isChatProcessing*/}
-              className="disabled w-full rounded-md bg-surface1 px-4 font-M_PLUS_2 font-bold text-text-primary typography-16 hover:bg-surface1-hover focus:bg-surface1 disabled:bg-surface1-disabled disabled:text-primary-disabled"
+              disabled={false}
+
+              className="disabled block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
               value={userMessage}></input>
   
-            <IconButton
-              iconName="24/Send"
-              className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
-              isProcessing={isChatProcessing}
-              disabled={isChatProcessing || !userMessage}
-              onClick={send}
-            />
+            <div className='flex flex-col justify-center items-center'>
+              <IconButton
+                iconName="24/Send"
+                className="ml-2 bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
+                isProcessing={isChatProcessing}
+                disabled={isChatProcessing || !userMessage}
+                onClick={send}
+              />
+            </div>
           </div>
         </div>
       </div>
