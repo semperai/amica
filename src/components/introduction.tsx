@@ -1,15 +1,18 @@
 import { useState, useCallback } from "react";
 import { updateConfig } from "@/utils/config";
 
-type Props = {
+export const Introduction = ({ open }: {
   open: boolean;
-};
-export const Introduction = ({ open }: Props) => {
+}) => {
   const [opened, setOpened] = useState(open);
 
-  return opened ? (
-    <div className="absolute z-40 h-full w-full bg-black/30 px-24  py-40 font-M_PLUS_2">
-      <div className="mx-auto my-auto max-h-full max-w-3xl overflow-auto rounded-lg bg-white p-4">
+  if (! opened) {
+    return null;
+  }
+
+  return (
+    <div className="absolute z-40 h-full w-full bg-black/30 mx-auto max-w-7xl sm:px-24 lg:px-32  py-40 font-M_PLUS_2">
+      <div className="mx-auto my-auto max-h-full overflow-auto rounded-lg bg-white p-4">
         <div className="my-4">
           <div className="my-8 font-bold text-secondary text-xl">
             Welcome to Amica 0.1
@@ -27,7 +30,7 @@ export const Introduction = ({ open }: Props) => {
           </p>
         </div>
 
-        <div className="my-6">
+        <div className="my-8">
           <button
             onClick={() => {
               setOpened(false);
@@ -46,5 +49,5 @@ export const Introduction = ({ open }: Props) => {
         </div>
       </div>
     </div>
-  ) : null;
+  );
 };

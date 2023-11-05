@@ -11,6 +11,8 @@ import { Transition } from '@headlessui/react'
 import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import {
   ChevronRightIcon,
+  ChevronLeftIcon,
+  ArrowUturnLeftIcon,
   HomeIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid'
@@ -224,18 +226,17 @@ export const Settings = ({
           case 'appearance': return 'Appearance';
           case 'chatbot': return 'ChatBot';
           case 'tts': return 'Text-to-Speech';
-          case 'character': return 'Character';
           case 'reset_settings': return 'Reset Settings';
           case 'community': return 'Community';
           case 'background_img': return 'Background Image';
           case 'background_video': return 'Background Video';
           case 'chatbot_backend': return 'ChatBot Backend';
-          case 'chatgpt_settings': return 'ChatGPT Settings';
-          case 'llamacpp_settings': return 'LLama.cpp Settings';
+          case 'chatgpt_settings': return 'ChatGPT';
+          case 'llamacpp_settings': return 'LLama.cpp';
           case 'tts_backend': return 'Text-to-Speech Backend';
-          case 'elevenlabs_settings': return 'ElevenLabs Settings';
-          case 'speecht5_settings': return 'SpeechT5 Settings';
-          case 'coqui_settings': return 'Coqui TTS Settings';
+          case 'elevenlabs_settings': return 'ElevenLabs';
+          case 'speecht5_settings': return 'SpeechT5';
+          case 'coqui_settings': return 'Coqui';
           case 'system_prompt': return 'System Prompt';
           case 'character_model': return 'Character Model';
           case 'character_animation': return 'Character Animation';
@@ -254,23 +255,19 @@ export const Settings = ({
   }
 
   function pageMainMenu() {
-    return menuPage(["appearance", "chatbot", "tts", "character", "reset_settings", "community"]);
+    return menuPage(["appearance", "chatbot", "tts", "reset_settings", "community"]);
   }
 
   function pageAppearance() {
-    return menuPage(["background_img", "background_video"]);
+    return menuPage(["background_img", "background_video", "character_model", "character_animation"]);
   }
 
   function pageChatbot() {
-    return menuPage(["chatbot_backend", "chatgpt_settings", "llamacpp_settings"]);
+    return menuPage(["chatbot_backend", "system_prompt", "chatgpt_settings", "llamacpp_settings"]);
   }
 
   function pageTTS() {
     return menuPage(["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings"]);
-  }
-
-  function pageCharacter() {
-    return menuPage(["system_prompt", "character_model", "character_animation"]);
   }
 
   function pageResetSettings() {
@@ -384,7 +381,7 @@ export const Settings = ({
   function pageChatGPTSettings() {
     return basicPage(
       "ChatGPT Settings",
-      "dexriptions",
+      <>Configure ChatGPT settings. You can get an API key from <a href="https://platform.openai.com">platform.openai.com</a>. You can generally use other OpenAI compatible URLs and models here too, such as <a href="https://openrouter.ai/">OpenRouter</a> or <a href="https://lmstudio.ai/">LM Studio</a>.</>,
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="OpenAI API Key">
@@ -429,7 +426,7 @@ export const Settings = ({
   function pageLlamaCppSettings() {
     return basicPage(
       "LLama.cpp Settings",
-      "dexriptions",
+      <>LLama.cpp is a free and open source chatbot backend. You should build the server from source and run it on your own computer. You can get the source code from <a href="https://github.com/ggerganov/llama.cpp">GitHub</a></>,
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="API URL">
@@ -450,7 +447,7 @@ export const Settings = ({
   function pageChatbotBackend() {
     return basicPage(
       "Chatbot Backend",
-      "Select the chatbot backend to use", 
+      "Select the chatbot backend to use. Echo simply responds with what you type, it is used for testing and demonstration. ChatGPT is a commercial chatbot API from OpenAI, however there are multiple compatible API providers which can be used in lieu of OpenAI. LLama.cpp is a free and open source chatbot backend.", 
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="Chatbot Backend">
@@ -694,7 +691,7 @@ export const Settings = ({
   function pageSystemPrompt() {
     return basicPage(
       "System Prompt",
-      "Configure the system prompt",
+      "Configure the system prompt. This is the prompt that is used to generate the chatbot response.",
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="System Prompt">
@@ -793,7 +790,6 @@ export const Settings = ({
       case 'appearance':          return pageAppearance();
       case 'chatbot':             return pageChatbot();
       case 'tts':                 return pageTTS();
-      case 'character':           return pageCharacter();
       case 'reset_settings':      return pageResetSettings();
       case 'community':           return pageCommunity();
       case 'background_img':      return pageBackgroundImg();
@@ -872,6 +868,29 @@ export const Settings = ({
       <div className="h-screen overflow-auto opacity-95 backdrop-blur">
         <div className="mx-auto max-w-3xl py-16 text-text1">
           <div className="mt-16">
+            <TextButton
+              className="rounded-b-none text-lg ml-4 px-8 shadow-sm"
+              onClick={() => {
+                if (breadcrumbs.length === 0) {
+                  onClickClose();
+                  return;
+                }
+                if (breadcrumbs.length === 1) {
+                  setPage('main_menu');
+                  setBreadcrumbs([]);
+                  return;
+                }
+
+                const prevPage = breadcrumbs[breadcrumbs.length - 2];
+                console.log('prevPage', prevPage);
+
+                setPage(prevPage.key);
+                setBreadcrumbs(breadcrumbs.slice(0, -1));
+              }}
+            >
+              <ArrowUturnLeftIcon className="h-5 w-5 flex-none text-white" aria-hidden="true" />
+            </TextButton>
+
             {getPage()}
           </div>
         </div>

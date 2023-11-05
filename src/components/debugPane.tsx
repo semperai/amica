@@ -19,9 +19,11 @@ export function DebugPane({ onClickClose }: {
         <IconButton
           iconName="24/Description"
           isProcessing={false}
-          className="bg-primary hover:bg-primary-hover active:bg-primary-active ml-8"
+          className="bg-primary hover:bg-primary-hover active:bg-primary-active ml-4"
           onClick={onClickCopy} />
-        <span className="font-bold text-xl ml-2">Debug Logs</span>
+        <span className="text-xl ml-2">
+          Debug Logs <small>(click to copy)</small>
+        </span>
       </div>
       <div className="relative w-screen overflow-y-scroll inline-block px-8 bg-white opacity-90">
         {(window as any).error_handler_logs.slice(-5).map((log: any, idx: number) => (
