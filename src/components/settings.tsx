@@ -15,8 +15,7 @@ import {
   ArrowUturnLeftIcon,
   HomeIcon,
   XMarkIcon,
-} from '@heroicons/react/20/solid'
-
+} from '@heroicons/react/20/solid';
 
 import { buildUrl } from "@/utils/buildUrl";
 import { GitHubLink } from "@/components/githubLink";

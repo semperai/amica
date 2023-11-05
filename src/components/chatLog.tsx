@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import FlexTextarea from "@/components/flexTextarea/flexTextarea";
 import { Message } from "@/features/messages/messages";
+import {
+  ArrowPathIcon,
+} from '@heroicons/react/20/solid';
 
 type Props = {
   messages: Message[];
@@ -66,27 +69,29 @@ const Chat = ({ role, message, num, onClickResumeButton }: {
 
 
   const roleColor =
-    role === "assistant" ? "bg-secondary text-white " : "bg-base text-primary";
-  const roleText = role === "assistant" ? "text-secondary" : "text-primary";
+    role === "assistant" ? "bg-secondary text-white " : "bg-base text-gray-700";
+  const roleText = role === "assistant" ? "text-secondary" : "text-gray-600";
   const offsetX = role === "user" ? "pl-20" : "pr-20";
 
   return (
-    <div className={`mx-auto max-w-sm my-8 ${offsetX} `}>
+    <div className={`mx-auto max-w-sm my-8 ${offsetX}`}>
       <div
-        className={`px-8 py-2 rounded-t-lg font-Montserrat font-bold tracking-wider ${roleColor} flex justify-between`}
+        className={`px-8 py-2 rounded-t-lg font-bold tracking-wider ${roleColor} flex justify-between shadow-sm shadow-inner`}
 
       >
-        <div>
+        <div className="text-bold">
           {role === "assistant" ? "AMICA" : "YOU"}
         </div>
         <button
           className="text-right"
           onClick={onClickButton}
         >
-          {role !== "assistant" && <pixiv-icon name={"24/Reload"} scale="1" ></pixiv-icon>}
+          {role !== "assistant" && (
+            <ArrowPathIcon className="ml-16 h-5 w-5" aria-hidden="true" />
+          )}
         </button>
       </div>
-      <div className="px-4 py-2 bg-white rounded-b-lg">
+      <div className="px-4 py-2 bg-white rounded-b-lg shadow-sm">
         <div className={`typography-16 font-M_PLUS_2 font-bold ${roleText}`}>
           {role === "assistant" ? (
             <div>{textAreaValue}</div>
@@ -94,7 +99,7 @@ const Chat = ({ role, message, num, onClickResumeButton }: {
             <FlexTextarea
               value={textAreaValue}
               onChange={setTextAreaValue}
-              />
+            />
           )}
         </div>
       </div>
