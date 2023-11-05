@@ -123,6 +123,7 @@ export default function Home() {
       const baseChatLog = overrideChatLog || chatLog;
 
       setUserMessage(newMessage);
+      setAssistantMessage("");
       setShownMessage('user');
 
       setChatProcessing(true);
