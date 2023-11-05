@@ -6,12 +6,15 @@ interface IBeforeInstallPromptEvent extends Event {
     outcome: "accepted" | "dismissed";
     platform: string;
   }>;
-  prompt(): Promise<void>;
+  prompt(): Promise<UserChoice>;
 }
+
+type UserChoice = { outcome: "accepted" | "dismissed"; platform: string; };
+
 
 export function useAddToHomescreenPrompt(): [
   IBeforeInstallPromptEvent | null,
-  () => void
+  () => Promise<UserChoice>,
 ] {
   const [prompt, setState] = React.useState<IBeforeInstallPromptEvent | null>(
     null
