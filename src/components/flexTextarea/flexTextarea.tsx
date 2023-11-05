@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import styles from './FlexTextarea.module.css';
+import styles from './flexTextarea.module.css';
 interface FlexTextareaProps {
   value?: string;
   onChange?: (value: string) => void;
