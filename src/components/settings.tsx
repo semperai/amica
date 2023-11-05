@@ -118,14 +118,14 @@ export const Settings = ({
   );
 
 
-  function pageWithMenu(keys: string[]) {
+  function menuPage(keys: string[]) {
     const links = keysToLinks(keys);
     return (
-      <ul role="list" className="divide-y divide-black/5">
+      <ul role="list" className="divide-y divide-black/5 bg-white rounded-lg shadow-lg">
         {links.map((link) => (
           <li
             key={link.key}
-            className="relative flex items-center space-x-4 py-4 cursor-pointer bg-white hover:bg-grey-50 hover:opacity-95 p-4 transition-all"
+            className="relative flex items-center space-x-4 py-4 cursor-pointer rounded-lg hover:bg-gray-50 p-4 transition-all"
             onClick={() => {
               setPage(link.key)
               setBreadcrumbs([...breadcrumbs, link]);
@@ -145,6 +145,42 @@ export const Settings = ({
     );  
   }
 
+  function basicPage(
+    title: string,
+    description: React.ReactNode,
+    children: React.ReactNode,
+  ) {
+    return (
+      <>
+        <div className="rounded-lg shadow-lg bg-white p-4">
+          <h2 className="text-xl w-full">{title}</h2>
+          <p className="w-full my-4">{description}</p>
+
+          <div className="mt-4">
+            {children}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  function FormRow({label, children}: {
+    label: string;
+    children: React.ReactNode;
+  }) {
+    return (
+      <div className="sm:col-span-3 max-w-xs rounded-xl">
+        <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900">
+          {label}
+        </label>
+        <div className="mt-2">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+
   function keysToLinks(keys: string[]): Link[] {
     const links: Link[] = [];
     for (const key of keys) {
@@ -159,7 +195,7 @@ export const Settings = ({
           case 'background_video': return 'Background Video';
           case 'chatbot_backend': return 'ChatBot Backend';
           case 'chatgpt_settings': return 'ChatGPT Settings';
-          case 'llaamcpp_settings': return 'LLama.cpp Settings';
+          case 'llamacpp_settings': return 'LLama.cpp Settings';
           case 'tts_backend': return 'Text-to-Speech Backend';
           case 'elevenlabs_settings': return 'ElevenLabs Settings';
           case 'speecht5_settings': return 'SpeechT5 Settings';
@@ -182,23 +218,23 @@ export const Settings = ({
   }
 
   function pageMainMenu() {
-    return pageWithMenu(["appearance", "chatbot", "tts", "character", "reset_settings"]);
+    return menuPage(["appearance", "chatbot", "tts", "character", "reset_settings"]);
   }
 
   function pageAppearance() {
-    return pageWithMenu(["background_img", "background_video"]);
+    return menuPage(["background_img", "background_video"]);
   }
 
   function pageChatbot() {
-    return pageWithMenu(["chatbot_backend", "chatgpt_settings", "llamacpp_settings"]);
+    return menuPage(["chatbot_backend", "chatgpt_settings", "llamacpp_settings"]);
   }
 
   function pageTTS() {
-    return pageWithMenu(["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings"]);
+    return menuPage(["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings"]);
   }
 
   function pageCharacter() {
-    return pageWithMenu(["system_prompt", "character_model", "character_animation"]);
+    return menuPage(["system_prompt", "character_model", "character_animation"]);
   }
 
   function pageResetSettings() {
@@ -212,29 +248,29 @@ export const Settings = ({
   function pageBackgroundImg() {
     return (
       <>
-        <div className="rounded-lg shadow bg-white flex flex-wrap justify-center space-x-4 space-y-4">
+        <div className="rounded-lg shadow-lg bg-white flex flex-wrap justify-center space-x-4 space-y-4 p-4">
           { bgImages.map((url) =>
-            <TextButton
+            <button
               key={url}
               onClick={() => {
                 document.body.style.backgroundImage = `url(${url})`;
                 updateConfig("bg_url", url);
                 setBgUrl(url);
               }}
-              className={"mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
+              className={"mx-4 py-2 rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100 rounded-xl " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
               >
                 <img
                   src={`${thumbPrefix(url)}`}
                   alt={url}
                   width="160"
                   height="93"
-                  className="m-0 rounded-md"
+                      className="m-0 rounded-md bg-white mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
                   onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = url;
                   }}
                 />
-            </TextButton>
+            </button>
           )}
         </div>
       </>
@@ -242,13 +278,12 @@ export const Settings = ({
   }
 
   function pageBackgroundVideo() {
-    return (
-      <>
-        <div className="rounded-lg shadow bg-white p-4">
-          <p>Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code></p>
-
-          <div className="mt-4">
-            <label>Youtube Video ID: </label>
+    return basicPage(
+      "Background Video",
+      <>Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code></>,
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="YouTube Video ID">
             <TextInput
               value={youtubeVideoID}
               onChange={(event: React.ChangeEvent<any>) => {
@@ -257,28 +292,128 @@ export const Settings = ({
                 updateConfig("youtube_videoid", id);
               }}
               />
-          </div>
-        </div>
-      </>
+           </FormRow>
+        </li>
+      </ul>
+    );
+  }
+
+  function pageChatGPTSettings() {
+    return basicPage(
+      "ChatGPT Settings",
+      "dexriptions",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="OpenAI API Key">
+            <SecretTextInput
+              value={openAIApiKey}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setOpenAIApiKey(event.target.value);
+                updateConfig("openai_apikey", event.target.value);
+              }}
+            />
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label="OpenAI URL">
+            <TextInput
+              value={openAIUrl}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setOpenAIUrl(event.target.value);
+                updateConfig("openai_url", event.target.value);
+              }}
+            />
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label="OpenAI Model">
+            <TextInput
+              value={openAIModel}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setOpenAIModel(event.target.value);
+                updateConfig("openai_model", event.target.value);
+              }}
+            />
+          </FormRow>
+        </li>
+      </ul>
+    );
+  }
+
+  function pageLlamaCppSettings() {
+    return basicPage(
+      "LLama.cpp Settings",
+      "dexriptions",
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="API URL">
+            <TextInput
+              value={llamaCppUrl}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setLlamaCppUrl(event.target.value);
+                updateConfig("llamacpp_url", event.target.value);
+              }}
+            />
+          </FormRow>
+        </li>
+      </ul>
     );
   }
 
   function pageChatbotBackend() {
-    return (
-      <>
-        <select
-          className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          value={chatbotBackend}
-          onChange={(event: React.ChangeEvent<any>) => {
-            setChatbotBackend(event.target.value);
-            updateConfig("chatbot_backend", event.target.value);
-          }}
-        >
-          {chatbotBackends.map((engine) => (
-            <option key={engine.key} value={engine.key}>{engine.label}</option>
-          ))}
-        </select>
-      </>
+    return basicPage(
+      "Chatbot Backend",
+      "Select the chatbot backend to use", 
+      <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+        <li className="py-4">
+          <FormRow label="Chatbot Backend">
+            <select
+              className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              value={chatbotBackend}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setChatbotBackend(event.target.value);
+                updateConfig("chatbot_backend", event.target.value);
+              }}
+            >
+              {chatbotBackends.map((engine) => (
+                <option key={engine.key} value={engine.key}>{engine.label}</option>
+              ))}
+            </select>
+          </FormRow>
+        </li>
+        { chatbotBackend === 'chatgpt' && (
+          <li className="py-4">
+            <FormRow label="Configure ChatGPT">
+              <button
+                type="button"
+                className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  setPage('chatgpt_settings');
+                  setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'chatgpt_settings', label: 'ChatGPT Settings'}]));
+                }}
+              >
+                Click here to configure ChatGPT
+              </button>
+            </FormRow>
+          </li>
+        )}
+        { chatbotBackend === 'llamacpp' && (
+          <li className="py-4">
+            <FormRow label="Configure Llama.cpp">
+              <button
+                type="button"
+                className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  setPage('llamacpp_settings');
+                  setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'llamacpp_settings', label: 'LLama.cpp Settings'}]));
+                }}
+              >
+                Click here to configure Llama.cpp
+              </button>
+            </FormRow>
+          </li>
+        )}
+      </ul>
     );
   }
 
@@ -293,6 +428,8 @@ export const Settings = ({
       case 'background_img':   return pageBackgroundImg();
       case 'background_video': return pageBackgroundVideo();
       case 'chatbot_backend':  return pageChatbotBackend();
+      case 'chatgpt_settings': return pageChatGPTSettings();
+      case 'llamacpp_settings': return pageLlamaCppSettings();
 
       default: return <>Unknown page</>;
     }
@@ -310,8 +447,8 @@ export const Settings = ({
 
         <span className="font-bold text-xl ml-2">Settings</span>
       </div>
-      <div className="h-screen overflow-auto opacity-90 backdrop-blur">
-        <div className="mx-auto max-w-3xl px-24 py-16 text-text1 ">
+      <div className="h-screen overflow-auto opacity-95 backdrop-blur">
+        <div className="mx-auto max-w-3xl py-16 text-text1">
           <nav className="flex" aria-label="Breadcrumb">
             <ol role="list" className="flex space-x-4 rounded-md bg-white px-6 shadow">
               {breadcrumbs.length > 0 && (
@@ -401,73 +538,6 @@ export const Settings = ({
             </TextButton>
           </div>
             
-
-          <div className="my-2">
-            <div className="my-1 font-bold text-lg">
-              Chatbot Backend
-            </div>
-            <div className="my-8">
-            </div>
-          </div>
-          
-          { chatbotBackend === 'chatgpt' && (
-            <>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  OpenAI API Key
-                </div>
-                <SecretTextInput
-                  value={openAIApiKey}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    setOpenAIApiKey(event.target.value);
-                    updateConfig("openai_apikey", event.target.value);
-                  }}
-                />
-              </div>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  OpenAI URL
-                </div>
-                <TextInput
-                  value={openAIUrl}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    setOpenAIUrl(event.target.value);
-                    updateConfig("openai_url", event.target.value);
-                  }}
-                />
-              </div>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  OpenAI Model
-                </div>
-                <TextInput
-                  value={openAIModel}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    setOpenAIModel(event.target.value);
-                    updateConfig("openai_model", event.target.value);
-                  }}
-                />
-              </div>
-            </>
-          )}
-
-          { chatbotBackend === 'llamacpp' && (
-            <>
-              <div className="my-2">
-                <div className="my-1 font-bold typography-16">
-                  API URL
-                </div>
-                <p>This is the url of the llama.cpp server</p>
-                <TextInput
-                  value={llamaCppUrl}
-                  onChange={(event: React.ChangeEvent<any>) => {
-                    setLlamaCppUrl(event.target.value);
-                    updateConfig("llamacpp_url", event.target.value);
-                  }}
-                />
-              </div>
-            </>
-          )}
 
           <div className="my-2">
             <div className="my-1 font-bold typography-20">
