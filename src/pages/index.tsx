@@ -274,7 +274,7 @@ export default function Home() {
             iconName="24/Menu"
             label="Settings"
             isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active shadow-sm"
             onClick={() => setShowSettings(true)}
           ></IconButton>
 
@@ -284,6 +284,7 @@ export default function Home() {
               label="Conversation"
               isProcessing={false}
               onClick={() => setShowChatLog(false)}
+              className="shadow-sm"
             />
           ) : (
             <IconButton
@@ -292,6 +293,7 @@ export default function Home() {
               isProcessing={false}
               disabled={chatLog.length <= 0}
               onClick={() => setShowChatLog(true)}
+              className="shadow-sm"
             />
           )}
 
