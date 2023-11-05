@@ -58,14 +58,13 @@ Now you can  `http://127.0.0.1:8010/proxy` as the `API URL` inside Coqui Setting
 
 ### llama.cpp server
 
+It is possible to run a local server using [llama.cpp](https://github.com/ggerganov/llama.cpp). This is a bit more involved, but it is possible to run a server with a custom model. This is the recommended way to run a local server.
+
 ```
 git clone https://github.com/ggerganov/llama.cpp
 cd llama.cpp
 make server
 ./server -t 4 -c 4096 -m models/mistral-7b-instruct-v0.1.Q6_K.gguf
-cd examples/server
-# ensure you have cors enabled on server
-python3 api_like_OAI.py
 ```
 
 ## System Prompt
