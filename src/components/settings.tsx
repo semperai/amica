@@ -223,25 +223,24 @@ export const Settings = ({
     for (const key of keys) {
       function getLabel(page: string) {
         switch(page) {
-          case 'appearance': return 'Appearance';
-          case 'chatbot': return 'ChatBot';
-          case 'tts': return 'Text-to-Speech';
-          case 'reset_settings': return 'Reset Settings';
-          case 'community': return 'Community';
-          case 'background_img': return 'Background Image';
-          case 'background_video': return 'Background Video';
-          case 'chatbot_backend': return 'ChatBot Backend';
-          case 'chatgpt_settings': return 'ChatGPT';
-          case 'llamacpp_settings': return 'LLama.cpp';
-          case 'tts_backend': return 'Text-to-Speech Backend';
+          case 'appearance':          return 'Appearance';
+          case 'chatbot':             return 'ChatBot';
+          case 'tts':                 return 'Text-to-Speech';
+          case 'reset_settings':      return 'Reset Settings';
+          case 'community':           return 'Community';
+          case 'background_img':      return 'Background Image';
+          case 'background_video':    return 'Background Video';
+          case 'chatbot_backend':     return 'ChatBot Backend';
+          case 'chatgpt_settings':    return 'ChatGPT';
+          case 'llamacpp_settings':   return 'LLama.cpp';
+          case 'tts_backend':         return 'TTS Backend';
           case 'elevenlabs_settings': return 'ElevenLabs';
-          case 'speecht5_settings': return 'SpeechT5';
-          case 'coqui_settings': return 'Coqui';
-          case 'system_prompt': return 'System Prompt';
-          case 'character_model': return 'Character Model';
+          case 'speecht5_settings':   return 'SpeechT5';
+          case 'coqui_settings':      return 'Coqui';
+          case 'system_prompt':       return 'System Prompt';
+          case 'character_model':     return 'Character Model';
           case 'character_animation': return 'Character Animation';
-          case 'reset_settings': return 'Reset Settings';
-
+          case 'reset_settings':      return 'Reset Settings';
         }
         return 'Unknown';
       }
@@ -342,7 +341,7 @@ export const Settings = ({
                   alt={url}
                   width="160"
                   height="93"
-                      className="m-0 rounded-md bg-white mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
+                  className="m-0 rounded-md bg-white mx-4 p-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
                   onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = url;
@@ -504,7 +503,7 @@ export const Settings = ({
 
   function pageTTSBackend() {
     return basicPage(
-      "Text-to-Speech Backend",
+      "TTS Backend",
       "Select the TTS backend to use", 
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
