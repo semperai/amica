@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import FlexTextarea from "@/components/flexTextarea/flexTextarea";
 import { Message } from "@/features/messages/messages";
+import { IconButton } from "@/components/iconButton";
 import {
   ArrowPathIcon,
 } from '@heroicons/react/20/solid';
@@ -33,24 +34,40 @@ export const ChatLog = ({
       block: "center",
     });
   }, [messages]);
-  return (
-    <div className="absolute w-col-span-6 max-w-full h-[100svh] pb-16">
-      <div className="max-h-full px-16 pt-20 pb-4 overflow-y-auto scroll-hidden">
-        {messages.map((msg, i) => {
-          return (
-            <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
-              <Chat
-                role={msg.role}
-                message={msg.content}
-                num={i}
-                onClickResumeButton={handleResumeButtonClick}
-                />
 
-            </div>
-          );
-        })}
+  return (
+    <>
+      <div className="absolute left-2 top-16 z-50">
+        <IconButton
+          iconName="24/ReloadLoop"
+          label="Restart"
+          isProcessing={false}
+          className="bg-slate-600 hover:bg-slate-500 active:bg-slate-500 shadow-xl"
+          onClick={() => {
+            handleResume([], messages[0].content);
+          }}
+        ></IconButton>
       </div>
-    </div>
+
+      <div className="absolute w-col-span-6 max-w-full h-[100svh] pb-16">
+
+        <div className="max-h-full px-16 pt-20 pb-4 overflow-y-auto scroll-hidden">
+          {messages.map((msg, i) => {
+            return (
+              <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
+                <Chat
+                  role={msg.role}
+                  message={msg.content}
+                  num={i}
+                  onClickResumeButton={handleResumeButtonClick}
+                  />
+
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </>
   );
 };
 
