@@ -6,8 +6,8 @@ export const UserText = ({ message }: { message: string }) => {
           <div className="px-8 py-4 bg-primary rounded-t-lg text-white font-bold tracking-wider">
             YOU
           </div>
-          <div className="px-8 py-4 h-32">
-            <div className="min-h-8 max-h-full overflow-y-auto text-primary typography-16 font-bold">
+          <div className="px-8 py-4 max-h-32 overflow-y-auto">
+            <div className="min-h-8 max-h-full text-primary typography-16 font-bold">
               {message.replace(/\[([a-zA-Z]*?)\]/g, "")}
             </div>
           </div>

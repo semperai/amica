@@ -6,8 +6,8 @@ export const AssistantText = ({ message }: { message: string }) => {
           <div className="px-8 py-4 bg-secondary rounded-t-lg text-white font-bold tracking-wider">
             AMICA
           </div>
-          <div className="px-8 py-4 h-32">
-            <div className="min-h-8 max-h-full overflow-y-auto text-secondary typography-16 font-bold">
+          <div className="px-8 py-4 max-h-32 overflow-y-auto">
+            <div className="min-h-8 max-h-full text-secondary typography-16 font-bold">
               {message.replace(/\[([a-zA-Z]*?)\]/g, "")}
             </div>
           </div>
