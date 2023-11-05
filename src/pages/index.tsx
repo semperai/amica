@@ -76,6 +76,10 @@ export default function Home() {
     );
   }, [chatLog]);
 
+  const handleResume = (previousMessages:Message[], newMessage:string) => {
+    handleSendChat(newMessage, previousMessages);
+  }
+
   const handleChangeChatLog = useCallback(
     (targetIndex: number, text: string) => {
       const newChatLog = chatLog.map((v: Message, i) => {
@@ -106,18 +110,22 @@ export default function Home() {
    * Have a conversation with your assistant
    */
   const handleSendChat = useCallback(
-    async (text: string) => {
+    async (text: string, overrideChatLog?: Message[]) => {
       console.time('chat stream first message');
       const newMessage = text;
 
       if (newMessage == null) return;
+
+      const baseChatLog = overrideChatLog || chatLog;
+
       setUserMessage(newMessage);
       setShownMessage('user');
 
       setChatProcessing(true);
+
       // Add and display user comments
       const messageLog: Message[] = [
-        ...chatLog,
+        ...baseChatLog,
         { role: "user", content: newMessage },
       ];
       setChatLog(messageLog);
@@ -297,7 +305,10 @@ export default function Home() {
         </div>
       </div>
 
-      {showChatLog && <ChatLog messages={chatLog} />}
+      {showChatLog && <ChatLog
+        messages={chatLog}
+        handleResume={handleResume}
+      />}
 
       {showSettings && (
         <Settings
