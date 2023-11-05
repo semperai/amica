@@ -1,4 +1,15 @@
+import { useEffect, useRef } from "react";
+
 export const UserText = ({ message }: { message: string }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  });
+
   return (
     <div className="absolute bottom-0 left-0 mb-104 w-full">
       <div className="mx-auto max-w-4xl w-full p-16">
@@ -9,6 +20,7 @@ export const UserText = ({ message }: { message: string }) => {
           <div className="px-8 py-4 max-h-32 overflow-y-auto">
             <div className="min-h-8 max-h-full typography-16 font-bold text-gray-600">
               {message.replace(/\[([a-zA-Z]*?)\]/g, "")}
+              <div ref={scrollRef} />
             </div>
           </div>
         </div>
