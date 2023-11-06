@@ -40,6 +40,10 @@ const MessageInput = ({
     },
   });
 
+  if (vad.errored) {
+    console.log('vad error', vad.errored);
+  }
+
   useEffect(() => {
     if (transcriber.output && ! transcriber.isBusy) {
       const text = transcriber.output?.text;
