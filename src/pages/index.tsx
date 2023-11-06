@@ -22,7 +22,7 @@ import {
   Screenplay,
 } from "@/features/chat/messages";
 import { speakCharacter } from "@/features/chat/speakCharacter";
-import { getChatResponseStream } from "@/features/chat/chat";
+import { chat } from "@/features/chat/chat";
 
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from '@/utils/config';
@@ -64,24 +64,6 @@ export default function Home() {
   }, []);
 
 
-  useEffect(() => {
-    if (window.localStorage.getItem("chatVRMParams")) {
-      const params = JSON.parse(
-        window.localStorage.getItem("chatVRMParams") as string
-      );
-      // setChatLog(params.chatLog);
-    }
-  }, []);
-
-  useEffect(() => {
-    process.nextTick(() =>
-      window.localStorage.setItem(
-        "chatVRMParams",
-        JSON.stringify({ chatLog })
-      )
-    );
-  }, [chatLog]);
-
   /**
    * Have a conversation with your assistant
    */
@@ -97,7 +79,6 @@ export default function Home() {
     setUserMessage(text);
     setAssistantMessage("");
     setShownMessage('user');
-
     setChatProcessing(true);
 
     // Add and display user comments
@@ -107,108 +88,17 @@ export default function Home() {
     ];
     setChatLog(messageLog);
 
-    // Chat GPTへ
-    const messages: Message[] = [
-      {
-        role: "system",
-        content: config("system_prompt"),
-      },
-      ...messageLog,
-    ];
 
-    let stream = null;
-    try {
-      stream = await getChatResponseStream(messages);
-    } catch(e: any) {
-      console.error(e);
-      const errMsg = e.toString();
-      setAssistantMessage(errMsg);
-      const messageLogAssistant: Message[] = [
-        ...messageLog,
-        { role: "assistant", content: errMsg },
-      ];
-
-      setChatLog(messageLogAssistant);
-      setChatProcessing(false);
-      setShownMessage('assistant');
-    }
-
-    if (stream == null) {
-      setChatProcessing(false);
-      return;
-    }
-
-    console.time('chat stream processing');
-    const reader = stream.getReader();
-    let receivedMessage = "";
-    let aiTextLog = "";
-    let tag = "";
-    const sentences = new Array<string>();
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        receivedMessage += value;
-
-        // Detection of tag part of reply content
-        const tagMatch = receivedMessage.match(/^\[(.*?)\]/);
-        if (tagMatch && tagMatch[0]) {
-          tag = tagMatch[0];
-          receivedMessage = receivedMessage.slice(tag.length);
-        }
-
-        // Cut out and process the response sentence by sentence
-        const sentenceMatch = receivedMessage.match(
-          /^(.+[\.\!\?\n]|.{10,}[,])/,
-        );
-        if (sentenceMatch && sentenceMatch[0]) {
-          const sentence = sentenceMatch[0];
-          sentences.push(sentence);
-          receivedMessage = receivedMessage
-            .slice(sentence.length)
-            .trimStart();
-
-          // Skip if the string is unnecessary/impossible to utter.
-          if (
-            !sentence.replace(
-              /^[\s\[\(\{「［（【『〈《〔｛«‹〘〚〛〙›»〕》〉』】）］」\}\)\]]+$/g,
-              "",
-            )
-          ) {
-            continue;
-          }
-
-          const aiText = `${tag} ${sentence}`;
-          const aiTalks = textsToScreenplay([aiText]);
-          aiTextLog += aiText;
-
-          // Generate & play audio for each sentence, display responses
-          const currentAssistantMessage = sentences.join(" ");
-
-          speakCharacter(
-            aiTalks[0],
-            viewer,
-            () => {
-              setShownMessage('assistant');
-              setAssistantMessage(currentAssistantMessage);
-            },
-            () => {
-            }
-          );
-        }
-      }
-    } catch (e) {
-      setChatProcessing(false);
-      console.error(e);
-    } finally {
-      reader.releaseLock();
-      console.timeEnd('chat stream processing');
-    }
-
-    // reduce unnecessary spaces in response
+    // trim to reduce unnecessary spaces in response
     // improves performance for some models
-    aiTextLog = aiTextLog.trim();
+    const aiTextLog = (await chat(
+      messageLog,
+      viewer,
+      setAssistantMessage,
+      setChatLog,
+      setChatProcessing,
+      setShownMessage,
+    )).trim();
 
     // Add assistant responses to log
     const messageLogAssistant: Message[] = [
@@ -218,13 +108,12 @@ export default function Home() {
 
     setChatLog(messageLogAssistant);
     setChatProcessing(false);
-  };
+  }
 
-  useEffect(() => {
-    setShowContent(true);
-  }, []);
-
+  // this exists to prevent build errors with ssr
+  useEffect(() => setShowContent(true), []);
   if (!showContent) return <></>;
+
   return (
     <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
       { config("youtube_videoid") !== '' && (
