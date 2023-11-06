@@ -102,10 +102,10 @@ export default function Home() {
    */
   const handleSendChat = useCallback(
     async (text: string, overrideChatLog?: Message[]) => {
+      if (text === null) return;
+
       console.time('chat stream first message');
       const newMessage = text;
-
-      if (newMessage == null) return;
 
       const baseChatLog = overrideChatLog || chatLog;
 
