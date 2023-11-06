@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
 import { IconButton } from "./iconButton";
-import { AudioManager } from "./audioManager";
 import { useTranscriber } from "@/hooks/useTranscriber";
 
 const VAD = dynamic(() => import("@/components/vad"), { ssr: false });
@@ -43,7 +42,7 @@ export const MessageInput = ({
       <div className="bg-base text-black">
         <div className="mx-auto max-w-4xl p-2">
           <div className="grid grid-flow-col grid-cols-[min-content_1fr_min-content] gap-[8px]">
-            <AudioManager transcriber={transcriber} />
+            <VAD transcriber={transcriber} />
 
             <input
               type="text"
@@ -69,7 +68,6 @@ export const MessageInput = ({
                 onClick={send}
               />
             </div>
-            <VAD />
           </div>
         </div>
       </div>
