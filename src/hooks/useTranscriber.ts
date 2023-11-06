@@ -67,7 +67,6 @@ export function useTranscriber(): Transcriber {
         });
         break;
       case "complete":
-        console.timeEnd('transcribe');
         // Received complete transcript
         // console.log("complete", message);
         // eslint-disable-next-line no-case-declarations
@@ -111,7 +110,6 @@ export function useTranscriber(): Transcriber {
   const postRequest = useCallback(
     async (audioData: AudioBuffer | undefined) => {
       if (audioData) {
-        console.time('transcribe');
         setTranscript(undefined);
         setIsBusy(true);
         webWorker.postMessage({

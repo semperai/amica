@@ -35,19 +35,23 @@ const MessageInput = ({
       const buffer = audioCtx.createBuffer(1, audio.length, 16000);
       buffer.copyToChannel(audio, 0, 0);
       transcriber.start(buffer);
+      console.time('transcribe');
     },
   });
 
   useEffect(() => {
     if (transcriber.output) {
       setUserMessage(transcriber.output?.text);
-      inputRef.current?.focus();
+      console.timeEnd('transcribe');
     }
   }, [transcriber]);
 
   function send() {
     onClickSendButton();
-    inputRef.current?.focus();
+    // only if we are using non-VAD mode should we focus on the input
+    if (! vad.listening) {
+      inputRef.current?.focus();
+    }
     setUserMessage("");
   }
 
