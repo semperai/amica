@@ -1,11 +1,12 @@
-import { MessageInput } from "@/components/messageInput";
-import { useCallback, useEffect, useState, useRef } from "react";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useState } from "react";
 
-
-type Props = {
-  isChatProcessing: boolean;
-  onChatProcessStart: (text: string) => void;
-};
+// necessary because of VAD in MessageInput
+const DynamicMessageInput = dynamic(() =>
+  import("@/components/messageInput"), {
+    ssr: false
+  }
+);
 
 /**
  * Provides text input and voice input
@@ -16,7 +17,10 @@ type Props = {
 export const MessageInputContainer = ({
   isChatProcessing,
   onChatProcessStart,
-}: Props) => {
+}: {
+  isChatProcessing: boolean;
+  onChatProcessStart: (text: string) => void;
+}) => {
   const [userMessage, setUserMessage] = useState("");
 
   const handleClickSendButton = useCallback(() => {
@@ -30,7 +34,7 @@ export const MessageInputContainer = ({
   }, [isChatProcessing]);
 
   return (
-    <MessageInput
+    <DynamicMessageInput
       userMessage={userMessage}
       setUserMessage={setUserMessage}
       isChatProcessing={isChatProcessing}

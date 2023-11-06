@@ -1,9 +1,7 @@
-import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
+import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
-
-const VAD = dynamic(() => import("@/components/vad"), { ssr: false });
 
 type Props = {
   userMessage: string;
@@ -14,7 +12,8 @@ type Props = {
   ) => void;
   onClickSendButton: () => void;
 };
-export const MessageInput = ({
+
+const MessageInput = ({
   userMessage,
   setUserMessage,
   isChatProcessing,
@@ -23,6 +22,21 @@ export const MessageInput = ({
 }: Props) => {
   const transcriber = useTranscriber();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const vad = useMicVAD({
+    startOnLoad: false,
+    onSpeechStart: () => {
+      console.log('hello');
+    },
+    onSpeechEnd: (audio: Float32Array) => {
+      // since VAD sample rate is same as whisper we do nothing here
+      // both are 16000
+      const audioCtx = new AudioContext();
+      const buffer = audioCtx.createBuffer(1, audio.length, 16000);
+      buffer.copyToChannel(audio, 0, 0);
+      transcriber.start(buffer);
+    },
+  });
 
   useEffect(() => {
     if (transcriber.output) {
@@ -42,7 +56,15 @@ export const MessageInput = ({
       <div className="bg-base text-black">
         <div className="mx-auto max-w-4xl p-2">
           <div className="grid grid-flow-col grid-cols-[min-content_1fr_min-content] gap-[8px]">
-            <VAD transcriber={transcriber} />
+            <div className='flex flex-col justify-center items-center'>
+              <IconButton
+                iconName={vad.listening ? "24/PauseAlt" : "24/Microphone"}
+                className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
+                isProcessing={vad.userSpeaking}
+                disabled={vad.loading || Boolean(vad.errored)}
+                onClick={vad.toggle}
+              />
+            </div>
 
             <input
               type="text"
@@ -74,3 +96,5 @@ export const MessageInput = ({
     </div>
   );
 };
+
+export default MessageInput;
