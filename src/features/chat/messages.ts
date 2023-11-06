@@ -1,8 +1,10 @@
 import { VRMExpression, VRMExpressionPresetName } from "@pixiv/three-vrm";
 
+export type Role = "assistant" | "system" | "user";
+
 // ChatGPT API
 export type Message = {
-  role: "assistant" | "system" | "user";
+  role: Role;
   content: string;
 };
 
@@ -25,16 +27,11 @@ const emotions = ["neutral", "happy", "angry", "sad", "relaxed"] as const;
 type EmotionType = (typeof emotions)[number] & VRMExpressionPresetName;
 
 /**
- * 発話文と音声の感情と、モデルの感情表現がセットになった物
+ * A set that includes utterances, voice emotions, and model emotional expressions.
  */
 export type Screenplay = {
   expression: EmotionType;
   talk: Talk;
-};
-
-export const splitSentence = (text: string): string[] => {
-  const splitMessages = text.split(/(?<=[。．！？\n])/g);
-  return splitMessages.filter((msg) => msg !== "");
 };
 
 export const textsToScreenplay = (
