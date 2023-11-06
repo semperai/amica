@@ -1,8 +1,10 @@
 import { wait } from "@/utils/wait";
-import { synthesizeVoice } from "./synthesizeVoice";
-import { Viewer } from "../vrmViewer/viewer";
-import { Screenplay } from "./messages";
-import { Talk } from "./messages";
+import { Viewer } from "@/features/vrmViewer/viewer";
+import { Screenplay, Talk, TalkStyle } from "./messages";
+import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
+import { coqui } from "@/features/coqui/coqui";
+import { speecht5 } from "@/features/speecht5/speecht5";
+import { config } from "@/utils/config";
 
 const createSpeakCharacter = () => {
   let lastTime = 0;
@@ -46,13 +48,30 @@ const createSpeakCharacter = () => {
 
 export const speakCharacter = createSpeakCharacter();
 
-export const fetchAudio = async (
+const fetchAudio = async (
   talk: Talk,
 ): Promise<ArrayBuffer> => {
-  const ttsVoice = await synthesizeVoice(
-    talk.message,
-    talk.style,
-  );
-  const buffer = ttsVoice.audio;
-  return buffer;
-};
+  const ttsBackend = config("tts_backend");
+
+  switch (ttsBackend) {
+    case 'elevenlabs': {
+      const voiceId = config("elevenlabs_voiceid");
+      const voice = await elevenlabs(talk.message, voiceId, talk.style);
+      return voice.audio;
+    }
+    case 'speecht5': {
+      const speakerEmbeddingUrl = config('speecht5_speaker_embedding_url');
+      const voice = await speecht5(talk.message, speakerEmbeddingUrl);
+      return voice.audio;
+    }
+    case 'coqui': {
+      const speakerId = config('coqui_speaker_id');
+      const styleUrl = config('coqui_style_url');
+      const voice = await coqui(talk.message, speakerId, styleUrl);
+      return voice.audio;
+    }
+  }
+
+  // ttsBackend === 'none'
+  return new ArrayBuffer(0);
+}
