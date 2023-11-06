@@ -87,6 +87,10 @@ const MessageInput = ({
               onChange={onChangeUserMessage}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
+                  if (userMessage === "") {
+                    return false;
+                  }
+
                   clickedSendButton();
                 }
               }}
