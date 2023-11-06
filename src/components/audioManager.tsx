@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { UrlInput } from "./urlInput";
 import AudioPlayer from "./audioPlayer";
-import Constants from "@/utils/constants";
 import { Transcriber } from "../hooks/useTranscriber";
 import AudioRecorder from "./audioRecorder";
 
@@ -11,6 +10,8 @@ export enum AudioSource {
   FILE = "FILE",
   RECORDING = "RECORDING",
 }
+
+const SAMPLING_RATE = 16000;
 
 export function AudioManager(props: { transcriber: Transcriber }) {
   const [progress, setProgress] = useState<number | undefined>(undefined);
@@ -40,7 +41,7 @@ export function AudioManager(props: { transcriber: Transcriber }) {
     mimeType: string,
   ) => {
     const audioCTX = new AudioContext({
-      sampleRate: Constants.SAMPLING_RATE,
+      sampleRate: SAMPLING_RATE,
     });
     const blobUrl = URL.createObjectURL(
       new Blob([data], { type: "audio/*" }),
@@ -64,7 +65,7 @@ export function AudioManager(props: { transcriber: Transcriber }) {
     };
     fileReader.onloadend = async () => {
       const audioCTX = new AudioContext({
-        sampleRate: Constants.SAMPLING_RATE,
+        sampleRate: SAMPLING_RATE,
       });
       const arrayBuffer = fileReader.result as ArrayBuffer;
       const decoded = await audioCTX.decodeAudioData(arrayBuffer);

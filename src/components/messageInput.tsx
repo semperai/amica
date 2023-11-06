@@ -2,7 +2,6 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
 import { IconButton } from "./iconButton";
 import { AudioManager } from "./audioManager";
-import Transcript from "./transcript";
 import { useTranscriber } from "@/hooks/useTranscriber";
 
 const VAD = dynamic(() => import("@/components/vad"), { ssr: false });
