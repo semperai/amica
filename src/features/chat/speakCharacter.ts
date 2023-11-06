@@ -6,7 +6,7 @@ import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { config } from "@/utils/config";
 
-const createSpeakCharacter = () => {
+function createSpeakCharacter() {
   let lastTime = 0;
   let prevFetchPromise: Promise<unknown> = Promise.resolve();
   let prevSpeakPromise: Promise<unknown> = Promise.resolve();
@@ -48,9 +48,7 @@ const createSpeakCharacter = () => {
 
 export const speakCharacter = createSpeakCharacter();
 
-const fetchAudio = async (
-  talk: Talk,
-): Promise<ArrayBuffer> => {
+async function fetchAudio(talk: Talk): Promise<ArrayBuffer> {
   const ttsBackend = config("tts_backend");
 
   try {

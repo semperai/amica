@@ -86,14 +86,15 @@ export default function Home() {
    * Have a conversation with your assistant
    */
   async function handleSendChat (text: string, overrideChatLog?: Message[]) {
-    if (text === null) return;
+    if (text === null || text === "") {
+      return;
+    }
 
     console.time('chat stream first message');
-    const newMessage = text;
 
     const baseChatLog = overrideChatLog || chatLog;
 
-    setUserMessage(newMessage);
+    setUserMessage(text);
     setAssistantMessage("");
     setShownMessage('user');
 
@@ -102,7 +103,7 @@ export default function Home() {
     // Add and display user comments
     const messageLog: Message[] = [
       ...baseChatLog,
-      { role: "user", content: newMessage },
+      { role: "user", content: text },
     ];
     setChatLog(messageLog);
 
