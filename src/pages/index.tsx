@@ -26,17 +26,18 @@ import { getChatResponseStream } from "@/features/chat/chat";
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from '@/utils/config';
 
- const m_plus_2 = M_PLUS_2({
-   variable: "--font-m-plus-2",
-   display: "swap",
-   preload: false,
- });
- 
- const montserrat = Montserrat({
-   variable: "--font-montserrat",
-   display: "swap",
-   subsets: ["latin"],
- });
+const m_plus_2 = M_PLUS_2({
+  variable: "--font-m-plus-2",
+  display: "swap",
+  preload: false,
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  display: "swap",
+  subsets: ["latin"],
+});
+
 
 export default function Home() {
   const { viewer } = useContext(ViewerContext);
