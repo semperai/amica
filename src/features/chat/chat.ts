@@ -6,7 +6,7 @@ import { getLlamaCppChatResponseStream } from './llamaCppChat';
 import { speakCharacter } from "./speakCharacter";
 import { config } from '@/utils/config';
 
-export async function getChatResponseStream(messages: Message[]) {
+async function getChatResponseStream(messages: Message[]) {
   console.log('getChatResponseStream', messages);
   const chatbotBackend = config("chatbot_backend");
 
@@ -20,59 +20,26 @@ export async function getChatResponseStream(messages: Message[]) {
   return getEchoChatResponseStream(messages);
 }
 
-export async function chat(
-  messageLog: Message[],
+async function handleChatResponseStream(
+  stream: ReadableStream<Uint8Array>,
   viewer: Viewer,
   bubbleMessage: (role: Role, message: string, processing: boolean) => void,
-  setChatLog: (messageLog: Message[]) => void,
-): Promise<string> {
-  let stream = null;
-  let aiTextLog = "";
-  let receivedMessage = "";
-  let tag = "";
-
-  // Chat GPTへ
-  const messages: Message[] = [
-    {
-      role: "system",
-      content: config("system_prompt"),
-    },
-    ...messageLog,
-  ];
-
-  try {
-    stream = await getChatResponseStream(messages);
-  } catch(e: any) {
-    console.error(e);
-    const errMsg = e.toString();
-
-    bubbleMessage('assistant', errMsg, false);
-    setChatLog([
-      ...messageLog,
-      { role: "assistant", content: errMsg },
-    ]);
-    return errMsg;
-  }
-
-  if (stream == null) {
-    const errMsg = "Error: Null stream encountered.";
-    bubbleMessage('assistant', errMsg, false);
-    setChatLog([
-      ...messageLog,
-      { role: "assistant", content: errMsg },
-    ]);
-    return errMsg;
-  }
-
+) {
   console.time('chat stream processing');
   const reader = stream.getReader();
   const sentences = new Array<string>();
+
+  let aiTextLog = "";
+  let receivedMessage = "";
+
   try {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
       receivedMessage += value;
+
+      let tag = "";
 
       // Detection of tag part of reply content
       const tagMatch = receivedMessage.match(/^\[(.*?)\]/);
@@ -128,6 +95,56 @@ export async function chat(
     reader.releaseLock();
     console.timeEnd('chat stream processing');
   }
+
+  return aiTextLog;
+}
+
+export async function chat(
+  messageLog: Message[],
+  viewer: Viewer,
+  bubbleMessage: (role: Role, message: string, processing: boolean) => void,
+  setChatLog: (messageLog: Message[]) => void,
+): Promise<string> {
+  let stream = null;
+
+  // Chat GPTへ
+  const messages: Message[] = [
+    {
+      role: "system",
+      content: config("system_prompt"),
+    },
+    ...messageLog,
+  ];
+
+  try {
+    stream = await getChatResponseStream(messages);
+  } catch(e: any) {
+    console.error(e);
+    const errMsg = e.toString();
+
+    bubbleMessage('assistant', errMsg, false);
+    setChatLog([
+      ...messageLog,
+      { role: "assistant", content: errMsg },
+    ]);
+    return errMsg;
+  }
+
+  if (stream == null) {
+    const errMsg = "Error: Null stream encountered.";
+    bubbleMessage('assistant', errMsg, false);
+    setChatLog([
+      ...messageLog,
+      { role: "assistant", content: errMsg },
+    ]);
+    return errMsg;
+  }
+
+  const aiTextLog = await handleChatResponseStream(
+    stream,
+    viewer,
+    bubbleMessage,
+  );
 
   return aiTextLog;
 }
