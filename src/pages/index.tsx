@@ -81,20 +81,6 @@ export default function Home() {
     );
   }, [chatLog]);
 
-  const handleResume = (previousMessages:Message[], newMessage:string) => {
-    handleSendChat(newMessage, previousMessages);
-  }
-
-  const handleChangeChatLog = useCallback(
-    (targetIndex: number, text: string) => {
-      const newChatLog = chatLog.map((v: Message, i) => {
-        return i === targetIndex ? { role: v.role, content: text } : v;
-      });
-
-      setChatLog(newChatLog);
-    },
-    [chatLog],
-  );
 
   /**
    * Playback while requesting audio serially for each sentence
@@ -315,7 +301,9 @@ export default function Home() {
 
       {showChatLog && <ChatLog
         messages={chatLog}
-        handleResume={handleResume}
+        handleResume={(previousMessages:Message[], newMessage:string) => {
+          handleSendChat(newMessage, previousMessages);
+        }}
       />}
 
       {showSettings && (
