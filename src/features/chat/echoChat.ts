@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from "openai";
-import { Message } from "@/features/messages/messages";
+import { Message } from "./messages";
 
 export async function getEchoChatResponseStream(messages: Message[]) {
   const stream = new ReadableStream({

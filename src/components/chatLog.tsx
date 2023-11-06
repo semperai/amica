@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import FlexTextarea from "@/components/flexTextarea/flexTextarea";
-import { Message } from "@/features/messages/messages";
+import { Message } from "@/features/chat/messages";
 import { IconButton } from "@/components/iconButton";
 import {
   ArrowPathIcon,

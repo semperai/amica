@@ -19,8 +19,8 @@ import {
   Message,
   textsToScreenplay,
   Screenplay,
-} from "@/features/messages/messages";
-import { speakCharacter } from "@/features/messages/speakCharacter";
+} from "@/features/chat/messages";
+import { speakCharacter } from "@/features/chat/speakCharacter";
 import { getChatResponseStream } from "@/features/chat/chat";
 
 import { buildUrl } from "@/utils/buildUrl";

@@ -23,7 +23,7 @@ import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
 import { SecretTextInput } from "./secretTextInput";
 import { TextInput } from "./textInput";
-import { Message } from "@/features/messages/messages";
+import { Message } from "@/features/chat/messages";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { config, updateConfig, resetConfig } from "@/utils/config";

@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from "openai";
-import { Message } from "@/features/messages/messages";
+import { Message } from "./messages";
 import { config } from '@/utils/config';
 
 export async function getOpenAiChatResponseStream(messages: Message[]) {

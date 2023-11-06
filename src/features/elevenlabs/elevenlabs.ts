@@ -1,4 +1,4 @@
-import { TalkStyle } from "@/features/messages/messages";
+import { TalkStyle } from "@/features/chat/messages";
 import { config } from '@/utils/config';
 
 export async function elevenlabs(

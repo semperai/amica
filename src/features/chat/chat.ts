@@ -1,4 +1,4 @@
-import { Message } from "@/features/messages/messages";
+import { Message } from "./messages";
 import { getEchoChatResponseStream } from './echoChat';
 import { getOpenAiChatResponseStream } from './openAiChat';
 import { getLlamaCppChatResponseStream } from './llamaCppChat';
