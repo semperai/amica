@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
+import { config } from "@/utils/config";
 
 type Props = {
   userMessage: string;
@@ -10,7 +11,7 @@ type Props = {
   onChangeUserMessage: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
-  onClickSendButton: () => void;
+  sendMessage: (message: string) => void;
 };
 
 const MessageInput = ({
@@ -18,7 +19,7 @@ const MessageInput = ({
   setUserMessage,
   isChatProcessing,
   onChangeUserMessage,
-  onClickSendButton,
+  sendMessage,
 }: Props) => {
   const transcriber = useTranscriber();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,14 +41,19 @@ const MessageInput = ({
   });
 
   useEffect(() => {
-    if (transcriber.output) {
-      setUserMessage(transcriber.output?.text);
+    if (transcriber.output && ! transcriber.isBusy) {
+      const text = transcriber.output?.text;
+      if (config("autosend_from_mic") === 'true') {
+        sendMessage(text);
+      } else {
+        setUserMessage(text);
+      }
       console.timeEnd('transcribe');
     }
   }, [transcriber]);
 
-  function send() {
-    onClickSendButton();
+  function clickedSendButton() {
+    sendMessage(userMessage);
     // only if we are using non-VAD mode should we focus on the input
     if (! vad.listening) {
       inputRef.current?.focus();
@@ -77,7 +83,7 @@ const MessageInput = ({
               onChange={onChangeUserMessage}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  send();
+                  clickedSendButton();
                 }
               }}
               disabled={false}
@@ -89,9 +95,9 @@ const MessageInput = ({
               <IconButton
                 iconName="24/Send"
                 className="ml-2 bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
-                isProcessing={isChatProcessing}
-                disabled={isChatProcessing || !userMessage}
-                onClick={send}
+                isProcessing={isChatProcessing || transcriber.isBusy}
+                disabled={isChatProcessing || !userMessage || transcriber.isModelLoading}
+                onClick={clickedSendButton}
               />
             </div>
           </div>

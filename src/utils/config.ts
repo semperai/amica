@@ -1,4 +1,5 @@
 const defaults = {
+  autosend_from_mic: 'true',
   debug_gfx: 'false',
   show_webcam: 'false',
   language: 'en',

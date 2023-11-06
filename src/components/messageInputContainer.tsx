@@ -23,9 +23,9 @@ export const MessageInputContainer = ({
 }) => {
   const [userMessage, setUserMessage] = useState("");
 
-  const handleClickSendButton = useCallback(() => {
-    onChatProcessStart(userMessage);
-  }, [onChatProcessStart, userMessage]);
+  function sendMessage(message: string) {
+    onChatProcessStart(message);
+  }
 
   useEffect(() => {
     if (!isChatProcessing) {
@@ -39,7 +39,7 @@ export const MessageInputContainer = ({
       setUserMessage={setUserMessage}
       isChatProcessing={isChatProcessing}
       onChangeUserMessage={(e) => setUserMessage(e.target.value)}
-      onClickSendButton={handleClickSendButton}
+      sendMessage={sendMessage}
     />
   );
 };
