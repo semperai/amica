@@ -63,6 +63,20 @@ export default function Home() {
     document.body.style.backgroundImage = `url(${config("bg_url")})`;
   }, []);
 
+  function bubbleMessage(role: Role, text: string, processing: boolean) {
+    if (role === 'user') {
+      setUserMessage(text);
+      setAssistantMessage("");
+    }
+    if (role === 'assistant') {
+      setUserMessage("");
+      setAssistantMessage(text);
+    }
+
+    setShownMessage(role);
+    setChatProcessing(true);
+  }
+
 
   /**
    * Have a conversation with your assistant
@@ -74,16 +88,11 @@ export default function Home() {
 
     console.time('chat stream first message');
 
-    const baseChatLog = overrideChatLog || chatLog;
-
-    setUserMessage(text);
-    setAssistantMessage("");
-    setShownMessage('user');
-    setChatProcessing(true);
+    bubbleMessage('user', text, true);
 
     // Add and display user comments
     const messageLog: Message[] = [
-      ...baseChatLog,
+      ...(overrideChatLog || chatLog),
       { role: "user", content: text },
     ];
     setChatLog(messageLog);
@@ -94,19 +103,15 @@ export default function Home() {
     const aiTextLog = (await chat(
       messageLog,
       viewer,
-      setAssistantMessage,
+      bubbleMessage,
       setChatLog,
-      setChatProcessing,
-      setShownMessage,
     )).trim();
 
     // Add assistant responses to log
-    const messageLogAssistant: Message[] = [
+    setChatLog([
       ...messageLog,
       { role: "assistant", content: aiTextLog },
-    ];
-
-    setChatLog(messageLogAssistant);
+    ]);
     setChatProcessing(false);
   }
 

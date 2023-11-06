@@ -23,10 +23,8 @@ export async function getChatResponseStream(messages: Message[]) {
 export async function chat(
   messageLog: Message[],
   viewer: Viewer,
-  setAssistantMessage: (message: string) => void,
+  bubbleMessage: (role: Role, message: string, processing: boolean) => void,
   setChatLog: (messageLog: Message[]) => void,
-  setChatProcessing: (processing: boolean) => void,
-  setShownMessage: (role: Role) => void,
 ): Promise<string> {
   let stream = null;
   let aiTextLog = "";
@@ -47,20 +45,23 @@ export async function chat(
   } catch(e: any) {
     console.error(e);
     const errMsg = e.toString();
-    setAssistantMessage(errMsg);
-    const messageLogAssistant: Message[] = [
+
+    bubbleMessage('assistant', errMsg, false);
+    setChatLog([
       ...messageLog,
       { role: "assistant", content: errMsg },
-    ];
-
-    setChatLog(messageLogAssistant);
-    setChatProcessing(false);
-    setShownMessage('assistant');
+    ]);
+    return errMsg;
   }
 
   if (stream == null) {
-    setChatProcessing(false);
-    return "";
+    const errMsg = "Error: Null stream encountered.";
+    bubbleMessage('assistant', errMsg, false);
+    setChatLog([
+      ...messageLog,
+      { role: "assistant", content: errMsg },
+    ]);
+    return errMsg;
   }
 
   console.time('chat stream processing');
@@ -112,20 +113,21 @@ export async function chat(
           aiTalks[0],
           viewer,
           () => {
-            setShownMessage('assistant');
-            setAssistantMessage(currentAssistantMessage);
+            bubbleMessage('assistant', currentAssistantMessage, true);
           },
           () => {
           }
         );
       }
     }
-  } catch (e) {
-    setChatProcessing(false);
+  } catch (e: any) {
+    const errMsg = e.toString();
+    bubbleMessage('assistant', errMsg, false);
     console.error(e);
   } finally {
     reader.releaseLock();
     console.timeEnd('chat stream processing');
   }
+
   return aiTextLog;
 }
