@@ -81,22 +81,6 @@ export default function Home() {
     );
   }, [chatLog]);
 
-
-  /**
-   * Playback while requesting audio serially for each sentence
-   */
-  const handleSpeakAi = useCallback(
-    async (
-      screenplay: Screenplay,
-      onStart?: () => void,
-      onEnd?: () => void,
-    ) => {
-      setShownMessage('assistant');
-      speakCharacter(screenplay, viewer, onStart, onEnd);
-    },
-    [viewer],
-  );
-
   /**
    * Have a conversation with your assistant
    */
@@ -200,10 +184,17 @@ export default function Home() {
 
             // Generate & play audio for each sentence, display responses
             const currentAssistantMessage = sentences.join(" ");
-            handleSpeakAi(aiTalks[0], () => {
-              console.timeEnd('chat stream first message');
-              setAssistantMessage(currentAssistantMessage);
-            });
+
+            speakCharacter(
+              aiTalks[0],
+              viewer,
+              () => {
+                setShownMessage('assistant');
+                setAssistantMessage(currentAssistantMessage);
+              },
+              () => {
+              }
+            );
           }
         }
       } catch (e) {
@@ -227,7 +218,7 @@ export default function Home() {
       setChatLog(messageLogAssistant);
       setChatProcessing(false);
     },
-    [chatLog, handleSpeakAi],
+    [chatLog],
   );
 
   useEffect(() => {
