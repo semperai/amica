@@ -15,13 +15,7 @@ import { Settings } from "@/components/settings";
 import { EmbeddedWebcam } from "@/components/embeddedWebcam";
 
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
-import {
-  Message,
-  Role,
-  textsToScreenplay,
-  Screenplay,
-} from "@/features/chat/messages";
-import { speakCharacter } from "@/features/chat/speakCharacter";
+import { Message, Role } from "@/features/chat/messages";
 import { chat } from "@/features/chat/chat";
 
 import { buildUrl } from "@/utils/buildUrl";
