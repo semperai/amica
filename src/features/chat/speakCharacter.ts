@@ -53,23 +53,27 @@ const fetchAudio = async (
 ): Promise<ArrayBuffer> => {
   const ttsBackend = config("tts_backend");
 
-  switch (ttsBackend) {
-    case 'elevenlabs': {
-      const voiceId = config("elevenlabs_voiceid");
-      const voice = await elevenlabs(talk.message, voiceId, talk.style);
-      return voice.audio;
+  try {
+    switch (ttsBackend) {
+      case 'elevenlabs': {
+        const voiceId = config("elevenlabs_voiceid");
+        const voice = await elevenlabs(talk.message, voiceId, talk.style);
+        return voice.audio;
+      }
+      case 'speecht5': {
+        const speakerEmbeddingUrl = config('speecht5_speaker_embedding_url');
+        const voice = await speecht5(talk.message, speakerEmbeddingUrl);
+        return voice.audio;
+      }
+      case 'coqui': {
+        const speakerId = config('coqui_speaker_id');
+        const styleUrl = config('coqui_style_url');
+        const voice = await coqui(talk.message, speakerId, styleUrl);
+        return voice.audio;
+      }
     }
-    case 'speecht5': {
-      const speakerEmbeddingUrl = config('speecht5_speaker_embedding_url');
-      const voice = await speecht5(talk.message, speakerEmbeddingUrl);
-      return voice.audio;
-    }
-    case 'coqui': {
-      const speakerId = config('coqui_speaker_id');
-      const styleUrl = config('coqui_style_url');
-      const voice = await coqui(talk.message, speakerId, styleUrl);
-      return voice.audio;
-    }
+  } catch (e) {
+    console.error(e);
   }
 
   // ttsBackend === 'none'
