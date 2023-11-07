@@ -56,7 +56,7 @@ function createSpeakCharacter() {
 
 const speakCharacter = createSpeakCharacter();
 
-async function fetchAudio(talk: Talk): Promise<ArrayBuffer> {
+async function fetchAudio(talk: Talk): Promise<ArrayBuffer|null> {
   const ttsBackend = config("tts_backend");
 
   try {
@@ -83,7 +83,7 @@ async function fetchAudio(talk: Talk): Promise<ArrayBuffer> {
   }
 
   // ttsBackend === 'none'
-  return new ArrayBuffer(0);
+  return null;
 }
 
 async function getChatResponseStream(messages: Message[]) {
