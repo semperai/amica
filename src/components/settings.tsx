@@ -264,7 +264,7 @@ function BackgroundImgPage({
                 alt={url}
                 width="160"
                 height="93"
-                className="m-0 rounded-md bg-white mx-4 p-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
+                className="m-0 rounded-md mx-4 p-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
                 onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = url;
@@ -775,7 +775,7 @@ function CharacterModelPage({
                 alt={url}
                 width="160"
                 height="93"
-                className="m-0 rounded-md bg-white mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
+                className="m-0 rounded mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
               />
           </button>
         )}
