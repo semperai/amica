@@ -7,13 +7,29 @@ import React, {
   useRef,
 } from "react";
 import { Transition } from '@headlessui/react'
-import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import {
   ChevronRightIcon,
   ArrowUturnLeftIcon,
   HomeIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
+
+import {
+  AdjustmentsHorizontalIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  CheckCircleIcon,
+  UsersIcon,
+  RocketLaunchIcon,
+  FaceSmileIcon,
+  MusicalNoteIcon,
+  PowerIcon,
+  PhotoIcon,
+  FilmIcon,
+  SpeakerWaveIcon,
+  DocumentTextIcon,
+  Cog6ToothIcon,
+} from '@heroicons/react/24/outline';
+
 import { getWindowAI } from "window.ai";
 
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
@@ -65,6 +81,8 @@ function classNames(...classes: string[]) {
 type Link = {
   key: string;
   label: string;
+  icon?: JSX.Element;
+  className?: string;
 }
 
 
@@ -74,37 +92,75 @@ type PageProps = {
   setBreadcrumbs: (breadcrumbs: Link[]) => void;
 }
 
-function keysToLinks(keys: string[]): Link[] {
+function getIconFromPage(page: string): JSX.Element {
+  switch(page) {
+    case 'appearance':          return <FaceSmileIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'chatbot':             return <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'tts':                 return <MusicalNoteIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'reset_settings':      return <PowerIcon className="h-5 w-5 flex-none text-red-500" aria-hidden="true" />;
+    case 'community':           return <RocketLaunchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'background_img':      return <PhotoIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'background_video':    return <FilmIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'character_model':     return <UsersIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'character_animation': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'elevenlabs_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'speecht5_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'coqui_settings':      return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+  }
+
+  return <></>;
+}
+
+function getLabelFromPage(page: string): string {
+  switch(page) {
+    case 'appearance':          return 'Appearance';
+    case 'chatbot':             return 'ChatBot';
+    case 'tts':                 return 'Text-to-Speech';
+    case 'reset_settings':      return 'Reset Settings';
+    case 'community':           return 'Community';
+    case 'background_img':      return 'Background Image';
+    case 'background_video':    return 'Background Video';
+    case 'character_model':     return 'Character Model';
+    case 'character_animation': return 'Character Animation';
+    case 'chatbot_backend':     return 'ChatBot Backend';
+    case 'chatgpt_settings':    return 'ChatGPT';
+    case 'llamacpp_settings':   return 'LLama.cpp';
+    case 'tts_backend':         return 'TTS Backend';
+    case 'elevenlabs_settings': return 'ElevenLabs';
+    case 'speecht5_settings':   return 'SpeechT5';
+    case 'coqui_settings':      return 'Coqui';
+    case 'system_prompt':       return 'System Prompt';
+  }
+
+  throw new Error('unknown page label encountered');
+}
+
+function getClassNameFromPage(page: string) {
+  switch(page) {
+    case 'reset_settings': return 'text-red-500';
+  }
+
+  return '';
+}
+
+function getLinkFromPage(page: string) {
+  return {
+    key: page,
+    label: getLabelFromPage(page),
+    icon: getIconFromPage(page),
+    className: getClassNameFromPage(page),
+  };
+}
+
+function pagesToLinks(keys: string[]): Link[] {
   const links: Link[] = [];
   for (const key of keys) {
-    function getLabel(page: string) {
-      switch(page) {
-        case 'appearance':          return 'Appearance';
-        case 'chatbot':             return 'ChatBot';
-        case 'tts':                 return 'Text-to-Speech';
-        case 'reset_settings':      return 'Reset Settings';
-        case 'community':           return 'Community';
-        case 'background_img':      return 'Background Image';
-        case 'background_video':    return 'Background Video';
-        case 'chatbot_backend':     return 'ChatBot Backend';
-        case 'chatgpt_settings':    return 'ChatGPT';
-        case 'llamacpp_settings':   return 'LLama.cpp';
-        case 'tts_backend':         return 'TTS Backend';
-        case 'elevenlabs_settings': return 'ElevenLabs';
-        case 'speecht5_settings':   return 'SpeechT5';
-        case 'coqui_settings':      return 'Coqui';
-        case 'system_prompt':       return 'System Prompt';
-        case 'character_model':     return 'Character Model';
-        case 'character_animation': return 'Character Animation';
-        case 'reset_settings':      return 'Reset Settings';
-      }
-      return 'Unknown';
-    }
-
-    links.push({
-      key,
-      label: getLabel(key),
-    });
+    links.push(getLinkFromPage(key));
   }
   return links;
 }
@@ -117,7 +173,7 @@ function MenuPage({
   keys: string[];
   menuClick: (link: Link) => void;
 }) {
-  const links = keysToLinks(keys);
+  const links = pagesToLinks(keys);
   return (
     <ul role="list" className="divide-y divide-black/5 bg-white rounded-lg shadow-lg">
       {links.map((link) => (
@@ -131,7 +187,10 @@ function MenuPage({
           <div className="min-w-0 flex-auto">
             <div className="flex items-center gap-x-3">
               <h2 className="min-w-0 text-sm font-semibold leading-6">
-                <span className="whitespace-nowrap">{link.label}</span>
+                <span className={`whitespace-nowrap flex w-0 flex-1 gap-x-2 items-center ${link.className ?? ''}`}>
+                  {link.icon}
+                  {link.label}
+                </span>
               </h2>
             </div>
           </div>
@@ -367,7 +426,7 @@ function ChatbotBackendPage({
               className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={() => {
                 setPage('chatgpt_settings');
-                setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'chatgpt_settings', label: 'ChatGPT Settings'}]));
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('chatgpt_settings')]));
               }}
             >
               Click here to configure ChatGPT
@@ -383,7 +442,7 @@ function ChatbotBackendPage({
               className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={() => {
                 setPage('llamacpp_settings');
-                setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'llamacpp_settings', label: 'LLama.cpp Settings'}]));
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('llamacpp_settings')]));
               }}
             >
               Click here to configure Llama.cpp
@@ -542,7 +601,7 @@ function TTSBackendPage({
               className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={() => {
                 setPage('elevenlabs_settings');
-                setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'elevenlabs_settings', label: 'ElevenLabs Settings'}]));
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('elevenlabs_settings')]));
               }}
             >
               Click here to configure ElevenLabs
@@ -558,7 +617,7 @@ function TTSBackendPage({
               className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={() => {
                 setPage('speecht5_settings');
-                setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'speecht5_settings', label: 'SpeechT5 Settings'}]));
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('speecht5_settings')]));
               }}
             >
               Click here to configure SpeechT5
@@ -574,7 +633,7 @@ function TTSBackendPage({
               className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={() => {
                 setPage('coqui_settings');
-                setBreadcrumbs(breadcrumbs.slice(-1).concat([{key: 'coqui_settings', label: 'Coqui Settings'}]));
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('coqui_settings')]));
               }}
             >
               Click here to configure Coqui
