@@ -252,6 +252,7 @@ function BackgroundImgPage({
             key={url}
             onClick={() => {
               document.body.style.backgroundImage = `url(${url})`;
+              updateConfig("youtube_videoid", "");
               updateConfig("bg_url", url);
               setBgUrl(url);
               setSettingsUpdated(true);
@@ -926,6 +927,7 @@ export const Settings = ({
         document.body.style.backgroundImage = `url(${url})`;
 
         if ((url as string).length < 2_000_000) {
+          updateConfig("youtube_videoid", "");
           updateConfig("bg_url", url as string);
         } else {
           // TODO notify with warning how this cant be saved to localstorage
