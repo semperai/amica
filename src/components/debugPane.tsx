@@ -8,6 +8,20 @@ export function DebugPane({ onClickClose }: {
     navigator.clipboard.writeText(JSON.stringify((window as any).error_handler_logs));
   }
 
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClickClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
+
   return (
     <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 overflow-y-auto">
       <div className="p-2 bg-white">

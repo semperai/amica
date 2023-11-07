@@ -839,7 +839,7 @@ function CharacterAnimationPage({
 export const Settings = ({
   onClickClose,
 }: {
-    onClickClose: () => void;
+  onClickClose: () => void;
 }) => {
   const { viewer } = useContext(ViewerContext);
 
@@ -961,6 +961,19 @@ export const Settings = ({
     setPage(link.key)
     setBreadcrumbs([...breadcrumbs, link]);
   }
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClickClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
 
   return (
     <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 overflow-y-auto backdrop-blur">
