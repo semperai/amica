@@ -53,7 +53,7 @@ function createSpeakCharacter() {
   };
 };
 
-export const speakCharacter = createSpeakCharacter();
+const speakCharacter = createSpeakCharacter();
 
 async function fetchAudio(talk: Talk): Promise<ArrayBuffer> {
   const ttsBackend = config("tts_backend");
