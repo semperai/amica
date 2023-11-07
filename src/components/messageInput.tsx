@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
+import { cleanTranscript } from "@/utils/stringProcessing";
 import { config } from "@/utils/config";
 
 type Props = {
@@ -46,7 +47,13 @@ const MessageInput = ({
 
   useEffect(() => {
     if (transcriber.output && ! transcriber.isBusy) {
-      const text = transcriber.output?.text;
+      const output = transcriber.output?.text;
+      const text = cleanTranscript(output);
+
+      if (text === "") {
+        return;
+      }
+
       if (config("autosend_from_mic") === 'true') {
         sendMessage(text);
       } else {
