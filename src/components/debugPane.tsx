@@ -1,26 +1,16 @@
 import { useEffect, useState } from "react";
 import { IconButton } from "@/components/iconButton";
+import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 
 export function DebugPane({ onClickClose }: {
   onClickClose: () => void
 }) {
+  useKeyboardShortcut("Escape", onClickClose);
+
   function onClickCopy() {
     navigator.clipboard.writeText(JSON.stringify((window as any).error_handler_logs));
   }
 
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClickClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleEsc);
-
-    return () => {
-      window.removeEventListener('keydown', handleEsc);
-    };
-  }, []);
 
   return (
     <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 overflow-y-auto">

@@ -18,11 +18,12 @@ import {
 } from '@heroicons/react/20/solid';
 
 import { buildUrl } from "@/utils/buildUrl";
+import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { GitHubLink } from "@/components/githubLink";
-import { IconButton } from "./iconButton";
-import { TextButton } from "./textButton";
-import { SecretTextInput } from "./secretTextInput";
-import { TextInput } from "./textInput";
+import { IconButton } from "@/components/iconButton";
+import { TextButton } from "@/components/textButton";
+import { SecretTextInput } from "@/components/secretTextInput";
+import { TextInput } from "@/components/textInput";
 import { Message } from "@/features/chat/messages";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
@@ -842,6 +843,7 @@ export const Settings = ({
   onClickClose: () => void;
 }) => {
   const { viewer } = useContext(ViewerContext);
+  useKeyboardShortcut("Escape", onClickClose);
 
   const [page, setPage] = useState('main_menu');
   const [breadcrumbs, setBreadcrumbs] = useState<Link[]>([]);
@@ -961,19 +963,6 @@ export const Settings = ({
     setPage(link.key)
     setBreadcrumbs([...breadcrumbs, link]);
   }
-
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClickClose();
-      }
-    };
-    window.addEventListener('keydown', handleEsc);
-
-    return () => {
-      window.removeEventListener('keydown', handleEsc);
-    };
-  }, []);
 
   return (
     <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 overflow-y-auto backdrop-blur">
