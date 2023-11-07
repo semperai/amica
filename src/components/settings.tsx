@@ -236,10 +236,12 @@ function BackgroundImgPage({
   bgUrl,
   setBgUrl,
   setSettingsUpdated,
+  handleClickOpenBgImgFile,
 }: {
   bgUrl: string;
   setBgUrl: (url: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
+  handleClickOpenBgImgFile: () => void;
 }) {
   return (
     <>
@@ -269,6 +271,12 @@ function BackgroundImgPage({
           </button>
         )}
       </div>
+      <TextButton
+        className="rounded-t-none text-lg ml-4 px-8 shadow-lg bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+        onClick={handleClickOpenBgImgFile}
+      >
+        Load image
+      </TextButton>
     </>
   );
 }
@@ -865,9 +873,14 @@ export const Settings = ({
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const vrmFileInputRef = useRef<HTMLInputElement>(null);
   const handleClickOpenVrmFile = useCallback(() => {
-    fileInputRef.current?.click();
+    vrmFileInputRef.current?.click();
+  }, []);
+
+  const bgImgFileInputRef = useRef<HTMLInputElement>(null);
+  const handleClickOpenBgImgFile = useCallback(() => {
+    bgImgFileInputRef.current?.click();
   }, []);
 
   const handleChangeVrmFile = useCallback(
@@ -890,6 +903,38 @@ export const Settings = ({
     },
     [viewer]
   );
+
+  function handleChangeBgImgFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files;
+    if (!files) return;
+
+    const file = files[0];
+    if (!file) return;
+
+    const file_type = file.name.split(".").pop();
+
+    if (! file.type.match('image.*')) return;
+
+    let reader = new FileReader();
+    reader.onload = (function (_) {
+      return function (e) {
+        const url = e.target?.result;
+        if (! url) return;
+
+        document.body.style.backgroundImage = `url(${url})`;
+
+        if ((url as string).length < 2_000_000) {
+          updateConfig("bg_url", url as string);
+        } else {
+          // TODO notify with warning how this cant be saved to localstorage
+        }
+      };
+    })(file);
+
+    reader.readAsDataURL(file);
+
+    event.target.value = "";
+  }
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -1040,6 +1085,7 @@ export const Settings = ({
                 bgUrl={bgUrl}
                 setBgUrl={setBgUrl}
                 setSettingsUpdated={setSettingsUpdated}
+                handleClickOpenBgImgFile={handleClickOpenBgImgFile}
                 />
             )}
 
@@ -1202,8 +1248,15 @@ export const Settings = ({
         type="file"
         className="hidden"
         accept=".vrm"
-        ref={fileInputRef}
+        ref={vrmFileInputRef}
         onChange={handleChangeVrmFile}
+      />
+      <input
+        type="file"
+        className="hidden"
+        accept=".jpg,.jpeg,.png,.gif,.webp"
+        ref={bgImgFileInputRef}
+        onChange={handleChangeBgImgFile}
       />
     </div>
   );
