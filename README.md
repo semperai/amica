@@ -14,6 +14,8 @@ The various features of Amica mainly use the following technologies:
   - [Transformers.js](https://huggingface.co/docs/transformers.js/index)
 - Speech recognition
   - [Whisper](https://openai.com/research/whisper)
+- Voice Activity Detection
+  - [Silero VAD](https://github.com/ricky0123/vad/)
 - ChatBot
   - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat) (compatible with projects such as llama-cpp-server and openrouter)
 - Text-to-Speech
