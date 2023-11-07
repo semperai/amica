@@ -1,4 +1,3 @@
-import { GetStaticProps } from "next";
 import React, {
   Fragment,
   useCallback,
@@ -11,20 +10,17 @@ import { Transition } from '@headlessui/react'
 import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import {
   ChevronRightIcon,
-  ChevronLeftIcon,
   ArrowUturnLeftIcon,
   HomeIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
 
-import { buildUrl } from "@/utils/buildUrl";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "@/components/iconButton";
 import { TextButton } from "@/components/textButton";
 import { SecretTextInput } from "@/components/secretTextInput";
 import { TextInput } from "@/components/textInput";
-import { Message } from "@/features/chat/messages";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { config, updateConfig, resetConfig } from "@/utils/config";
