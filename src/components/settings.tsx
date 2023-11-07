@@ -14,6 +14,7 @@ import {
   HomeIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
+import { getWindowAI } from "window.ai";
 
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { GitHubLink } from "@/components/githubLink";
@@ -36,6 +37,7 @@ const chatbotBackends = [
   {key: "echo",       label: "Echo"},
   {key: "chatgpt",    label: "ChatGPT"},
   {key: "llamacpp",   label: "LLama.cpp"},
+  {key: "windowai",   label: "Window.ai"},
 ];
 
 const ttsEngines = [
@@ -325,6 +327,17 @@ function ChatbotBackendPage({
   breadcrumbs: Link[];
   setBreadcrumbs: (breadcrumbs: Link[]) => void;
 }) {
+  const [windowAiDetected, setWindowAiDetected] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const windowAI = await getWindowAI();
+      if (windowAI) {
+        setWindowAiDetected(true);
+      }
+    })();
+  }, []);
+
   return basicPage(
     "Chatbot Backend",
     "Select the chatbot backend to use. Echo simply responds with what you type, it is used for testing and demonstration. ChatGPT is a commercial chatbot API from OpenAI, however there are multiple compatible API providers which can be used in lieu of OpenAI. LLama.cpp is a free and open source chatbot backend.",
@@ -362,7 +375,7 @@ function ChatbotBackendPage({
           </FormRow>
         </li>
       )}
-      { chatbotBackend === 'llamacpp' && (
+     { chatbotBackend === 'llamacpp' && (
         <li className="py-4">
           <FormRow label="Configure Llama.cpp">
             <button
@@ -378,6 +391,19 @@ function ChatbotBackendPage({
           </FormRow>
         </li>
       )}
+      { chatbotBackend === 'windowai' && ! windowAiDetected && (
+        <li className="py-4">
+          <FormRow label="Window.ai not found">
+            <a
+              href="https://windowai.io/"
+              target="_blank"
+              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Install window.ai
+            </a>
+          </FormRow>
+        </li>
+      )} 
     </ul>
   );
 }

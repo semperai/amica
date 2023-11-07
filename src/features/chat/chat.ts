@@ -4,6 +4,7 @@ import { Viewer } from "@/features/vrmViewer/viewer";
 import { getEchoChatResponseStream } from './echoChat';
 import { getOpenAiChatResponseStream } from './openAiChat';
 import { getLlamaCppChatResponseStream } from './llamaCppChat';
+import { getWindowAiChatResponseStream } from './windowAiChat';
 
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
@@ -94,6 +95,9 @@ async function getChatResponseStream(messages: Message[]) {
   }
   if (chatbotBackend === 'llamacpp') {
     return getLlamaCppChatResponseStream(messages);
+  }
+  if (chatbotBackend === 'windowai') {
+    return getWindowAiChatResponseStream(messages);
   }
 
   return getEchoChatResponseStream(messages);

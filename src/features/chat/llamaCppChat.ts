@@ -94,4 +94,3 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
 
   return stream;
 }
-
