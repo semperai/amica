@@ -929,6 +929,7 @@ export const Settings = ({
         if ((url as string).length < 2_000_000) {
           updateConfig("youtube_videoid", "");
           updateConfig("bg_url", url as string);
+          setShowNotification(true);
         } else {
           // TODO notify with warning how this cant be saved to localstorage
         }
