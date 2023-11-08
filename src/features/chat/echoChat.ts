@@ -10,7 +10,10 @@ export async function getEchoChatResponseStream(messages: Message[]) {
         if (lastChar !== '.' && lastChar !== '?' && lastChar !== '!') {
           lastMessage += ".";
         }
-        controller.enqueue(lastMessage);
+
+        lastMessage.split(' ').map((word) => word + ' ').forEach((word) => {
+          controller.enqueue(word);
+        });
       } catch (error) {
         controller.error(error);
       } finally {
