@@ -11,8 +11,8 @@ export const UserText = ({ message }: { message: string }) => {
   });
 
   return (
-    <div className="absolute bottom-0 left-0 mb-104 w-full">
-      <div className="mx-auto max-w-4xl w-full p-16">
+    <div className="absolute bottom-0 left-0 mb-20 w-full">
+      <div className="mx-auto max-w-4xl w-full px-4 md:px-16">
         <div className="bg-white rounded-lg">
           <div className="px-8 py-3 bg-base rounded-t-lg text-gray-700 font-bold tracking-wider">
             YOU
