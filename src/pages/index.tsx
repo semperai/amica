@@ -69,27 +69,6 @@ export default function Home() {
     );
   }, [bot, viewer]);
 
-  /**
-   * Have a conversation with your assistant
-   */
-  async function handleSendChat (text: string, overrideChatLog?: Message[]) {
-    if (text === null || text === "") {
-      return;
-    }
-
-    console.time('chat stream first message');
-
-
-    // Add and display user comments
-    const messageLog: Message[] = [
-      ...(overrideChatLog || chatLog),
-      { role: "user", content: text },
-    ];
-    await bot.receiveMessageFromUser(text);
-
-    setChatProcessing(false);
-  }
-
   // this exists to prevent build errors with ssr
   useEffect(() => setShowContent(true), []);
   if (!showContent) return <></>;
@@ -111,7 +90,6 @@ export default function Home() {
       <VrmViewer />
       <MessageInputContainer
         isChatProcessing={chatProcessing}
-        sendMessage={handleSendChat}
       />
 
       {/* main menu */}
@@ -158,12 +136,7 @@ export default function Home() {
         </div>
       </div>
 
-      {showChatLog && <ChatLog
-        messages={chatLog}
-        handleResume={(previousMessages:Message[], newMessage:string) => {
-          handleSendChat(newMessage, previousMessages);
-        }}
-      />}
+      {showChatLog && <ChatLog messages={chatLog} />}
 
       {showSettings && (
         <Settings

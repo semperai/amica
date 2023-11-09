@@ -35,6 +35,7 @@ export class Chat {
   // the message from the user that is currently being processed
   // it can be reset
   public stream: ReadableStream<Uint8Array>|null;
+  public reader: ReadableStreamDefaultReader<Uint8Array>|null;
 
   // process these immediately as they come in and add to audioToPlay
   public ttsJobs: Queue<Screenplay>;
@@ -46,15 +47,21 @@ export class Chat {
   private currentAssistantMessage: string;
   private currentUserMessage: string;
 
+  private messageList: Message[];
+
   constructor() {
     this.initialized = false;
 
     this.stream = null;
+    this.reader = null;
+
     this.ttsJobs = new Queue<Screenplay>();
     this.speakJobs = new Queue<Speak>();
 
     this.currentAssistantMessage = "";
     this.currentUserMessage = "";
+
+    this.messageList = [];
   }
 
   public initialize(
@@ -81,6 +88,12 @@ export class Chat {
     this.initialized = true;
   }
 
+  public setMessageList(messages: Message[]) {
+    this.messageList = messages;
+    this.setChatLog!(this.messageList!);
+    this.currentAssistantMessage = '';
+    this.currentUserMessage = '';
+  }
 
   public async processTtsJobs() {
     while (true) {
@@ -127,14 +140,21 @@ export class Chat {
       this.setAssistantMessage!("");
 
       if (this.currentAssistantMessage !== '') {
-        if (save) this.setChatLog!([
-          ...this.getChatLog!(),
-          { role: "assistant", content: this.currentAssistantMessage },
-        ]);
+        if (save) {
+          this.messageList!.push({
+            role: "assistant",
+            content: this.currentAssistantMessage,
+          });
+        }
         console.log('CHATLOG', this.getChatLog!());
 
         this.currentAssistantMessage = '';
       }
+
+      this.setChatLog!([
+        ...this.messageList!,
+        { role: "user", content: this.currentUserMessage },
+      ]);
     }
 
     if (role === 'assistant') {
@@ -143,22 +163,43 @@ export class Chat {
       this.setAssistantMessage!(this.currentAssistantMessage);
 
       if (this.currentUserMessage !== '') {
-        if (save) this.setChatLog!([
-          ...this.getChatLog!(),
-          { role: "user", content: this.currentUserMessage },
-        ]);
+        if (save) {
+          this.messageList!.push({
+            role: "user",
+            content: this.currentUserMessage,
+          });
+        }
         console.log('CHATLOG', this.getChatLog!());
 
         this.currentUserMessage = '';
       }
+
+      this.setChatLog!([
+        ...this.messageList!,
+        { role: "assistant", content: this.currentAssistantMessage },
+      ]);
     }
 
     this.setShownMessage!(role);
     this.setChatProcessing!(processing);
+    console.log('bubbler', this.messageList)
   }
 
   public async interrupt() {
-    await this.stream?.cancel();
+    /*
+    try {
+      this.reader?.releaseLock();
+    } catch (e) {
+      console.error(e);
+    }
+    try {
+      await this.stream?.cancel();
+    } catch (e) {
+      console.error(e);
+    }
+    */
+    this.reader = null;
+    this.stream = null;
     // TODO if llm type is llama.cpp, we can send /stop message here
     this.ttsJobs.clear();
     this.speakJobs.clear();
@@ -174,14 +215,15 @@ export class Chat {
 
     this.interrupt();
 
-    this.bubbleMessage!('user', message, true, false);
+    this.bubbleMessage!('user', message, true);
 
     // make new stream
-    console.log('getChatResponseStream', this.getChatLog!());
     const messages: Message[] = [
       { role: "system", content: config("system_prompt") },
-      ...this.getChatLog!(),
+      ...this.messageList!,
+      { role: "user", content: this.currentUserMessage},
     ];
+    console.log('messages', messages);
 
     try {
       this.stream = await this.getChatResponseStream(messages);
@@ -190,10 +232,6 @@ export class Chat {
       const errMsg = e.toString();
 
       this.bubbleMessage('assistant', errMsg, false);
-      this.setChatLog!([
-        ...this.getChatLog!(),
-        { role: "assistant", content: errMsg },
-      ]);
       console.log('CHATLOG', )
       return errMsg;
     }
@@ -201,10 +239,6 @@ export class Chat {
     if (this.stream == null) {
       const errMsg = "Error: Null stream encountered.";
       this.bubbleMessage('assistant', errMsg, false);
-      this.setChatLog!([
-        ...this.getChatLog!(),
-        { role: "assistant", content: errMsg },
-      ]);
       return errMsg;
     }
 
@@ -221,7 +255,7 @@ export class Chat {
     }
 
     console.time('chat stream processing');
-    const reader = this.stream.getReader();
+    this.reader = this.stream.getReader();
     const sentences = new Array<string>();
 
     let aiTextLog = "";
@@ -229,7 +263,7 @@ export class Chat {
 
     try {
       while (true) {
-        const { done, value } = await reader.read();
+        const { done, value } = await this.reader.read();
         if (done) break;
 
         receivedMessage += value;
@@ -278,7 +312,7 @@ export class Chat {
       this.bubbleMessage!('assistant', errMsg, false);
       console.error(e);
     } finally {
-      reader.releaseLock();
+      this.reader.releaseLock();
       console.timeEnd('chat stream processing');
       this.setChatProcessing!(false);
     }

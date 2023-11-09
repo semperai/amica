@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
 import { cleanTranscript } from "@/utils/stringProcessing";
+import { ChatContext } from "@/features/chat/chatContext";
 import { config } from "@/utils/config";
 
 type Props = {
@@ -12,7 +13,6 @@ type Props = {
   onChangeUserMessage: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
-  sendMessage: (message: string) => void;
 };
 
 const MessageInput = ({
@@ -20,10 +20,10 @@ const MessageInput = ({
   setUserMessage,
   isChatProcessing,
   onChangeUserMessage,
-  sendMessage,
 }: Props) => {
   const transcriber = useTranscriber();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { chat: bot } = useContext(ChatContext);
 
   const vad = useMicVAD({
     startOnLoad: false,
@@ -55,7 +55,7 @@ const MessageInput = ({
       }
 
       if (config("autosend_from_mic") === 'true') {
-        sendMessage(text);
+        bot.receiveMessageFromUser(text);
       } else {
         setUserMessage(text);
       }
@@ -64,7 +64,7 @@ const MessageInput = ({
   }, [transcriber]);
 
   function clickedSendButton() {
-    sendMessage(userMessage);
+    bot.receiveMessageFromUser(userMessage);
     // only if we are using non-VAD mode should we focus on the input
     if (! vad.listening) {
       inputRef.current?.focus();

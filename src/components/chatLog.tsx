@@ -1,25 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import FlexTextarea from "@/components/flexTextarea/flexTextarea";
 import { Message } from "@/features/chat/messages";
 import { IconButton } from "@/components/iconButton";
 import {
   ArrowPathIcon,
 } from '@heroicons/react/20/solid';
-
-type Props = {
-  messages: Message[];
-  handleResume: (previousMessages: Message[], newMessage: string) => void;
-};
+import { ChatContext } from "@/features/chat/chatContext";
 
 export const ChatLog = ({
-   messages ,
-   handleResume
-  }: Props) => {
-  const handleResumeButtonClick = (num: number, newMessage: string) => {
-    handleResume([...messages.slice(0, num)], newMessage);
-  };
-
+   messages,
+}: {
+  messages: Message[];
+}) => {
+  const { chat: bot } = useContext(ChatContext);
   const chatScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleResumeButtonClick = (num: number, newMessage: string) => {
+    bot.setMessageList(messages.slice(0, num));
+    bot.receiveMessageFromUser(newMessage);
+  };
 
   useEffect(() => {
     chatScrollRef.current?.scrollIntoView({
@@ -44,7 +43,7 @@ export const ChatLog = ({
           isProcessing={false}
           className="bg-slate-600 hover:bg-slate-500 active:bg-slate-500 shadow-xl"
           onClick={() => {
-            handleResume([], messages[0].content);
+            bot.setMessageList([]);
           }}
         ></IconButton>
       </div>
@@ -93,7 +92,7 @@ const Chat = ({ role, message, num, onClickResumeButton }: {
   return (
     <div className={`mx-auto max-w-sm my-8 ${offsetX}`}>
       <div
-        className={`px-8 py-2 rounded-t-lg font-bold tracking-wider ${roleColor} flex justify-between shadow-sm shadow-inner`}
+        className={`px-8 py-2 rounded-t-lg font-bold tracking-wider ${roleColor} flex justify-between shadow-inner`}
 
       >
         <div className="text-bold">
