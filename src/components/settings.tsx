@@ -28,6 +28,8 @@ import {
   SpeakerWaveIcon,
   DocumentTextIcon,
   Cog6ToothIcon,
+  PencilSquareIcon,
+  PencilIcon,
 } from '@heroicons/react/24/outline';
 
 import { getWindowAI } from "window.ai";
@@ -61,6 +63,12 @@ const ttsEngines = [
   {key: "elevenlabs", label: "ElevenLabs"},
   {key: "speecht5",   label: "SpeechT5"},
   {key: "coqui",      label: "Coqui TTS"},
+];
+
+const sttEngines = [
+  {key: "none",            label: "None"},
+  {key: "whisper_browser", label: "Whisper (Browser)"},
+  {key: "whisper_openai",  label: "Whisper (OpenAI)"},
 ];
 
 function thumbPrefix(path: string) {
@@ -97,20 +105,27 @@ function getIconFromPage(page: string): JSX.Element {
     case 'appearance':          return <FaceSmileIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatbot':             return <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'tts':                 return <MusicalNoteIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'stt':                 return <PencilIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'reset_settings':      return <PowerIcon className="h-5 w-5 flex-none text-red-500" aria-hidden="true" />;
     case 'community':           return <RocketLaunchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
     case 'background_img':      return <PhotoIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'background_video':    return <FilmIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'character_model':     return <UsersIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'character_animation': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
     case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
     case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'elevenlabs_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'speecht5_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'coqui_settings':      return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
+    case 'stt_backend':         return <PencilSquareIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'whisper_openai_settings':  return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
   }
 
   return <></>;
@@ -121,20 +136,27 @@ function getLabelFromPage(page: string): string {
     case 'appearance':          return 'Appearance';
     case 'chatbot':             return 'ChatBot';
     case 'tts':                 return 'Text-to-Speech';
+    case 'stt':                 return 'Speech-to-text';
     case 'reset_settings':      return 'Reset Settings';
     case 'community':           return 'Community';
+
     case 'background_img':      return 'Background Image';
     case 'background_video':    return 'Background Video';
     case 'character_model':     return 'Character Model';
     case 'character_animation': return 'Character Animation';
+
     case 'chatbot_backend':     return 'ChatBot Backend';
     case 'chatgpt_settings':    return 'ChatGPT';
     case 'llamacpp_settings':   return 'LLama.cpp';
+
     case 'tts_backend':         return 'TTS Backend';
     case 'elevenlabs_settings': return 'ElevenLabs';
     case 'speecht5_settings':   return 'SpeechT5';
     case 'coqui_settings':      return 'Coqui';
     case 'system_prompt':       return 'System Prompt';
+
+    case 'stt_backend':         return 'STT Backend';
+    case 'whisper_openai_settings': return "Whisper (OpenAI)";
   }
 
   throw new Error('unknown page label encountered');
@@ -198,7 +220,7 @@ function MenuPage({
         </li>
       ))}
     </ul>
-  );  
+  );
 }
 
 function basicPage(
@@ -793,6 +815,108 @@ function CoquiSettingsPage({
   );
 }
 
+
+function STTBackendPage({
+  sttBackend,
+  setSTTBackend,
+  setSettingsUpdated,
+  setPage,
+  breadcrumbs,
+  setBreadcrumbs,
+}: {
+  sttBackend: string;
+  setSTTBackend: (backend: string) => void;
+  setSettingsUpdated: (updated: boolean) => void;
+  setPage: (page: string) => void;
+  breadcrumbs: Link[];
+  setBreadcrumbs: (breadcrumbs: Link[]) => void;
+}) {
+  return basicPage(
+    "STT Backend",
+    "Select the STT backend to use",
+    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+      <li className="py-4">
+        <FormRow label="STT Backend">
+          <select
+            className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            value={sttBackend}
+            onChange={(event: React.ChangeEvent<any>) => {
+              setSTTBackend(event.target.value);
+              updateConfig("stt_backend", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          >
+            {sttEngines.map((engine) => (
+              <option key={engine.key} value={engine.key}>{engine.label}</option>
+            ))}
+          </select>
+        </FormRow>
+      </li>
+      { sttBackend === 'whisper_openai' && (
+        <li className="py-4">
+          <FormRow label="Configure Whisper(OpenAI)">
+            <button
+              type="button"
+              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              onClick={() => {
+                setPage('whisper_openai_settings');
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('whisper_openai_settings')]));
+              }}
+            >
+              Click here to configure Whisper(OpenAI)
+            </button>
+          </FormRow>
+        </li>
+      )}
+    </ul>
+  );
+}
+
+function WhisperOpenAISettings({
+  whisperOpenAIApiKey,
+  setWhisperOpenAIApiKey,
+  whisperOpenAIModel,
+  setWhisperOpenAIModel,
+  setSettingsUpdated,
+}: {
+  whisperOpenAIApiKey: string;
+  setWhisperOpenAIApiKey: (key: string) => void;
+  whisperOpenAIModel: string;
+  setWhisperOpenAIModel: (model: string) => void;
+  setSettingsUpdated: (updated: boolean) => void;
+}) {
+  return basicPage(
+    "Whisper (OpenAI) Settings",
+    "Configure Whisper (OpenAI)",
+    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+      <li className="py-4">
+        <FormRow label="API Key">
+          <SecretTextInput
+            value={whisperOpenAIApiKey}
+            onChange={(event: React.ChangeEvent<any>) => {
+              setWhisperOpenAIApiKey(event.target.value);
+              updateConfig("openai_whisper_apikey", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+      <li className="py-4">
+        <FormRow label="Model">
+          <TextInput
+            value={whisperOpenAIModel}
+            onChange={(event: React.ChangeEvent<any>) => {
+              setWhisperOpenAIModel(event.target.value);
+              updateConfig("openai_whisper_model", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+    </ul>
+  );
+}
+
 function SystemPromptPage({
   systemPrompt,
   setSystemPrompt,
@@ -953,6 +1077,10 @@ export const Settings = ({
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
+
+  const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
+  const [whisperOpenAIApiKey, setWhisperOpenAIApiKey] = useState(config("openai_whisper_apikey"));
+  const [whisperOpenAIModel, setWhisperOpenAIModel] = useState(config("openai_whisper_model"));
 
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
@@ -1136,7 +1264,7 @@ export const Settings = ({
 
             {page === 'main_menu' && (
               <MenuPage
-                keys={["appearance", "chatbot", "tts", "reset_settings", "community"]}
+                keys={["appearance", "chatbot", "tts", "stt", "reset_settings", "community"]}
                 menuClick={handleMenuClick} />
             )}
 
@@ -1155,6 +1283,12 @@ export const Settings = ({
             {page === 'tts' && (
               <MenuPage
                 keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings"]}
+                menuClick={handleMenuClick} />
+            )}
+
+            {page === 'stt' && (
+              <MenuPage
+                keys={["stt_backend", "whisper_openai_settings"]}
                 menuClick={handleMenuClick} />
             )}
 
@@ -1270,6 +1404,27 @@ export const Settings = ({
                 setCoquiSpeakerId={setCoquiSpeakerId}
                 coquiStyleUrl={coquiStyleUrl}
                 setCoquiStyleUrl={setCoquiStyleUrl}
+                setSettingsUpdated={setSettingsUpdated}
+                />
+            )}
+
+           {page === 'stt_backend' && (
+              <STTBackendPage
+                sttBackend={sttBackend}
+                setSTTBackend={setSTTBackend}
+                setSettingsUpdated={setSettingsUpdated}
+                setPage={setPage}
+                breadcrumbs={breadcrumbs}
+                setBreadcrumbs={setBreadcrumbs}
+                />
+            )}
+
+            {page === 'whisper_openai_settings' && (
+              <WhisperOpenAISettings
+                whisperOpenAIApiKey={whisperOpenAIApiKey}
+                setWhisperOpenAIApiKey={setWhisperOpenAIApiKey}
+                whisperOpenAIModel={whisperOpenAIModel}
+                setWhisperOpenAIModel={setWhisperOpenAIModel}
                 setSettingsUpdated={setSettingsUpdated}
                 />
             )}

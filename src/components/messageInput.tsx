@@ -1,10 +1,12 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
 import { cleanTranscript } from "@/utils/stringProcessing";
 import { ChatContext } from "@/features/chat/chatContext";
+import { openaiWhisper  } from "@/features/openaiWhisper/openaiWhisper";
 import { config } from "@/utils/config";
+import wavefile, { WaveFile } from "wavefile";
 
 type Props = {
   userMessage: string;
@@ -23,21 +25,45 @@ const MessageInput = ({
 }: Props) => {
   const transcriber = useTranscriber();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [whisperOpenAIOutput, setWhisperOpenAIOutput] = useState<any | null>(null);
   const { chat: bot } = useContext(ChatContext);
 
   const vad = useMicVAD({
     startOnLoad: false,
     onSpeechStart: () => {
       console.log('vad', 'on_speech_start');
+      console.time('speech');
     },
     onSpeechEnd: (audio: Float32Array) => {
-      // since VAD sample rate is same as whisper we do nothing here
-      // both are 16000
-      const audioCtx = new AudioContext();
-      const buffer = audioCtx.createBuffer(1, audio.length, 16000);
-      buffer.copyToChannel(audio, 0, 0);
-      transcriber.start(buffer);
+      console.timeEnd('speech');
       console.time('transcribe');
+
+      switch (config("stt_backend")) {
+        case 'whisper_browser':
+          console.log('whisper_browser attempt');
+          // since VAD sample rate is same as whisper we do nothing here
+          // both are 16000
+          const audioCtx = new AudioContext();
+          const buffer = audioCtx.createBuffer(1, audio.length, 16000);
+          buffer.copyToChannel(audio, 0, 0);
+          transcriber.start(buffer);
+          break;
+        case 'whisper_openai':
+          console.log('whisper_openai attempt');
+          const wav = new WaveFile();
+          wav.fromScratch(1, 16000, '32f', audio);
+          const file = new File([wav.toBuffer()], "input.wav", { type: "audio/wav" });
+
+          let prompt;
+          // TODO load prompt if it exists
+
+          (async () => {
+            const transcript = await openaiWhisper(file, prompt);
+            console.log('openai recv', transcript);
+            setWhisperOpenAIOutput(transcript);
+          })();
+          break;
+      }
     },
   });
 
@@ -45,23 +71,36 @@ const MessageInput = ({
     console.log('vad error', vad.errored);
   }
 
+  function handleTranscriptionResult(preprocessed: string) {
+    const text = cleanTranscript(preprocessed);
+
+    if (text === "") {
+      return;
+    }
+
+    if (config("autosend_from_mic") === 'true') {
+      bot.receiveMessageFromUser(text);
+    } else {
+      setUserMessage(text);
+    }
+    console.timeEnd('transcribe');
+  }
+
+  // for whisper_browser
   useEffect(() => {
     if (transcriber.output && ! transcriber.isBusy) {
       const output = transcriber.output?.text;
-      const text = cleanTranscript(output);
-
-      if (text === "") {
-        return;
-      }
-
-      if (config("autosend_from_mic") === 'true') {
-        bot.receiveMessageFromUser(text);
-      } else {
-        setUserMessage(text);
-      }
-      console.timeEnd('transcribe');
+      handleTranscriptionResult(output);
     }
   }, [transcriber]);
+
+  // for whisper_openai
+  useEffect(() => {
+    if (whisperOpenAIOutput) {
+      const output = whisperOpenAIOutput?.text;
+      handleTranscriptionResult(output);
+    }
+  }, [whisperOpenAIOutput]);
 
   function clickedSendButton() {
     bot.receiveMessageFromUser(userMessage);
@@ -82,7 +121,7 @@ const MessageInput = ({
                 iconName={vad.listening ? "24/PauseAlt" : "24/Microphone"}
                 className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
                 isProcessing={vad.userSpeaking}
-                disabled={vad.loading || Boolean(vad.errored)}
+                disabled={config('stt_backend') === 'none' || vad.loading || Boolean(vad.errored)}
                 onClick={vad.toggle}
               />
             </div>
