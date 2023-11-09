@@ -16,9 +16,8 @@ import { EmbeddedWebcam } from "@/components/embeddedWebcam";
 
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Message, Role } from "@/features/chat/messages";
-import { chat } from "@/features/chat/chat";
+import { ChatContext } from "@/features/chat/chatContext";
 
-import { buildUrl } from "@/utils/buildUrl";
 import { config } from '@/utils/config';
 
 const m_plus_2 = M_PLUS_2({
@@ -36,6 +35,7 @@ const montserrat = Montserrat({
 
 export default function Home() {
   const { viewer } = useContext(ViewerContext);
+  const { chat: bot } = useContext(ChatContext);
 
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
@@ -57,20 +57,17 @@ export default function Home() {
     document.body.style.backgroundImage = `url(${config("bg_url")})`;
   }, []);
 
-  function bubbleMessage(role: Role, text: string, processing: boolean) {
-    if (role === 'user') {
-      setUserMessage(text);
-      setAssistantMessage("");
-    }
-    if (role === 'assistant') {
-      setUserMessage("");
-      setAssistantMessage(text);
-    }
-
-    setShownMessage(role);
-    setChatProcessing(true);
-  }
-
+  useEffect(() => {
+    bot.initialize(
+      viewer,
+      () => chatLog,
+      setChatLog,
+      setUserMessage,
+      setAssistantMessage,
+      setShownMessage,
+      setChatProcessing,
+    );
+  }, [bot, viewer]);
 
   /**
    * Have a conversation with your assistant
@@ -82,30 +79,14 @@ export default function Home() {
 
     console.time('chat stream first message');
 
-    bubbleMessage('user', text, true);
 
     // Add and display user comments
     const messageLog: Message[] = [
       ...(overrideChatLog || chatLog),
       { role: "user", content: text },
     ];
-    setChatLog(messageLog);
+    await bot.receiveMessageFromUser(text);
 
-
-    // trim to reduce unnecessary spaces in response
-    // improves performance for some models
-    const aiTextLog = (await chat(
-      messageLog,
-      viewer,
-      bubbleMessage,
-      setChatLog,
-    )).trim();
-
-    // Add assistant responses to log
-    setChatLog([
-      ...messageLog,
-      { role: "assistant", content: aiTextLog },
-    ]);
     setChatProcessing(false);
   }
 
@@ -130,7 +111,7 @@ export default function Home() {
       <VrmViewer />
       <MessageInputContainer
         isChatProcessing={chatProcessing}
-        onChatProcessStart={handleSendChat}
+        sendMessage={handleSendChat}
       />
 
       {/* main menu */}

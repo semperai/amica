@@ -16,16 +16,12 @@ const DynamicMessageInput = dynamic(() =>
  */
 export const MessageInputContainer = ({
   isChatProcessing,
-  onChatProcessStart,
+  sendMessage,
 }: {
   isChatProcessing: boolean;
-  onChatProcessStart: (text: string) => void;
+  sendMessage: (text: string) => void;
 }) => {
   const [userMessage, setUserMessage] = useState("");
-
-  function sendMessage(message: string) {
-    onChatProcessStart(message);
-  }
 
   useEffect(() => {
     if (!isChatProcessing) {

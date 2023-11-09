@@ -1,5 +1,5 @@
 import { useContext, useCallback, useState } from "react";
-import { ViewerContext } from "../features/vrmViewer/viewerContext";
+import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from "@/utils/config";
 
