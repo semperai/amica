@@ -32,6 +32,7 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
       stream: true,
       n_predict: 400,
       temperature: 0.7,
+      cache_prompt: true,
       stop: [
         "</s>",
         "Amica:",
