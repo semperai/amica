@@ -140,7 +140,7 @@ export class Chat {
         }
         console.log('processing speak');
 
-        this.bubbleMessage('assistant', speak.screenplay.talk.message, true);
+        this.bubbleMessage('assistant', speak.screenplay.talk.message);
         if (speak.audioBuffer) {
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);
         }
@@ -149,7 +149,7 @@ export class Chat {
     }
   }
 
-  public bubbleMessage(role: Role, text: string, processing: boolean) {
+  public bubbleMessage(role: Role, text: string) {
     if (role === 'user') {
       this.currentUserMessage += text;
       this.setUserMessage!(this.currentUserMessage);
@@ -191,25 +191,10 @@ export class Chat {
     }
 
     this.setShownMessage!(role);
-    this.setChatProcessing!(processing);
     console.log('bubbler', this.messageList)
   }
 
   public async interrupt() {
-    /*
-    try {
-      this.reader?.releaseLock();
-    } catch (e) {
-      console.error(e);
-    }
-    try {
-      await this.stream?.cancel();
-    } catch (e) {
-      console.error(e);
-    }
-    */
-    // this.reader = null;
-    // this.stream = null;
     // TODO if llm type is llama.cpp, we can send /stop message here
     this.ttsJobs.clear();
     this.speakJobs.clear();
@@ -225,7 +210,7 @@ export class Chat {
 
     this.interrupt();
 
-    this.bubbleMessage!('user', message, true);
+    this.bubbleMessage!('user', message);
 
     // make new stream
     const messages: Message[] = [
@@ -241,14 +226,13 @@ export class Chat {
       console.error(e);
       const errMsg = e.toString();
 
-      this.bubbleMessage('assistant', errMsg, false);
-      console.log('CHATLOG', )
+      this.bubbleMessage('assistant', errMsg);
       return errMsg;
     }
 
     if (this.stream == null) {
       const errMsg = "Error: Null stream encountered.";
-      this.bubbleMessage('assistant', errMsg, false);
+      this.bubbleMessage('assistant', errMsg);
       return errMsg;
     }
 
@@ -266,6 +250,7 @@ export class Chat {
 
     this.currentStreamIdx++;
     const streamIdx = this.currentStreamIdx;
+    this.setChatProcessing!(true);
 
     console.time('chat stream processing');
     this.reader = this.stream.getReader();
@@ -330,12 +315,14 @@ export class Chat {
       }
     } catch (e: any) {
       const errMsg = e.toString();
-      this.bubbleMessage!('assistant', errMsg, false);
+      this.bubbleMessage!('assistant', errMsg);
       console.error(e);
     } finally {
       this.reader.releaseLock();
       console.timeEnd('chat stream processing');
-      this.setChatProcessing!(false);
+      if (streamIdx === this.currentStreamIdx) {
+        this.setChatProcessing!(false);
+      }
     }
 
     return aiTextLog;

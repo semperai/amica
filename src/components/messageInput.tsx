@@ -28,7 +28,7 @@ const MessageInput = ({
   const vad = useMicVAD({
     startOnLoad: false,
     onSpeechStart: () => {
-      console.log('hello');
+      console.log('vad', 'on_speech_start');
     },
     onSpeechEnd: (audio: Float32Array) => {
       // since VAD sample rate is same as whisper we do nothing here
