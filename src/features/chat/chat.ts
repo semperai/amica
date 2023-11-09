@@ -17,6 +17,12 @@ import { wait } from "@/utils/wait";
 type Speak = {
   audioBuffer: ArrayBuffer|null;
   screenplay: Screenplay;
+  streamIdx: number;
+}
+
+type TTSJob = {
+  screenplay: Screenplay;
+  streamIdx: number;
 }
 
 export class Chat {
@@ -24,7 +30,6 @@ export class Chat {
 
   public viewer?: Viewer;
 
-  public getChatLog?: () => Message[];
   public setChatLog?: (messageLog: Message[]) => void;
   public setUserMessage?: (message: string) => void;
   public setAssistantMessage?: (message: string) => void;
@@ -38,7 +43,7 @@ export class Chat {
   public reader: ReadableStreamDefaultReader<Uint8Array>|null;
 
   // process these immediately as they come in and add to audioToPlay
-  public ttsJobs: Queue<Screenplay>;
+  public ttsJobs: Queue<TTSJob>;
 
   // this should be read as soon as they exist
   // and then deleted from the queue
@@ -49,24 +54,26 @@ export class Chat {
 
   private messageList: Message[];
 
+  private currentStreamIdx: number;
+
   constructor() {
     this.initialized = false;
 
     this.stream = null;
     this.reader = null;
 
-    this.ttsJobs = new Queue<Screenplay>();
+    this.ttsJobs = new Queue<TTSJob>();
     this.speakJobs = new Queue<Speak>();
 
     this.currentAssistantMessage = "";
     this.currentUserMessage = "";
 
     this.messageList = [];
+    this.currentStreamIdx = 0;
   }
 
   public initialize(
     viewer: Viewer,
-    getChatLog: () => Message[],
     setChatLog: (messageLog: Message[]) => void,
     setUserMessage: (message: string) => void,
     setAssistantMessage: (message: string) => void,
@@ -74,7 +81,6 @@ export class Chat {
     setChatProcessing: (processing: boolean) => void,
   ) {
     this.viewer = viewer;
-    this.getChatLog = getChatLog;
     this.setChatLog = setChatLog;
     this.setUserMessage = setUserMessage;
     this.setAssistantMessage = setAssistantMessage;
@@ -93,22 +99,28 @@ export class Chat {
     this.setChatLog!(this.messageList!);
     this.currentAssistantMessage = '';
     this.currentUserMessage = '';
+    this.currentStreamIdx++;
   }
 
   public async processTtsJobs() {
     while (true) {
       do {
-        const screenplay = this.ttsJobs.dequeue();
-        if (! screenplay) {
+        const ttsJob = this.ttsJobs.dequeue();
+        if (! ttsJob) {
           break;
         }
 
         console.log('processing tts');
+        if (ttsJob.streamIdx !== this.currentStreamIdx) {
+          console.log('skipping tts for streamIdx');
+          continue;
+        }
 
-        const audioBuffer = await this.fetchAudio(screenplay.talk);
+        const audioBuffer = await this.fetchAudio(ttsJob.screenplay.talk);
         this.speakJobs.enqueue({
           audioBuffer,
-          screenplay,
+          screenplay: ttsJob.screenplay,
+          streamIdx: ttsJob.streamIdx,
         });
       } while (this.ttsJobs.size() > 0);
       await wait(50);
@@ -122,6 +134,10 @@ export class Chat {
         if (! speak) {
           break;
         }
+        if (speak.streamIdx !== this.currentStreamIdx) {
+          console.log('skipping speak for streamIdx');
+          continue;
+        }
         console.log('processing speak');
 
         this.bubbleMessage('assistant', speak.screenplay.talk.message, true);
@@ -133,20 +149,17 @@ export class Chat {
     }
   }
 
-  public bubbleMessage(role: Role, text: string, processing: boolean, save: boolean = true) {
+  public bubbleMessage(role: Role, text: string, processing: boolean) {
     if (role === 'user') {
       this.currentUserMessage += text;
       this.setUserMessage!(this.currentUserMessage);
       this.setAssistantMessage!("");
 
       if (this.currentAssistantMessage !== '') {
-        if (save) {
-          this.messageList!.push({
-            role: "assistant",
-            content: this.currentAssistantMessage,
-          });
-        }
-        console.log('CHATLOG', this.getChatLog!());
+        this.messageList!.push({
+          role: "assistant",
+          content: this.currentAssistantMessage,
+        });
 
         this.currentAssistantMessage = '';
       }
@@ -163,13 +176,10 @@ export class Chat {
       this.setAssistantMessage!(this.currentAssistantMessage);
 
       if (this.currentUserMessage !== '') {
-        if (save) {
-          this.messageList!.push({
-            role: "user",
-            content: this.currentUserMessage,
-          });
-        }
-        console.log('CHATLOG', this.getChatLog!());
+        this.messageList!.push({
+          role: "user",
+          content: this.currentUserMessage,
+        });
 
         this.currentUserMessage = '';
       }
@@ -198,8 +208,8 @@ export class Chat {
       console.error(e);
     }
     */
-    this.reader = null;
-    this.stream = null;
+    // this.reader = null;
+    // this.stream = null;
     // TODO if llm type is llama.cpp, we can send /stop message here
     this.ttsJobs.clear();
     this.speakJobs.clear();
@@ -254,6 +264,9 @@ export class Chat {
       return;
     }
 
+    this.currentStreamIdx++;
+    const streamIdx = this.currentStreamIdx;
+
     console.time('chat stream processing');
     this.reader = this.stream.getReader();
     const sentences = new Array<string>();
@@ -304,7 +317,15 @@ export class Chat {
 
           // Generate & play audio for each sentence, display responses
           console.log('enqueue tts', aiTalks);
-          this.ttsJobs.enqueue(aiTalks[0]);
+          console.log('streamIdx', streamIdx, 'currentStreamIdx', this.currentStreamIdx)
+          if (streamIdx === this.currentStreamIdx) {
+            this.ttsJobs.enqueue({
+              screenplay: aiTalks[0],
+              streamIdx: streamIdx,
+            });
+          } else {
+            break;
+          }
         }
       }
     } catch (e: any) {

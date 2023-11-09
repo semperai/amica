@@ -60,7 +60,6 @@ export default function Home() {
   useEffect(() => {
     bot.initialize(
       viewer,
-      () => chatLog,
       setChatLog,
       setUserMessage,
       setAssistantMessage,
