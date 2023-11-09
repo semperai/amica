@@ -116,7 +116,9 @@ export class Chat {
           continue;
         }
 
+        console.time('performance_tts');
         const audioBuffer = await this.fetchAudio(ttsJob.screenplay.talk);
+        console.timeEnd('performance_tts');
         this.speakJobs.enqueue({
           audioBuffer,
           screenplay: ttsJob.screenplay,
@@ -150,6 +152,7 @@ export class Chat {
   }
 
   public bubbleMessage(role: Role, text: string) {
+    console.log('bubble setUserMessage', this.setUserMessage);
     if (role === 'user') {
       this.currentUserMessage += text;
       this.setUserMessage!(this.currentUserMessage);
@@ -259,9 +262,16 @@ export class Chat {
     let aiTextLog = "";
     let receivedMessage = "";
 
+    let firstTokenEncountered = false;
+    console.time('performance_time_to_first_token');
+
     try {
       while (true) {
         const { done, value } = await this.reader.read();
+        if (! firstTokenEncountered) {
+          console.timeEnd('performance_time_to_first_token');
+          firstTokenEncountered = true;
+        }
         if (done) break;
 
         receivedMessage += value;

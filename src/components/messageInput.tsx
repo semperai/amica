@@ -32,11 +32,11 @@ const MessageInput = ({
     startOnLoad: false,
     onSpeechStart: () => {
       console.log('vad', 'on_speech_start');
-      console.time('speech');
+      console.time('performance_speech');
     },
     onSpeechEnd: (audio: Float32Array) => {
-      console.timeEnd('speech');
-      console.time('transcribe');
+      console.timeEnd('performance_speech');
+      console.time('performance_transcribe');
 
       switch (config("stt_backend")) {
         case 'whisper_browser':
@@ -59,7 +59,6 @@ const MessageInput = ({
 
           (async () => {
             const transcript = await openaiWhisper(file, prompt);
-            console.log('openai recv', transcript);
             setWhisperOpenAIOutput(transcript);
           })();
           break;
@@ -83,7 +82,7 @@ const MessageInput = ({
     } else {
       setUserMessage(text);
     }
-    console.timeEnd('transcribe');
+    console.timeEnd('performance_transcribe');
   }
 
   // for whisper_browser
