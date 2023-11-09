@@ -154,6 +154,10 @@ export class Chat {
   public bubbleMessage(role: Role, text: string) {
     console.log('bubble setUserMessage', this.setUserMessage);
     if (role === 'user') {
+      // add space if there is already a partial message
+      if (this.currentUserMessage !== '') {
+        this.currentUserMessage += ' ';
+      }
       this.currentUserMessage += text;
       this.setUserMessage!(this.currentUserMessage);
       this.setAssistantMessage!("");
