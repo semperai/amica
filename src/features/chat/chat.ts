@@ -238,7 +238,7 @@ export class Chat {
     console.log('interrupting...');
     await this.interrupt();
     console.timeEnd('performance_interrupting');
-    await wait(2000);
+    await wait(0);
     console.log('wait complete');
 
     this.bubbleMessage!('user', message);
