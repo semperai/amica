@@ -147,6 +147,15 @@ export class Chat {
         }
         console.log('processing speak');
 
+
+        if((window as any).chatvrm_latency_tracker) {
+          if((window as any).chatvrm_latency_tracker.active) {
+            const ms = +(new Date)-(window as any).chatvrm_latency_tracker.start;
+            console.log('performance_latency', ms);
+            (window as any).chatvrm_latency_tracker.active = false;
+          };
+        }
+
         this.bubbleMessage('assistant', speak.screenplay.talk.message);
         if (speak.audioBuffer) {
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);

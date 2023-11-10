@@ -37,6 +37,10 @@ const MessageInput = ({
     onSpeechEnd: (audio: Float32Array) => {
       console.timeEnd('performance_speech');
       console.time('performance_transcribe');
+      (window as any).chatvrm_latency_tracker = {
+        start: +Date.now(),
+        active: true,
+      };
 
       switch (config("stt_backend")) {
         case 'whisper_browser':
