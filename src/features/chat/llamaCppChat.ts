@@ -91,6 +91,10 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
         controller.close();
       }
     },
+    async cancel() {
+      await reader?.cancel();
+      reader.releaseLock();
+    }
   });
 
   return stream;

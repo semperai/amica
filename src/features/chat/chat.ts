@@ -40,7 +40,9 @@ export class Chat {
   // the message from the user that is currently being processed
   // it can be reset
   public stream: ReadableStream<Uint8Array>|null;
+  public streams: ReadableStream<Uint8Array>[];
   public reader: ReadableStreamDefaultReader<Uint8Array>|null;
+  public readers: ReadableStreamDefaultReader<Uint8Array>[];
 
   // process these immediately as they come in and add to audioToPlay
   public ttsJobs: Queue<TTSJob>;
@@ -61,6 +63,8 @@ export class Chat {
 
     this.stream = null;
     this.reader = null;
+    this.streams = [];
+    this.readers = [];
 
     this.ttsJobs = new Queue<TTSJob>();
     this.speakJobs = new Queue<Speak>();
@@ -152,7 +156,6 @@ export class Chat {
   }
 
   public bubbleMessage(role: Role, text: string) {
-    console.log('bubble setUserMessage', this.setUserMessage);
     if (role === 'user') {
       // add space if there is already a partial message
       if (this.currentUserMessage !== '') {
@@ -202,6 +205,22 @@ export class Chat {
   }
 
   public async interrupt() {
+    this.currentStreamIdx++;
+    try {
+      if (this.reader) {
+        console.log('cancelling')
+        console.log(this.reader)
+        if (! this.reader?.closed) {
+          await this.reader?.cancel();
+        }
+        // this.reader = null;
+        // this.stream = null;
+        console.log('finished cancelling')
+      }
+    } catch(e: any) {
+      console.error(e);
+    }
+
     // TODO if llm type is llama.cpp, we can send /stop message here
     this.ttsJobs.clear();
     this.speakJobs.clear();
@@ -215,7 +234,12 @@ export class Chat {
       return;
     }
 
-    this.interrupt();
+    console.time('performance_interrupting');
+    console.log('interrupting...');
+    await this.interrupt();
+    console.timeEnd('performance_interrupting');
+    await wait(2000);
+    console.log('wait complete');
 
     this.bubbleMessage!('user', message);
 
@@ -228,7 +252,7 @@ export class Chat {
     console.log('messages', messages);
 
     try {
-      this.stream = await this.getChatResponseStream(messages);
+      this.streams.push(await this.getChatResponseStream(messages));
     } catch(e: any) {
       console.error(e);
       const errMsg = e.toString();
@@ -237,7 +261,7 @@ export class Chat {
       return errMsg;
     }
 
-    if (this.stream == null) {
+    if (this.streams[this.streams.length-1] == null) {
       const errMsg = "Error: Null stream encountered.";
       this.bubbleMessage('assistant', errMsg);
       return errMsg;
@@ -250,7 +274,7 @@ export class Chat {
   }
 
   public async handleChatResponseStream() {
-    if (! this.stream) {
+    if (this.streams.length === 0) {
       console.log('no stream!');
       return;
     }
@@ -260,7 +284,8 @@ export class Chat {
     this.setChatProcessing!(true);
 
     console.time('chat stream processing');
-    this.reader = this.stream.getReader();
+    let reader = this.streams[this.streams.length - 1].getReader();
+    this.readers.push(reader);
     const sentences = new Array<string>();
 
     let aiTextLog = "";
@@ -271,14 +296,21 @@ export class Chat {
 
     try {
       while (true) {
-        const { done, value } = await this.reader.read();
+        if (this.currentStreamIdx !== streamIdx) {
+          console.log('wrong stream idx');
+          break;
+        }
+        const { done, value } = await reader.read();
         if (! firstTokenEncountered) {
           console.timeEnd('performance_time_to_first_token');
+          console.log('performance_results', done, value);
           firstTokenEncountered = true;
         }
+        console.log(done, value);
         if (done) break;
 
         receivedMessage += value;
+        receivedMessage = receivedMessage.trimStart();
 
         let tag = "";
 
@@ -317,14 +349,14 @@ export class Chat {
           // Generate & play audio for each sentence, display responses
           console.log('enqueue tts', aiTalks);
           console.log('streamIdx', streamIdx, 'currentStreamIdx', this.currentStreamIdx)
-          if (streamIdx === this.currentStreamIdx) {
-            this.ttsJobs.enqueue({
-              screenplay: aiTalks[0],
-              streamIdx: streamIdx,
-            });
-          } else {
+          if (streamIdx !== this.currentStreamIdx) {
+            console.log('wrong stream idx');
             break;
           }
+          this.ttsJobs.enqueue({
+            screenplay: aiTalks[0],
+            streamIdx: streamIdx,
+          });
         }
       }
     } catch (e: any) {
@@ -332,7 +364,9 @@ export class Chat {
       this.bubbleMessage!('assistant', errMsg);
       console.error(e);
     } finally {
-      this.reader.releaseLock();
+      if (! reader.closed) {
+        reader.releaseLock();
+      }
       console.timeEnd('chat stream processing');
       if (streamIdx === this.currentStreamIdx) {
         this.setChatProcessing!(false);
