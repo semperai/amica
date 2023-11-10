@@ -17,6 +17,7 @@ const defaults = {
   tts_backend: 'none',
   stt_backend: 'whisper_browser',
   openai_whisper_apikey: '',
+  openai_whisper_url: 'https://api.openai.com',
   openai_whisper_model: 'whisper-1',
   elevenlabs_apikey: '',
   elevenlabs_voiceid: '21m00Tcm4TlvDq8ikWAM',

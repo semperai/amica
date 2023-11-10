@@ -873,12 +873,16 @@ function STTBackendPage({
 }
 
 function WhisperOpenAISettings({
+  whisperOpenAIUrl,
+  setWhisperOpenAIUrl,
   whisperOpenAIApiKey,
   setWhisperOpenAIApiKey,
   whisperOpenAIModel,
   setWhisperOpenAIModel,
   setSettingsUpdated,
 }: {
+  whisperOpenAIUrl: string;
+  setWhisperOpenAIUrl: (key: string) => void;
   whisperOpenAIApiKey: string;
   setWhisperOpenAIApiKey: (key: string) => void;
   whisperOpenAIModel: string;
@@ -889,6 +893,18 @@ function WhisperOpenAISettings({
     "Whisper (OpenAI) Settings",
     "Configure Whisper (OpenAI)",
     <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+      <li className="py-4">
+        <FormRow label="OpenAI Url">
+          <TextInput
+            value={whisperOpenAIUrl}
+            onChange={(event: React.ChangeEvent<any>) => {
+              setWhisperOpenAIUrl(event.target.value);
+              updateConfig("openai_whisper_url", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
       <li className="py-4">
         <FormRow label="API Key">
           <SecretTextInput
@@ -1079,6 +1095,7 @@ export const Settings = ({
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
   const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
+  const [whisperOpenAIUrl, setWhisperOpenAIUrl] = useState(config("openai_whisper_url"));
   const [whisperOpenAIApiKey, setWhisperOpenAIApiKey] = useState(config("openai_whisper_apikey"));
   const [whisperOpenAIModel, setWhisperOpenAIModel] = useState(config("openai_whisper_model"));
 
@@ -1421,6 +1438,8 @@ export const Settings = ({
 
             {page === 'whisper_openai_settings' && (
               <WhisperOpenAISettings
+                whisperOpenAIUrl={whisperOpenAIUrl}
+                setWhisperOpenAIUrl={setWhisperOpenAIUrl}
                 whisperOpenAIApiKey={whisperOpenAIApiKey}
                 setWhisperOpenAIApiKey={setWhisperOpenAIApiKey}
                 whisperOpenAIModel={whisperOpenAIModel}

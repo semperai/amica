@@ -21,7 +21,7 @@ export async function openaiWhisper(
   console.log(formData);
 
   try {
-    const res = await fetch(`https://api.openai.com/v1/audio/transcriptions`, {
+    const res = await fetch(`${config("openai_whisper_url")}/v1/audio/transcriptions`, {
       method: "POST",
       body: formData,
       headers: {
@@ -34,7 +34,7 @@ export async function openaiWhisper(
     const data = await res.json();
     console.log('whisper api', data);
 
-    return { text: data.text };
+    return { text: data.text.trim() };
   } catch (e) {
     console.error('ERROR', e);
     throw new Error("OpenAI Whisper API Error");
