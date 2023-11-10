@@ -63,6 +63,7 @@ const ttsEngines = [
   {key: "elevenlabs", label: "ElevenLabs"},
   {key: "speecht5",   label: "SpeechT5"},
   {key: "coqui",      label: "Coqui TTS"},
+  {key: "openai",     label: "OpenAI TTS"},
 ];
 
 const sttEngines = [
@@ -117,12 +118,13 @@ function getIconFromPage(page: string): JSX.Element {
     case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'elevenlabs_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'speecht5_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'coqui_settings':      return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'openai_tts_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'stt_backend':         return <PencilSquareIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'whisper_openai_settings':  return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -148,12 +150,13 @@ function getLabelFromPage(page: string): string {
     case 'chatbot_backend':     return 'ChatBot Backend';
     case 'chatgpt_settings':    return 'ChatGPT';
     case 'llamacpp_settings':   return 'LLama.cpp';
+    case 'system_prompt':       return 'System Prompt';
 
     case 'tts_backend':         return 'TTS Backend';
     case 'elevenlabs_settings': return 'ElevenLabs';
     case 'speecht5_settings':   return 'SpeechT5';
     case 'coqui_settings':      return 'Coqui';
-    case 'system_prompt':       return 'System Prompt';
+    case 'openai_tts_settings': return 'OpenAI';
 
     case 'stt_backend':         return 'STT Backend';
     case 'whisper_openai_settings': return "Whisper (OpenAI)";
@@ -647,7 +650,7 @@ function TTSBackendPage({
           </FormRow>
         </li>
       )}
-      { ttsBackend === 'coqui' && (
+     { ttsBackend === 'coqui' && (
         <li className="py-4">
           <FormRow label="Configure Coqui">
             <button
@@ -663,6 +666,22 @@ function TTSBackendPage({
           </FormRow>
         </li>
       )}
+      { ttsBackend === 'openai' && (
+        <li className="py-4">
+          <FormRow label="Configure OpenAI">
+            <button
+              type="button"
+              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              onClick={() => {
+                setPage('coqui_settings');
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('openai_tts_settings')]));
+              }}
+            >
+              Click here to configure OpenAI
+            </button>
+          </FormRow>
+        </li>
+      )} 
     </ul>
   );
 }
@@ -806,6 +825,87 @@ function CoquiSettingsPage({
               event.preventDefault();
               setCoquiStyleUrl(event.target.value);
               updateConfig("coqui_style_url", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+    </ul>
+  );
+}
+
+function OpenAITTSSettingsPage({
+  openAITTSApiKey,
+  setOpenAITTSApiKey,
+  openAITTSUrl,
+  setOpenAITTSUrl,
+  openAITTSModel,
+  setOpenAITTSModel,
+  openAITTSVoice,
+  setOpenAITTSVoice,
+  setSettingsUpdated,
+}: {
+  openAITTSApiKey: string;
+  setOpenAITTSApiKey: (key: string) => void;
+  openAITTSUrl: string;
+  setOpenAITTSUrl: (url: string) => void;
+  openAITTSModel: string;
+  setOpenAITTSModel: (model: string) => void;
+  openAITTSVoice: string;
+  setOpenAITTSVoice: (voice: string) => void;
+  setSettingsUpdated: (updated: boolean) => void;
+}) {
+  return basicPage(
+    "OpenAI TTS Settings",
+    "Configure OpenAI TTS",
+    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+      <li className="py-4">
+        <FormRow label="API Key">
+          <TextInput
+            value={openAITTSApiKey}
+            onChange={(event: React.ChangeEvent<any>) => {
+              event.preventDefault();
+              setOpenAITTSApiKey(event.target.value);
+              updateConfig("openai_tts_apikey", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+      <li className="py-4">
+        <FormRow label="API URL">
+          <TextInput
+            value={openAITTSUrl}
+            onChange={(event: React.ChangeEvent<any>) => {
+              event.preventDefault();
+              setOpenAITTSUrl(event.target.value);
+              updateConfig("openai_tts_url", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+      <li className="py-4">
+        <FormRow label="Model">
+          <TextInput
+            value={openAITTSModel}
+            onChange={(event: React.ChangeEvent<any>) => {
+              event.preventDefault();
+              setOpenAITTSModel(event.target.value);
+              updateConfig("openai_tts_model", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+      <li className="py-4">
+        <FormRow label="Voice">
+          <TextInput
+            value={openAITTSVoice}
+            onChange={(event: React.ChangeEvent<any>) => {
+              event.preventDefault();
+              setOpenAITTSVoice(event.target.value);
+              updateConfig("openai_tts_voice", event.target.value);
               setSettingsUpdated(true);
             }}
           />
@@ -1089,6 +1189,11 @@ export const Settings = ({
   const [coquiSpeakerId, setCoquiSpeakerId] = useState(config("coqui_speaker_id"));
   const [coquiStyleUrl, setCoquiStyleUrl] = useState(config("coqui_style_url"));
 
+  const [openAITTSApiKey, setOpenAITTSApiKey] = useState(config("openai_tts_apikey"));
+  const [openAITTSUrl, setOpenAITTSUrl] = useState(config("openai_tts_url"));
+  const [openAITTSModel, setOpenAITTSModel] = useState(config("openai_tts_model"));
+  const [openAITTSVoice, setOpenAITTSVoice] = useState(config("openai_tts_voice"));
+
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
@@ -1178,12 +1283,17 @@ export const Settings = ({
     }, 1000);
     return () => clearTimeout(timeOutId);
   }, [
-    chatbotBackend, openAIApiKey, openAIUrl, openAIModel,
+    chatbotBackend,
+    openAIApiKey, openAIUrl, openAIModel,
     llamaCppUrl,
-    ttsBackend, elevenlabsApiKey, elevenlabsVoiceId,
+    ttsBackend,
+    elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
     coquiUrl, coquiSpeakerId, coquiStyleUrl,
+    openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
     bgUrl, vrmUrl, youtubeVideoID, animationUrl,
+    sttBackend,
+    whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     systemPrompt,
   ]);
 
@@ -1299,7 +1409,7 @@ export const Settings = ({
 
             {page === 'tts' && (
               <MenuPage
-                keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings"]}
+                keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings", "openai_tts_settings"]}
                 menuClick={handleMenuClick} />
             )}
 
@@ -1413,7 +1523,7 @@ export const Settings = ({
                 />
             )}
 
-            {page === 'coqui_settings' && (
+           {page === 'coqui_settings' && (
               <CoquiSettingsPage
                 coquiUrl={coquiUrl}
                 setCoquiUrl={setCoquiUrl}
@@ -1421,6 +1531,20 @@ export const Settings = ({
                 setCoquiSpeakerId={setCoquiSpeakerId}
                 coquiStyleUrl={coquiStyleUrl}
                 setCoquiStyleUrl={setCoquiStyleUrl}
+                setSettingsUpdated={setSettingsUpdated}
+                />
+            )}
+
+            {page === 'openai_tts_settings' && (
+              <OpenAITTSSettingsPage
+                openAITTSApiKey={openAITTSApiKey}
+                setOpenAITTSApiKey={setOpenAITTSApiKey}
+                openAITTSUrl={openAITTSUrl}
+                setOpenAITTSUrl={setOpenAITTSUrl}
+                openAITTSModel={openAITTSModel}
+                setOpenAITTSModel={setOpenAITTSModel}
+                openAITTSVoice={openAITTSVoice}
+                setOpenAITTSVoice={setOpenAITTSVoice}
                 setSettingsUpdated={setSettingsUpdated}
                 />
             )}

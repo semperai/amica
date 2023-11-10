@@ -10,6 +10,7 @@ import { getWindowAiChatResponseStream } from './windowAiChat';
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
+import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { config } from "@/utils/config";
 
 import { wait } from "@/utils/wait";
@@ -292,7 +293,9 @@ export class Chat {
     let receivedMessage = "";
 
     let firstTokenEncountered = false;
+    let firstSentenceEncountered = false;
     console.time('performance_time_to_first_token');
+    console.time('performance_time_to_first_sentence');
 
     try {
       while (true) {
@@ -357,6 +360,11 @@ export class Chat {
             screenplay: aiTalks[0],
             streamIdx: streamIdx,
           });
+
+          if (! firstSentenceEncountered) {
+            console.timeEnd('performance_time_to_first_sentence');
+            firstSentenceEncountered = true;
+          }
         }
       }
     } catch (e: any) {
@@ -395,6 +403,10 @@ export class Chat {
           const speakerId = config('coqui_speaker_id');
           const styleUrl = config('coqui_style_url');
           const voice = await coqui(talk.message, speakerId, styleUrl);
+          return voice.audio;
+        }
+        case 'openai': {
+          const voice = await openaiTTS(talk.message);
           return voice.audio;
         }
       }
