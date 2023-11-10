@@ -1,5 +1,6 @@
 # Amica Documentation
 
+Read the [Local Setup](./local-setup.md) guide if you are interested in getting everything running locally quickly.
 
 ## Importing new Avatars
 
@@ -48,6 +49,19 @@ lcp --proxyUrl http://127.0.0.1:5002 -p 8010
 
 Now you can  `http://127.0.0.1:8010/proxy` as the `API URL` inside Coqui Settings.
 
+### OpenAI
+
+OpenAI has a simple TTS service with a simple api. It is pretty opaque. You could choose this to implement a simple API yourself though, like what [basic-openai-api-wrapper](https://github.com/semperai/basic-openai-api-wrapper) does.
+
+## Transcribing your audio
+
+### Whisper (Browser)
+
+This is the default. It runs using transformers.js and works OK, but its a lot slower than running locally.
+
+### Whisper (OpenAI)
+
+This can use OpenAI whisper http endpoint or [basic-openai-api-wrapper](https://github.com/semperai/basic-openai-api-wrapper).
 
 ## Running Local LLM
 

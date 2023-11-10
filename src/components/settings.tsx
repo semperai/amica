@@ -673,7 +673,7 @@ function TTSBackendPage({
               type="button"
               className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={() => {
-                setPage('coqui_settings');
+                setPage('openai_tts_settings');
                 setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('openai_tts_settings')]));
               }}
             >
@@ -994,7 +994,7 @@ function WhisperOpenAISettings({
     "Configure Whisper (OpenAI)",
     <ul role="list" className="divide-y divide-gray-100 max-w-xs">
       <li className="py-4">
-        <FormRow label="OpenAI Url">
+        <FormRow label="OpenAI URL">
           <TextInput
             value={whisperOpenAIUrl}
             onChange={(event: React.ChangeEvent<any>) => {
