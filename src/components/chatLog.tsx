@@ -36,7 +36,7 @@ export const ChatLog = ({
 
   return (
     <>
-      <div className="absolute left-2 top-16 z-50">
+      <div className="absolute left-2 top-16 z-10">
         <IconButton
           iconName="24/ReloadLoop"
           label="Restart"
@@ -103,7 +103,9 @@ const Chat = ({ role, message, num, onClickResumeButton }: {
           onClick={onClickButton}
         >
           {role !== "assistant" && (
-            <ArrowPathIcon className="ml-16 h-5 w-5" aria-hidden="true" />
+            <div className="ml-16 p-1 bg-yellow-50/25 border border-yellow-800/5 rounded-full">
+              <ArrowPathIcon className="h-5 w-5 hover:animate-spin" aria-hidden="true" />
+            </div>
           )}
         </button>
       </div>

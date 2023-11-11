@@ -75,7 +75,7 @@ export function defaultConfig(key: string): string {
   if (defaults.hasOwnProperty(key)) {
     return (<any>defaults)[key];
   }
-  
+
   throw new Error(`config key not found: ${key}`);
 }
 

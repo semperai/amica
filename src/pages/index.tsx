@@ -98,7 +98,7 @@ export default function Home() {
             iconName="24/Menu"
             label="Settings"
             isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active shadow-sm"
+            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm"
             onClick={() => setShowSettings(true)}
           ></IconButton>
 
@@ -129,7 +129,7 @@ export default function Home() {
             iconName="24/Error"
             label="Debug"
             isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm"
             onClick={() => setShowDebug(true)}
           ></IconButton>
         </div>
