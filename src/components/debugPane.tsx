@@ -6,7 +6,7 @@ import { config } from "@/utils/config";
 
 const TOTAL_ITEMS_TO_SHOW = 100;
 
-function classNames(...classes) {
+function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
@@ -105,7 +105,7 @@ export function DebugPane({ onClickClose }: {
         </span>
       </div>
       <div className="relative w-screen overflow-y-scroll inline-block px-2 md:px-8 bg-white opacity-95">
-        {(window as any).error_handler_logs.slice(-TOTAL_ITEMS_TO_SHOW).filter((log) => {
+        {(window as any).error_handler_logs.slice(-TOTAL_ITEMS_TO_SHOW).filter((log: any) => {
           if (log.type === 'debug' && !typeDebugEnabled) return false;
           if ((log.type === 'info' || log.type === 'log') && !typeInfoEnabled) return false;
           if (log.type === 'warn' && !typeWarnEnabled) return false;
