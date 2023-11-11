@@ -319,7 +319,6 @@ export class Chat {
           console.log('performance_results', done, value);
           firstTokenEncountered = true;
         }
-        console.log(done, value);
         if (done) break;
 
         receivedMessage += value;
@@ -331,7 +330,6 @@ export class Chat {
           tag = tagMatch[0];
           receivedMessage = receivedMessage.slice(tag.length);
         }
-        console.log('tag-now', tag);
 
         // Cut out and process the response sentence by sentence
         const sentenceMatch = receivedMessage.match(
@@ -356,7 +354,6 @@ export class Chat {
 
           const aiText = `${tag} ${sentence}`;
           const aiTalks = textsToScreenplay([aiText]);
-          console.log('expression', aiTalks[0].expression);
           aiTextLog += aiText;
 
           // Generate & play audio for each sentence, display responses
