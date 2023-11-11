@@ -1,4 +1,3 @@
-import { Configuration, OpenAIApi } from "openai";
 import { Message } from "./messages";
 
 export async function getEchoChatResponseStream(messages: Message[]) {

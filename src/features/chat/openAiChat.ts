@@ -1,4 +1,3 @@
-import { Configuration, OpenAIApi } from "openai";
 import { Message } from "./messages";
 import { config } from '@/utils/config';
 
