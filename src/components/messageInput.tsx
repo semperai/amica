@@ -31,10 +31,11 @@ const MessageInput = ({
   const vad = useMicVAD({
     startOnLoad: false,
     onSpeechStart: () => {
-      console.log('vad', 'on_speech_start');
+      console.debug('vad', 'on_speech_start');
       console.time('performance_speech');
     },
     onSpeechEnd: (audio: Float32Array) => {
+      console.debug('vad', 'on_speech_end');
       console.timeEnd('performance_speech');
       console.time('performance_transcribe');
       (window as any).chatvrm_latency_tracker = {
@@ -44,7 +45,7 @@ const MessageInput = ({
 
       switch (config("stt_backend")) {
         case 'whisper_browser':
-          console.log('whisper_browser attempt');
+          console.debug('whisper_browser attempt');
           // since VAD sample rate is same as whisper we do nothing here
           // both are 16000
           const audioCtx = new AudioContext();
@@ -53,7 +54,7 @@ const MessageInput = ({
           transcriber.start(buffer);
           break;
         case 'whisper_openai':
-          console.log('whisper_openai attempt');
+          console.debug('whisper_openai attempt');
           const wav = new WaveFile();
           wav.fromScratch(1, 16000, '32f', audio);
           const file = new File([wav.toBuffer()], "input.wav", { type: "audio/wav" });
@@ -71,7 +72,7 @@ const MessageInput = ({
   });
 
   if (vad.errored) {
-    console.log('vad error', vad.errored);
+    console.error('vad error', vad.errored);
   }
 
   function handleTranscriptionResult(preprocessed: string) {

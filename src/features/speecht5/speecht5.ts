@@ -22,7 +22,6 @@ export async function speecht5(
     (<any>window).chatvrm_worker_speecht5 = new Worker(new URL("../../workers/speecht5.js", import.meta.url), {
       type: "module",
     });
-    // console.log((<any>window).chatvrm_worker_speecht5);
   
     (<any>window).chatvrm_worker_speecht5.addEventListener("message", (event: any) => {
       const message = event.data;
@@ -39,7 +38,7 @@ export async function speecht5(
           updateFileProgress(message.file, 100);
           break;
         case "complete":
-          console.log("complete");
+          console.log("speecht5 complete");
           (<any>window).chatvrm_worker_speecht5_audiocache = message.data.audio;
           break;
       }

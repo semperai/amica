@@ -426,7 +426,7 @@ export class Chat {
   }
 
   public async getChatResponseStream(messages: Message[]) {
-    console.log('getChatResponseStream', messages);
+    console.debug('getChatResponseStream', messages);
     const chatbotBackend = config("chatbot_backend");
 
     if (chatbotBackend === 'chatgpt') {

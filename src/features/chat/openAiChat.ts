@@ -69,6 +69,7 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
           }
         }
       } catch (error) {
+        console.error(error);
         controller.error(error);
       } finally {
         reader.releaseLock();

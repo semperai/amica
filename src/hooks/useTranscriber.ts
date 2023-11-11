@@ -68,7 +68,7 @@ export function useTranscriber(): Transcriber {
         break;
       case "complete":
         // Received complete transcript
-        // console.log("complete", message);
+        console.log("useTranscriber complete", message);
         // eslint-disable-next-line no-case-declarations
         const completeMessage = message as TranscriberCompleteData;
         setTranscript({

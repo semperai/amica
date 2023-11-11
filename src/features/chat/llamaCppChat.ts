@@ -22,7 +22,6 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
     }
   }
   prompt += "Amica:";
-  console.log('Prompt', prompt);
 
   const res = await fetch(`${config("llamacpp_url")}/completion`, {
     headers: headers,
@@ -84,6 +83,7 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
           }
         }
       } catch (error) {
+        console.error(error);
         controller.error(error);
       } finally {
         reader.releaseLock();
