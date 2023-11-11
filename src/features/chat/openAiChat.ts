@@ -32,7 +32,7 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
       throw new Error('Payment required');
     }
 
-    throw new Error("Something went wrong");
+    throw new Error(`OpenAI chat error (${res.status})`);
   }
 
   const stream = new ReadableStream({
