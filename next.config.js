@@ -1,5 +1,4 @@
 const CopyPlugin = require("copy-webpack-plugin");
-
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
 });
@@ -14,7 +13,7 @@ const nextConfig = {
     root: process.env.BASE_PATH || "",
   },
   optimizeFonts: false,
-  webpack: (config) => {
+  webpack: (config, { webpack, buildId }) => {
     // See https://webpack.js.org/configuration/resolve/#resolvealias
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -42,6 +41,12 @@ const nextConfig = {
             to: "static/chunks/[name][ext]",
           },
         ],
+      })
+    );
+
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NEXT_PUBLIC_CONFIG_BUILD_ID': JSON.stringify(buildId)
       })
     );
 

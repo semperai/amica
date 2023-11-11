@@ -1380,8 +1380,6 @@ export const Settings = ({
                 }
 
                 const prevPage = breadcrumbs[breadcrumbs.length - 2];
-                console.log('prevPage', prevPage);
-
                 setPage(prevPage.key);
                 setBreadcrumbs(breadcrumbs.slice(0, -1));
               }}

@@ -1,4 +1,4 @@
-import { VRMExpression, VRMExpressionPresetName } from "@pixiv/three-vrm";
+import { VRMExpressionPresetName } from "@pixiv/three-vrm";
 
 export type Role = "assistant" | "system" | "user";
 
