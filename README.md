@@ -8,6 +8,8 @@ You can import VRM files, adjust the voice to fit the character, and generate re
 
 The various features of Amica mainly use the following technologies:
 
+- 3D Rendering
+  - [three.js](https://threejs.org/)
 - Displaying 3D characters
   - [@pixiv/three-vrm](https://github.com/pixiv/three-vrm)
 - Running Transformers in the browser
@@ -17,10 +19,14 @@ The various features of Amica mainly use the following technologies:
 - Voice Activity Detection
   - [Silero VAD](https://github.com/ricky0123/vad/)
 - ChatBot
-  - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat) (compatible with projects such as llama-cpp-server and openrouter)
+  - [Llama.cpp server](https://github.com/ggerganov/llama.cpp)
+  - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat) (compatible with projects such as [LM Studio](https://lmstudio.ai/))
+  - [Window.ai](https://windowai.io/)
 - Text-to-Speech
+  - [Coqui API](https://coqui.ai/)
   - [Eleven Labs API](https://elevenlabs.io/)
   - [Speech T5](https://huggingface.co/microsoft/speecht5_tts)
+  - [OpenAI](https://platform.openai.com/docs/guides/text-to-speech)
 
 ## Running
 
