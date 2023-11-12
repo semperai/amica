@@ -844,7 +844,7 @@ function OpenAITTSSettingsPage({
     <ul role="list" className="divide-y divide-gray-100 max-w-xs">
       <li className="py-4">
         <FormRow label="API Key">
-          <TextInput
+          <SecretTextInput
             value={openAITTSApiKey}
             onChange={(event: React.ChangeEvent<any>) => {
               event.preventDefault();
