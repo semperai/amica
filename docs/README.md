@@ -26,32 +26,15 @@ Inside the [VoiceLab](https://elevenlabs.io/voice-lab) click the "Potion" icon t
 
 ### SpeechT5
 
-SpeechT5 in browser uses xvector embeddings. You can select a url from this dataset [here](https://huggingface.co/datasets/Xenova/cmu-arctic-xvectors-extracted/tree/main) or generate your own xvector embeddings from audio. 
+SpeechT5 in browser uses xvector embeddings. You can select a url from this dataset [here](https://huggingface.co/datasets/Xenova/cmu-arctic-xvectors-extracted/tree/main) or generate your own xvector embeddings from audio.
 
-### Coqui TTS
+### Coqui Studio
 
-Coqui is a locally run TTS server. You can find more information [here](https://tts.readthedocs.io/).
-
-```
-pip install TTS
-tts-server --model_name MODEL_NAME
-```
-
-#### Running CORS proxy
-
-You may need to run a CORS proxy to get around CORS issues. You can use [local-cors-proxy](https://www.npmjs.com/package/local-cors-proxy) to do this.
-
-```
-npm install -g local-cors-proxy
-# this will proxy 5002 -> 8010
-lcp --proxyUrl http://127.0.0.1:5002 -p 8010
-```
-
-Now you can  `http://127.0.0.1:8010/proxy` as the `API URL` inside Coqui Settings.
+Coqui has a public API which allows you to create and clone voices. You can find more information [here](https://docs.coqui.ai/docs).
 
 ### OpenAI
 
-OpenAI has a simple TTS service with a simple api. It is pretty opaque. You could choose this to implement a simple API yourself though, like what [basic-openai-api-wrapper](https://github.com/semperai/basic-openai-api-wrapper) does.
+OpenAI has a simple TTS service with a simple api. It is pretty opaque. You could choose this to implement a simple API yourself though, like what [basic-openai-api-wrapper](https://github.com/semperai/basic-openai-api-wrapper) does (which uses Coqui local TTS).
 
 ## Transcribing your audio
 

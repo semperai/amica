@@ -228,7 +228,7 @@ export class Chat {
         console.log('finished cancelling')
       }
     } catch(e: any) {
-      console.error(e);
+      console.error(e.toString());
     }
 
     // TODO if llm type is llama.cpp, we can send /stop message here
@@ -264,8 +264,8 @@ export class Chat {
     try {
       this.streams.push(await this.getChatResponseStream(messages));
     } catch(e: any) {
-      console.error(e);
       const errMsg = e.toString();
+      console.error(errMsg);
 
       this.bubbleMessage('assistant', errMsg);
       return errMsg;
@@ -273,6 +273,7 @@ export class Chat {
 
     if (this.streams[this.streams.length-1] == null) {
       const errMsg = "Error: Null stream encountered.";
+      console.error(errMsg);
       this.bubbleMessage('assistant', errMsg);
       return errMsg;
     }
@@ -377,7 +378,7 @@ export class Chat {
     } catch (e: any) {
       const errMsg = e.toString();
       this.bubbleMessage!('assistant', errMsg);
-      console.error(e);
+      console.error(errMsg);
     } finally {
       if (! reader.closed) {
         reader.releaseLock();
@@ -407,9 +408,8 @@ export class Chat {
           return voice.audio;
         }
         case 'coqui': {
-          const speakerId = config('coqui_speaker_id');
-          const styleUrl = config('coqui_style_url');
-          const voice = await coqui(talk.message, speakerId, styleUrl);
+          const voiceId = config('coqui_voice_id');
+          const voice = await coqui(talk.message, voiceId);
           return voice.audio;
         }
         case 'openai': {
@@ -417,8 +417,8 @@ export class Chat {
           return voice.audio;
         }
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      console.error(e.toString());
     }
 
     // ttsBackend === 'none'

@@ -771,20 +771,16 @@ function SpeechT5SettingsPage({
 }
 
 function CoquiSettingsPage({
-  coquiUrl,
-  setCoquiUrl,
-  coquiSpeakerId,
-  setCoquiSpeakerId,
-  coquiStyleUrl,
-  setCoquiStyleUrl,
+  coquiApiKey,
+  setCoquiApiKey,
+  coquiVoiceId,
+  setCoquiVoiceId,
   setSettingsUpdated,
 }: {
-  coquiUrl: string;
-  setCoquiUrl: (url: string) => void;
-  coquiSpeakerId: string;
-  setCoquiSpeakerId: (id: string) => void;
-  coquiStyleUrl: string;
-  setCoquiStyleUrl: (url: string) => void;
+  coquiApiKey: string;
+  setCoquiApiKey: (key: string) => void;
+  coquiVoiceId: string;
+  setCoquiVoiceId: (id: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
   return basicPage(
@@ -792,39 +788,26 @@ function CoquiSettingsPage({
     "Configure Coqui",
     <ul role="list" className="divide-y divide-gray-100 max-w-xs">
       <li className="py-4">
-        <FormRow label="API URL">
-          <TextInput
-            value={coquiUrl}
+        <FormRow label="API Key">
+          <SecretTextInput
+            value={coquiApiKey}
             onChange={(event: React.ChangeEvent<any>) => {
               event.preventDefault();
-              setCoquiUrl(event.target.value);
-              updateConfig("coqui_url", event.target.value);
+              setCoquiApiKey(event.target.value);
+              updateConfig("coqui_apikey", event.target.value);
               setSettingsUpdated(true);
             }}
           />
         </FormRow>
       </li>
       <li className="py-4">
-        <FormRow label="Speaker Id">
+        <FormRow label="Voice Id">
           <TextInput
-            value={coquiSpeakerId}
+            value={coquiVoiceId}
             onChange={(event: React.ChangeEvent<any>) => {
               event.preventDefault();
-              setCoquiSpeakerId(event.target.value);
-              updateConfig("coqui_speaker_id", event.target.value);
-              setSettingsUpdated(true);
-            }}
-          />
-        </FormRow>
-      </li>
-      <li className="py-4">
-        <FormRow label="Style URL">
-          <TextInput
-            value={coquiStyleUrl}
-            onChange={(event: React.ChangeEvent<any>) => {
-              event.preventDefault();
-              setCoquiStyleUrl(event.target.value);
-              updateConfig("coqui_style_url", event.target.value);
+              setCoquiVoiceId(event.target.value);
+              updateConfig("coqui_voice_id", event.target.value);
               setSettingsUpdated(true);
             }}
           />
@@ -1185,9 +1168,8 @@ export const Settings = ({
 
   const [speechT5SpeakerEmbeddingsUrl, setSpeechT5SpeakerEmbeddingsUrl] = useState(config("speecht5_speaker_embedding_url"));
 
-  const [coquiUrl, setCoquiUrl] = useState(config("coqui_url"));
-  const [coquiSpeakerId, setCoquiSpeakerId] = useState(config("coqui_speaker_id"));
-  const [coquiStyleUrl, setCoquiStyleUrl] = useState(config("coqui_style_url"));
+  const [coquiApiKey, setCoquiApiKey] = useState(config("coqui_apikey"));
+  const [coquiVoiceId, setCoquiVoiceId] = useState(config("coqui_voice_id"));
 
   const [openAITTSApiKey, setOpenAITTSApiKey] = useState(config("openai_tts_apikey"));
   const [openAITTSUrl, setOpenAITTSUrl] = useState(config("openai_tts_url"));
@@ -1289,7 +1271,7 @@ export const Settings = ({
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
-    coquiUrl, coquiSpeakerId, coquiStyleUrl,
+    coquiApiKey, coquiVoiceId,
     openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
     bgUrl, vrmUrl, youtubeVideoID, animationUrl,
     sttBackend,
@@ -1523,12 +1505,10 @@ export const Settings = ({
 
            {page === 'coqui_settings' && (
               <CoquiSettingsPage
-                coquiUrl={coquiUrl}
-                setCoquiUrl={setCoquiUrl}
-                coquiSpeakerId={coquiSpeakerId}
-                setCoquiSpeakerId={setCoquiSpeakerId}
-                coquiStyleUrl={coquiStyleUrl}
-                setCoquiStyleUrl={setCoquiStyleUrl}
+                coquiApiKey={coquiApiKey}
+                setCoquiApiKey={setCoquiApiKey}
+                coquiVoiceId={coquiVoiceId}
+                setCoquiVoiceId={setCoquiVoiceId}
                 setSettingsUpdated={setSettingsUpdated}
                 />
             )}

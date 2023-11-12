@@ -27,9 +27,8 @@ const defaults = {
   elevenlabs_voiceid: '21m00Tcm4TlvDq8ikWAM',
   elevenlabs_model: 'eleven_monolingual_v1',
   speecht5_speaker_embedding_url: '/speecht5_speaker_embeddings/cmu_us_slt_arctic-wav-arctic_a0001.bin',
-  coqui_url: "http://127.0.0.1:5002",
-  coqui_speaker_id: "",
-  coqui_style_url: "",
+  coqui_apikey: "",
+  coqui_voice_id: "",
   system_prompt: `You will behave as a friendly human named Amica and engage in conversation with the user. There are five types of emotions: 'neutral' which indicates normal, 'happy' which indicates joy, 'angry' which indicates anger, 'sad' which indicates sadness, and 'relaxed' which indicates calmness.
 The format of the conversation is as follows:
 [neutral|happy|angry|sad|relaxed] {conversation}
