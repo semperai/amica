@@ -1,6 +1,6 @@
 # Amica
 
-![Amica Face](/docs/header.png)
+![Amica Face](/public/ogp.png)
 
 Amica is an application that allows you to easily converse with 3D characters in your browser.
 
