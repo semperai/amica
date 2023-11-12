@@ -409,7 +409,7 @@ export class Chat {
         }
         case 'coqui': {
           const voiceId = config('coqui_voice_id');
-          const voice = await coqui(talk.message, voiceId);
+          const voice = await coqui(talk.message, voiceId, talk.style);
           return voice.audio;
         }
         case 'openai': {
