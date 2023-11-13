@@ -98,7 +98,7 @@ export default function Home() {
             iconName="24/Menu"
             label="Settings"
             isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm"
+            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm z-[11]"
             onClick={() => setShowSettings(true)}
           ></IconButton>
 
@@ -112,7 +112,7 @@ export default function Home() {
               label="Conversation"
               isProcessing={false}
               onClick={() => setShowChatLog(false)}
-              className="shadow-sm"
+              className="shadow-sm z-[11]"
             />
           ) : (
             <IconButton
@@ -121,7 +121,7 @@ export default function Home() {
               isProcessing={false}
               disabled={chatLog.length <= 0}
               onClick={() => setShowChatLog(true)}
-              className="shadow-sm"
+              className="shadow-sm z-[11]"
             />
           )}
 
@@ -129,7 +129,7 @@ export default function Home() {
             iconName="24/Error"
             label="Debug"
             isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm"
+            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm z-[11]"
             onClick={() => setShowDebug(true)}
           ></IconButton>
         </div>
