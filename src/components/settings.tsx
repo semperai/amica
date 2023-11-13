@@ -179,7 +179,7 @@ function getLabelFromPage(page: string): string {
     case 'whisper_openai_settings': return "Whisper (OpenAI)";
   }
 
-  throw new Error('unknown page label encountered');
+  throw new Error(`unknown page label encountered ${page}`);
 }
 
 function getClassNameFromPage(page: string) {
