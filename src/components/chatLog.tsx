@@ -6,7 +6,6 @@ import {
   ArrowPathIcon,
 } from '@heroicons/react/20/solid';
 import { ChatContext } from "@/features/chat/chatContext";
-import Draggable from "react-draggable";
 
 export const ChatLog = ({
    messages,
@@ -36,40 +35,38 @@ export const ChatLog = ({
   }, [messages]);
 
   return (
-    <Draggable>
-      <div>
-        <div className="absolute left-2 top-16 z-10">
-          <IconButton
-            iconName="24/ReloadLoop"
-            label="Restart"
-            isProcessing={false}
-            className="bg-slate-600 hover:bg-slate-500 active:bg-slate-500 shadow-xl"
-            onClick={() => {
-              bot.setMessageList([]);
-            }}
-          ></IconButton>
-        </div>
+    <>
+      <div className="absolute left-2 top-16 z-10">
+        <IconButton
+          iconName="24/ReloadLoop"
+          label="Restart"
+          isProcessing={false}
+          className="bg-slate-600 hover:bg-slate-500 active:bg-slate-500 shadow-xl"
+          onClick={() => {
+            bot.setMessageList([]);
+          }}
+        ></IconButton>
+      </div>
 
-        <div className="absolute w-col-span-6 max-w-full h-[100svh] pb-16">
+      <div className="absolute w-col-span-6 max-w-full h-[100svh] pb-16">
 
-          <div className="max-h-full px-16 pt-20 pb-4 overflow-y-auto scroll-hidden">
-            {messages.map((msg, i) => {
-              return (
-                <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
-                  <Chat
-                    role={msg.role}
-                    message={msg.content}
-                    num={i}
-                    onClickResumeButton={handleResumeButtonClick}
-                    />
+        <div className="max-h-full px-16 pt-20 pb-4 overflow-y-auto scroll-hidden">
+          {messages.map((msg, i) => {
+            return (
+              <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
+                <Chat
+                  role={msg.role}
+                  message={msg.content}
+                  num={i}
+                  onClickResumeButton={handleResumeButtonClick}
+                  />
 
-                </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
-    </Draggable>
+    </>
   );
 };
 
