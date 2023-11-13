@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState, useRef } from "react";
+import { useCallback, useContext, useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { ChatContext } from "@/features/chat/chatContext";
@@ -10,25 +10,34 @@ export function EmbeddedWebcam() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   const [cameraDisabled, setCameraDisabled] = useState(false);
+  const [imageData, setImageData] = useState("");
 
   useKeyboardShortcut("Escape", () => {
     setWebcamEnabled(false);
   });
 
-  const capture = useCallback(() => {
-      (async () => {
-        if (webcamRef.current === null) {
-          return;
-        }
+  useEffect(() => {
+    (async () => {
+      if (imageData !== "") {
+        const fixed = imageData.replace("data:image/jpeg;base64,", "");
+        await bot.getVisionResponse(fixed);
+      }
 
-        let imageSrc = webcamRef.current.getScreenshot();
-        if (imageSrc) {
-          setCameraDisabled(true);
-          imageSrc = imageSrc.replace("data:image/jpeg;base64,", "");
-          await bot.getVisionResponse(imageSrc);
-          setCameraDisabled(false);
-        }
-      })();
+      setCameraDisabled(false);
+    })();
+  }, [imageData]);
+
+  const capture = useCallback(
+    () => {
+      if (webcamRef.current === null) {
+        return;
+      }
+
+      let imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc) {
+        setCameraDisabled(true);
+        setImageData(imageSrc);
+      }
     },
     [webcamRef]
   );
