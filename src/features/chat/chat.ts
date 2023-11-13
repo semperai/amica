@@ -4,7 +4,7 @@ import { Viewer } from "@/features/vrmViewer/viewer";
 
 import { getEchoChatResponseStream } from './echoChat';
 import { getOpenAiChatResponseStream } from './openAiChat';
-import { getLlamaCppChatResponseStream } from './llamaCppChat';
+import { getLlamaCppChatResponseStream, getLlavaCppChatResponse } from './llamaCppChat';
 import { getWindowAiChatResponseStream } from './windowAiChat';
 
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
@@ -261,6 +261,11 @@ export class Chat {
     ];
     console.log('messages', messages);
 
+    await this.makeAndHandleStream(messages);
+  }
+
+
+  public async makeAndHandleStream(messages: Message[]) {
     try {
       this.streams.push(await this.getChatResponseStream(messages));
     } catch(e: any) {
@@ -279,9 +284,6 @@ export class Chat {
     }
 
     await this.handleChatResponseStream();
-
-    // if last chatlog was assistant, make new chatlog message
-    // otherwise append to last chatlog message
   }
 
   public async handleChatResponseStream() {
@@ -395,6 +397,9 @@ export class Chat {
   async fetchAudio(talk: Talk): Promise<ArrayBuffer|null> {
     const ttsBackend = config("tts_backend");
 
+    // remove all non-ascii characters
+    talk.message = talk.message.replace(/[^\x00-\x7F]/g, "");
+
     try {
       switch (ttsBackend) {
         case 'elevenlabs': {
@@ -440,5 +445,44 @@ export class Chat {
     }
 
     return getEchoChatResponseStream(messages);
+  }
+
+  public async getVisionResponse(imageData: string) {
+    let res = "The system is unconfigured and I can't see.";
+    console.log(imageData);
+
+    try {
+      console.log('getVisionResponse');
+      const visionBackend = config("vision_backend");
+      console.log('visionBackend', visionBackend);
+
+      if (visionBackend === 'llamacpp') {
+        res = await getLlavaCppChatResponse(
+          [{
+            role: 'user',
+            content: "Describe the image in detail. Respond as if you are describing what you see."
+          }],
+          imageData,
+        );
+        console.log('llava response', res);
+
+        const messages: Message[] = [
+          { role: "system", content: config("system_prompt") },
+          ...this.messageList!,
+          {
+            role: "user",
+            content: `This is a picture I just took from my webcam (described between [[ and ]] ): [[${res}]] please respond accordingly and as if it were just sent`,
+          },
+        ];
+        console.log('messages', messages);
+
+        await this.makeAndHandleStream(messages);
+
+      }
+
+      // this.bubbleMessage('assistant', res);
+    } catch (e: any) {
+      console.error("getVisionResponse", e.toString());
+    }
   }
 }

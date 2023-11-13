@@ -102,6 +102,10 @@ export default function Home() {
             onClick={() => setShowSettings(true)}
           ></IconButton>
 
+          { config("show_webcam") === 'true' && (
+            <EmbeddedWebcam />
+          )}
+
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
@@ -119,10 +123,6 @@ export default function Home() {
               onClick={() => setShowChatLog(true)}
               className="shadow-sm"
             />
-          )}
-
-          { config("show_webcam") === 'true' && (
-            <EmbeddedWebcam />
           )}
 
           <IconButton

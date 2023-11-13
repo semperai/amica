@@ -1,16 +1,22 @@
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useContext, useState, useRef } from "react";
 import Webcam from "react-webcam";
+import { ChatContext } from "@/features/chat/chatContext";
 import { IconButton } from "./iconButton";
 
 export function EmbeddedWebcam() {
+  const { chat: bot } = useContext(ChatContext);
   const webcamRef = useRef<Webcam>(null);
-  const capture = useCallback(
-    () => {
+
+  const capture = useCallback(() => {
       if (webcamRef.current === null) {
         return;
       }
 
-      const imageSrc = webcamRef.current.getScreenshot();
+      let imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc) {
+        imageSrc = imageSrc.replace("data:image/jpeg;base64,", "");
+        bot.getVisionResponse(imageSrc);
+      }
     },
     [webcamRef]
   );
@@ -18,7 +24,7 @@ export function EmbeddedWebcam() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
 
   return (
-    <div className="relative">
+    <div className="relative mr-8">
       <div className="fixed">
         <IconButton
           iconName={webcamEnabled ? "24/Close" : "24/CameraVideo"}
@@ -28,15 +34,24 @@ export function EmbeddedWebcam() {
             setWebcamEnabled(!webcamEnabled);
           }} />
         {webcamEnabled && (
-          <Webcam
-            audio={false}
-            width={320}
-            height={240}
-            screenshotFormat="image/jpeg"
-            videoConstraints={{
-              facingMode: "user",
-            }}
+          <>
+            <Webcam
+              ref={webcamRef}
+              audio={false}
+              width={320}
+              height={240}
+              screenshotFormat="image/jpeg"
+              videoConstraints={{
+                facingMode: "user",
+              }}
+              />
+            <IconButton
+              iconName="24/Camera"
+              isProcessing={false}
+              className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+              onClick={() => capture()}
             />
+          </>
         )}
       </div>
     </div>
