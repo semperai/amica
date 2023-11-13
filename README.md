@@ -27,6 +27,8 @@ The various features of Amica mainly use the following technologies:
   - [Eleven Labs API](https://elevenlabs.io/)
   - [Speech T5](https://huggingface.co/microsoft/speecht5_tts)
   - [OpenAI](https://platform.openai.com/docs/guides/text-to-speech)
+- Vision
+  - [Bakllava](https://github.com/SkunkworksAI/BakLLaVA)
 
 ## Running
 
