@@ -101,9 +101,11 @@ export class Chat {
 
   public setMessageList(messages: Message[]) {
     this.messageList = messages;
-    this.setChatLog!(this.messageList!);
     this.currentAssistantMessage = '';
     this.currentUserMessage = '';
+    this.setChatLog!(this.messageList!);
+    this.setAssistantMessage!(this.currentAssistantMessage);
+    this.setUserMessage!(this.currentAssistantMessage);
     this.currentStreamIdx++;
   }
 
