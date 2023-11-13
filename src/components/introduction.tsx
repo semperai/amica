@@ -23,7 +23,10 @@ export const Introduction = ({ open }: {
             Welcome to Amica 0.1
           </div>
           <p>
-            Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities. It is designed to be able to be attached to any ChatBot API. It can be used with any VRM model and is very customizable. You can even run Amica on your own computer without an internet connection, or on your phone.
+            Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.
+            It is designed to be able to be attached to any ChatBot API.
+            It can be used with any VRM model and is very customizable.
+            You can even run Amica on your own computer without an internet connection, or on your phone.
           </p>
         </div>
         <div className="my-4">
@@ -31,7 +34,9 @@ export const Introduction = ({ open }: {
             Setup
           </div>
           <p>
-            Out of the box, Amica simply repeats what you say. Click on the top left of the screen to open settings. You can change the voice, language, and attach to different backends or in-browser models. Read the full documentation <a href="https://github.com/semperai/amica/tree/master/docs" target="_blank" className="text-secondary">here</a>.
+            Click on the top left of the screen to open settings.
+            You can change the voice, language, and attach to different backends or in-browser models.
+            Read the full documentation <a href="https://github.com/semperai/amica/tree/master/docs" target="_blank" className="text-secondary">here</a>.
           </p>
         </div>
 
