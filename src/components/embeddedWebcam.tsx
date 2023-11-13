@@ -3,12 +3,13 @@ import Webcam from "react-webcam";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { ChatContext } from "@/features/chat/chatContext";
 import { IconButton } from "./iconButton";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 export function EmbeddedWebcam() {
   const { chat: bot } = useContext(ChatContext);
   const webcamRef = useRef<Webcam>(null);
   const [webcamEnabled, setWebcamEnabled] = useState(false);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [cameraDisabled, setCameraDisabled] = useState(false);
   const [imageData, setImageData] = useState("");
 
