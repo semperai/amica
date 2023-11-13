@@ -56,17 +56,28 @@ export function EmbeddedWebcam() {
           }} />
         {webcamEnabled && (
           <>
-            <Webcam
-              ref={webcamRef}
-              audio={false}
-              width={320}
-              height={240}
-              screenshotFormat="image/jpeg"
-              videoConstraints={{
-                facingMode,
-              }}
-              className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
-              />
+            { ! cameraDisabled && (
+              <Webcam
+                ref={webcamRef}
+                audio={false}
+                width={320}
+                height={240}
+                screenshotFormat="image/jpeg"
+                videoConstraints={{
+                  facingMode,
+                }}
+                className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
+                />
+            )}
+            { cameraDisabled && (
+              <img
+                src={imageData}
+                alt="Captured image"
+                width={320}
+                height={240}
+                className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
+                />
+            )}
             <div className="p-1 shadow-md flex flex-auto justify-center bg-gray-50 rounded-tl-none rounded-tr-none rounded-full">
               <IconButton
                 iconName="24/Shutter"
@@ -75,10 +86,10 @@ export function EmbeddedWebcam() {
                 onClick={() => capture()}
                 disabled={cameraDisabled}
               />
-              <IconButton
-                iconName={facingMode === 'user' ? '24/Sun' : '24/FaceEdit'}
-                isProcessing={false}
-                className="ml-8"
+
+              <button className={`ml-8 px-1.5 rounded-lg text-sm p-1 text-center inline-flex items-center`}>
+              <ArrowPathIcon
+                className="w-5 h-5 text-gray-700 hover:animate-spin"
                 onClick={() => {
                   if (facingMode === 'user') {
                     setFacingMode('environment');
@@ -87,6 +98,7 @@ export function EmbeddedWebcam() {
                   }
                 }}
               />
+              </button>
             </div>
           </>
         )}

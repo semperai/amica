@@ -458,7 +458,7 @@ export class Chat {
             ...this.messageList!,
             {
               role: 'user',
-              content: "Describe the image in full detail, including everything you can see confidently. Respond as if you are describing what you see."
+              content: "Describe the image as accurately as possible"
             },
           ],
           imageData,
