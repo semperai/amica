@@ -1,5 +1,6 @@
 import { useCallback, useContext, useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
+import Draggable from "react-draggable";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { ChatContext } from "@/features/chat/chatContext";
 import { IconButton } from "./iconButton";
@@ -54,54 +55,58 @@ export function EmbeddedWebcam() {
           onClick={() => {
             setWebcamEnabled(!webcamEnabled);
           }} />
-        {webcamEnabled && (
-          <>
-            { ! cameraDisabled && (
-              <Webcam
-                ref={webcamRef}
-                audio={false}
-                width={320}
-                height={240}
-                screenshotFormat="image/jpeg"
-                videoConstraints={{
-                  facingMode,
-                }}
-                className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
-                />
-            )}
-            { cameraDisabled && (
-              <img
-                src={imageData}
-                alt="Captured image"
-                width={320}
-                height={240}
-                className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
-                />
-            )}
-            <div className="p-1 shadow-md flex flex-auto justify-center bg-gray-50 rounded-tl-none rounded-tr-none rounded-full">
-              <IconButton
-                iconName="24/Shutter"
-                isProcessing={false}
-                className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-                onClick={() => capture()}
-                disabled={cameraDisabled}
-              />
+        <Draggable>
+          <div>
+            {webcamEnabled && (
+              <>
+                { ! cameraDisabled && (
+                  <Webcam
+                    ref={webcamRef}
+                    audio={false}
+                    width={320}
+                    height={240}
+                    screenshotFormat="image/jpeg"
+                    videoConstraints={{
+                      facingMode,
+                    }}
+                    className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
+                    />
+                )}
+                { cameraDisabled && (
+                  <img
+                    src={imageData}
+                    alt="Captured image"
+                    width={320}
+                    height={240}
+                    className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
+                    />
+                )}
+                <div className="p-1 shadow-md flex flex-auto justify-center bg-gray-50 rounded-tl-none rounded-tr-none rounded-full">
+                  <IconButton
+                    iconName="24/Shutter"
+                    isProcessing={false}
+                    className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+                    onClick={() => capture()}
+                    disabled={cameraDisabled}
+                  />
 
-              <button className={`ml-8 px-1.5 rounded-lg text-sm p-1 text-center inline-flex items-center`}>
-              <ArrowPathIcon
-                className="w-5 h-5 text-gray-700 hover:animate-spin"
-                onClick={() => {
-                  if (facingMode === 'user') {
-                    setFacingMode('environment');
-                  } else if (facingMode === 'environment') {
-                    setFacingMode('user');
-                  }
-                }}
-              />
-              </button>
-            </div>
-          </>
-        )}
+                  <button className={`ml-8 px-1.5 rounded-lg text-sm p-1 text-center inline-flex items-center`}>
+                    <ArrowPathIcon
+                      className="w-5 h-5 text-gray-700 hover:animate-spin"
+                      onClick={() => {
+                        if (facingMode === 'user') {
+                          setFacingMode('environment');
+                        } else if (facingMode === 'environment') {
+                          setFacingMode('user');
+                        }
+                      }}
+                    />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </Draggable>
       </div>
     </div>
   )
