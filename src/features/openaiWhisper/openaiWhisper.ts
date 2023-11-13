@@ -20,23 +20,18 @@ export async function openaiWhisper(
 
   console.debug('whisper-openai req', formData);
 
-  try {
-    const res = await fetch(`${config("openai_whisper_url")}/v1/audio/transcriptions`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-      },
-    });
-    if (! res.ok) {
-      throw new Error(`OpenAI Whisper API Error (${res.status})`);
-    }
-    const data = await res.json();
-    console.debug('whisper-openai res', data);
-
-    return { text: data.text.trim() };
-  } catch (e) {
-    console.error('whisper-openai', e);
-    throw new Error("OpenAI Whisper API Error");
+  const res = await fetch(`${config("openai_whisper_url")}/v1/audio/transcriptions`, {
+    method: "POST",
+    body: formData,
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+    },
+  });
+  if (! res.ok) {
+    throw new Error(`OpenAI Whisper API Error (${res.status})`);
   }
+  const data = await res.json();
+  console.debug('whisper-openai res', data);
+
+  return { text: data.text.trim() };
 }
