@@ -22,7 +22,7 @@ export async function speecht5(
     (<any>window).chatvrm_worker_speecht5 = new Worker(new URL("../../workers/speecht5.js", import.meta.url), {
       type: "module",
     });
-  
+
     (<any>window).chatvrm_worker_speecht5.addEventListener("message", (event: any) => {
       const message = event.data;
       // console.log(message);
