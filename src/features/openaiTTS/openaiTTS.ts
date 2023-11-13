@@ -22,6 +22,7 @@ export async function openaiTTS(
       },
     });
     if (! res.ok) {
+      console.error(res);
       throw new Error("OpenAI TTS API Error");
     }
     const data = (await res.arrayBuffer()) as any;

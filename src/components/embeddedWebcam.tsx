@@ -1,33 +1,44 @@
 import { useCallback, useContext, useState, useRef } from "react";
 import Webcam from "react-webcam";
+import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { ChatContext } from "@/features/chat/chatContext";
 import { IconButton } from "./iconButton";
 
 export function EmbeddedWebcam() {
   const { chat: bot } = useContext(ChatContext);
   const webcamRef = useRef<Webcam>(null);
+  const [webcamEnabled, setWebcamEnabled] = useState(false);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [cameraDisabled, setCameraDisabled] = useState(false);
+
+  useKeyboardShortcut("Escape", () => {
+    setWebcamEnabled(false);
+  });
 
   const capture = useCallback(() => {
-      if (webcamRef.current === null) {
-        return;
-      }
+      (async () => {
+        if (webcamRef.current === null) {
+          return;
+        }
 
-      let imageSrc = webcamRef.current.getScreenshot();
-      if (imageSrc) {
-        imageSrc = imageSrc.replace("data:image/jpeg;base64,", "");
-        bot.getVisionResponse(imageSrc);
-      }
+        let imageSrc = webcamRef.current.getScreenshot();
+        if (imageSrc) {
+          setCameraDisabled(true);
+          imageSrc = imageSrc.replace("data:image/jpeg;base64,", "");
+          await bot.getVisionResponse(imageSrc);
+          setCameraDisabled(false);
+        }
+      })();
     },
     [webcamRef]
   );
 
-  const [webcamEnabled, setWebcamEnabled] = useState(false);
 
   return (
     <div className="relative mr-8">
       <div className="fixed">
         <IconButton
-          iconName={webcamEnabled ? "24/Close" : "24/CameraVideo"}
+          iconName={webcamEnabled ? "24/Close" : "24/Camera"}
           isProcessing={false}
           className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
           onClick={() => {
@@ -42,15 +53,31 @@ export function EmbeddedWebcam() {
               height={240}
               screenshotFormat="image/jpeg"
               videoConstraints={{
-                facingMode: "user",
+                facingMode,
               }}
+              className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
               />
-            <IconButton
-              iconName="24/Camera"
-              isProcessing={false}
-              className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-              onClick={() => capture()}
-            />
+            <div className="p-1 shadow-md flex flex-auto justify-center bg-gray-50 rounded-tl-none rounded-tr-none rounded-full">
+              <IconButton
+                iconName="24/Shutter"
+                isProcessing={false}
+                className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+                onClick={() => capture()}
+                disabled={cameraDisabled}
+              />
+              <IconButton
+                iconName={facingMode === 'user' ? '24/Sun' : '24/FaceEdit'}
+                isProcessing={false}
+                className="ml-8"
+                onClick={() => {
+                  if (facingMode === 'user') {
+                    setFacingMode('environment');
+                  } else if (facingMode === 'environment') {
+                    setFacingMode('user');
+                  }
+                }}
+              />
+            </div>
           </>
         )}
       </div>

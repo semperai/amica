@@ -115,7 +115,7 @@ export class Chat {
           break;
         }
 
-        console.log('processing tts');
+        console.debug('processing tts');
         if (ttsJob.streamIdx !== this.currentStreamIdx) {
           console.log('skipping tts for streamIdx');
           continue;
@@ -145,7 +145,7 @@ export class Chat {
           console.log('skipping speak for streamIdx');
           continue;
         }
-        console.log('processing speak');
+        console.debug('processing speak');
 
 
         if((window as any).chatvrm_latency_tracker) {
@@ -211,21 +211,20 @@ export class Chat {
     }
 
     this.setShownMessage!(role);
-    console.log('bubbler', this.messageList)
+    console.debug('bubbler', this.messageList)
   }
 
   public async interrupt() {
     this.currentStreamIdx++;
     try {
       if (this.reader) {
-        console.log('cancelling')
-        console.log(this.reader)
+        console.debug('cancelling')
         if (! this.reader?.closed) {
           await this.reader?.cancel();
         }
         // this.reader = null;
         // this.stream = null;
-        console.log('finished cancelling')
+        console.debug('finished cancelling')
       }
     } catch(e: any) {
       console.error(e.toString());
@@ -245,11 +244,11 @@ export class Chat {
     }
 
     console.time('performance_interrupting');
-    console.log('interrupting...');
+    console.debug('interrupting...');
     await this.interrupt();
     console.timeEnd('performance_interrupting');
     await wait(0);
-    console.log('wait complete');
+    console.debug('wait complete');
 
     this.bubbleMessage!('user', message);
 
@@ -259,7 +258,7 @@ export class Chat {
       ...this.messageList!,
       { role: "user", content: this.currentUserMessage},
     ];
-    console.log('messages', messages);
+    console.debug('messages', messages);
 
     await this.makeAndHandleStream(messages);
   }
@@ -319,7 +318,6 @@ export class Chat {
         const { done, value } = await reader.read();
         if (! firstTokenEncountered) {
           console.timeEnd('performance_time_to_first_token');
-          console.log('performance_results', done, value);
           firstTokenEncountered = true;
         }
         if (done) break;
@@ -360,8 +358,8 @@ export class Chat {
           aiTextLog += aiText;
 
           // Generate & play audio for each sentence, display responses
-          console.log('enqueue tts', aiTalks);
-          console.log('streamIdx', streamIdx, 'currentStreamIdx', this.currentStreamIdx)
+          console.debug('enqueue tts', aiTalks);
+          console.debug('streamIdx', streamIdx, 'currentStreamIdx', this.currentStreamIdx)
           if (streamIdx !== this.currentStreamIdx) {
             console.log('wrong stream idx');
             break;
@@ -448,39 +446,32 @@ export class Chat {
   }
 
   public async getVisionResponse(imageData: string) {
-    let res = "The system is unconfigured and I can't see.";
-    console.log(imageData);
-
     try {
-      console.log('getVisionResponse');
       const visionBackend = config("vision_backend");
-      console.log('visionBackend', visionBackend);
 
       if (visionBackend === 'llamacpp') {
-        res = await getLlavaCppChatResponse(
-          [{
-            role: 'user',
-            content: "Describe the image in detail. Respond as if you are describing what you see."
-          }],
+        const res = await getLlavaCppChatResponse(
+          [
+            { role: "system", content: config("vision_system_prompt") },
+            ...this.messageList!,
+            {
+              role: 'user',
+              content: "Describe the image in full detail, including everything you can see confidently. Respond as if you are describing what you see."
+            },
+          ],
           imageData,
         );
-        console.log('llava response', res);
+        console.info('llava response', res);
 
-        const messages: Message[] = [
+        await this.makeAndHandleStream([
           { role: "system", content: config("system_prompt") },
           ...this.messageList!,
           {
             role: "user",
-            content: `This is a picture I just took from my webcam (described between [[ and ]] ): [[${res}]] please respond accordingly and as if it were just sent`,
+            content: `This is a picture I just took from my webcam (described between [[ and ]] ): [[${res}]] Please respond accordingly and as if it were just sent and as though you can see it.`,
           },
-        ];
-        console.log('messages', messages);
-
-        await this.makeAndHandleStream(messages);
-
+        ]);
       }
-
-      // this.bubbleMessage('assistant', res);
     } catch (e: any) {
       console.error("getVisionResponse", e.toString());
     }
