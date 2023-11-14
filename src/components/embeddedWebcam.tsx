@@ -89,7 +89,7 @@ export function EmbeddedWebcam() {
 
               <button className={`ml-8 px-1.5 rounded-lg text-sm p-1 text-center inline-flex items-center`}>
               <ArrowPathIcon
-                className="w-5 h-5 text-gray-700 hover:animate-spin"
+                className="w-5 h-5 text-gray-700 focus:animate-spin"
                 onClick={() => {
                   if (facingMode === 'user') {
                     setFacingMode('environment');
