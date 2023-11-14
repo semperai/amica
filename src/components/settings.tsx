@@ -58,6 +58,7 @@ const chatbotBackends = [
   {key: "chatgpt",    label: "ChatGPT"},
   {key: "llamacpp",   label: "LLama.cpp"},
   {key: "windowai",   label: "Window.ai"},
+  {key: "ollama",     label: "Ollama"},
 ];
 
 const ttsEngines = [
@@ -126,6 +127,7 @@ function getIconFromPage(page: string): JSX.Element {
     case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'ollama_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -163,6 +165,7 @@ function getLabelFromPage(page: string): string {
     case 'chatbot_backend':     return 'ChatBot Backend';
     case 'chatgpt_settings':    return 'ChatGPT';
     case 'llamacpp_settings':   return 'LLama.cpp';
+    case 'ollama_settings':     return 'Ollama';
     case 'system_prompt':       return 'System Prompt';
 
     case 'tts_backend':         return 'TTS Backend';
@@ -505,6 +508,22 @@ function ChatbotBackendPage({
           </FormRow>
         </li>
       )} 
+      { chatbotBackend === 'ollama' && (
+        <li className="py-4">
+          <FormRow label="Configure Ollama">
+            <button
+              type="button"
+              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              onClick={() => {
+                setPage('ollama_settings');
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('ollama_settings')]));
+              }}
+            >
+              Click here to configure Ollama
+            </button>
+          </FormRow>
+        </li>
+      )}
     </ul>
   );
 }
@@ -590,6 +609,51 @@ function LlamaCppSettingsPage({
             onChange={(event: React.ChangeEvent<any>) => {
               setLlamaCppUrl(event.target.value);
               updateConfig("llamacpp_url", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+    </ul>
+  );
+}
+
+function OllamaSettingsPage({
+  ollamaUrl,
+  setOllamaUrl,
+  ollamaModel,
+  setOllamaModel,
+  setSettingsUpdated,
+}: {
+  ollamaUrl: string;
+  setOllamaUrl: (url: string) => void;
+  ollamaModel: string;
+  setOllamaModel: (url: string) => void;
+  setSettingsUpdated: (updated: boolean) => void;
+}) {
+  return basicPage(
+    "Ollama Settings",
+    <>Ollama lets you get up and running with large language models locally. Download from <a href="https://ollama.ai/">ollama.ai</a></>,
+    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+      <li className="py-4">
+        <FormRow label="API URL">
+          <TextInput
+            value={ollamaUrl}
+            onChange={(event: React.ChangeEvent<any>) => {
+              setOllamaUrl(event.target.value);
+              updateConfig("ollama_url", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+      <li className="py-4">
+        <FormRow label="Model">
+          <TextInput
+            value={ollamaModel}
+            onChange={(event: React.ChangeEvent<any>) => {
+              setOllamaModel(event.target.value);
+              updateConfig("ollama_model", event.target.value);
               setSettingsUpdated(true);
             }}
           />
@@ -1296,6 +1360,8 @@ export const Settings = ({
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
 
   const [llamaCppUrl, setLlamaCppUrl] = useState(config("llamacpp_url"));
+  const [ollamaUrl, setOllamaUrl] = useState(config("ollama_url"));
+  const [ollamaModel, setOllamaModel] = useState(config("ollama_model"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -1407,6 +1473,7 @@ export const Settings = ({
     chatbotBackend,
     openAIApiKey, openAIUrl, openAIModel,
     llamaCppUrl,
+    ollamaUrl, ollamaModel,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -1523,7 +1590,7 @@ export const Settings = ({
 
             {page === 'chatbot' && (
               <MenuPage
-                keys={["chatbot_backend", "system_prompt", "chatgpt_settings", "llamacpp_settings"]}
+                keys={["chatbot_backend", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings"]}
                 menuClick={handleMenuClick} />
             )}
 
@@ -1616,6 +1683,16 @@ export const Settings = ({
               <LlamaCppSettingsPage
                 llamaCppUrl={llamaCppUrl}
                 setLlamaCppUrl={setLlamaCppUrl}
+                setSettingsUpdated={setSettingsUpdated}
+                />
+            )}
+
+            {page === 'ollama_settings' && (
+              <OllamaSettingsPage
+                ollamaUrl={ollamaUrl}
+                setOllamaUrl={setOllamaUrl}
+                ollamaModel={ollamaModel}
+                setOllamaModel={setOllamaModel}
                 setSettingsUpdated={setSettingsUpdated}
                 />
             )}

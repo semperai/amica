@@ -6,6 +6,7 @@ import { getEchoChatResponseStream } from './echoChat';
 import { getOpenAiChatResponseStream } from './openAiChat';
 import { getLlamaCppChatResponseStream, getLlavaCppChatResponse } from './llamaCppChat';
 import { getWindowAiChatResponseStream } from './windowAiChat';
+import { getOllamaChatResponseStream } from './ollamaChat';
 
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
@@ -434,14 +435,15 @@ export class Chat {
     console.debug('getChatResponseStream', messages);
     const chatbotBackend = config("chatbot_backend");
 
-    if (chatbotBackend === 'chatgpt') {
-      return getOpenAiChatResponseStream(messages);
-    }
-    if (chatbotBackend === 'llamacpp') {
-      return getLlamaCppChatResponseStream(messages);
-    }
-    if (chatbotBackend === 'windowai') {
-      return getWindowAiChatResponseStream(messages);
+    switch (chatbotBackend) {
+      case 'chatgpt':
+        return getOpenAiChatResponseStream(messages);
+      case 'llamacpp':
+        return getLlamaCppChatResponseStream(messages);
+      case 'windowai':
+        return getWindowAiChatResponseStream(messages);
+      case 'ollama':
+        return getOllamaChatResponseStream(messages);
     }
 
     return getEchoChatResponseStream(messages);

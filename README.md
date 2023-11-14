@@ -22,6 +22,7 @@ The various features of Amica mainly use the following technologies:
   - [Llama.cpp server](https://github.com/ggerganov/llama.cpp)
   - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat) (compatible with projects such as [LM Studio](https://lmstudio.ai/))
   - [Window.ai](https://windowai.io/)
+  - [Ollama](https://ollama.ai)
 - Text-to-Speech
   - [Coqui API](https://coqui.ai/)
   - [Eleven Labs API](https://elevenlabs.io/)
