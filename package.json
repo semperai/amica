@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npm run generate:paths && next dev",
     "build": "npm run generate:paths && next build",
-    "start": "npm run build && next start",
+    "start": "npm run generate:paths && next start",
     "export": "npm run generate:paths && next export",
     "lint": "next lint",
     "generate:paths": "npx node scripts/generate_paths.js"
