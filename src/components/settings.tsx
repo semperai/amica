@@ -59,6 +59,7 @@ const chatbotBackends = [
   {key: "llamacpp",   label: "LLama.cpp"},
   {key: "windowai",   label: "Window.ai"},
   {key: "ollama",     label: "Ollama"},
+  {key: "koboldai",   label: "KoboldAI"},
 ];
 
 const ttsEngines = [
@@ -127,7 +128,8 @@ function getIconFromPage(page: string): JSX.Element {
     case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'ollama_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'ollama_settings':     return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'koboldai_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -166,6 +168,7 @@ function getLabelFromPage(page: string): string {
     case 'chatgpt_settings':    return 'ChatGPT';
     case 'llamacpp_settings':   return 'LLama.cpp';
     case 'ollama_settings':     return 'Ollama';
+    case 'koboldai_settings':   return 'KoboldAI';
     case 'system_prompt':       return 'System Prompt';
 
     case 'tts_backend':         return 'TTS Backend';
@@ -523,6 +526,22 @@ function ChatbotBackendPage({
             </button>
           </FormRow>
         </li>
+     )}
+     { chatbotBackend === 'koboldai' && (
+        <li className="py-4">
+          <FormRow label="Configure KoboldAI">
+            <button
+              type="button"
+              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              onClick={() => {
+                setPage('koboldai_settings');
+                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('koboldai_settings')]));
+              }}
+            >
+              Click here to configure KoboldAI
+            </button>
+          </FormRow>
+        </li>
       )}
     </ul>
   );
@@ -654,6 +673,35 @@ function OllamaSettingsPage({
             onChange={(event: React.ChangeEvent<any>) => {
               setOllamaModel(event.target.value);
               updateConfig("ollama_model", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+    </ul>
+  );
+}
+
+function KoboldAiSettingsPage({
+  koboldAiUrl,
+  setKoboldAiUrl,
+  setSettingsUpdated,
+}: {
+  koboldAiUrl: string;
+  setKoboldAiUrl: (url: string) => void;
+  setSettingsUpdated: (updated: boolean) => void;
+}) {
+  return basicPage(
+    "KoboldAI Settings",
+    <>KoboldCpp is an easy-to-use AI text-generation software for GGML and GGUF models.</>,
+    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
+      <li className="py-4">
+        <FormRow label="API URL">
+          <TextInput
+            value={koboldAiUrl}
+            onChange={(event: React.ChangeEvent<any>) => {
+              setKoboldAiUrl(event.target.value);
+              updateConfig("koboldai_url", event.target.value);
               setSettingsUpdated(true);
             }}
           />
@@ -1358,10 +1406,10 @@ export const Settings = ({
   const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
   const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
-
   const [llamaCppUrl, setLlamaCppUrl] = useState(config("llamacpp_url"));
   const [ollamaUrl, setOllamaUrl] = useState(config("ollama_url"));
   const [ollamaModel, setOllamaModel] = useState(config("ollama_model"));
+  const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -1474,6 +1522,7 @@ export const Settings = ({
     openAIApiKey, openAIUrl, openAIModel,
     llamaCppUrl,
     ollamaUrl, ollamaModel,
+    koboldAiUrl,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -1590,7 +1639,7 @@ export const Settings = ({
 
             {page === 'chatbot' && (
               <MenuPage
-                keys={["chatbot_backend", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings"]}
+                keys={["chatbot_backend", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
                 menuClick={handleMenuClick} />
             )}
 
@@ -1693,6 +1742,14 @@ export const Settings = ({
                 setOllamaUrl={setOllamaUrl}
                 ollamaModel={ollamaModel}
                 setOllamaModel={setOllamaModel}
+                setSettingsUpdated={setSettingsUpdated}
+                />
+            )}
+
+            {page === 'koboldai_settings' && (
+              <KoboldAiSettingsPage
+                koboldAiUrl={koboldAiUrl}
+                setKoboldAiUrl={setKoboldAiUrl}
                 setSettingsUpdated={setSettingsUpdated}
                 />
             )}

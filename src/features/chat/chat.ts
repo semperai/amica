@@ -7,6 +7,7 @@ import { getOpenAiChatResponseStream } from './openAiChat';
 import { getLlamaCppChatResponseStream, getLlavaCppChatResponse } from './llamaCppChat';
 import { getWindowAiChatResponseStream } from './windowAiChat';
 import { getOllamaChatResponseStream } from './ollamaChat';
+import { getKoboldAiChatResponseStream } from './koboldAiChat';
 
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
@@ -444,6 +445,8 @@ export class Chat {
         return getWindowAiChatResponseStream(messages);
       case 'ollama':
         return getOllamaChatResponseStream(messages);
+      case 'koboldai':
+        return getKoboldAiChatResponseStream(messages);
     }
 
     return getEchoChatResponseStream(messages);

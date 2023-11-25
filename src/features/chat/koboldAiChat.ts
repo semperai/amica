@@ -1,0 +1,84 @@
+import { Message } from "./messages";
+import { config } from '@/utils/config';
+
+export async function getKoboldAiChatResponseStream(messages: Message[]) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  let prompt = "";
+  for (let m of messages) {
+    switch(m.role) {
+      case 'system':
+        prompt += config("system_prompt")+"\n\n";
+        break;
+      case 'user':
+        prompt += `User: ${m.content}\n`;
+        break;
+      case 'assistant':
+        prompt += `Amica: ${m.content}\n`;
+        break;
+    }
+  }
+  prompt += "Amica:";
+  const res = await fetch(`${config("koboldai_url")}/api/extra/generate/stream`, {
+    headers: headers,
+    method: "POST",
+    body: JSON.stringify({
+      prompt,
+    }),
+  });
+
+  const reader = res.body?.getReader();
+  if (res.status !== 200 || ! reader) {
+    throw new Error(`KoboldAi chat error (${res.status})`);
+  }
+
+  const stream = new ReadableStream({
+    async start(controller: ReadableStreamDefaultController) {
+      const decoder = new TextDecoder("utf-8");
+      try {
+        // sometimes the response is chunked, so we need to combine the chunks
+        let combined = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const data = decoder.decode(value);
+          const chunks = data
+            .split("data:")
+            .filter((val) => !!val && val.trim() !== "[DONE]");
+
+          for (const chunk of chunks) {
+            // skip comments
+            if (chunk.length > 0 && chunk[0] === ":") {
+              continue;
+            }
+            combined += chunk;
+
+            try {
+              const json = JSON.parse(combined);
+              const messagePiece = json.response;
+              combined = "";
+              if (!!messagePiece) {
+                controller.enqueue(messagePiece);
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        controller.error(error);
+      } finally {
+        reader.releaseLock();
+        controller.close();
+      }
+    },
+    async cancel() {
+      await reader?.cancel();
+      reader.releaseLock();
+    }
+  });
+
+  return stream;
+}
