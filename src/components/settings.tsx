@@ -1,19 +1,3 @@
-import React, {
-  Fragment,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  useRef,
-} from "react";
-import { Transition } from '@headlessui/react'
-import {
-  ChevronRightIcon,
-  ArrowUturnLeftIcon,
-  HomeIcon,
-  XMarkIcon,
-} from '@heroicons/react/20/solid';
-
 import {
   AdjustmentsHorizontalIcon,
   ChatBubbleOvalLeftEllipsisIcon,
@@ -34,7 +18,23 @@ import {
   EyeIcon,
 } from '@heroicons/react/24/outline';
 
-import { getWindowAI } from "window.ai";
+import React, {
+  Fragment,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+import { Transition } from '@headlessui/react'
+import {
+  ChevronRightIcon,
+  ArrowUturnLeftIcon,
+  HomeIcon,
+  XMarkIcon,
+} from '@heroicons/react/20/solid';
+
+
 
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { GitHubLink } from "@/components/githubLink";
@@ -46,7 +46,6 @@ import { SwitchBox } from "@/components/switchBox";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { config, updateConfig, resetConfig } from "@/utils/config";
 import {
-  bgImages,
   vrmList,
   speechT5SpeakerEmbeddingsList,
 } from "@/paths";
@@ -58,20 +57,20 @@ import {
   basename,
   thumbPrefix,
   classNames,
+  Link,
+  getLinkFromPage,
 } from "./settings/common";
 
+import { MenuPage } from './settings/MenuPage';
 import { CharacterAnimationPage } from './settings/CharacterAnimationPage';
 import { KoboldAiSettingsPage } from './settings/KoboldAiSettingsPage';
+import { ResetSettingsPage } from './settings/ResetSettingsPage';
+import { CommunityPage } from './settings/CommunityPage';
+import { BackgroundImgPage } from './settings/BackgroundImgPage';
+import { BackgroundVideoPage } from './settings/BackgroundVideoPage';
+import { ChatbotBackendPage } from './settings/ChatbotBackendPage';
 
 
-const chatbotBackends = [
-  {key: "echo",       label: "Echo"},
-  {key: "chatgpt",    label: "ChatGPT"},
-  {key: "llamacpp",   label: "LLama.cpp"},
-  {key: "windowai",   label: "Window.ai"},
-  {key: "ollama",     label: "Ollama"},
-  {key: "koboldai",   label: "KoboldAI"},
-];
 
 const ttsEngines = [
   {key: "none",       label: "None"},
@@ -92,422 +91,6 @@ const visionEngines = [
   {key: "llamacpp",   label: "LLama.cpp"},
 ];
 
-
-type Link = {
-  key: string;
-  label: string;
-  icon?: JSX.Element;
-  className?: string;
-}
-
-
-type PageProps = {
-  setPage: (page: string) => void;
-  breadcrumbs: Link[];
-  setBreadcrumbs: (breadcrumbs: Link[]) => void;
-}
-
-function getIconFromPage(page: string): JSX.Element {
-  switch(page) {
-    case 'appearance':          return <FaceSmileIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'chatbot':             return <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'tts':                 return <MusicalNoteIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'stt':                 return <PencilIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'vision':              return <EyeIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'reset_settings':      return <PowerIcon className="h-5 w-5 flex-none text-red-500" aria-hidden="true" />;
-    case 'community':           return <RocketLaunchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-
-    case 'background_img':      return <PhotoIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'background_video':    return <FilmIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'character_model':     return <UsersIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'character_animation': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-
-    case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'ollama_settings':     return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'koboldai_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-
-    case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'elevenlabs_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'speecht5_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'coqui_settings':      return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'openai_tts_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-
-    case 'stt_backend':         return <PencilSquareIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'whisper_openai_settings':  return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-
-    case 'vision_backend':           return <EyeDropperIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'vision_llamacpp_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'vision_system_prompt':     return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-  }
-
-  return <></>;
-}
-
-function getLabelFromPage(page: string): string {
-  switch(page) {
-    case 'appearance':          return 'Appearance';
-    case 'chatbot':             return 'ChatBot';
-    case 'tts':                 return 'Text-to-Speech';
-    case 'stt':                 return 'Speech-to-text';
-    case 'vision':              return 'Vision';
-    case 'reset_settings':      return 'Reset Settings';
-    case 'community':           return 'Community';
-
-    case 'background_img':      return 'Background Image';
-    case 'background_video':    return 'Background Video';
-    case 'character_model':     return 'Character Model';
-    case 'character_animation': return 'Character Animation';
-
-    case 'chatbot_backend':     return 'ChatBot Backend';
-    case 'chatgpt_settings':    return 'ChatGPT';
-    case 'llamacpp_settings':   return 'LLama.cpp';
-    case 'ollama_settings':     return 'Ollama';
-    case 'koboldai_settings':   return 'KoboldAI';
-    case 'system_prompt':       return 'System Prompt';
-
-    case 'tts_backend':         return 'TTS Backend';
-    case 'elevenlabs_settings': return 'ElevenLabs';
-    case 'speecht5_settings':   return 'SpeechT5';
-    case 'coqui_settings':      return 'Coqui';
-    case 'openai_tts_settings': return 'OpenAI';
-
-    case 'vision_backend':           return 'Vision Backend';
-    case 'vision_llamacpp_settings': return 'LLama.cpp';
-    case 'vision_system_prompt':     return 'System Prompt';
-
-    case 'stt_backend':         return 'STT Backend';
-    case 'whisper_openai_settings': return "Whisper (OpenAI)";
-  }
-
-  throw new Error(`unknown page label encountered ${page}`);
-}
-
-function getClassNameFromPage(page: string) {
-  switch(page) {
-    case 'reset_settings': return 'text-red-500';
-  }
-
-  return '';
-}
-
-function getLinkFromPage(page: string) {
-  return {
-    key: page,
-    label: getLabelFromPage(page),
-    icon: getIconFromPage(page),
-    className: getClassNameFromPage(page),
-  };
-}
-
-function pagesToLinks(keys: string[]): Link[] {
-  const links: Link[] = [];
-  for (const key of keys) {
-    links.push(getLinkFromPage(key));
-  }
-  return links;
-}
-
-
-function MenuPage({
-  keys,
-  menuClick,
-}: {
-  keys: string[];
-  menuClick: (link: Link) => void;
-}) {
-  const links = pagesToLinks(keys);
-  return (
-    <ul role="list" className="divide-y divide-black/5 bg-white rounded-lg shadow-lg">
-      {links.map((link) => (
-        <li
-          key={link.key}
-          className="relative flex items-center space-x-4 py-4 cursor-pointer rounded-lg hover:bg-gray-50 p-4 transition-all"
-          onClick={() => {
-            menuClick(link);
-          }}
-        >
-          <div className="min-w-0 flex-auto">
-            <div className="flex items-center gap-x-3">
-              <h2 className="min-w-0 text-sm font-semibold leading-6">
-                <span className={`whitespace-nowrap flex w-0 flex-1 gap-x-2 items-center ${link.className ?? ''}`}>
-                  {link.icon}
-                  {link.label}
-                </span>
-              </h2>
-            </div>
-          </div>
-          <ChevronRightIcon className="h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-
-function ResetSettingsPage() {
-  return basicPage(
-    "Reset Settings",
-    "Reset all settings to default. This will reload the page. You will lose any unsaved changes.",
-    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
-      <li className="py-4">
-        <FormRow label="">
-          <IconButton
-            iconName="24/Error"
-            isProcessing={false}
-            label="Reset All Settings"
-            onClick={() => {
-              resetConfig();
-              window.location.reload();
-            }}
-            className="mx-4 text-xs bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-            />
-        </FormRow>
-      </li>
-    </ul>
-  );
-}
-
-function CommunityPage() {
-  return basicPage(
-    "Community",
-    "Join the community",
-    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
-      <li className="py-4">
-        <a
-          href="https://t.me/arbius_ai"
-          target="_blank"
-          className="rounded bg-indigo-600 px-2 py-1 text-lg font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-          Telegram
-        </a>
-      </li>
-      <li className="py-4">
-        <a
-          href="https://twitter.com/arbius_ai"
-          target="_blank"
-          className="rounded bg-indigo-600 px-2 py-1 text-lg font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-          Twitter
-        </a>
-      </li>
-      <li className="py-4">
-        <GitHubLink />
-      </li>
-    </ul>
-  );
-}
-
-function BackgroundImgPage({
-  bgUrl,
-  setBgUrl,
-  setSettingsUpdated,
-  handleClickOpenBgImgFile,
-}: {
-  bgUrl: string;
-  setBgUrl: (url: string) => void;
-  setSettingsUpdated: (updated: boolean) => void;
-  handleClickOpenBgImgFile: () => void;
-}) {
-  return (
-    <>
-      <div className="rounded-lg shadow-lg bg-white flex flex-wrap justify-center space-x-4 space-y-4 p-4">
-        { bgImages.map((url) =>
-          <button
-            key={url}
-            onClick={() => {
-              document.body.style.backgroundImage = `url(${url})`;
-              updateConfig("youtube_videoid", "");
-              updateConfig("bg_url", url);
-              setBgUrl(url);
-              setSettingsUpdated(true);
-            }}
-            className={"mx-4 py-2 rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100 rounded-xl " + (bgUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
-            >
-              <img
-                src={`${thumbPrefix(url)}`}
-                alt={url}
-                width="160"
-                height="93"
-                className="m-0 rounded-md mx-4 p-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"
-                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = url;
-                }}
-              />
-          </button>
-        )}
-      </div>
-      <TextButton
-        className="rounded-t-none text-lg ml-4 px-8 shadow-lg bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-        onClick={handleClickOpenBgImgFile}
-      >
-        Load image
-      </TextButton>
-    </>
-  );
-}
-
-function BackgroundVideoPage({
-  youtubeVideoID,
-  setYoutubeVideoID,
-  setSettingsUpdated,
-}: {
-  youtubeVideoID: string;
-  setYoutubeVideoID: (id: string) => void;
-  setSettingsUpdated: (updated: boolean) => void;
-}) {
-  return basicPage(
-    "Background Video",
-    <>Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code></>,
-    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
-      <li className="py-4">
-        <FormRow label="YouTube Video ID">
-          <TextInput
-            value={youtubeVideoID}
-            onChange={(event: React.ChangeEvent<any>) => {
-              const id = event.target.value.trim();
-              setYoutubeVideoID(id);
-              updateConfig("youtube_videoid", id);
-              setSettingsUpdated(true);
-              return false;
-            }}
-            />
-         </FormRow>
-      </li>
-    </ul>
-  );
-}
-
-function ChatbotBackendPage({
-  chatbotBackend,
-  setChatbotBackend,
-  setSettingsUpdated,
-  setPage,
-  breadcrumbs,
-  setBreadcrumbs,
-}: {
-  chatbotBackend: string;
-  setChatbotBackend: (backend: string) => void;
-  setSettingsUpdated: (updated: boolean) => void;
-  setPage: (page: string) => void;
-  breadcrumbs: Link[];
-  setBreadcrumbs: (breadcrumbs: Link[]) => void;
-}) {
-  const [windowAiDetected, setWindowAiDetected] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      const windowAI = await getWindowAI();
-      if (windowAI) {
-        setWindowAiDetected(true);
-      }
-    })();
-  }, []);
-
-  return basicPage(
-    "Chatbot Backend",
-    "Select the chatbot backend to use. Echo simply responds with what you type, it is used for testing and demonstration. ChatGPT is a commercial chatbot API from OpenAI, however there are multiple compatible API providers which can be used in lieu of OpenAI. LLama.cpp is a free and open source chatbot backend.",
-    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
-      <li className="py-4">
-        <FormRow label="Chatbot Backend">
-          <select
-            className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            value={chatbotBackend}
-            onChange={(event: React.ChangeEvent<any>) => {
-              setChatbotBackend(event.target.value);
-              updateConfig("chatbot_backend", event.target.value);
-              setSettingsUpdated(true);
-            }}
-          >
-            {chatbotBackends.map((engine) => (
-              <option key={engine.key} value={engine.key}>{engine.label}</option>
-            ))}
-          </select>
-        </FormRow>
-      </li>
-      { chatbotBackend === 'chatgpt' && (
-        <li className="py-4">
-          <FormRow label="Configure ChatGPT">
-            <button
-              type="button"
-              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              onClick={() => {
-                setPage('chatgpt_settings');
-                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('chatgpt_settings')]));
-              }}
-            >
-              Click here to configure ChatGPT
-            </button>
-          </FormRow>
-        </li>
-      )}
-     { chatbotBackend === 'llamacpp' && (
-        <li className="py-4">
-          <FormRow label="Configure Llama.cpp">
-            <button
-              type="button"
-              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              onClick={() => {
-                setPage('llamacpp_settings');
-                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('llamacpp_settings')]));
-              }}
-            >
-              Click here to configure Llama.cpp
-            </button>
-          </FormRow>
-        </li>
-      )}
-      { chatbotBackend === 'windowai' && ! windowAiDetected && (
-        <li className="py-4">
-          <FormRow label="Window.ai not found">
-            <a
-              href="https://windowai.io/"
-              target="_blank"
-              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Install window.ai
-            </a>
-          </FormRow>
-        </li>
-      )} 
-      { chatbotBackend === 'ollama' && (
-        <li className="py-4">
-          <FormRow label="Configure Ollama">
-            <button
-              type="button"
-              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              onClick={() => {
-                setPage('ollama_settings');
-                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('ollama_settings')]));
-              }}
-            >
-              Click here to configure Ollama
-            </button>
-          </FormRow>
-        </li>
-     )}
-     { chatbotBackend === 'koboldai' && (
-        <li className="py-4">
-          <FormRow label="Configure KoboldAI">
-            <button
-              type="button"
-              className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              onClick={() => {
-                setPage('koboldai_settings');
-                setBreadcrumbs(breadcrumbs.concat([getLinkFromPage('koboldai_settings')]));
-              }}
-            >
-              Click here to configure KoboldAI
-            </button>
-          </FormRow>
-        </li>
-      )}
-    </ul>
-  );
-}
 
 function ChatGPTSettingsPage({
   openAIApiKey,

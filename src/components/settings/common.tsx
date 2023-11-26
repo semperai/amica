@@ -1,3 +1,23 @@
+import {
+  AdjustmentsHorizontalIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  CheckCircleIcon,
+  UsersIcon,
+  RocketLaunchIcon,
+  FaceSmileIcon,
+  MusicalNoteIcon,
+  PowerIcon,
+  PhotoIcon,
+  FilmIcon,
+  SpeakerWaveIcon,
+  DocumentTextIcon,
+  Cog6ToothIcon,
+  PencilSquareIcon,
+  PencilIcon,
+  EyeDropperIcon,
+  EyeIcon,
+} from '@heroicons/react/24/outline';
+
 export function basicPage(
   title: string,
   description: React.ReactNode,
@@ -70,4 +90,120 @@ export function thumbPrefix(path: string) {
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
+}
+
+export type Link = {
+  key: string;
+  label: string;
+  icon?: JSX.Element;
+  className?: string;
+}
+
+export function getLinkFromPage(page: string) {
+  return {
+    key: page,
+    label: getLabelFromPage(page),
+    icon: getIconFromPage(page),
+    className: getClassNameFromPage(page),
+  };
+}
+
+export function pagesToLinks(keys: string[]): Link[] {
+  const links: Link[] = [];
+  for (const key of keys) {
+    links.push(getLinkFromPage(key));
+  }
+  return links;
+}
+
+export type PageProps = {
+  setPage: (page: string) => void;
+  breadcrumbs: Link[];
+  setBreadcrumbs: (breadcrumbs: Link[]) => void;
+}
+
+export function getIconFromPage(page: string): JSX.Element {
+  switch(page) {
+    case 'appearance':          return <FaceSmileIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'chatbot':             return <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'tts':                 return <MusicalNoteIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'stt':                 return <PencilIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'vision':              return <EyeIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'reset_settings':      return <PowerIcon className="h-5 w-5 flex-none text-red-500" aria-hidden="true" />;
+    case 'community':           return <RocketLaunchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
+    case 'background_img':      return <PhotoIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'background_video':    return <FilmIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'character_model':     return <UsersIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'character_animation': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
+    case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'ollama_settings':     return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'koboldai_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
+    case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'elevenlabs_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'speecht5_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'coqui_settings':      return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'openai_tts_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
+    case 'stt_backend':         return <PencilSquareIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'whisper_openai_settings':  return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+
+    case 'vision_backend':           return <EyeDropperIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'vision_llamacpp_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'vision_system_prompt':     return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+  }
+
+  return <></>;
+}
+
+function getLabelFromPage(page: string): string {
+  switch(page) {
+    case 'appearance':          return 'Appearance';
+    case 'chatbot':             return 'ChatBot';
+    case 'tts':                 return 'Text-to-Speech';
+    case 'stt':                 return 'Speech-to-text';
+    case 'vision':              return 'Vision';
+    case 'reset_settings':      return 'Reset Settings';
+    case 'community':           return 'Community';
+
+    case 'background_img':      return 'Background Image';
+    case 'background_video':    return 'Background Video';
+    case 'character_model':     return 'Character Model';
+    case 'character_animation': return 'Character Animation';
+
+    case 'chatbot_backend':     return 'ChatBot Backend';
+    case 'chatgpt_settings':    return 'ChatGPT';
+    case 'llamacpp_settings':   return 'LLama.cpp';
+    case 'ollama_settings':     return 'Ollama';
+    case 'koboldai_settings':   return 'KoboldAI';
+    case 'system_prompt':       return 'System Prompt';
+
+    case 'tts_backend':         return 'TTS Backend';
+    case 'elevenlabs_settings': return 'ElevenLabs';
+    case 'speecht5_settings':   return 'SpeechT5';
+    case 'coqui_settings':      return 'Coqui';
+    case 'openai_tts_settings': return 'OpenAI';
+
+    case 'vision_backend':           return 'Vision Backend';
+    case 'vision_llamacpp_settings': return 'LLama.cpp';
+    case 'vision_system_prompt':     return 'System Prompt';
+
+    case 'stt_backend':         return 'STT Backend';
+    case 'whisper_openai_settings': return "Whisper (OpenAI)";
+  }
+
+  throw new Error(`unknown page label encountered ${page}`);
+}
+
+function getClassNameFromPage(page: string) {
+  switch(page) {
+    case 'reset_settings': return 'text-red-500';
+  }
+
+  return '';
 }
