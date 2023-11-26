@@ -43,14 +43,22 @@ import { TextButton } from "@/components/textButton";
 import { SecretTextInput } from "@/components/secretTextInput";
 import { TextInput } from "@/components/textInput";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
-import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { config, updateConfig, resetConfig } from "@/utils/config";
 import {
   bgImages,
   vrmList,
   speechT5SpeakerEmbeddingsList,
-  animationList,
 } from "@/paths";
+
+
+import {
+  basicPage,
+  FormRow,
+  basename,
+  thumbPrefix,
+  classNames,
+} from "./settings/common";
+import { CharacterAnimationPage } from './settings/CharacterAnimationPage';
 
 
 const chatbotBackends = [
@@ -81,20 +89,6 @@ const visionEngines = [
   {key: "llamacpp",   label: "LLama.cpp"},
 ];
 
-function thumbPrefix(path: string) {
-  const a = path.split("/");
-  a[a.length - 1] = "thumb-" + a[a.length - 1];
-  return a.join("/");
-}
-
-function basename(path: string) {
-  const a = path.split("/");
-  return a[a.length - 1];
-}
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ')
-}
 
 type Link = {
   key: string;
@@ -246,41 +240,6 @@ function MenuPage({
         </li>
       ))}
     </ul>
-  );
-}
-
-function basicPage(
-  title: string,
-  description: React.ReactNode,
-  children: React.ReactNode,
-) {
-  return (
-    <>
-      <div className="rounded-lg shadow-lg bg-white p-4">
-        <h2 className="text-xl w-full">{title}</h2>
-        <p className="w-full my-4">{description}</p>
-
-        <div className="mt-4">
-          {children}
-        </div>
-      </div>
-    </>
-  );
-}
-
-function FormRow({label, children}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="sm:col-span-3 max-w-xs rounded-xl">
-      <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900">
-        {label}
-      </label>
-      <div className="mt-2">
-        {children}
-      </div>
-    </div>
   );
 }
 
@@ -1338,54 +1297,6 @@ function CharacterModelPage({
         Load .VRM
       </TextButton>
     </>
-  );
-}
-
-function CharacterAnimationPage({
-  viewer,
-  animationUrl,
-  setAnimationUrl,
-  setSettingsUpdated,
-}: {
-  viewer: any; // TODO
-  animationUrl: string;
-  setAnimationUrl: (url: string) => void;
-  setSettingsUpdated: (updated: boolean) => void;
-}) {
-  return basicPage(
-    "Character Animation",
-    "Select the animation to play",
-    <ul role="list" className="divide-y divide-gray-100 max-w-xs">
-      <li className="py-4">
-        <FormRow label="Animation">
-          <select
-            value={animationUrl}
-            className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            onChange={async (event: React.ChangeEvent<any>) => {
-              event.preventDefault();
-              const url = event.target.value;
-              setAnimationUrl(url);
-              updateConfig("animation_url", url);
-              setSettingsUpdated(true);
-              // @ts-ignore
-              const vrma = await loadMixamoAnimation(url, viewer.model!.vrm);
-
-              // @ts-ignore
-              viewer.model!.loadAnimation(vrma);
-            }}
-          >
-            {animationList.map((url) =>
-              <option
-                key={url}
-                value={url}
-              >
-                {basename(url)}
-              </option>
-            )}
-          </select>
-        </FormRow>
-      </li>
-    </ul>
   );
 }
 
