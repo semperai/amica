@@ -2,9 +2,6 @@ import { Message } from "./messages";
 import { config } from '@/utils/config';
 
 export async function getKoboldAiChatResponseStream(messages: Message[]) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
   let prompt = "";
   for (let m of messages) {
     switch(m.role) {
@@ -20,6 +17,21 @@ export async function getKoboldAiChatResponseStream(messages: Message[]) {
     }
   }
   prompt += "Amica:";
+
+
+  if (config("koboldai_use_extra") === 'true') {
+    return getExtra(messages);
+  } else {
+    return getNormal(messages);
+  }
+}
+
+// koboldcpp / stream support
+async function getExtra(messages: Message[]) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
   const res = await fetch(`${config("koboldai_url")}/api/extra/generate/stream`, {
     headers: headers,
     method: "POST",
@@ -73,6 +85,44 @@ export async function getKoboldAiChatResponseStream(messages: Message[]) {
       await reader?.cancel();
       reader.releaseLock();
     }
+  });
+
+  return stream;
+}
+
+// koboldai / no stream support
+async function getNormal(messages: Message[]) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  const res = await fetch(`${config("koboldai_url")}/api/v1/generate`, {
+    headers: headers,
+    method: "POST",
+    body: JSON.stringify({
+      prompt,
+    }),
+  });
+
+  const json = await res.json();
+  if (json.results.length === 0) {
+    throw new Error(`KoboldAi result length 0`);
+  }
+
+  const text = json.results.map((row: {text: string}) => row.text).join('');
+
+  const stream = new ReadableStream({
+    async start(controller: ReadableStreamDefaultController) {
+      try {
+        text.split(' ').map((word: string) => word + ' ').forEach((word: string) => {
+          controller.enqueue(word);
+        });
+      } catch (error) {
+        controller.error(error);
+      } finally {
+        controller.close();
+      }
+    },
   });
 
   return stream;

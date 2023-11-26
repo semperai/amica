@@ -17,6 +17,7 @@ const defaults = {
   ollama_url: process.env.NEXT_PUBLIC_OLLAMA_URL ?? 'http://localhost:11434',
   ollama_model: process.env.NEXT_PUBLIC_OLLAMA_MODEL ?? 'llama2',
   koboldai_url: process.env.NEXT_PUBLIC_KOBOLDAI_URL ?? 'http://localhost:5001',
+  koboldai_use_extra: process.env.NEXT_PUBLIC_KOBOLDAI_USE_EXTRA ?? 'false',
   tts_backend: process.env.NEXT_PUBLIC_TTS_BACKEND ?? 'none',
   stt_backend: process.env.NEXT_PUBLIC_STT_BACKEND ?? 'whisper_browser',
   vision_backend: process.env.NEXT_PUBLIC_VISION_BACKEND ?? 'none',

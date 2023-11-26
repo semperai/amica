@@ -42,6 +42,7 @@ import { IconButton } from "@/components/iconButton";
 import { TextButton } from "@/components/textButton";
 import { SecretTextInput } from "@/components/secretTextInput";
 import { TextInput } from "@/components/textInput";
+import { SwitchBox } from "@/components/switchBox";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { config, updateConfig, resetConfig } from "@/utils/config";
 import {
@@ -644,10 +645,14 @@ function OllamaSettingsPage({
 function KoboldAiSettingsPage({
   koboldAiUrl,
   setKoboldAiUrl,
+  koboldAiUseExtra,
+  setKoboldAiUseExtra,
   setSettingsUpdated,
 }: {
   koboldAiUrl: string;
   setKoboldAiUrl: (url: string) => void;
+  koboldAiUseExtra: boolean;
+  setKoboldAiUseExtra: (value: boolean) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
   return basicPage(
@@ -661,6 +666,19 @@ function KoboldAiSettingsPage({
             onChange={(event: React.ChangeEvent<any>) => {
               setKoboldAiUrl(event.target.value);
               updateConfig("koboldai_url", event.target.value);
+              setSettingsUpdated(true);
+            }}
+          />
+        </FormRow>
+      </li>
+      <li className="py-4">
+        <FormRow label="Use Koboldcpp">
+          <SwitchBox
+            value={koboldAiUseExtra}
+            label="Use Extra (enables streaming)"
+            onChange={(value: boolean) => {
+              setKoboldAiUseExtra(value);
+              updateConfig("koboldai_use_extra", value.toString());
               setSettingsUpdated(true);
             }}
           />
@@ -1321,6 +1339,7 @@ export const Settings = ({
   const [ollamaUrl, setOllamaUrl] = useState(config("ollama_url"));
   const [ollamaModel, setOllamaModel] = useState(config("ollama_model"));
   const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
+  const [koboldAiUseExtra, setKoboldAiUseExtra] = useState<boolean>(config("koboldai_use_extra") === 'true' ? true : false);
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -1433,7 +1452,7 @@ export const Settings = ({
     openAIApiKey, openAIUrl, openAIModel,
     llamaCppUrl,
     ollamaUrl, ollamaModel,
-    koboldAiUrl,
+    koboldAiUrl, koboldAiUseExtra,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -1661,6 +1680,8 @@ export const Settings = ({
               <KoboldAiSettingsPage
                 koboldAiUrl={koboldAiUrl}
                 setKoboldAiUrl={setKoboldAiUrl}
+                koboldAiUseExtra={koboldAiUseExtra}
+                setKoboldAiUseExtra={setKoboldAiUseExtra}
                 setSettingsUpdated={setSettingsUpdated}
                 />
             )}
