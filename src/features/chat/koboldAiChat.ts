@@ -37,37 +37,32 @@ export async function getKoboldAiChatResponseStream(messages: Message[]) {
     async start(controller: ReadableStreamDefaultController) {
       const decoder = new TextDecoder("utf-8");
       try {
-        // sometimes the response is chunked, so we need to combine the chunks
-        let combined = "";
+        let buffer = "";
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const data = decoder.decode(value);
-          const chunks = data
-            .split("data:")
-            .filter((val) => !!val && val.trim() !== "[DONE]");
-
-          for (const chunk of chunks) {
-            // skip comments
-            if (chunk.length > 0 && chunk[0] === ":") {
-              continue;
-            }
-            combined += chunk;
-
-            try {
-              const json = JSON.parse(combined);
-              const messagePiece = json.response;
-              combined = "";
-              if (!!messagePiece) {
-                controller.enqueue(messagePiece);
+          buffer += decoder.decode(value);
+  
+          let eolIndex;
+          while ((eolIndex = buffer.indexOf('\n')) >= 0) {
+            const line = buffer.substring(0, eolIndex).trim();
+            buffer = buffer.substring(eolIndex + 1);
+  
+            if (line.startsWith('data:')) {
+              try {
+                const json = JSON.parse(line.substring(5));
+                const messagePiece = json.token;
+                if (messagePiece) {
+                  controller.enqueue(messagePiece);
+                }
+              } catch (error) {
+                console.error("JSON parsing error:", error, "in line:", line);
               }
-            } catch (error) {
-              console.error(error);
             }
           }
         }
       } catch (error) {
-        console.error(error);
+        console.error("Stream error:", error);
         controller.error(error);
       } finally {
         reader.releaseLock();
@@ -79,6 +74,7 @@ export async function getKoboldAiChatResponseStream(messages: Message[]) {
       reader.releaseLock();
     }
   });
-
+  
+  
   return stream;
 }
