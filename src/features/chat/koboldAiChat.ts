@@ -42,12 +42,12 @@ export async function getKoboldAiChatResponseStream(messages: Message[]) {
           const { done, value } = await reader.read();
           if (done) break;
           buffer += decoder.decode(value);
-  
+
           let eolIndex;
           while ((eolIndex = buffer.indexOf('\n')) >= 0) {
             const line = buffer.substring(0, eolIndex).trim();
             buffer = buffer.substring(eolIndex + 1);
-  
+
             if (line.startsWith('data:')) {
               try {
                 const json = JSON.parse(line.substring(5));
@@ -74,7 +74,6 @@ export async function getKoboldAiChatResponseStream(messages: Message[]) {
       reader.releaseLock();
     }
   });
-  
-  
+
   return stream;
 }
