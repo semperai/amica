@@ -12,7 +12,6 @@ export function BackgroundVideoPage({
   setYoutubeVideoID: (id: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
-
   const description = <>Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code></>;
 
   return (

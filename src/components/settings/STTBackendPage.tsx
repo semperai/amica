@@ -1,6 +1,4 @@
 import { BasicPage, FormRow, getLinkFromPage, Link } from './common';
-import { TextInput } from "@/components/textInput";
-import { SecretTextInput } from "@/components/secretTextInput";
 import { updateConfig } from "@/utils/config";
 
 const sttEngines = [

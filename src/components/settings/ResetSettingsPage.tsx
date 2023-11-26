@@ -1,7 +1,4 @@
-import {
-  BasicPage,
-  FormRow,
-} from './common';
+import {  BasicPage, FormRow } from './common';
 import { IconButton } from "@/components/iconButton";
 import { resetConfig } from "@/utils/config";
 

@@ -1,7 +1,4 @@
-import {
-  BasicPage,
-  FormRow,
-} from './common';
+import { BasicPage, FormRow } from './common';
 import { TextInput } from '@/components/textInput';
 import { SwitchBox } from '@/components/switchBox';
 import { updateConfig } from "@/utils/config";

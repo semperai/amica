@@ -1,8 +1,4 @@
-import {
-  BasicPage,
-  FormRow,
-  basename,
-} from "./common";
+import { BasicPage, FormRow, basename } from "./common";
 import { animationList } from "@/paths";
 import { updateConfig } from "@/utils/config";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";

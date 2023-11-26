@@ -1,23 +1,3 @@
-import {
-  AdjustmentsHorizontalIcon,
-  ChatBubbleOvalLeftEllipsisIcon,
-  CheckCircleIcon,
-  UsersIcon,
-  RocketLaunchIcon,
-  FaceSmileIcon,
-  MusicalNoteIcon,
-  PowerIcon,
-  PhotoIcon,
-  FilmIcon,
-  SpeakerWaveIcon,
-  DocumentTextIcon,
-  Cog6ToothIcon,
-  PencilSquareIcon,
-  PencilIcon,
-  EyeDropperIcon,
-  EyeIcon,
-} from '@heroicons/react/24/outline';
-
 import React, {
   Fragment,
   useCallback,
@@ -34,28 +14,16 @@ import {
   XMarkIcon,
 } from '@heroicons/react/20/solid';
 
-
+import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
-import { GitHubLink } from "@/components/githubLink";
 import { IconButton } from "@/components/iconButton";
 import { TextButton } from "@/components/textButton";
-import { SecretTextInput } from "@/components/secretTextInput";
-import { TextInput } from "@/components/textInput";
-import { SwitchBox } from "@/components/switchBox";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
-import { config, updateConfig, resetConfig } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 
 
-import {
-  basicPage,
-  FormRow,
-  basename,
-  thumbPrefix,
-  classNames,
-  Link,
-  getLinkFromPage,
-} from "./settings/common";
+import { Link } from "./settings/common";
 
 import { MenuPage } from './settings/MenuPage';
 import { ResetSettingsPage } from './settings/ResetSettingsPage';

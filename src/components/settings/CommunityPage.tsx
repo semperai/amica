@@ -1,7 +1,6 @@
 import { BasicPage } from './common';
 import { GitHubLink } from "@/components/githubLink";
 
-
 export function CommunityPage() {
   return (
     <BasicPage

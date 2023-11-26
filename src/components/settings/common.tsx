@@ -1,7 +1,6 @@
 import {
   AdjustmentsHorizontalIcon,
   ChatBubbleOvalLeftEllipsisIcon,
-  CheckCircleIcon,
   UsersIcon,
   RocketLaunchIcon,
   FaceSmileIcon,
@@ -59,7 +58,6 @@ export function BasicPage({
     </>
   );
 }
-
 
 export function FormRow({label, children}: {
   label: string;

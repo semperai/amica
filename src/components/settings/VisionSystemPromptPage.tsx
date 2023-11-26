@@ -1,5 +1,4 @@
 import { BasicPage, FormRow } from './common';
-import { TextInput } from "@/components/textInput";
 import { updateConfig } from "@/utils/config";
 
 export function VisionSystemPromptPage({

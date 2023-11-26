@@ -1,6 +1,4 @@
 import { BasicPage, FormRow, basename } from './common';
-import { TextInput } from "@/components/textInput";
-import { SecretTextInput } from "@/components/secretTextInput";
 import { updateConfig } from "@/utils/config";
 import { speechT5SpeakerEmbeddingsList } from "@/paths";
 

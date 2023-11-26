@@ -1,11 +1,5 @@
-import {
-  ChevronRightIcon,
-} from '@heroicons/react/20/solid';
-
-import {
-  pagesToLinks,
-  Link,
-} from './common';
+import { ChevronRightIcon } from '@heroicons/react/20/solid';
+import { Link, pagesToLinks } from './common';
 
 export function MenuPage({
   keys,
