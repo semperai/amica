@@ -48,7 +48,7 @@ export function VisionBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["llamacpp"].includes(visionBackend) && (
+        { ["vision_llamacpp"].includes(visionBackend) && (
           <li className="py-4">
             <FormRow label={`Configure ${idToTitle(visionBackend)}`}>
               <button

@@ -15,7 +15,7 @@ export function VisionLlamaCppSettingsPage({
 
   return (
     <BasicPage
-      title="LLama.cpp Settings"
+      title="Vision LLama.cpp Settings"
       description={description}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
