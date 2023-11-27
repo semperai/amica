@@ -65,7 +65,7 @@ export function FormRow({label, children}: {
 }) {
   return (
     <div className="sm:col-span-3 max-w-xs rounded-xl">
-      <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900">
+      <label className="block text-sm font-medium leading-6 text-gray-900">
         {label}
       </label>
       <div className="mt-2">
