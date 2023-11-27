@@ -456,7 +456,8 @@ export class Chat {
     try {
       const visionBackend = config("vision_backend");
 
-      if (visionBackend === 'llamacpp') {
+      console.debug('vision_backend', visionBackend);
+      if (visionBackend === 'vision_llamacpp') {
         const res = await getLlavaCppChatResponse(
           [
             { role: "system", content: config("vision_system_prompt") },
