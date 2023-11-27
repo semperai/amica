@@ -208,6 +208,227 @@ export const Settings = ({
     setBreadcrumbs([...breadcrumbs, link]);
   }
 
+  function renderPage() {
+    switch(page) {
+    case 'main_menu':
+      return <MenuPage
+        keys={["appearance", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
+        menuClick={handleMenuClick} />;
+
+    case 'appearance':
+      return <MenuPage
+        keys={["background_img", "background_video", "character_model", "character_animation"]}
+        menuClick={handleMenuClick} />;
+
+    case 'chatbot':
+      return <MenuPage
+        keys={["chatbot_backend", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        menuClick={handleMenuClick} />;
+
+    case 'tts':
+      return <MenuPage
+        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings", "openai_tts_settings"]}
+        menuClick={handleMenuClick} />;
+
+    case 'stt':
+      return <MenuPage
+        keys={["stt_backend", "whisper_openai_settings"]}
+        menuClick={handleMenuClick} />;
+
+    case 'vision':
+      return <MenuPage
+        keys={["vision_backend", "vision_llamacpp_settings", "vision_system_prompt"]}
+        menuClick={handleMenuClick} />;
+
+    case 'reset_settings':
+      return <ResetSettingsPage />;
+
+    case 'community':
+      return <CommunityPage />
+
+    case 'background_img':
+      return <BackgroundImgPage
+        bgUrl={bgUrl}
+        setBgUrl={setBgUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        handleClickOpenBgImgFile={handleClickOpenBgImgFile}
+        />
+
+    case 'background_video':
+      return <BackgroundVideoPage
+        youtubeVideoID={youtubeVideoID}
+        setYoutubeVideoID={setYoutubeVideoID}
+        setSettingsUpdated={setSettingsUpdated}
+        />;
+
+    case 'character_model':
+      return <CharacterModelPage
+        viewer={viewer}
+        vrmUrl={vrmUrl}
+        setVrmUrl={setVrmUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        handleClickOpenVrmFile={handleClickOpenVrmFile}
+        />
+
+    case 'character_animation':
+      return <CharacterAnimationPage
+        viewer={viewer}
+        animationUrl={animationUrl}
+        setAnimationUrl={setAnimationUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'chatbot_backend':
+      return <ChatbotBackendPage
+        chatbotBackend={chatbotBackend}
+        setChatbotBackend={setChatbotBackend}
+        setSettingsUpdated={setSettingsUpdated}
+        setPage={setPage}
+        breadcrumbs={breadcrumbs}
+        setBreadcrumbs={setBreadcrumbs}
+        />
+
+    case 'chatgpt_settings':
+      return <ChatGPTSettingsPage
+        openAIApiKey={openAIApiKey}
+        setOpenAIApiKey={setOpenAIApiKey}
+        openAIUrl={openAIUrl}
+        setOpenAIUrl={setOpenAIUrl}
+        openAIModel={openAIModel}
+        setOpenAIModel={setOpenAIModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'llamacpp_settings':
+      return <LlamaCppSettingsPage
+        llamaCppUrl={llamaCppUrl}
+        setLlamaCppUrl={setLlamaCppUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'ollama_settings':
+      return <OllamaSettingsPage
+        ollamaUrl={ollamaUrl}
+        setOllamaUrl={setOllamaUrl}
+        ollamaModel={ollamaModel}
+        setOllamaModel={setOllamaModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'koboldai_settings':
+      return <KoboldAiSettingsPage
+        koboldAiUrl={koboldAiUrl}
+        setKoboldAiUrl={setKoboldAiUrl}
+        koboldAiUseExtra={koboldAiUseExtra}
+        setKoboldAiUseExtra={setKoboldAiUseExtra}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'tts_backend':
+      return <TTSBackendPage
+        ttsBackend={ttsBackend}
+        setTTSBackend={setTTSBackend}
+        setSettingsUpdated={setSettingsUpdated}
+        setPage={setPage}
+        breadcrumbs={breadcrumbs}
+        setBreadcrumbs={setBreadcrumbs}
+        />
+
+    case 'elevenlabs_settings':
+      return <ElevenLabsSettingsPage
+        elevenlabsApiKey={elevenlabsApiKey}
+        setElevenlabsApiKey={setElevenlabsApiKey}
+        elevenlabsVoiceId={elevenlabsVoiceId}
+        setElevenlabsVoiceId={setElevenlabsVoiceId}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'speecht5_settings':
+      return <SpeechT5SettingsPage
+        speechT5SpeakerEmbeddingsUrl={speechT5SpeakerEmbeddingsUrl}
+        setSpeechT5SpeakerEmbeddingsUrl={setSpeechT5SpeakerEmbeddingsUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'coqui_settings':
+      return <CoquiSettingsPage
+        coquiApiKey={coquiApiKey}
+        setCoquiApiKey={setCoquiApiKey}
+        coquiVoiceId={coquiVoiceId}
+        setCoquiVoiceId={setCoquiVoiceId}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'openai_tts_settings':
+      return <OpenAITTSSettingsPage
+        openAITTSApiKey={openAITTSApiKey}
+        setOpenAITTSApiKey={setOpenAITTSApiKey}
+        openAITTSUrl={openAITTSUrl}
+        setOpenAITTSUrl={setOpenAITTSUrl}
+        openAITTSModel={openAITTSModel}
+        setOpenAITTSModel={setOpenAITTSModel}
+        openAITTSVoice={openAITTSVoice}
+        setOpenAITTSVoice={setOpenAITTSVoice}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case'stt_backend':
+      return <STTBackendPage
+        sttBackend={sttBackend}
+        setSTTBackend={setSTTBackend}
+        setSettingsUpdated={setSettingsUpdated}
+        setPage={setPage}
+        breadcrumbs={breadcrumbs}
+        setBreadcrumbs={setBreadcrumbs}
+        />
+
+    case 'whisper_openai_settings':
+      return <WhisperOpenAISettings
+        whisperOpenAIUrl={whisperOpenAIUrl}
+        setWhisperOpenAIUrl={setWhisperOpenAIUrl}
+        whisperOpenAIApiKey={whisperOpenAIApiKey}
+        setWhisperOpenAIApiKey={setWhisperOpenAIApiKey}
+        whisperOpenAIModel={whisperOpenAIModel}
+        setWhisperOpenAIModel={setWhisperOpenAIModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'vision_backend':
+      return <VisionBackendPage
+        visionBackend={visionBackend}
+        setVisionBackend={setVisionBackend}
+        setSettingsUpdated={setSettingsUpdated}
+        setPage={setPage}
+        breadcrumbs={breadcrumbs}
+        setBreadcrumbs={setBreadcrumbs}
+        />
+
+    case 'vision_llamacpp_settings':
+      return <VisionLlamaCppSettingsPage
+        visionLlamaCppUrl={visionLlamaCppUrl}
+        setVisionLlamaCppUrl={setVisionLlamaCppUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'vision_system_prompt':
+      return <VisionSystemPromptPage
+        visionSystemPrompt={visionSystemPrompt}
+        setVisionSystemPrompt={setVisionSystemPrompt}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'system_prompt':
+      return <SystemPromptPage
+        systemPrompt={systemPrompt}
+        setSystemPrompt={setSystemPrompt}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    default:
+      throw new Error('page not found');
+    }
+  }
+
   return (
     <div className="absolute top-0 left-0 w-screen max-h-screen text-black text-xs text-left z-20 overflow-y-auto backdrop-blur">
       <div
@@ -292,247 +513,7 @@ export const Settings = ({
               <ArrowUturnLeftIcon className="h-5 w-5 flex-none text-white" aria-hidden="true" />
             </TextButton>
 
-            {page === 'main_menu' && (
-              <MenuPage
-                keys={["appearance", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
-                menuClick={handleMenuClick} />
-            )}
-
-            {page === 'appearance' && (
-              <MenuPage
-                keys={["background_img", "background_video", "character_model", "character_animation"]}
-                menuClick={handleMenuClick} />
-            )}
-
-            {page === 'chatbot' && (
-              <MenuPage
-                keys={["chatbot_backend", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
-                menuClick={handleMenuClick} />
-            )}
-
-            {page === 'tts' && (
-              <MenuPage
-                keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings", "openai_tts_settings"]}
-                menuClick={handleMenuClick} />
-            )}
-
-            {page === 'stt' && (
-              <MenuPage
-                keys={["stt_backend", "whisper_openai_settings"]}
-                menuClick={handleMenuClick} />
-            )}
-
-            {page === 'vision' && (
-              <MenuPage
-                keys={["vision_backend", "vision_llamacpp_settings", "vision_system_prompt"]}
-                menuClick={handleMenuClick} />
-            )}
-
-            {page === 'reset_settings' && (
-              <ResetSettingsPage />
-            )}
-
-            {page === 'community' && (
-              <CommunityPage />
-            )}
-
-            {page === 'background_img' && (
-              <BackgroundImgPage
-                bgUrl={bgUrl}
-                setBgUrl={setBgUrl}
-                setSettingsUpdated={setSettingsUpdated}
-                handleClickOpenBgImgFile={handleClickOpenBgImgFile}
-                />
-            )}
-
-            {page === 'background_video' && (
-              <BackgroundVideoPage
-                youtubeVideoID={youtubeVideoID}
-                setYoutubeVideoID={setYoutubeVideoID}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'character_model' && (
-              <CharacterModelPage
-                viewer={viewer}
-                vrmUrl={vrmUrl}
-                setVrmUrl={setVrmUrl}
-                setSettingsUpdated={setSettingsUpdated}
-                handleClickOpenVrmFile={handleClickOpenVrmFile}
-                />
-            )}
-
-            {page === 'character_animation' && (
-              <CharacterAnimationPage
-                viewer={viewer}
-                animationUrl={animationUrl}
-                setAnimationUrl={setAnimationUrl}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'chatbot_backend' && (
-              <ChatbotBackendPage
-                chatbotBackend={chatbotBackend}
-                setChatbotBackend={setChatbotBackend}
-                setSettingsUpdated={setSettingsUpdated}
-                setPage={setPage}
-                breadcrumbs={breadcrumbs}
-                setBreadcrumbs={setBreadcrumbs}
-                />
-            )}
-
-            {page === 'chatgpt_settings' && (
-              <ChatGPTSettingsPage
-                openAIApiKey={openAIApiKey}
-                setOpenAIApiKey={setOpenAIApiKey}
-                openAIUrl={openAIUrl}
-                setOpenAIUrl={setOpenAIUrl}
-                openAIModel={openAIModel}
-                setOpenAIModel={setOpenAIModel}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'llamacpp_settings' && (
-              <LlamaCppSettingsPage
-                llamaCppUrl={llamaCppUrl}
-                setLlamaCppUrl={setLlamaCppUrl}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'ollama_settings' && (
-              <OllamaSettingsPage
-                ollamaUrl={ollamaUrl}
-                setOllamaUrl={setOllamaUrl}
-                ollamaModel={ollamaModel}
-                setOllamaModel={setOllamaModel}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'koboldai_settings' && (
-              <KoboldAiSettingsPage
-                koboldAiUrl={koboldAiUrl}
-                setKoboldAiUrl={setKoboldAiUrl}
-                koboldAiUseExtra={koboldAiUseExtra}
-                setKoboldAiUseExtra={setKoboldAiUseExtra}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'tts_backend' && (
-              <TTSBackendPage
-                ttsBackend={ttsBackend}
-                setTTSBackend={setTTSBackend}
-                setSettingsUpdated={setSettingsUpdated}
-                setPage={setPage}
-                breadcrumbs={breadcrumbs}
-                setBreadcrumbs={setBreadcrumbs}
-                />
-            )}
-
-            {page === 'elevenlabs_settings' && (
-              <ElevenLabsSettingsPage
-                elevenlabsApiKey={elevenlabsApiKey}
-                setElevenlabsApiKey={setElevenlabsApiKey}
-                elevenlabsVoiceId={elevenlabsVoiceId}
-                setElevenlabsVoiceId={setElevenlabsVoiceId}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'speecht5_settings' && (
-              <SpeechT5SettingsPage
-                speechT5SpeakerEmbeddingsUrl={speechT5SpeakerEmbeddingsUrl}
-                setSpeechT5SpeakerEmbeddingsUrl={setSpeechT5SpeakerEmbeddingsUrl}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-           {page === 'coqui_settings' && (
-              <CoquiSettingsPage
-                coquiApiKey={coquiApiKey}
-                setCoquiApiKey={setCoquiApiKey}
-                coquiVoiceId={coquiVoiceId}
-                setCoquiVoiceId={setCoquiVoiceId}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'openai_tts_settings' && (
-              <OpenAITTSSettingsPage
-                openAITTSApiKey={openAITTSApiKey}
-                setOpenAITTSApiKey={setOpenAITTSApiKey}
-                openAITTSUrl={openAITTSUrl}
-                setOpenAITTSUrl={setOpenAITTSUrl}
-                openAITTSModel={openAITTSModel}
-                setOpenAITTSModel={setOpenAITTSModel}
-                openAITTSVoice={openAITTSVoice}
-                setOpenAITTSVoice={setOpenAITTSVoice}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-           {page === 'stt_backend' && (
-              <STTBackendPage
-                sttBackend={sttBackend}
-                setSTTBackend={setSTTBackend}
-                setSettingsUpdated={setSettingsUpdated}
-                setPage={setPage}
-                breadcrumbs={breadcrumbs}
-                setBreadcrumbs={setBreadcrumbs}
-                />
-            )}
-
-            {page === 'whisper_openai_settings' && (
-              <WhisperOpenAISettings
-                whisperOpenAIUrl={whisperOpenAIUrl}
-                setWhisperOpenAIUrl={setWhisperOpenAIUrl}
-                whisperOpenAIApiKey={whisperOpenAIApiKey}
-                setWhisperOpenAIApiKey={setWhisperOpenAIApiKey}
-                whisperOpenAIModel={whisperOpenAIModel}
-                setWhisperOpenAIModel={setWhisperOpenAIModel}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-           {page === 'vision_backend' && (
-              <VisionBackendPage
-                visionBackend={visionBackend}
-                setVisionBackend={setVisionBackend}
-                setSettingsUpdated={setSettingsUpdated}
-                setPage={setPage}
-                breadcrumbs={breadcrumbs}
-                setBreadcrumbs={setBreadcrumbs}
-                />
-            )}
-
-            {page === 'vision_llamacpp_settings' && (
-              <VisionLlamaCppSettingsPage
-                visionLlamaCppUrl={visionLlamaCppUrl}
-                setVisionLlamaCppUrl={setVisionLlamaCppUrl}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'vision_system_prompt' && (
-              <VisionSystemPromptPage
-                visionSystemPrompt={visionSystemPrompt}
-                setVisionSystemPrompt={setVisionSystemPrompt}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
-
-            {page === 'system_prompt' && (
-              <SystemPromptPage
-                systemPrompt={systemPrompt}
-                setSystemPrompt={setSystemPrompt}
-                setSettingsUpdated={setSettingsUpdated}
-                />
-            )}
+            { renderPage() }
           </div>
         </div>
       </div>
