@@ -26,7 +26,7 @@
 * [Using OpenAI](./guides/using-openai.md)
 * [Using ElevenLabs](./guides/using-elevenlabs.md)
 * [Using Coqui](./guides/using-coqui.md)
-* [Using Llava](./guides/using-llava.md)
+* [Using LLaVA](./guides/using-llava.md)
 
 ## 🌺 Contributing to Amica
 
