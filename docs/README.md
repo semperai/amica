@@ -4,8 +4,8 @@
 
 ## 🌸 Overview
 
-* [Overview](overview.md)
+* [Overview](./overview/overview.md)
 
 ## 🌳 Getting Started
 
-* [Local Setup](local-setup.md)
+* [Local Setup](./getting-started/local-setup.md)
