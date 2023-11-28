@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { config } from "@/utils/config";
 
 export const AssistantText = ({ message }: { message: string }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -15,7 +16,7 @@ export const AssistantText = ({ message }: { message: string }) => {
       <div className="mx-auto max-w-4xl w-full px-4 md:px-16">
         <div className="bg-white rounded-lg">
           <div className="px-8 py-3 bg-secondary rounded-t-lg text-white font-bold tracking-wider">
-            AMICA
+            {config('name').toUpperCase()}
           </div>
           <div className="px-8 py-4 max-h-32 overflow-y-auto">
             <div className="min-h-8 max-h-full text-secondary typography-16 font-bold">

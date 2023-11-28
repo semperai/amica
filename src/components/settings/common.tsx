@@ -1,6 +1,7 @@
 import {
   AdjustmentsHorizontalIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  IdentificationIcon,
   UsersIcon,
   RocketLaunchIcon,
   FaceSmileIcon,
@@ -140,6 +141,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'ollama_settings':     return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'koboldai_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'name':                return <IdentificationIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -180,6 +182,7 @@ function getLabelFromPage(page: string): string {
     case 'llamacpp_settings':   return 'LLama.cpp';
     case 'ollama_settings':     return 'Ollama';
     case 'koboldai_settings':   return 'KoboldAI';
+    case 'name'         :       return 'Name';
     case 'system_prompt':       return 'System Prompt';
 
     case 'tts_backend':         return 'TTS Backend';

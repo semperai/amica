@@ -1,5 +1,6 @@
 import { Message } from "./messages";
 import { Output } from "window.ai";
+import { config } from "@/utils/config";
 
 
 export async function getWindowAiChatResponseStream(messages: Message[]) {
@@ -13,7 +14,7 @@ export async function getWindowAiChatResponseStream(messages: Message[]) {
           temperature: 0.7,
           stopSequences: [
             "</s>",
-            "Amica:",
+            `${config('name')}:`,
             "User:"
           ],
           onStreamResult: (res: Output | null, error: string | null): void => {

@@ -1,4 +1,5 @@
 import { Message } from "./messages";
+import { buildPrompt, buildVisionPrompt } from "@/utils/buildPrompt";
 import { config } from '@/utils/config';
 
 export async function getLlamaCppChatResponseStream(messages: Message[]) {
@@ -7,22 +8,7 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
     "Connection": "keep-alive",
     "Accept": "text/event-stream",
   };
-  let prompt = "";
-  for (let m of messages) {
-    switch(m.role) {
-      case 'system':
-        prompt += config("system_prompt")+"\n\n";
-        break;
-      case 'user':
-        prompt += `User: ${m.content}\n`;
-        break;
-      case 'assistant':
-        prompt += `Amica: ${m.content}\n`;
-        break;
-    }
-  }
-  prompt += "Amica:";
-
+  const prompt = buildPrompt(messages);
   const res = await fetch(`${config("llamacpp_url")}/completion`, {
     headers: headers,
     method: "POST",
@@ -33,7 +19,7 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
       cache_prompt: true,
       stop: [
         "</s>",
-        "Amica:",
+        `${config("name")}:`,
         "User:"
       ],
       prompt,
@@ -105,21 +91,7 @@ export async function getLlavaCppChatResponse(messages: Message[], imageData: st
     "Connection": "keep-alive",
     "Accept": "text/event-stream",
   };
-  let prompt = "";
-  for (let m of messages) {
-    switch(m.role) {
-      case 'system':
-        prompt += config("vision_system_prompt")+"\n\n";
-        break;
-      case 'user':
-        prompt += `User: ${m.content}\n`;
-        break;
-      case 'assistant':
-        prompt += `Amica: ${m.content}\n`;
-        break;
-    }
-  }
-  prompt += "Amica:";
+  const prompt = buildVisionPrompt(messages);
 
   const res = await fetch(`${config("vision_llamacpp_url")}/completion`, {
     headers: headers,
@@ -131,7 +103,7 @@ export async function getLlavaCppChatResponse(messages: Message[], imageData: st
       cache_prompt: true,
       stop: [
         "</s>",
-        "Amica:",
+        `${config('name')}:`,
         "User:"
       ],
       image_data: [{

@@ -1,25 +1,12 @@
 import { Message } from "./messages";
+import { buildPrompt } from "@/utils/buildPrompt";
 import { config } from '@/utils/config';
 
 export async function getOllamaChatResponseStream(messages: Message[]) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
-  let prompt = "";
-  for (let m of messages) {
-    switch(m.role) {
-      case 'system':
-        prompt += config("system_prompt")+"\n\n";
-        break;
-      case 'user':
-        prompt += `User: ${m.content}\n`;
-        break;
-      case 'assistant':
-        prompt += `Amica: ${m.content}\n`;
-        break;
-    }
-  }
-  prompt += "Amica:";
+  const prompt = buildPrompt(messages);
   const res = await fetch(`${config("ollama_url")}/api/generate`, {
     headers: headers,
     method: "POST",

@@ -1,24 +1,8 @@
 import { Message } from "./messages";
+import { buildPrompt } from "@/utils/buildPrompt";
 import { config } from '@/utils/config';
 
 export async function getKoboldAiChatResponseStream(messages: Message[]) {
-  let prompt = "";
-  for (let m of messages) {
-    switch(m.role) {
-      case 'system':
-        prompt += config("system_prompt")+"\n\n";
-        break;
-      case 'user':
-        prompt += `User: ${m.content}\n`;
-        break;
-      case 'assistant':
-        prompt += `Amica: ${m.content}\n`;
-        break;
-    }
-  }
-  prompt += "Amica:";
-
-
   if (config("koboldai_use_extra") === 'true') {
     return getExtra(messages);
   } else {
@@ -31,6 +15,7 @@ async function getExtra(messages: Message[]) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
+  const prompt = buildPrompt(messages);
 
   const res = await fetch(`${config("koboldai_url")}/api/extra/generate/stream`, {
     headers: headers,
@@ -95,6 +80,8 @@ async function getNormal(messages: Message[]) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
+
+  const prompt = buildPrompt(messages);
 
   const res = await fetch(`${config("koboldai_url")}/api/v1/generate`, {
     headers: headers,

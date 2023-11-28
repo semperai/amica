@@ -5,6 +5,7 @@ import { IconButton } from "@/components/iconButton";
 import {
   ArrowPathIcon,
 } from '@heroicons/react/20/solid';
+import { config } from "@/utils/config";
 import { ChatContext } from "@/features/chat/chatContext";
 
 export const ChatLog = ({
@@ -96,7 +97,7 @@ const Chat = ({ role, message, num, onClickResumeButton }: {
 
       >
         <div className="text-bold">
-          {role === "assistant" ? "AMICA" : "YOU"}
+          {role === "assistant" ? config('name').toUpperCase() : "YOU"}
         </div>
         <button
           className="text-right"

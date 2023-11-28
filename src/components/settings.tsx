@@ -54,6 +54,7 @@ import { VisionBackendPage } from './settings/VisionBackendPage';
 import { VisionLlamaCppSettingsPage } from './settings/VisionLlamaCppSettingsPage';
 import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
+import { NamePage } from './settings/NamePage';
 import { SystemPromptPage } from './settings/SystemPromptPage';
 
 export const Settings = ({
@@ -108,6 +109,7 @@ export const Settings = ({
   const [whisperOpenAIModel, setWhisperOpenAIModel] = useState(config("openai_whisper_model"));
   const [whisperCppUrl, setWhisperCppUrl] = useState(config("whispercpp_url"));
 
+  const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
 
@@ -202,6 +204,7 @@ export const Settings = ({
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
+    name,
     systemPrompt,
   ]);
 
@@ -225,7 +228,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'tts':
@@ -431,6 +434,13 @@ export const Settings = ({
       return <SystemPromptPage
         systemPrompt={systemPrompt}
         setSystemPrompt={setSystemPrompt}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'name':
+      return <NamePage
+        name={name}
+        setName={setName}
         setSettingsUpdated={setSettingsUpdated}
         />
 
