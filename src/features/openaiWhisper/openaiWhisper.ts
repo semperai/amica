@@ -6,7 +6,7 @@ export async function openaiWhisper(
 ) {
   const apiKey = config("openai_whisper_apikey");
   if (!apiKey) {
-    throw new Error("Invalid API Key");
+    throw new Error("Invalid OpenAI Whisper API Key");
   }
 
   // Request body

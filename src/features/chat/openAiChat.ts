@@ -4,7 +4,7 @@ import { config } from '@/utils/config';
 export async function getOpenAiChatResponseStream(messages: Message[]) {
   const apiKey = config("openai_apikey");
   if (!apiKey) {
-    throw new Error("Invalid API Key");
+    throw new Error("Invalid OpenAI API Key");
   }
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

@@ -5,7 +5,7 @@ export async function openaiTTS(
 ) {
   const apiKey = config("openai_tts_apikey");
   if (!apiKey) {
-    throw new Error("Invalid API Key");
+    throw new Error("Invalid OpenAI TTS API Key");
   }
 
   try {
