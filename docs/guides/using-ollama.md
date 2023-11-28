@@ -24,7 +24,7 @@ curl https://ollama.ai/install.sh | sh
 
 Not yet supported
 
-## Step 2 - Start the servr
+## Step 2 - Start the server
 
 ```bash
 ollama serve
