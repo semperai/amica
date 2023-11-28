@@ -1,6 +1,6 @@
 ---
 title: Creating New Avatars
-order: 11
+order: 12
 ---
 
 ### Designing new Avatars
@@ -16,3 +16,6 @@ Here are some websites where you can download avatars:
 * [VRoid Hub](https://hub.vroid.com)
 * [Booth](https://booth.pm)
 
+### Making Avatars Available
+
+Place your `.vrm` files into `./public/vrm/.private` and run `npm run generate:paths` to show your avatars in the settings selector.

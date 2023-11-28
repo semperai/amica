@@ -22,6 +22,22 @@ After installing the packages, start the development web server using the follow
 npm run dev
 ```
 
+## Adding new Assets
+
+Make sure to run `npm run generate:paths` after adding new assets, and `npm run build` to see your new files.
+
+### Background
+
+New background images can be places in `./public/bg/.private` and will be automatically loaded.
+
+### VRM
+
+New VRM files can be placed in `./public/vrm/.private` and will be automatically loaded.
+
+### Animation
+
+New animation files can be placed in `./public/animation/.private` and will be automatically loaded.
+
 ## Configuring Deployment
 
 
