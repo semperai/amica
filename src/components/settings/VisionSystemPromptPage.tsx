@@ -1,5 +1,5 @@
-import { BasicPage, FormRow } from './common';
-import { updateConfig } from "@/utils/config";
+import { BasicPage, FormRow, ResetToDefaultButton } from './common';
+import { updateConfig, defaultConfig } from "@/utils/config";
 
 export function VisionSystemPromptPage({
   visionSystemPrompt,
@@ -27,7 +27,19 @@ export function VisionSystemPromptPage({
                 setVisionSystemPrompt(event.target.value);
                 updateConfig("vision_system_prompt", event.target.value);
                 setSettingsUpdated(true);
-              }}></textarea>
+              }}
+            />
+
+            { visionSystemPrompt !== defaultConfig("vision_system_prompt") && (
+              <p className="mt-2">
+                <ResetToDefaultButton onClick={() => {
+                  setVisionSystemPrompt(defaultConfig("vision_system_prompt"));
+                  updateConfig("vision_system_prompt", defaultConfig("vision_system_prompt"));
+                  setSettingsUpdated(true);
+                  }}
+                />
+              </p>
+            )}
           </FormRow>
         </li>
       </ul>

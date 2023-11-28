@@ -1,5 +1,5 @@
-import { BasicPage, FormRow } from './common';
-import { updateConfig } from "@/utils/config";
+import { BasicPage, FormRow, ResetToDefaultButton } from './common';
+import { updateConfig, defaultConfig } from "@/utils/config";
 
 export function SystemPromptPage({
   systemPrompt,
@@ -27,7 +27,18 @@ export function SystemPromptPage({
                 setSystemPrompt(event.target.value);
                 updateConfig("system_prompt", event.target.value);
                 setSettingsUpdated(true);
-              }}></textarea>
+             }} />
+
+            { systemPrompt !== defaultConfig("system_prompt") && (
+              <p className="mt-2">
+                <ResetToDefaultButton onClick={() => {
+                  setSystemPrompt(defaultConfig("system_prompt"));
+                  updateConfig("system_prompt", defaultConfig("system_prompt"));
+                  setSettingsUpdated(true);
+                  }}
+                />
+              </p>
+            )}
           </FormRow>
         </li>
       </ul>

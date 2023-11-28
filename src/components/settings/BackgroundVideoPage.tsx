@@ -1,6 +1,5 @@
-import { BasicPage } from "./common";
-import { FormRow } from "./common";
-import { updateConfig } from "@/utils/config";
+import { BasicPage, FormRow, ResetToDefaultButton } from "./common";
+import { updateConfig, defaultConfig } from "@/utils/config";
 import { TextInput } from "@/components/textInput";
 
 export function BackgroundVideoPage({
@@ -31,7 +30,17 @@ export function BackgroundVideoPage({
                 setSettingsUpdated(true);
                 return false;
               }}
-              />
+            />
+            { youtubeVideoID !== defaultConfig("youtube_videoid") && (
+              <p className="mt-2">
+                <ResetToDefaultButton onClick={() => {
+                  setYoutubeVideoID(defaultConfig("youtube_videoid"));
+                  updateConfig("youtube_videoid", defaultConfig("youtube_videoid"));
+                  setSettingsUpdated(true);
+                  }}
+                />
+              </p>
+            )}
            </FormRow>
         </li>
       </ul>
