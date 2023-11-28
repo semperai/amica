@@ -30,6 +30,6 @@
 
 ## 🌺 Contributing to Amica
 
-* [Setting up your developer environment](./contributing/setting-up-your-developer-environment.md)
+* [Setting up your developer environment](./contributing/setup-dev-env.md)
 * [Contributing to the Docs](./contributing/contributing-to-the-docs.md)
 * [Developing Amica](./contributing/developing-amica.md)

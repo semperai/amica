@@ -3,7 +3,7 @@ title: Developing Amica
 order: 3
 ---
 
-Once you've [set up your developer environment](./setting-up-your-development-environment.md), you're ready to hack on Amica!
+Once you've [set up your developer environment](./setup-dev-env.md), you're ready to hack on Amica!
 
 ## Tests
 
