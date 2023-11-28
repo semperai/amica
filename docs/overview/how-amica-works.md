@@ -3,7 +3,7 @@ title: How Amica Works
 order: 1
 ---
 
-Read the [Local Setup](../quickstart/installation.md) guide if you are interested in getting everything running locally quickly.
+Read the [Local Setup](../getting-started/installation.md) guide if you are interested in getting everything running locally quickly.
 
 ## Overview of Amica
 
