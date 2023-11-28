@@ -4,7 +4,7 @@
 
 ## 🌸 Overview
 
-* [Overview](./overview/overview.md)
+* [How Amica Works](./overview/how-amica-works.md)
 * [Core Concepts](./overview/core-concepts.md)
 * [Use Cases](./overview/use-cases.md)
 * [Amica vs Other Tools](./overview/amica-vs-other-tools.md)
