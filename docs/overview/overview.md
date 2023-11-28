@@ -1,3 +1,8 @@
+---
+title: Overview
+order: 1
+---
+
 # Amica Documentation
 
 Read the [Local Setup](./local-setup.md) guide if you are interested in getting everything running locally quickly.
