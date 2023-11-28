@@ -14,7 +14,7 @@ import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { config } from "@/utils/config";
-
+import { cleanTalk } from "@/utils/cleanTalk";
 import { wait } from "@/utils/wait";
 
 type Speak = {
@@ -400,6 +400,12 @@ export class Chat {
     // TODO we should remove non-speakable characters
     // since this depends on the tts backend, we should do it
     // in their respective functions
+    // this is just a simple solution for now
+    talk = cleanTalk(talk);
+    if (talk.message === '') {
+      return null;
+    }
+
     try {
       switch (config("tts_backend")) {
         case 'elevenlabs': {
