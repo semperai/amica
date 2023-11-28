@@ -27,6 +27,7 @@
 * [Using ElevenLabs](./guides/using-elevenlabs.md)
 * [Using Coqui](./guides/using-coqui.md)
 * [Using LLaVA](./guides/using-llava.md)
+* [Creating new Avatars](./guides/creating-new-avatars.md)
 
 ## 🌺 Contributing to Amica
 
