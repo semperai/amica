@@ -35,8 +35,16 @@ make
 
 ## Step 5 - Enable the server in the client
 
+First select `KoboldCpp` as the backend in the client:
+
 ```md
 settings -> ChatBot -> ChatBot Backend -> KoboldCpp
 ```
 
-Next, inside of "Use KoboldCpp" ensure that "Use Extra" is enabled. This will allow you to use the extra features of KoboldCpp, such as streaming.
+Then configure `KoboldCpp`:
+
+```md
+settings -> ChatBot -> KoboldCpp
+```
+
+Inside of "Use KoboldCpp" ensure that "Use Extra" is enabled. This will allow you to use the extra features of KoboldCpp, such as streaming.
