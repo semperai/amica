@@ -397,13 +397,11 @@ export class Chat {
   }
 
   async fetchAudio(talk: Talk): Promise<ArrayBuffer|null> {
-    const ttsBackend = config("tts_backend");
-
     // TODO we should remove non-speakable characters
     // since this depends on the tts backend, we should do it
     // in their respective functions
     try {
-      switch (ttsBackend) {
+      switch (config("tts_backend")) {
         case 'elevenlabs': {
           const voiceId = config("elevenlabs_voiceid");
           const voice = await elevenlabs(talk.message, voiceId, talk.style);
@@ -428,7 +426,7 @@ export class Chat {
       console.error(e.toString());
     }
 
-    // ttsBackend === 'none'
+    // config("tts_backend") === 'none'
     return null;
   }
 
