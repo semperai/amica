@@ -18,7 +18,7 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Message, Role } from "@/features/chat/messages";
 import { ChatContext } from "@/features/chat/chatContext";
 
-import { config } from '@/utils/config';
+import { config, updateConfig } from '@/utils/config';
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -66,6 +66,12 @@ export default function Home() {
       setShownMessage,
       setChatProcessing,
     );
+
+    // TODO remove in future
+    // this change was just to make naming cleaner
+    if (config("tts_backend") === 'openai') {
+      updateConfig("tts_backend", "openai_tts");
+    }
   }, [bot, viewer]);
 
   // this exists to prevent build errors with ssr
