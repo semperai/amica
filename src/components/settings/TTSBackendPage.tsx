@@ -62,7 +62,7 @@ export function TTSBackendPage({
                   setBreadcrumbs(breadcrumbs.concat([getLinkFromPage(`${ttsBackend}_settings`)]));
                 }}
               >
-                Click here to configure ${idToTitle(ttsBackend)}
+                Click here to configure {idToTitle(ttsBackend)}
               </button>
             </FormRow>
           </li>
