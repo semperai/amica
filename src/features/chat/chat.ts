@@ -419,7 +419,7 @@ export class Chat {
           const voice = await coqui(talk.message, voiceId, talk.style);
           return voice.audio;
         }
-        case 'openai': {
+        case 'openai_tts': {
           const voice = await openaiTTS(talk.message);
           return voice.audio;
         }
