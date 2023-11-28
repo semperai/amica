@@ -74,7 +74,7 @@ Once started, please visit the following URL to confirm that it is working prope
 
 ## 📖 Documentation
 
-View the [documentation](./docs/README.md) for more information on how to configure and use Amica.
+View the [documentation](https://docs.heyamica.com) for more information on how to configure and use Amica.
 
 ## 📜 History
 
