@@ -1,7 +1,7 @@
-import { BasicPage, FormRow } from './common';
+import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from '@/components/textInput';
 import { SwitchBox } from '@/components/switchBox';
-import { updateConfig } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 
 export function KoboldAiSettingsPage({
   koboldAiUrl,
@@ -21,6 +21,11 @@ export function KoboldAiSettingsPage({
       title="KoboldAI Settings"
       description="KoboldCpp is an easy-to-use AI text-generation software for GGML and GGUF models."
     >
+      { config("chatbot_backend") !== "koboldai" && (
+        <NotUsingAlert>
+          You are not currently using KoboldAI as your ChatBot backend. These settings will not be used.
+        </NotUsingAlert>
+      ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="API URL">

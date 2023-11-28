@@ -222,3 +222,11 @@ export function ResetToDefaultButton({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+export function NotUsingAlert({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+      {children}
+    </div>
+  );
+}

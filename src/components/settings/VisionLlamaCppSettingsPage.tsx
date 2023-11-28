@@ -1,6 +1,6 @@
-import { BasicPage, FormRow } from './common';
+import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from "@/components/textInput";
-import { updateConfig } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 
 export function VisionLlamaCppSettingsPage({
   visionLlamaCppUrl,
@@ -18,6 +18,11 @@ export function VisionLlamaCppSettingsPage({
       title="Vision LLama.cpp Settings"
       description={description}
     >
+      { config("vision_backend") !== "vision_llamacpp" && (
+        <NotUsingAlert>
+          You are not currently using llama.cpp as your vision backend. These settings will not be used.
+        </NotUsingAlert>
+      ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="API URL">

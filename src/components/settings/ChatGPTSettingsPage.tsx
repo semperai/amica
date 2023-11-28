@@ -1,7 +1,7 @@
-import { BasicPage, FormRow, } from './common';
+import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from '@/components/textInput';
 import { SecretTextInput } from '@/components/secretTextInput';
-import { updateConfig } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 
 
 export function ChatGPTSettingsPage({
@@ -28,6 +28,11 @@ export function ChatGPTSettingsPage({
       title="ChatGPT Settings"
       description={description}
     >
+      { config("chatbot_backend") !== "chatgpt" && (
+        <NotUsingAlert>
+          You are not currently using ChatGPT as your ChatBot backend. These settings will not be used.
+        </NotUsingAlert>
+      ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="OpenAI API Key">

@@ -1,7 +1,7 @@
-import { BasicPage, FormRow } from './common';
+import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from "@/components/textInput";
 import { SecretTextInput } from "@/components/secretTextInput";
-import { updateConfig } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 
 export function WhisperCppSettingsPage({
   whisperCppUrl,
@@ -17,6 +17,11 @@ export function WhisperCppSettingsPage({
       title="Whisper.cpp Settings"
       description="Configure Whisper.cpp"
     >
+      { config("stt_backend") !== "whispercpp" && (
+        <NotUsingAlert>
+          You are not currently using Whisper.cpp as your STT backend. These settings will not be used.
+        </NotUsingAlert>
+      ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="URL">

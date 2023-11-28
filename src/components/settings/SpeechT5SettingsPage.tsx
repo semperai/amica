@@ -1,5 +1,5 @@
-import { BasicPage, FormRow, basename } from './common';
-import { updateConfig } from "@/utils/config";
+import { BasicPage, FormRow, basename, NotUsingAlert } from './common';
+import { config, updateConfig } from "@/utils/config";
 import { speechT5SpeakerEmbeddingsList } from "@/paths";
 
 export function SpeechT5SettingsPage({
@@ -16,6 +16,11 @@ export function SpeechT5SettingsPage({
       title="SpeechT5 Settings"
       description="Configure SpeechT5"
     >
+      { config("tts_backend") !== "speecht5" && (
+        <NotUsingAlert>
+          You are not currently using SpeechT5 as your TTS backend. These settings will not be used.
+        </NotUsingAlert>
+      ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="Speaker Embeddings URL">

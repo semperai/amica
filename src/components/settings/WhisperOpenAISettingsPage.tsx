@@ -1,7 +1,7 @@
-import { BasicPage, FormRow } from './common';
+import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from "@/components/textInput";
 import { SecretTextInput } from "@/components/secretTextInput";
-import { updateConfig } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 
 export function WhisperOpenAISettingsPage({
   whisperOpenAIUrl,
@@ -25,6 +25,11 @@ export function WhisperOpenAISettingsPage({
       title="Whisper (OpenAI) Settings"
       description="Configure Whisper (OpenAI)"
     >
+      { config("stt_backend") !== "whisper_openai" && (
+        <NotUsingAlert>
+          You are not currently using Whisper (OpenAI) as your STT backend. These settings will not be used.
+        </NotUsingAlert>
+      ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="OpenAI URL">

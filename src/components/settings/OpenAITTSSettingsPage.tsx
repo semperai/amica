@@ -1,7 +1,7 @@
-import { BasicPage, FormRow } from './common';
+import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from "@/components/textInput";
 import { SecretTextInput } from "@/components/secretTextInput";
-import { updateConfig } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 
 export function OpenAITTSSettingsPage({
   openAITTSApiKey,
@@ -29,6 +29,11 @@ export function OpenAITTSSettingsPage({
       title="OpenAI TTS Settings"
       description="Configure OpenAI TTS"
     >
+      { config("tts_backend") !== "openai_tts" && (
+        <NotUsingAlert>
+          You are not currently using OpenAI as your TTS backend. These settings will not be used.
+        </NotUsingAlert>
+      ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           <FormRow label="API Key">
