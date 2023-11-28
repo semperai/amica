@@ -8,7 +8,7 @@ order: 6
 You can find the full whisper.cpp documentation [here](https://github.com/ggerganov/whisper.cpp/blob/master/README.md).
 
 
-## Step 1 - Clone the rep
+## Step 1 - Clone the repo
 
 ```bash
 git clone https://github.com/ggerganov/whisper.cpp
