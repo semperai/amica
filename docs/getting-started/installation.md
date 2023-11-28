@@ -60,7 +60,7 @@ make server -j 4
 Now go to [http://127.0.0.1:8080](http://127.0.0.1:8080) in browser and test it works.
 
 
-## Local Audio
+### Local Audio
 
 We will use a simple http server which implements [Coqui TTS](https://github.com/coqui-ai/TTS) and [faster-whisper](https://github.com/guillaumekln/faster-whisper) with api endpoints matching OpenAIs.
 
