@@ -3,7 +3,7 @@ import { TextInput } from "@/components/textInput";
 import { SecretTextInput } from "@/components/secretTextInput";
 import { updateConfig } from "@/utils/config";
 
-export function WhisperOpenAISettings({
+export function WhisperOpenAISettingsPage({
   whisperOpenAIUrl,
   setWhisperOpenAIUrl,
   whisperOpenAIApiKey,

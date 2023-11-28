@@ -5,6 +5,7 @@ const sttEngines = [
   {key: "none",            label: "None"},
   {key: "whisper_browser", label: "Whisper (Browser)"},
   {key: "whisper_openai",  label: "Whisper (OpenAI)"},
+  {key: "whispercpp",      label: "Whisper.cpp"},
 ];
 
 function idToTitle(id: string): string {
@@ -49,18 +50,18 @@ export function STTBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["whisper_openai"].includes(sttBackend) && (
+        { ["whisper_openai", "whispercpp"].includes(sttBackend) && (
           <li className="py-4">
             <FormRow label={`Configure ${idToTitle(sttBackend)}`}>
               <button
                 type="button"
                 className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 onClick={() => {
-                  setPage(`whisper_openai_settings`);
+                  setPage(`${sttBackend}_settings`);
                   setBreadcrumbs(breadcrumbs.concat([getLinkFromPage(`${sttBackend}_settings`)]));
                 }}
               >
-                Click here to configure ${idToTitle(sttBackend)}
+                Click here to configure {idToTitle(sttBackend)}
               </button>
             </FormRow>
           </li>

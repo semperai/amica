@@ -47,7 +47,8 @@ import { CoquiSettingsPage } from './settings/CoquiSettingsPage';
 import { OpenAITTSSettingsPage } from './settings/OpenAITTSSettingsPage';
 
 import { STTBackendPage } from './settings/STTBackendPage';
-import { WhisperOpenAISettings } from './settings/WhisperOpenAISettings';
+import { WhisperOpenAISettingsPage } from './settings/WhisperOpenAISettingsPage';
+import { WhisperCppSettingsPage } from './settings/WhisperCppSettingsPage';
 
 import { VisionBackendPage } from './settings/VisionBackendPage';
 import { VisionLlamaCppSettingsPage } from './settings/VisionLlamaCppSettingsPage';
@@ -105,6 +106,7 @@ export const Settings = ({
   const [whisperOpenAIUrl, setWhisperOpenAIUrl] = useState(config("openai_whisper_url"));
   const [whisperOpenAIApiKey, setWhisperOpenAIApiKey] = useState(config("openai_whisper_apikey"));
   const [whisperOpenAIModel, setWhisperOpenAIModel] = useState(config("openai_whisper_model"));
+  const [whisperCppUrl, setWhisperCppUrl] = useState(config("whispercpp_url"));
 
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
@@ -199,6 +201,7 @@ export const Settings = ({
     bgUrl, vrmUrl, youtubeVideoID, animationUrl,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
+    whisperCppUrl,
     systemPrompt,
   ]);
 
@@ -232,7 +235,7 @@ export const Settings = ({
 
     case 'stt':
       return <MenuPage
-        keys={["stt_backend", "whisper_openai_settings"]}
+        keys={["stt_backend", "whisper_openai_settings", "whispercpp_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'vision':
@@ -383,13 +386,20 @@ export const Settings = ({
         />
 
     case 'whisper_openai_settings':
-      return <WhisperOpenAISettings
+      return <WhisperOpenAISettingsPage
         whisperOpenAIUrl={whisperOpenAIUrl}
         setWhisperOpenAIUrl={setWhisperOpenAIUrl}
         whisperOpenAIApiKey={whisperOpenAIApiKey}
         setWhisperOpenAIApiKey={setWhisperOpenAIApiKey}
         whisperOpenAIModel={whisperOpenAIModel}
         setWhisperOpenAIModel={setWhisperOpenAIModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'whispercpp_settings':
+      return <WhisperCppSettingsPage
+        whisperCppUrl={whisperCppUrl}
+        setWhisperCppUrl={setWhisperCppUrl}
         setSettingsUpdated={setSettingsUpdated}
         />
 

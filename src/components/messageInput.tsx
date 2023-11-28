@@ -5,6 +5,7 @@ import { useTranscriber } from "@/hooks/useTranscriber";
 import { cleanTranscript } from "@/utils/stringProcessing";
 import { ChatContext } from "@/features/chat/chatContext";
 import { openaiWhisper  } from "@/features/openaiWhisper/openaiWhisper";
+import { whispercpp  } from "@/features/whispercpp/whispercpp";
 import { config } from "@/utils/config";
 import wavefile, { WaveFile } from "wavefile";
 
@@ -26,6 +27,7 @@ const MessageInput = ({
   const transcriber = useTranscriber();
   const inputRef = useRef<HTMLInputElement>(null);
   const [whisperOpenAIOutput, setWhisperOpenAIOutput] = useState<any | null>(null);
+  const [whisperCppOutput, setWhisperCppOutput] = useState<any | null>(null);
   const { chat: bot } = useContext(ChatContext);
 
   const vad = useMicVAD({
@@ -44,7 +46,7 @@ const MessageInput = ({
       };
 
       switch (config("stt_backend")) {
-        case 'whisper_browser':
+        case 'whisper_browser': {
           console.debug('whisper_browser attempt');
           // since VAD sample rate is same as whisper we do nothing here
           // both are 16000
@@ -53,7 +55,8 @@ const MessageInput = ({
           buffer.copyToChannel(audio, 0, 0);
           transcriber.start(buffer);
           break;
-        case 'whisper_openai':
+        }
+        case 'whisper_openai': {
           console.debug('whisper_openai attempt');
           const wav = new WaveFile();
           wav.fromScratch(1, 16000, '32f', audio);
@@ -67,6 +70,23 @@ const MessageInput = ({
             setWhisperOpenAIOutput(transcript);
           })();
           break;
+        }
+        case 'whispercpp': {
+          console.debug('whispercpp attempt');
+          const wav = new WaveFile();
+          wav.fromScratch(1, 16000, '32f', audio);
+          wav.toBitDepth('16');
+          const file = new File([wav.toBuffer()], "input.wav", { type: "audio/wav" });
+
+          let prompt;
+          // TODO load prompt if it exists
+
+          (async () => {
+            const transcript = await whispercpp(file, prompt);
+            setWhisperCppOutput(transcript);
+          })();
+          break;
+        }
       }
     },
   });
@@ -105,6 +125,14 @@ const MessageInput = ({
       handleTranscriptionResult(output);
     }
   }, [whisperOpenAIOutput]);
+
+  // for whispercpp
+  useEffect(() => {
+    if (whisperCppOutput) {
+      const output = whisperCppOutput?.text;
+      handleTranscriptionResult(output);
+    }
+  }, [whisperCppOutput]);
 
   function clickedSendButton() {
     bot.receiveMessageFromUser(userMessage);
