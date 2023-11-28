@@ -399,9 +399,9 @@ export class Chat {
   async fetchAudio(talk: Talk): Promise<ArrayBuffer|null> {
     const ttsBackend = config("tts_backend");
 
-    // remove all non-ascii characters
-    talk.message = talk.message.replace(/[^\x00-\x7F]/g, "");
-
+    // TODO we should remove non-speakable characters
+    // since this depends on the tts backend, we should do it
+    // in their respective functions
     try {
       switch (ttsBackend) {
         case 'elevenlabs': {
