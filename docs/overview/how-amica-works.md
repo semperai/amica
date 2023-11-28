@@ -24,7 +24,7 @@ The chat system is the core of Amica. It is responsible for processing messages 
 
 ## Voice System
 
-The voice system is responsible for generating speech from text. It is composed of a few different components. The voice system can accept emotion to generate speech with different intonation. It can also accept a voice to generate speech with a specific voice.
+The voice system is responsible for generating speech from text. The voice system can accept emotion to generate speech with different intonation. It can also accept a voice to generate speech with a specific voice.
 
 ## Avatar System
 
