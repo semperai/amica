@@ -3,7 +3,11 @@ title: Amica vs Other Tools
 order: 4
 ---
 
-The landscape of 3D AI avatar software has seen a notable expansion in recent years, and within this dynamic environment, Amica has emerged as a standout solution. In this document, our focus is to contextualize Amica by conducting a thorough comparison with other tools and platforms. In essence, Amica streamlines the intricate processes of building, deploying, developing, and testing AI avatars, offering a simplicity, speed, and ease of maintenance that surpasses the manual creation of strung together pipelines or shell scripts. Additionally, Amica boasts features such as code syncing for live reloading during development, live debug log streaming, and an intuitive web interface. This amalgamation of automation and a seamless development and debugging experience sets Amica apart in the realm of 3D AI avatar software.
+The landscape of 3D AI avatar software has seen a notable expansion in recent years, and within this dynamic environment, Amica has emerged as a standout solution.
+
+In essence, Amica streamlines the intricate processes of building, deploying, developing, and testing AI avatars, offering a simplicity, speed, and ease of maintenance that surpasses the manual creation of strung together pipelines or shell scripts.
+
+Additionally, Amica boasts features such as code syncing for live reloading during development, live debug log streaming, and an intuitive web interface. This amalgamation of automation and a seamless development and debugging experience sets Amica apart in the realm of 3D AI avatar software.
 
 ## LLM Inference Software
 
