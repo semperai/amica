@@ -1,11 +1,10 @@
-# Table of Contents
+---
+order: 0
+title: Welcome to Amica!
+description: >-
+  Amica is an open source interface for interactive communication with 3D characters with voice synthesis and speech recognition.
+---
 
-* [Welcome to Amica!](welcome.md)
+# Welcome to Amica
 
-## 🌸 Overview
-
-* [Overview](./overview/overview.md)
-
-## 🌳 Getting Started
-
-* [Local Setup](./getting-started/local-setup.md)
+Amica is an open source interface for interactive communication with 3D characters with voice synthesis and speech recognition.
