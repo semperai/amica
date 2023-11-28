@@ -3,8 +3,6 @@ title: Using Whisper.cpp
 order: 6
 ---
 
-# Using Whisper.cpp
-
 You can find the full whisper.cpp documentation [here](https://github.com/ggerganov/whisper.cpp/blob/master/README.md).
 
 

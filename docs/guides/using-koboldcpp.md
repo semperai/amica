@@ -3,8 +3,6 @@ title: Using KoboldCpp
 order: 5
 ---
 
-# Using KoboldCpp
-
 You can find the full KoboldCpp documentation [here](https://github.com/LostRuins/koboldcpp/blob/concedo/README.md).
 
 

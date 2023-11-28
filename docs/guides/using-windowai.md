@@ -3,8 +3,6 @@ title: Using Window.ai
 order: 4
 ---
 
-# Using Window.ai
-
 You can find the full Window.ai documentation [here](https://windowai.io/).
 
 

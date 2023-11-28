@@ -3,8 +3,6 @@ title: Using LM Studio
 order: 1
 ---
 
-# Using LM Studio
-
 You can find the full LM Studio documentation [here](https://lmstudio.ai/).
 
 

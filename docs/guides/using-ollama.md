@@ -3,8 +3,6 @@ title: Using Ollama
 order: 3
 ---
 
-# Using Ollama
-
 You can find the full Ollama documentation [here](https://github.com/jmorganca/ollama/tree/main/docs).
 
 

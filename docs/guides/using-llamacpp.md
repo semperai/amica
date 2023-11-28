@@ -3,8 +3,6 @@ title: Using LLaMA.cpp
 order: 2
 ---
 
-# Using LLaMA.cpp
-
 You can find the full llama.cpp documentation [here](https://github.com/ggerganov/llama.cpp/blob/master/README.md).
 
 
