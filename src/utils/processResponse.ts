@@ -1,5 +1,13 @@
 import { Screenplay, textsToScreenplay } from "@/features/chat/messages";
 
+export type ProcessResponseRetVal = {
+  sentences: string[];
+  aiTextLog: string;
+  receivedMessage: string;
+  tag: string;
+  shouldBreak: boolean;
+}
+
 // this function is used to process the response from the AI
 // it will call callback once it has a full "sentence" to speak
 // it returns updated variables for the next iteration
@@ -16,7 +24,7 @@ export function processResponse({
   receivedMessage: string,
   tag: string,
   callback: (aiTalks: Screenplay[]) => boolean,
-}) {
+}): ProcessResponseRetVal {
   let shouldBreak = false;
 
   // Detection of tag part of reply content
