@@ -15,6 +15,7 @@ import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { config } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
+import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
 
 type Speak = {
@@ -302,7 +303,7 @@ export class Chat {
     console.time('chat stream processing');
     let reader = this.streams[this.streams.length - 1].getReader();
     this.readers.push(reader);
-    const sentences = new Array<string>();
+    let sentences = new Array<string>();
 
     let aiTextLog = "";
     let tag = "";
@@ -329,54 +330,39 @@ export class Chat {
         receivedMessage += value;
         receivedMessage = receivedMessage.trimStart();
 
-        // Detection of tag part of reply content
-        const tagMatch = receivedMessage.match(/^\[(.*?)\]/);
-        if (tagMatch && tagMatch[0]) {
-          tag = tagMatch[0];
-          receivedMessage = receivedMessage.slice(tag.length);
-        }
+        const proc = processResponse({
+          sentences,
+          aiTextLog,
+          receivedMessage,
+          tag,
+          callback: (aiTalks: Screenplay[]): boolean => {
+            // Generate & play audio for each sentence, display responses
+            console.debug('enqueue tts', aiTalks);
+            console.debug('streamIdx', streamIdx, 'currentStreamIdx', this.currentStreamIdx)
+            if (streamIdx !== this.currentStreamIdx) {
+              console.log('wrong stream idx');
+              return true; // should break
+            }
+            this.ttsJobs.enqueue({
+              screenplay: aiTalks[0],
+              streamIdx: streamIdx,
+            });
 
-        // Cut out and process the response sentence by sentence
-        const sentenceMatch = receivedMessage.match(
-          /^(.+[\.\!\?\n]|.{10,}[,])/,
-        );
-        if (sentenceMatch && sentenceMatch[0]) {
-          const sentence = sentenceMatch[0];
-          sentences.push(sentence);
-          receivedMessage = receivedMessage
-            .slice(sentence.length)
-            .trimStart();
+            if (! firstSentenceEncountered) {
+              console.timeEnd('performance_time_to_first_sentence');
+              firstSentenceEncountered = true;
+            }
 
-          // Skip if the string is unnecessary/impossible to utter.
-          if (
-            !sentence.replace(
-              /^[\s\[\(\{「［（【『〈《〔｛«‹〘〚〛〙›»〕》〉』】）］」\}\)\]]+$/g,
-              "",
-            )
-          ) {
-            continue;
+            return false; // normal processing
           }
+        });
 
-          const aiText = `${tag} ${sentence}`;
-          const aiTalks = textsToScreenplay([aiText]);
-          aiTextLog += aiText;
-
-          // Generate & play audio for each sentence, display responses
-          console.debug('enqueue tts', aiTalks);
-          console.debug('streamIdx', streamIdx, 'currentStreamIdx', this.currentStreamIdx)
-          if (streamIdx !== this.currentStreamIdx) {
-            console.log('wrong stream idx');
-            break;
-          }
-          this.ttsJobs.enqueue({
-            screenplay: aiTalks[0],
-            streamIdx: streamIdx,
-          });
-
-          if (! firstSentenceEncountered) {
-            console.timeEnd('performance_time_to_first_sentence');
-            firstSentenceEncountered = true;
-          }
+        sentences = proc.sentences;
+        aiTextLog = proc.aiTextLog;
+        receivedMessage = proc.receivedMessage;
+        tag = proc.tag;
+        if (proc.shouldBreak) {
+          break;
         }
       }
     } catch (e: any) {
