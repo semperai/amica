@@ -67,6 +67,8 @@ export default function Share() {
   const [animationFiles, setAnimationFiles] = useState([]);
   const [voiceFiles, setVoiceFiles] = useState([]);
 
+  const [vrmLoaded, setVrmLoaded] = useState(false);
+
   useEffect(() => {
     setName(config('name'));
     setSystemPrompt(config('system_prompt'));
@@ -257,6 +259,7 @@ export default function Share() {
                 onChange={(e) => {
                   setVrmUrl(e.target.value);
                   updateVrmAvatar(viewer, e.target.value);
+                  setVrmLoaded(false);
                 }}
               />
               <FilePond
@@ -271,6 +274,10 @@ export default function Share() {
                 labelIdle='.vrm files only<br />click or drag & drop'
                 acceptedFileTypes={['model/gltf-binary']}
                 fileValidateTypeDetectType={vrmDetector}
+                onaddfilestart={(file) => {
+                  setVrmUrl('');
+                  setVrmLoaded(false);
+                }}
                 onremovefile={(err, file) => {
                   if (err) {
                     console.error(err);
@@ -278,6 +285,7 @@ export default function Share() {
                   }
 
                   setVrmUrl('');
+                  setVrmLoaded(false);
                 }}
                 onprocessfile={(err, file) => {
                   if (err) {
@@ -290,6 +298,7 @@ export default function Share() {
                     const url = `${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}/${hashValue}`;
                     setVrmUrl(url);
                     updateVrmAvatar(viewer, url);
+                    setVrmLoaded(false);
                   }
 
                   handleFile(file.file as File);
@@ -298,7 +307,13 @@ export default function Share() {
 
               <div className="sm:col-span-3 max-w-xs rounded-xl mt-4 bg-gray-100">
                 {vrmUrl && (
-                  <VrmDemo vrmUrl={vrmUrl} />
+                  <VrmDemo
+                    vrmUrl={vrmUrl}
+                    onLoaded={() => {
+                      setVrmLoaded(true);
+                      console.log('vrm demo loaded');
+                    }}
+                  />
                 )}
               </div>
             </div>
@@ -409,8 +424,8 @@ export default function Share() {
           <div className="sm:col-span-3 max-w-xs rounded-xl mt-8">
             <button
               onClick={registerCharacter}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none"
-              disabled={isRegistering}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-fuchsia-500 disabled:cursor-not-allowed"
+              disabled={!vrmLoaded || isRegistering}
             >
               Save Character
             </button>

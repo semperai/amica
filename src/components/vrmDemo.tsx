@@ -1,4 +1,4 @@
-import { useContext, useCallback, useState } from "react";
+import { useContext, useCallback, useEffect, useState } from "react";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from "@/utils/config";
@@ -16,6 +16,11 @@ export default function VrmDemo({
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
 
+  useEffect(() => {
+    setIsLoading(true);
+    setLoadingError(false);
+  }, [vrmUrl]);
+
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
       if (canvas) {
@@ -31,6 +36,7 @@ export default function VrmDemo({
         .then(() => {
           console.log("vrm loaded");
           setIsLoading(false);
+          setLoadingError(false);
           onLoaded && onLoaded();
         })
         .catch((e) => {
@@ -40,8 +46,8 @@ export default function VrmDemo({
           onError && onError();
         });
       }
-    },
-    [viewer]
+   },
+   [viewer, vrmUrl]
   );
 
   return (
