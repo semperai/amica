@@ -75,17 +75,17 @@ export class Model {
    *
    * https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm_animation-1.0/README.ja.md
    */
-  public async loadAnimation(vrmAnimation: VRMAnimation): Promise<void> {
+  public async loadAnimation(animation: VRMAnimation|THREE.AnimationClip): Promise<void> {
     const { vrm, mixer } = this;
     if (vrm == null || mixer == null) {
       throw new Error("You have to load VRM first");
     }
 
-    const clip = vrmAnimation.createAnimationClip(vrm);
+    const clip = animation instanceof THREE.AnimationClip
+      ? animation
+      : animation.createAnimationClip(vrm);
+    mixer.stopAllAction()
     const action = mixer.clipAction(clip);
-    // TODO support mixamo
-    // @ts-ignore
-    // const action = mixer.clipAction(vrmAnimation);
     // console.log('action', action);
     action.play();
   }
