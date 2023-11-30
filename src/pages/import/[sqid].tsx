@@ -122,7 +122,7 @@ export default function Import() {
   return (
     <div className="p-20">
       <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
-        <h1 className="text-lg">Import {loaded ? (name || 'Amica') : '...'}</h1>
+        <h1 className="text-lg">Import {loaded ? (`“${name}”` || 'Amica') : '...'}</h1>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

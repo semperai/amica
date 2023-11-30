@@ -166,7 +166,7 @@ export default function Share() {
 
           <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
-              Background Url
+              Background URL
             </label>
             <div className="mt-2">
               <input
@@ -218,6 +218,7 @@ export default function Share() {
               Youtube Video Id
             </label>
             <div className="mt-2">
+              <p className="text-xs text-slate-500">Example: https://www.youtube.com/watch?v=<span className="text-red-500">dQw4w9WgXcQ</span></p>
               <input
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -226,12 +227,15 @@ export default function Share() {
                   setYoutubeVideoId(e.target.value);
                 }}
               />
+              {youtubeVideoId && (
+                <iframe width="100%" src={`https://www.youtube.com/embed/${youtubeVideoId}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+              )}
             </div>
           </div>
 
           <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
-              VRM Url
+              VRM URL
             </label>
             <div className="mt-2">
               <input
@@ -282,6 +286,7 @@ export default function Share() {
             </div>
           </div>
 
+          {/*
           <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               Animation Url
@@ -381,6 +386,7 @@ export default function Share() {
               />
             </div>
           </div>
+          */}
 
           <div className="sm:col-span-3 max-w-xs rounded-xl mt-8">
             <button

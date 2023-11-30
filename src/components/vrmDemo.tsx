@@ -40,10 +40,10 @@ export default function VrmDemo({ vrmUrl }: {
     <div>
       <canvas ref={canvasRef} className={"h-full w-full"} />
       {isLoading && (
-        <div className={"text-2xl"}>Loading...</div>
+        <div className={"text-gray-500 p-2 text-2xl"}>Loading...</div>
       )}
       {loadingError && (
-        <div className={"text-2xl"}>Error loading VRM model...</div>
+        <div className={"p-2 text-2xl"}>Error loading VRM model...</div>
       )}
     </div>
   );
