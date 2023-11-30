@@ -22,23 +22,18 @@ export default function Import() {
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     async function getCharacter() {
-      console.log('sqid', router.query.sqid);
-
-
       const { data, error } = await supabase
         .from('characters')
         .select(`name, system_prompt, vision_system_prompt, bg_url, youtube_videoid, vrm_url, animation_url, voice_url`)
         .eq('sqid', router.query.sqid)
         .single();
 
-      if (error) {
-        console.error(error);
-      }
-
-      if (! data) {
+      if (error || ! data) {
+        setError(true);
         return;
       }
 
@@ -65,7 +60,10 @@ export default function Import() {
       setLoaded(true);
     }
 
-    getCharacter();
+    // dont allow undefined / first time
+    if (router.query.sqid) {
+      getCharacter();
+    }
   }, [router]);
 
 
@@ -122,12 +120,22 @@ export default function Import() {
   return (
     <div className="p-20">
       <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
-        <h1 className="text-lg">Import {loaded ? (`“${name}”` || 'Amica') : '...'}</h1>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Error!</strong>
+            <span className="block sm:inline"> Something went wrong.</span>
+          </div>
+        )}
+        {! error && (
+          <h1 className="text-lg">
+            Import {loaded ? (`“${name}”` || 'Amica') : '...'}
+          </h1>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          { name != defaultConfig('name') && (
+          { name && name != defaultConfig('name') && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 Name
@@ -249,14 +257,14 @@ export default function Import() {
                   window.location.href = '/';
                   setButtonDisabled(true);
                 }}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-400 hover:bg-emerald-500 focus:outline-none ml-2"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none ml-2"
                 disabled={buttonDisabled}
               >
-                Apply
+                Import
               </button>
             </div>
           )}
-          {! loaded && (
+          {! loaded && ! error && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-8">
               loading...
             </div>
