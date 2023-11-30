@@ -58,10 +58,10 @@ export class Viewer {
 
       this._scene.add(this.model.vrm.scene);
 
-      const vrma = await loadVRMAnimation(config("animation_url"));
-      // TODO support mixamo
-      // const vrma = await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
-      if (vrma) this.model.loadAnimation(vrma);
+      const animation = config("animation_url").indexOf("vrma") > 0
+        ? await loadVRMAnimation(config("animation_url"))
+        : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
+      if (animation) this.model.loadAnimation(animation);
 
       // HACK: アニメーションの原点がずれているので再生後にカメラ位置を調整する
       requestAnimationFrame(() => {
