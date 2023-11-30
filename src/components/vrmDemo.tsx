@@ -3,8 +3,14 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from "@/utils/config";
 
-export default function VrmDemo({ vrmUrl }: {
+export default function VrmDemo({
+  vrmUrl,
+  onLoaded,
+  onError,
+}: {
   vrmUrl: string,
+  onLoaded?: () => void,
+  onError?: () => void,
 }) {
   const { viewer } = useContext(ViewerContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,11 +31,13 @@ export default function VrmDemo({ vrmUrl }: {
         .then(() => {
           console.log("vrm loaded");
           setIsLoading(false);
+          onLoaded && onLoaded();
         })
         .catch((e) => {
           console.error("vrm loading error", e);
           setLoadingError(true);
           setIsLoading(false);
+          onError && onError();
         });
       }
     },

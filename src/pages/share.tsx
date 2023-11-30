@@ -109,12 +109,23 @@ export default function Share() {
   }
 
   return (
-    <div className="p-20">
-      <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+    <div className="p-4 md:p-20">
+      <style jsx global>
+      {`
+        body {
+          background-image: url('/liquid-metaballs.jpg');
+          background-size: cover;
+          background-repeat: no-repeat;
+          background-position: bottom right;
+        }
+      `}
+      </style>
+
+      <div className="col-span-3 max-w-xs rounded-xl mt-4">
         <h1 className="text-lg">Character Creator</h1>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
@@ -238,6 +249,7 @@ export default function Share() {
               VRM URL
             </label>
             <div className="mt-2">
+              <p className="text-xs text-slate-500"></p>
               <input
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -283,6 +295,12 @@ export default function Share() {
                   handleFile(file.file as File);
                 }}
               />
+
+              <div className="sm:col-span-3 max-w-xs rounded-xl mt-4 bg-gray-100">
+                {vrmUrl && (
+                  <VrmDemo vrmUrl={vrmUrl} />
+                )}
+              </div>
             </div>
           </div>
 
@@ -399,11 +417,7 @@ export default function Share() {
           </div>
         </div>
         <div>
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4 bg-gray-100">
-            {vrmUrl && (
-              <VrmDemo vrmUrl={vrmUrl} />
-            )}
-          </div>
+          {/* empty column */}
         </div>
       </div>
     </div>
