@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BasicPage, FormRow, ResetToDefaultButton } from "./common";
 import { updateConfig, defaultConfig } from "@/utils/config";
 import { TextInput } from "@/components/textInput";
@@ -11,7 +12,8 @@ export function BackgroundVideoPage({
   setYoutubeVideoID: (id: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
-  const description = <>Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code></>;
+  const [videoChanged, setVideoChanged] = useState(false);
+  const description = <>Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code>. This requires a refresh to apply.</>;
 
   return (
     <BasicPage
@@ -28,6 +30,7 @@ export function BackgroundVideoPage({
                 setYoutubeVideoID(id);
                 updateConfig("youtube_videoid", id);
                 setSettingsUpdated(true);
+                setVideoChanged(true);
                 return false;
               }}
             />
@@ -36,9 +39,16 @@ export function BackgroundVideoPage({
                 <ResetToDefaultButton onClick={() => {
                   setYoutubeVideoID(defaultConfig("youtube_videoid"));
                   updateConfig("youtube_videoid", defaultConfig("youtube_videoid"));
+                  setVideoChanged(true);
                   setSettingsUpdated(true);
                   }}
                 />
+              </p>
+            )}
+
+            { videoChanged && (
+              <p className="text-xs text-gray-500 mt-4">
+                Video changed. <span className="text-cyan-500 hover:text-cyan-600 hover:cursor-pointer" onClick={() => window.location.reload()}>Refresh</span> to apply.
               </p>
             )}
            </FormRow>
