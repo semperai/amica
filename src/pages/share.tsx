@@ -6,6 +6,7 @@ import { supabase } from '@/utils/supabase';
 import { FilePond, registerPlugin } from 'react-filepond';
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import VrmDemo from "@/components/vrmDemo";
+import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 
 
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
@@ -311,6 +312,21 @@ export default function Share() {
                     vrmUrl={vrmUrl}
                     onLoaded={() => {
                       setVrmLoaded(true);
+                      (async () => {
+                        try {
+                          const animation = await loadVRMAnimation("/animations/idle_loop.vrma");
+                          if (! animation) {
+                            console.error('loading animation failed');
+                            return;
+                          }
+                          viewer.model!.loadAnimation(animation!);
+                          requestAnimationFrame(() => {
+                            viewer.resetCamera()
+                          });
+                        } catch (e) {
+                          console.error('loading animation failed', e);
+                        }
+                      })();
                       console.log('vrm demo loaded');
                     }}
                   />
