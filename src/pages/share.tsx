@@ -110,7 +110,7 @@ export default function Share() {
           <input
             type="text"
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            defaultValue={name}
+            value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
@@ -126,7 +126,7 @@ export default function Share() {
           <textarea
             rows={4}
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            defaultValue={systemPrompt}
+            value={systemPrompt}
             onChange={(e) => {
               setSystemPrompt(e.target.value);
             }}
@@ -142,7 +142,7 @@ export default function Share() {
           <textarea
             rows={4}
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            defaultValue={visionSystemPrompt}
+            value={visionSystemPrompt}
             onChange={(e) => {
               setVisionSystemPrompt(e.target.value);
             }}
@@ -158,7 +158,7 @@ export default function Share() {
           <input
             type="text"
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            defaultValue={bgUrl}
+            value={bgUrl}
             onChange={(e) => {
               setBgUrl(e.target.value);
             }}
@@ -207,7 +207,7 @@ export default function Share() {
           <input
             type="text"
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            defaultValue={youtubeVideoId}
+            value={youtubeVideoId}
             onChange={(e) => {
               setYoutubeVideoId(e.target.value);
             }}
@@ -223,7 +223,7 @@ export default function Share() {
           <input
             type="text"
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            defaultValue={vrmUrl}
+            value={vrmUrl}
             onChange={(e) => {
               setVrmUrl(e.target.value);
             }}
@@ -273,7 +273,7 @@ export default function Share() {
           <input
             type="text"
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            defaultValue={animationUrl}
+            value={animationUrl}
             onChange={(e) => {
               setAnimationUrl(e.target.value);
             }}
@@ -324,7 +324,7 @@ export default function Share() {
           <input
             type="text"
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            defaultValue={voiceUrl}
+            value={voiceUrl}
             onChange={(e) => {
               setVoiceUrl(e.target.value);
             }}
