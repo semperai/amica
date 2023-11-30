@@ -9,6 +9,7 @@ const defaults = {
   vrm_url: process.env.NEXT_PUBLIC_VRM_URL ?? 'vrm/AvatarSample_A.vrm',
   youtube_videoid: '',
   animation_url: process.env.NEXT_PUBLIC_ANIMATION_URL ?? 'animations/idle_loop.vrma',
+  voice_url: process.env.NEXT_PUBLIC_VOICE_URL ?? '',
   chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'echo',
   openai_apikey: process.env.NEXT_PUBLIC_OPENAI_APIKEY ?? '',
   openai_url: process.env.NEXT_PUBLIC_OPENAI_URL ?? 'https://api.openai.com',
