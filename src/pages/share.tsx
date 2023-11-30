@@ -242,7 +242,7 @@ export default function Share() {
                 }}
               />
               {youtubeVideoId && (
-                <iframe width="100%" src={`https://www.youtube.com/embed/${youtubeVideoId}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
+                <img width="100%" src={`https://img.youtube.com/vi/${youtubeVideoId}/0.jpg`} />
               )}
             </div>
           </div>
