@@ -54,7 +54,11 @@ export default function Home() {
 
 
   useEffect(() => {
-    document.body.style.backgroundImage = `url(${config("bg_url")})`;
+    if (config("bg_color") !== '') {
+      document.body.style.backgroundColor = config("bg_color");
+    } else {
+      document.body.style.backgroundImage = `url(${config("bg_url")})`;
+    }
   }, []);
 
   useEffect(() => {

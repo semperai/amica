@@ -22,6 +22,7 @@ export function BackgroundImgPage({
             key={url}
             onClick={() => {
               document.body.style.backgroundImage = `url(${url})`;
+              updateConfig("bg_color", "");
               updateConfig("youtube_videoid", "");
               updateConfig("bg_url", url);
               setBgUrl(url);

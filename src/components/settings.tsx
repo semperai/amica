@@ -30,6 +30,7 @@ import { ResetSettingsPage } from './settings/ResetSettingsPage';
 import { CommunityPage } from './settings/CommunityPage';
 
 import { BackgroundImgPage } from './settings/BackgroundImgPage';
+import { BackgroundColorPage } from './settings/BackgroundColorPage';
 import { BackgroundVideoPage } from './settings/BackgroundVideoPage';
 import { CharacterModelPage } from './settings/CharacterModelPage';
 import { CharacterAnimationPage } from './settings/CharacterAnimationPage';
@@ -99,6 +100,7 @@ export const Settings = ({
   const [visionSystemPrompt, setVisionSystemPrompt] = useState(config("vision_system_prompt"));
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
+  const [bgColor, setBgColor] = useState(config("bg_color"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
@@ -200,6 +202,7 @@ export const Settings = ({
     coquiApiKey, coquiVoiceId,
     openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
     visionBackend, visionLlamaCppUrl, visionSystemPrompt,
+    bgColor,
     bgUrl, vrmUrl, youtubeVideoID, animationUrl,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
@@ -223,7 +226,7 @@ export const Settings = ({
 
     case 'appearance':
       return <MenuPage
-        keys={["background_img", "background_video", "character_model", "character_animation"]}
+        keys={["background_img", "background_color", "background_video", "character_model", "character_animation"]}
         menuClick={handleMenuClick} />;
 
     case 'chatbot':
@@ -258,6 +261,13 @@ export const Settings = ({
         setBgUrl={setBgUrl}
         setSettingsUpdated={setSettingsUpdated}
         handleClickOpenBgImgFile={handleClickOpenBgImgFile}
+        />
+
+    case 'background_color':
+      return <BackgroundColorPage
+        bgColor={bgColor}
+        setBgColor={setBgColor}
+        setSettingsUpdated={setSettingsUpdated}
         />
 
     case 'background_video':

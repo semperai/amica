@@ -5,6 +5,7 @@ const defaults = {
   language: 'en',
   show_introduction: 'true',
   show_add_to_homescreen: 'true',
+  bg_color: process.env.NEXT_PUBLIC_BG_COLOR ?? '',
   bg_url: process.env.NEXT_PUBLIC_BG_URL ?? '/bg/bg-landscape1.jpg',
   vrm_url: process.env.NEXT_PUBLIC_VRM_URL ?? '/vrm/AvatarSample_A.vrm',
   youtube_videoid: '',

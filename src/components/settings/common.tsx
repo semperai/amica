@@ -16,6 +16,7 @@ import {
   PencilIcon,
   EyeDropperIcon,
   EyeIcon,
+  SwatchIcon
 } from '@heroicons/react/24/outline';
 
 export function basicPage(
@@ -132,6 +133,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'community':           return <RocketLaunchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'background_img':      return <PhotoIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'background_color':      return <SwatchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'background_video':    return <FilmIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'character_model':     return <UsersIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'character_animation': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -173,6 +175,7 @@ function getLabelFromPage(page: string): string {
     case 'community':           return 'Community';
 
     case 'background_img':      return 'Background Image';
+    case 'background_color':    return 'Background Color';
     case 'background_video':    return 'Background Video';
     case 'character_model':     return 'Character Model';
     case 'character_animation': return 'Character Animation';
