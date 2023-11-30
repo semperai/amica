@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { updateConfig, defaultConfig } from '@/utils/config';
+import { ViewerContext } from "@/features/vrmViewer/viewerContext";
+import VrmDemo from "@/components/vrmDemo";
 import { supabase } from '@/utils/supabase';
 
 export default function Import() {
+  const { viewer } = useContext(ViewerContext);
   const router = useRouter()
 
   const [name, setName] = useState('');
@@ -255,6 +258,9 @@ export default function Import() {
         <div className="sm:col-span-3 max-w-xs rounded-xl mt-8">
           loading...
         </div>
+      )}
+      { loaded && (
+        <VrmDemo vrmUrl={vrmUrl} />
       )}
     </div>
   );
