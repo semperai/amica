@@ -84,6 +84,7 @@ export class Model {
     const clip = animation instanceof THREE.AnimationClip
       ? animation
       : animation.createAnimationClip(vrm);
+    mixer.stopAllAction()
     const action = mixer.clipAction(clip);
     // console.log('action', action);
     action.play();

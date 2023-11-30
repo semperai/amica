@@ -2,6 +2,7 @@ import { BasicPage, FormRow, basename } from "./common";
 import { animationList } from "@/paths";
 import { updateConfig } from "@/utils/config";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
+import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 
 export function CharacterAnimationPage({
   viewer,
@@ -32,10 +33,15 @@ export function CharacterAnimationPage({
                 updateConfig("animation_url", url);
                 setSettingsUpdated(true);
                 // @ts-ignore
-                const vrma = await loadMixamoAnimation(url, viewer.model!.vrm);
+                const animation = url.indexOf("vrma") > 0
+                  ? await loadVRMAnimation(url)
+                  : await loadMixamoAnimation(url, viewer.model!.vrm);
 
                 // @ts-ignore
-                viewer.model!.loadAnimation(vrma);
+                viewer.model!.loadAnimation(animation);
+                requestAnimationFrame(() => {
+                  viewer.resetCamera()
+                });
               }}
             >
               {animationList.map((url) =>
