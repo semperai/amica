@@ -1,11 +1,13 @@
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { useState, useCallback } from "react";
 import { updateConfig } from "@/utils/config";
+import { useTranslation, Trans } from 'react-i18next';
 
 export const Introduction = ({ open }: {
   open: boolean;
 }) => {
   const [opened, setOpened] = useState(open);
+  const { t } = useTranslation();
 
   if (! opened) {
     return null;
@@ -20,7 +22,7 @@ export const Introduction = ({ open }: {
       <div className="mx-auto my-auto max-h-full overflow-auto rounded-lg bg-white p-4">
         <div className="my-4">
           <div className="my-8 font-bold text-secondary text-xl">
-            Welcome to Amica 0.1
+            {t("Welcome to Amica")} v0.1
           </div>
           <p>
             Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.
