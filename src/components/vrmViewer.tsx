@@ -15,10 +15,10 @@ export default function VrmViewer() {
         const vrmUrl = config("vrm_url");
         (new Promise(async (resolve, reject) => {
           try {
-            const loaded = await viewer.loadVrm(buildUrl(vrmUrl));
+            await viewer.loadVrm(buildUrl(vrmUrl));
             resolve(true);
           } catch (e) {
-            reject();
+            reject(e);
           }
         }))
         .then(() => {
@@ -32,7 +32,7 @@ export default function VrmViewer() {
         });
 
 
-        // Drag and DropでVRMを差し替え
+        // Replace VRM with Drag and Drop
         canvas.addEventListener("dragover", function (event) {
           event.preventDefault();
         });
