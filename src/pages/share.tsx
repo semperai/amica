@@ -91,6 +91,9 @@ export default function Share() {
     async function register() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_AMICA_API_URL}/api/add_character`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           name,
           system_prompt: systemPrompt,
