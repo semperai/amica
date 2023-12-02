@@ -6,7 +6,7 @@ import { cleanTranscript } from "@/utils/stringProcessing";
 import { ChatContext } from "@/features/chat/chatContext";
 import { openaiWhisper  } from "@/features/openaiWhisper/openaiWhisper";
 import { whispercpp  } from "@/features/whispercpp/whispercpp";
-import { config } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 import wavefile, { WaveFile } from "wavefile";
 
 type Props = {
@@ -29,6 +29,7 @@ const MessageInput = ({
   const [whisperOpenAIOutput, setWhisperOpenAIOutput] = useState<any | null>(null);
   const [whisperCppOutput, setWhisperCppOutput] = useState<any | null>(null);
   const { chat: bot } = useContext(ChatContext);
+  const [muted, setMuted] = useState(config('tts_muted') === 'true' );
 
   const vad = useMicVAD({
     startOnLoad: false,
@@ -143,6 +144,11 @@ const MessageInput = ({
     setUserMessage("");
   }
 
+  function toggleTTSMute() {
+    updateConfig('tts_muted', config('tts_muted') === 'true' ? 'false' : 'true')
+    setMuted(config('tts_muted') === 'true')
+  }
+
   return (
     <div className="absolute bottom-0 z-20 w-screen">
       <div className="bg-base text-black">
@@ -184,6 +190,15 @@ const MessageInput = ({
                 isProcessing={isChatProcessing || transcriber.isBusy}
                 disabled={isChatProcessing || !userMessage || transcriber.isModelLoading}
                 onClick={clickedSendButton}
+              />
+            </div>
+            <div className='flex flex-col justify-center items-center'>
+              <IconButton
+                title="Mute / Unmute TTS"
+                iconName="24/Announcement"
+                className={`ml-2 bg-secondary bg-secondary${muted ? '-disabled' : ''} hover:bg-secondary-hover`}
+                isProcessing={false}
+                onClick={toggleTTSMute}
               />
             </div>
           </div>

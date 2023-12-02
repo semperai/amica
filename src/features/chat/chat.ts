@@ -388,12 +388,15 @@ export class Chat {
     // in their respective functions
     // this is just a simple solution for now
     talk = cleanTalk(talk);
-    if (talk.message === '') {
+    if (talk.message === '' || config("tts_muted") === 'true') {
       return null;
     }
 
     try {
       switch (config("tts_backend")) {
+        case 'none': {
+          return null;
+        }
         case 'elevenlabs': {
           const voiceId = config("elevenlabs_voiceid");
           const voice = await elevenlabs(talk.message, voiceId, talk.style);
@@ -418,7 +421,6 @@ export class Chat {
       console.error(e.toString());
     }
 
-    // config("tts_backend") === 'none'
     return null;
   }
 
