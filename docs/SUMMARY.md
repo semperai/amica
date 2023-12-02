@@ -28,7 +28,11 @@
 * [Using Coqui](./guides/using-coqui.md)
 * [Using LLaVA](./guides/using-llava.md)
 * [Using SpeechT5](./guides/using-speecht5.md)
-* [Creating new Avatars](./guides/creating-new-avatars.md)
+
+## 🌻 Tutorials
+
+* [Creating new Avatars](./tutorials/creating-new-avatars.md)
+* [Using Custom Assets](./tutorials/using-custom-assets.md)
 
 ## 🌺 Contributing to Amica
 
