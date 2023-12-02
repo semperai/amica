@@ -53,7 +53,7 @@ export const Introduction = ({ open }: {
             }}
             className="inline-flex items-center rounded-md bg-secondary px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-secondary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
           >
-            {t("dont_show_again", "Don&#39;t show again")}
+            {t("dont_show_again", "Don't show again")}
           </button>
           <button
             onClick={() => {

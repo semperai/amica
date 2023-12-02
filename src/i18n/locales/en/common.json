@@ -9,7 +9,7 @@
   "Setup": "Setup",
   "amica_setup": "\nClick on the top left of the screen to open settings.\nYou can change the voice, language, and attach to different backends or in-browser models.",
   "here": "here",
-  "dont_show_again": "Don&#39;t show again",
+  "dont_show_again": "Don't show again",
   "Background Color": "Background Color",
   "bg_color_desc": "Configure the background color. This overrides background image.",
   "no_bg_color": "No background color set. Click the box below.",
