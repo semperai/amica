@@ -12,6 +12,7 @@
   "dont_show_again": "不再显示",
   "Background Color": "背景颜色",
   "bg_color_desc": "配置背景颜色。 这会覆盖背景图像。",
+  "no_bg_color": "还没有设置背景颜色,请点击下面颜色框:",
   "Color": "颜色",
   "Load image": "加载自定图像",
   "bg_youtube_desc": "选择背景视频。 从 YouTube 嵌入复制此内容，它看起来像 <code>kDCXBwzSI-4</code>",

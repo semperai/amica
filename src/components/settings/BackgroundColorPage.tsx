@@ -23,7 +23,7 @@ export function BackgroundColorPage({
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           {bgColor === '' && (
-            <p className="text-xs text-gray-500">No background color set. Click the box below.</p>
+            <p className="text-xs text-gray-500">{t("no_bg_color", "No background color set. Click the box below.")}</p>
           )}
           <FormRow label={t("Color")}>
             <input

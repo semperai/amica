@@ -12,6 +12,7 @@
   "dont_show_again": "Don&#39;t show again",
   "Background Color": "Background Color",
   "bg_color_desc": "Configure the background color. This overrides background image.",
+  "no_bg_color": "No background color set. Click the box below.",
   "Color": "Color",
   "Load image": "Load image",
   "bg_youtube_desc": "Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code>",

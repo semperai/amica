@@ -12,6 +12,7 @@
   "dont_show_again": "Nicht mehr anzeigen",
   "Background Color": "Hintergrundfarbe",
   "bg_color_desc": "Konfigurieren Sie die Hintergrundfarbe. Dies überschreibt das Hintergrundbild.",
+  "no_bg_color": "Keine Hintergrundfarbe festgelegt. Klicken Sie auf das Feld unten.",
   "Color": "Farbe",
   "Load image": "Bild laden",
   "bg_youtube_desc": "Wählen Sie ein Hintergrundvideo aus. Kopieren Sie dies von der YouTube-Einbettung, es wird ungefähr so aussehen: <code>kDCXBwzSI-4</code>",
