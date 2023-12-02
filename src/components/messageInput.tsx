@@ -196,7 +196,7 @@ const MessageInput = ({
               <IconButton
                 title="Mute / Unmute TTS"
                 iconName="24/Announcement"
-                className={`ml-2 bg-secondary bg-secondary${muted ? '-disabled' : ''} hover:bg-secondary-hover`}
+                className={(muted ? 'opacity-50 ' : '') + `ml-2 bg-secondary hover:bg-secondary-hover active:bg-secondary-press`}
                 isProcessing={false}
                 onClick={toggleTTSMute}
               />
