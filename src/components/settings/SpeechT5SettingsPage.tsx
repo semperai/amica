@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { BasicPage, FormRow, basename, NotUsingAlert } from './common';
 import { config, updateConfig } from "@/utils/config";
 import { speechT5SpeakerEmbeddingsList } from "@/paths";
@@ -11,14 +13,16 @@ export function SpeechT5SettingsPage({
   setSpeechT5SpeakerEmbeddingsUrl: (url: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <BasicPage
-      title="SpeechT5 Settings"
-      description="Configure SpeechT5"
+      title={t("SpeechT5") + " "+ t("Settings")}
+      description={t("SpeechT5_desc", "Configure SpeechT5")}
     >
       { config("tts_backend") !== "speecht5" && (
         <NotUsingAlert>
-          You are not currently using SpeechT5 as your TTS backend. These settings will not be used.
+          {t("not_using_alert", "You are not currently using {{name}} as your {{what}} backend. These settings will not be used.", {name: t("SpeechT5"), what: t("TTS")})}
         </NotUsingAlert>
       ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">

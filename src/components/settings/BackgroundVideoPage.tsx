@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { BasicPage, FormRow, ResetToDefaultButton } from "./common";
 import { updateConfig, defaultConfig } from "@/utils/config";
 import { TextInput } from "@/components/textInput";
@@ -12,17 +14,19 @@ export function BackgroundVideoPage({
   setYoutubeVideoID: (id: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const [videoChanged, setVideoChanged] = useState(false);
-  const description = <>Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code>. This requires a refresh to apply.</>;
+
+  const description = <>{t('bg_youtube_desc', `Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code>`)}</>;
 
   return (
     <BasicPage
-      title="Background Video"
+      title={t("Background Video")}
       description={description}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
-          <FormRow label="YouTube Video ID">
+          <FormRow label={t("YouTube Video ID")}>
             <TextInput
               value={youtubeVideoID}
               onChange={(event: React.ChangeEvent<any>) => {

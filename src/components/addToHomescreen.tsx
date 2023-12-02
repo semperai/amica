@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { Fragment, useEffect, useState } from "react";
 import { Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
@@ -5,6 +7,7 @@ import { useAddToHomescreenPrompt } from "@/hooks/useAddToHomescreenPrompt";
 import { config, updateConfig } from "@/utils/config";
 
 export function AddToHomescreen() {
+  const { t } = useTranslation();
   const [prompt, promptToInstall] = useAddToHomescreenPrompt();
   const [show, setShow] = useState(false);
 
@@ -48,8 +51,8 @@ export function AddToHomescreen() {
               <div className="p-4">
                 <div className="flex items-start">
                   <div className="ml-3 w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900">Add Amica to Homescreen</p>
-                    <p className="mt-1 text-sm text-gray-500">Amica can be installed locally for faster loading and less UI clutter.</p>
+                    <p className="text-sm font-medium text-gray-900">{t("add_to_homescreen", "Add Amica to Homescreen")}</p>
+                    <p className="mt-1 text-sm text-gray-500">{t("add_to_homescreen_desc", "Amica can be installed locally for faster loading and less UI clutter.")}</p>
                     <div className="mt-4 flex">
                       <button
                         type="button"
@@ -66,7 +69,7 @@ export function AddToHomescreen() {
                         }}
                         className="inline-flex items-center rounded-md bg-secondary px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-secondary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
                       >
-                        Accept
+                        {t("Accept")}
                       </button>
                       <button
                         type="button"
@@ -76,7 +79,7 @@ export function AddToHomescreen() {
                         }}
                         className="ml-3 inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                       >
-                        Decline
+                        {t("Decline")}
                       </button>
                     </div>
                   </div>
@@ -88,7 +91,7 @@ export function AddToHomescreen() {
                         setShow(false)
                       }}
                     >
-                      <span className="sr-only">Close</span>
+                      <span className="sr-only">{t("Close")}</span>
                       <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                     </button>
                   </div>

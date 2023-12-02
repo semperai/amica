@@ -109,7 +109,7 @@ export default function Home() {
         <div className="grid grid-flow-col gap-[8px]">
           <IconButton
             iconName="24/Menu"
-            label="Settings"
+            label={t("Settings")}
             isProcessing={false}
             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm z-[11]"
             onClick={() => setShowSettings(true)}

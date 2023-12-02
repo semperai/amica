@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { BasicPage, FormRow, getLinkFromPage, Link } from './common';
 import { updateConfig } from "@/utils/config";
 
@@ -27,14 +29,16 @@ export function STTBackendPage({
   breadcrumbs: Link[];
   setBreadcrumbs: (breadcrumbs: Link[]) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <BasicPage
-      title="STT Backend"
-      description="Select the STT backend to use"
+      title={t("STT") + " "+ t("Settings")}
+      description={t("STT_desc", "Select the STT backend to use")}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
-          <FormRow label="STT Backend">
+          <FormRow label={t("STT Backend")}>
             <select
               className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
               value={sttBackend}
@@ -52,7 +56,7 @@ export function STTBackendPage({
         </li>
         { ["whisper_openai", "whispercpp"].includes(sttBackend) && (
           <li className="py-4">
-            <FormRow label={`Configure ${idToTitle(sttBackend)}`}>
+            <FormRow label={`${t("Configure")} ${t(idToTitle(sttBackend))}`}>
               <button
                 type="button"
                 className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -61,7 +65,7 @@ export function STTBackendPage({
                   setBreadcrumbs(breadcrumbs.concat([getLinkFromPage(`${sttBackend}_settings`)]));
                 }}
               >
-                Click here to configure {idToTitle(sttBackend)}
+                {t("Click here to configure")} {t(idToTitle(sttBackend))}
               </button>
             </FormRow>
           </li>

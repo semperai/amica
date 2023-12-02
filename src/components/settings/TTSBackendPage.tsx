@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { BasicPage, FormRow, Link, getLinkFromPage } from './common';
 import { updateConfig } from "@/utils/config";
 
@@ -28,14 +30,16 @@ export function TTSBackendPage({
   breadcrumbs: Link[];
   setBreadcrumbs: (breadcrumbs: Link[]) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <BasicPage
-      title="TTS Backend"
-      description="Select the TTS backend to use"
+      title={t("TTS Backend")}
+      description={t("TTS_Backend_desc", "Select the TTS backend to use")}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
-          <FormRow label="TTS Backend">
+          <FormRow label={t("TTS Backend")}>
             <select
               className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
               value={ttsBackend}
@@ -53,7 +57,7 @@ export function TTSBackendPage({
         </li>
         { ["elevenlabs", "speecht5", "coqui", "openai_tts"].includes(ttsBackend) && (
           <li className="py-4">
-            <FormRow label={`Configure ${idToTitle(ttsBackend)}`}>
+            <FormRow label={`${t("Configure")} ${t(idToTitle(ttsBackend))}`}>
               <button
                 type="button"
                 className="rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -62,7 +66,7 @@ export function TTSBackendPage({
                   setBreadcrumbs(breadcrumbs.concat([getLinkFromPage(`${ttsBackend}_settings`)]));
                 }}
               >
-                Click here to configure {idToTitle(ttsBackend)}
+                {t("Click here to configure")} {t(idToTitle(ttsBackend))}
               </button>
             </FormRow>
           </li>
