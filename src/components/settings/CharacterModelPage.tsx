@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+
+import { BasicPage } from "./common";
 import { vrmList } from '@/paths';
 import { thumbPrefix } from './common';
 import { updateConfig } from "@/utils/config";
@@ -16,8 +19,13 @@ export function CharacterModelPage({
   setSettingsUpdated: (updated: boolean) => void;
   handleClickOpenVrmFile: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <>
+    <BasicPage
+      title={t("Character Model")}
+      description={t("character_desc", "Select the Character to play")}
+    >
       <div className="rounded-lg shadow-lg bg-white flex flex-wrap justify-center space-x-4 space-y-4 p-4">
         { vrmList.map((url) =>
           <button
@@ -44,9 +52,9 @@ export function CharacterModelPage({
         className="rounded-t-none text-lg ml-4 px-8 shadow-lg bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
         onClick={handleClickOpenVrmFile}
       >
-        Load .VRM
+        {t("Load VRM")}
       </TextButton>
-    </>
+    </BasicPage>
   );
 }
 

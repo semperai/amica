@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import { Link, pagesToLinks } from './common';
 
@@ -8,6 +10,8 @@ export function MenuPage({
   keys: string[];
   menuClick: (link: Link) => void;
 }) {
+  const { t } = useTranslation();
+
   const links = pagesToLinks(keys);
   return (
     <ul role="list" className="divide-y divide-black/5 bg-white rounded-lg shadow-lg">
@@ -24,7 +28,7 @@ export function MenuPage({
               <h2 className="min-w-0 text-sm font-semibold leading-6">
                 <span className={`whitespace-nowrap flex w-0 flex-1 gap-x-2 items-center ${link.className ?? ''}`}>
                   {link.icon}
-                  {link.label}
+                  {t(link.label)}
                 </span>
               </h2>
             </div>

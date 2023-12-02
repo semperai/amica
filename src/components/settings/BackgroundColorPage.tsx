@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { BasicPage, FormRow, ResetToDefaultButton } from './common';
 import { TextInput } from '@/components/textInput';
 import { updateConfig, defaultConfig } from "@/utils/config";
@@ -11,17 +13,19 @@ export function BackgroundColorPage({
   setBgColor: (color: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <BasicPage
-      title="Background Color"
-      description="Configure the background color. This overrides background image."
+      title={t("Background Color")}
+      description={t("bg_color_desc", "Configure the background color. This overrides background image.")}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
           {bgColor === '' && (
-            <p className="text-xs text-gray-500">No background color set. Click the box below.</p>
+            <p className="text-xs text-gray-500">{t("no_bg_color", "No background color set. Click the box below.")}</p>
           )}
-          <FormRow label="Color">
+          <FormRow label={t("Color")}>
             <input
               className={"block bg-white border-0 outline-none focus:ring-0 focus:border-gray-300 rounded-md shadow-sm w-20"}
               type="color"

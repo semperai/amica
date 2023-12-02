@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useState, useRef } from "react";
 import { M_PLUS_2, Montserrat } from "next/font/google";
+import { useTranslation, Trans } from 'react-i18next';
 
 import { AssistantText } from "@/components/assistantText";
 import { AddToHomescreen } from "@/components/addToHomescreen";
@@ -19,6 +20,7 @@ import { Message, Role } from "@/features/chat/messages";
 import { ChatContext } from "@/features/chat/chatContext";
 
 import { config, updateConfig } from '@/utils/config';
+import LanguageSwitcher from "@/i18n/languageSwitcher";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -34,6 +36,7 @@ const montserrat = Montserrat({
 
 
 export default function Home() {
+  const { t } = useTranslation();
   const { viewer } = useContext(ViewerContext);
   const { chat: bot } = useContext(ChatContext);
 
@@ -106,7 +109,7 @@ export default function Home() {
         <div className="grid grid-flow-col gap-[8px]">
           <IconButton
             iconName="24/Menu"
-            label="Settings"
+            label={t("Settings")}
             isProcessing={false}
             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm z-[11]"
             onClick={() => setShowSettings(true)}
@@ -119,7 +122,7 @@ export default function Home() {
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
-              label="Conversation"
+              label={t("Conversation")}
               isProcessing={false}
               onClick={() => setShowChatLog(false)}
               className="shadow-sm z-[11]"
@@ -127,7 +130,7 @@ export default function Home() {
           ) : (
             <IconButton
               iconName="24/CommentFill"
-              label="Conversation"
+              label={t("Conversation")}
               isProcessing={false}
               disabled={chatLog.length <= 0}
               onClick={() => setShowChatLog(true)}
@@ -135,9 +138,11 @@ export default function Home() {
             />
           )}
 
+          <div className="shadow-sm z-[11]"><LanguageSwitcher></LanguageSwitcher></div>
+
           <IconButton
             iconName="24/Error"
-            label="Debug"
+            label={t("Debug")}
             isProcessing={false}
             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm z-[11]"
             onClick={() => setShowDebug(true)}

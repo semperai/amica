@@ -1,3 +1,5 @@
+import { t } from '@/i18n';
+
 import {
   AdjustmentsHorizontalIcon,
   ChatBubbleOvalLeftEllipsisIcon,
@@ -165,42 +167,43 @@ export function getIconFromPage(page: string): JSX.Element {
 }
 
 function getLabelFromPage(page: string): string {
+
   switch(page) {
-    case 'appearance':          return 'Appearance';
-    case 'chatbot':             return 'ChatBot';
-    case 'tts':                 return 'Text-to-Speech';
-    case 'stt':                 return 'Speech-to-text';
-    case 'vision':              return 'Vision';
-    case 'reset_settings':      return 'Reset Settings';
-    case 'community':           return 'Community';
+    case 'appearance':          return t('Appearance');
+    case 'chatbot':             return t('ChatBot');
+    case 'tts':                 return t('Text-to-Speech');
+    case 'stt':                 return t('Speech-to-text');
+    case 'vision':              return t('Vision');
+    case 'reset_settings':      return t('Reset Settings');
+    case 'community':           return t('Community');
 
-    case 'background_img':      return 'Background Image';
-    case 'background_color':    return 'Background Color';
-    case 'background_video':    return 'Background Video';
-    case 'character_model':     return 'Character Model';
-    case 'character_animation': return 'Character Animation';
+    case 'background_img':      return t('Background Image');
+    case 'background_color':    return t('Background Color');
+    case 'background_video':    return t('Background Video');
+    case 'character_model':     return t('Character Model');
+    case 'character_animation': return t('Character Animation');
 
-    case 'chatbot_backend':     return 'ChatBot Backend';
-    case 'chatgpt_settings':    return 'ChatGPT';
-    case 'llamacpp_settings':   return 'LLama.cpp';
-    case 'ollama_settings':     return 'Ollama';
-    case 'koboldai_settings':   return 'KoboldAI';
-    case 'name'         :       return 'Name';
-    case 'system_prompt':       return 'System Prompt';
+    case 'chatbot_backend':     return t('ChatBot Backend');
+    case 'chatgpt_settings':    return t('ChatGPT');
+    case 'llamacpp_settings':   return t('LLama.cpp');
+    case 'ollama_settings':     return t('Ollama');
+    case 'koboldai_settings':   return t('KoboldAI');
+    case 'name'         :       return t('Name');
+    case 'system_prompt':       return t('System Prompt');
 
-    case 'tts_backend':         return 'TTS Backend';
-    case 'elevenlabs_settings': return 'ElevenLabs';
-    case 'speecht5_settings':   return 'SpeechT5';
-    case 'coqui_settings':      return 'Coqui';
-    case 'openai_tts_settings': return 'OpenAI';
+    case 'tts_backend':         return t('TTS Backend');
+    case 'elevenlabs_settings': return t('ElevenLabs');
+    case 'speecht5_settings':   return t('SpeechT5');
+    case 'coqui_settings':      return t('Coqui');
+    case 'openai_tts_settings': return t('OpenAI');
 
-    case 'vision_backend':           return 'Vision Backend';
-    case 'vision_llamacpp_settings': return 'LLama.cpp';
-    case 'vision_system_prompt':     return 'System Prompt';
+    case 'vision_backend':           return t('Vision Backend');
+    case 'vision_llamacpp_settings': return t('LLama.cpp');
+    case 'vision_system_prompt':     return t('System Prompt');
 
-    case 'stt_backend':             return 'STT Backend';
-    case 'whisper_openai_settings': return "Whisper (OpenAI)";
-    case 'whispercpp_settings':     return "Whisper.cpp";
+    case 'stt_backend':             return t('STT Backend');
+    case 'whisper_openai_settings': return t("Whisper (OpenAI)");
+    case 'whispercpp_settings':     return t("Whisper.cpp");
   }
 
   throw new Error(`unknown page label encountered ${page}`);
@@ -221,7 +224,7 @@ export function ResetToDefaultButton({ onClick }: { onClick: () => void }) {
         onClick={onClick}
         className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-rose-600 hover:bg-rose-700 focus:outline-none"
     >
-      Reset to Default
+      {t("Reset to Default")}
     </button>
   );
 }

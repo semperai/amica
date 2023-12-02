@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from "@/components/textInput";
 import { SecretTextInput } from "@/components/secretTextInput";
@@ -20,19 +22,21 @@ export function WhisperOpenAISettingsPage({
   setWhisperOpenAIModel: (model: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <BasicPage
-      title="Whisper (OpenAI) Settings"
-      description="Configure Whisper (OpenAI)"
+      title={t("Whisper (OpenAI)") + " "+ t("Settings")}
+      description={t("Whisper_OpenAI_desc", "Configure Whisper (OpenAI)")}
     >
       { config("stt_backend") !== "whisper_openai" && (
         <NotUsingAlert>
-          You are not currently using Whisper (OpenAI) as your STT backend. These settings will not be used.
+          {t("not_using_alert", "You are not currently using {{name}} as your {{what}} backend. These settings will not be used.", {name: t("Whisper (OpenAI)"), what: t("STT")})}
         </NotUsingAlert>
       ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
-          <FormRow label="OpenAI URL">
+          <FormRow label={t("OpenAI URL")}>
             <TextInput
               value={whisperOpenAIUrl}
               onChange={(event: React.ChangeEvent<any>) => {
@@ -44,7 +48,7 @@ export function WhisperOpenAISettingsPage({
           </FormRow>
         </li>
         <li className="py-4">
-          <FormRow label="API Key">
+          <FormRow label={t("API Key")}>
             <SecretTextInput
               value={whisperOpenAIApiKey}
               onChange={(event: React.ChangeEvent<any>) => {
@@ -56,7 +60,7 @@ export function WhisperOpenAISettingsPage({
           </FormRow>
         </li>
         <li className="py-4">
-          <FormRow label="Model">
+          <FormRow label={t("Model")}>
             <TextInput
               value={whisperOpenAIModel}
               onChange={(event: React.ChangeEvent<any>) => {

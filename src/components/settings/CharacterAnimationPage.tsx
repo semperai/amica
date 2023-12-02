@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { BasicPage, FormRow, basename } from "./common";
 import { animationList } from "@/paths";
 import { updateConfig } from "@/utils/config";
@@ -15,14 +17,16 @@ export function CharacterAnimationPage({
   setAnimationUrl: (url: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <BasicPage
-      title="Character Animation"
-      description="Select the animation to play"
+      title={t("Character Animation")}
+      description={t("Select the animation to play")}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
-          <FormRow label="Animation">
+          <FormRow label={t("Animation")}>
             <select
               value={animationUrl}
               className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
