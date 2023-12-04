@@ -26,7 +26,7 @@ export const AssistantText = ({ message }: { message: string }) => {
               onClick={() => setUnlimited(!unlimited)}
             />
           </div>
-          <div className={`px-8 py-4 ${unlimited ? '' : 'max-h-32'} overflow-y-auto`}>
+          <div className={`px-8 py-4 ${unlimited ? 'max-h-[calc(75vh)]' : 'max-h-32'} overflow-y-auto`}>
             <div className="min-h-8 max-h-full text-secondary typography-16 font-bold">
               {message.replace(/\[([a-zA-Z]*?)\]/g, "")}
               <div ref={scrollRef} />
