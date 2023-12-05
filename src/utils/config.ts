@@ -1,7 +1,6 @@
 const defaults = {
   autosend_from_mic: 'true',
   debug_gfx: 'false',
-  show_webcam: 'true',
   language: 'en',
   show_introduction: 'true',
   show_add_to_homescreen: 'true',

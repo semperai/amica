@@ -119,8 +119,18 @@ export default function Home() {
             onClick={() => setShowSettings(true)}
           ></IconButton>
 
-          { config("show_webcam") === 'true' && (
-            <EmbeddedWebcam />
+
+          <IconButton
+            iconName={webcamEnabled ? "24/Close" : "24/Camera"}
+            isProcessing={false}
+            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+            onClick={() => {
+              setWebcamEnabled(!webcamEnabled);
+            }} />
+          { webcamEnabled && (
+            <EmbeddedWebcam
+              setWebcamEnabled={setWebcamEnabled}
+            />
           )}
 
           {showChatLog ? (
