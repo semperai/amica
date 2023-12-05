@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState, useRef } from "react";
+import { clsx } from "clsx";
 import { M_PLUS_2, Montserrat } from "next/font/google";
 import { useTranslation, Trans } from 'react-i18next';
 
@@ -86,7 +87,10 @@ export default function Home() {
   if (!showContent) return <></>;
 
   return (
-    <div className={`${m_plus_2.variable} ${montserrat.variable}`}>
+    <div className={clsx(
+      m_plus_2.variable,
+      montserrat.variable,
+    )}>
       { config("youtube_videoid") !== '' && (
         <div className="absolute video-container w-screen h-screen z-0">
           <iframe
