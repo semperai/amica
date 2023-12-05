@@ -90,10 +90,6 @@ export function thumbPrefix(path: string) {
   return a.join("/");
 }
 
-export function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ')
-}
-
 export type Link = {
   key: string;
   label: string;

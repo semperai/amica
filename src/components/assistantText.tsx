@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { clsx } from "clsx";
 import { config } from "@/utils/config";
 import { IconButton } from "./iconButton";
 
@@ -26,7 +27,10 @@ export const AssistantText = ({ message }: { message: string }) => {
               onClick={() => setUnlimited(!unlimited)}
             />
           </div>
-          <div className={`px-8 py-4 ${unlimited ? 'max-h-[calc(75vh)]' : 'max-h-32'} overflow-y-auto`}>
+          <div className={clsx(
+            "px-8 py-4 overflow-y-auto",
+            unlimited ? 'max-h-[calc(75vh)]' : 'max-h-32',
+          )}>
             <div className="min-h-8 max-h-full text-secondary typography-16 font-bold">
               {message.replace(/\[([a-zA-Z]*?)\]/g, "")}
               <div ref={scrollRef} />

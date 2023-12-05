@@ -2,6 +2,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { ChevronDownIcon, LanguageIcon } from '@heroicons/react/20/solid'
 import { Menu, Transition } from '@headlessui/react'
 import { langs } from './langs';
+import { clsx } from "clsx";
 
 
 export default function LanguageSwitcher() {
@@ -18,7 +19,10 @@ export default function LanguageSwitcher() {
           {Object.keys(langs).map((lng) => (
             <Menu.Item key={lng}>
               <button
-                className={`${currLang === lng ? 'bg-violet-500 text-white' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                className={clsx(
+                  currLang === lng && 'bg-violet-500 text-white',
+                  'group flex w-full items-center rounded-md px-2 py-2 text-sm'
+                )}
                 onClick={() => i18n.changeLanguage(lng)}>
                 {langs[lng].nativeName}
               </button>

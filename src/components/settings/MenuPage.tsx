@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { clsx } from 'clsx';
 
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import { Link, pagesToLinks } from './common';
@@ -26,7 +27,10 @@ export function MenuPage({
           <div className="min-w-0 flex-auto">
             <div className="flex items-center gap-x-3">
               <h2 className="min-w-0 text-sm font-semibold leading-6">
-                <span className={`whitespace-nowrap flex w-0 flex-1 gap-x-2 items-center ${link.className ?? ''}`}>
+                <span className={clsx(
+                  'whitespace-nowrap flex w-0 flex-1 gap-x-2 items-center',
+                  link.className,
+                )}>
                   {link.icon}
                   {t(link.label)}
                 </span>

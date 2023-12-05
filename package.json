@@ -24,6 +24,7 @@
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/dom-speech-recognition": "^0.0.1",
     "@xenova/transformers": "^2.7.0",
+    "clsx": "^2.0.0",
     "eslint-config-next": "13.2.4",
     "fast-glob": "^3.3.1",
     "filepond": "^4.30.4",

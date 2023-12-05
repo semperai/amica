@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-
+import { clsx } from "clsx";
 import { BasicPage } from "./common";
 import { vrmList } from '@/paths';
 import { thumbPrefix } from './common';
@@ -36,7 +36,10 @@ export function CharacterModelPage({
               setVrmUrl(url);
               setSettingsUpdated(true);
             }}
-            className={"mx-4 py-2 rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100 rounded-xl " + (vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100")}
+            className={clsx(
+              "mx-4 py-2 rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100 rounded-xl",
+              vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100"
+            )}
             >
               <img
                 src={`${thumbPrefix(url)}.jpg`}

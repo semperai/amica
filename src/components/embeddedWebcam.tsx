@@ -4,6 +4,7 @@ import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { ChatContext } from "@/features/chat/chatContext";
 import { IconButton } from "./iconButton";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { clsx } from "clsx";
 
 export function EmbeddedWebcam() {
   const { chat: bot } = useContext(ChatContext);
@@ -66,8 +67,11 @@ export function EmbeddedWebcam() {
                 videoConstraints={{
                   facingMode,
                 }}
-                className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
-                />
+                className={clsx(
+                  "rounded-bl-none rounded-br-none rounded-lg bg-black",
+                  cameraDisabled && "animate-pulse"
+                )}
+              />
             )}
             { cameraDisabled && (
               <img
@@ -75,7 +79,10 @@ export function EmbeddedWebcam() {
                 alt="Captured image"
                 width={320}
                 height={240}
-                className={"rounded-bl-none rounded-br-none rounded-lg bg-black " + (cameraDisabled ? "animate-pulse" : "")  }
+                className={clsx(
+                  "rounded-bl-none rounded-br-none rounded-lg bg-black",
+                  cameraDisabled && "animate-pulse",
+                )}
                 />
             )}
             <div className="p-1 shadow-md flex flex-auto justify-center bg-gray-50 rounded-tl-none rounded-tr-none rounded-full">
@@ -87,7 +94,7 @@ export function EmbeddedWebcam() {
                 disabled={cameraDisabled}
               />
 
-              <button className={`ml-8 px-1.5 rounded-lg text-sm p-1 text-center inline-flex items-center`}>
+              <button className="ml-8 px-1.5 rounded-lg text-sm p-1 text-center inline-flex items-center">
               <ArrowPathIcon
                 className="w-5 h-5 text-gray-700 focus:animate-spin"
                 onClick={() => {

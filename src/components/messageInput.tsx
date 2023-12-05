@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import { clsx } from "clsx";
 import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
@@ -9,21 +10,19 @@ import { whispercpp  } from "@/features/whispercpp/whispercpp";
 import { config, updateConfig } from "@/utils/config";
 import wavefile, { WaveFile } from "wavefile";
 
-type Props = {
+export default function MessageInput({
+  userMessage,
+  setUserMessage,
+  isChatProcessing,
+  onChangeUserMessage,
+}: {
   userMessage: string;
   setUserMessage: (message: string) => void;
   isChatProcessing: boolean;
   onChangeUserMessage: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
-};
-
-const MessageInput = ({
-  userMessage,
-  setUserMessage,
-  isChatProcessing,
-  onChangeUserMessage,
-}: Props) => {
+}) {
   const transcriber = useTranscriber();
   const inputRef = useRef<HTMLInputElement>(null);
   const [whisperOpenAIOutput, setWhisperOpenAIOutput] = useState<any | null>(null);
@@ -196,7 +195,10 @@ const MessageInput = ({
               <IconButton
                 title="Mute / Unmute TTS"
                 iconName="24/Announcement"
-                className={(muted ? 'opacity-50 ' : '') + `ml-2 bg-secondary hover:bg-secondary-hover active:bg-secondary-press`}
+                className={clsx(
+                  "ml-2 bg-secondary hover:bg-secondary-hover active:bg-secondary-press",
+                  muted && 'opacity-50 ',
+                )}
                 isProcessing={false}
                 onClick={toggleTTSMute}
               />
@@ -206,6 +208,4 @@ const MessageInput = ({
       </div>
     </div>
   );
-};
-
-export default MessageInput;
+}

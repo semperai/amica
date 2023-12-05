@@ -2,13 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Switch } from '@headlessui/react'
 import { IconButton } from "@/components/iconButton";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
+import { clsx } from "clsx";
 import { config } from "@/utils/config";
 
 const TOTAL_ITEMS_TO_SHOW = 100;
-
-function classNames(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ')
-}
 
 function SwitchToggle({ enabled, set }: {
   enabled: boolean;
@@ -24,14 +21,14 @@ function SwitchToggle({ enabled, set }: {
       <span aria-hidden="true" className="pointer-events-none absolute h-full w-full rounded-md" />
       <span
         aria-hidden="true"
-        className={classNames(
+        className={clsx(
           enabled ? 'bg-indigo-200' : 'bg-gray-200',
           'pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out'
         )}
       />
       <span
         aria-hidden="true"
-        className={classNames(
+        className={clsx(
           enabled ? 'translate-x-5' : 'translate-x-0',
           'pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out'
         )}
@@ -113,7 +110,10 @@ export function DebugPane({ onClickClose }: {
             if (log.type === 'error' && !typeErrorEnabled) return false;
             return true;
           }).map((log: any, idx: number) => (
-            <div key={log.ts+idx} className={"my-0.5 " + (log.type === 'error' ? 'bg-red-50' : 'bg-gray-50') }>
+            <div key={log.ts+idx} className={clsx(
+              "my-0.5",
+              log.type === 'error' ? 'bg-red-50' : 'bg-gray-50'
+            )}>
               { log.type === 'debug' && (
                 <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 font-mono w-12">debug</span>
               )}
