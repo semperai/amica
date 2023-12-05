@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { updateConfig, defaultConfig } from '@/utils/config';
@@ -7,6 +8,7 @@ import VrmDemo from "@/components/vrmDemo";
 import { supabase } from '@/utils/supabase';
 
 export default function Import() {
+  const { t } = useTranslation();
   const { viewer } = useContext(ViewerContext);
   const router = useRouter()
 
@@ -124,15 +126,22 @@ export default function Import() {
         {error && (
           <div>
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-              <strong className="font-bold">Error!</strong>
-              <span className="block sm:inline"> Something went wrong.</span>
+              <strong className="font-bold">{t("Error!")}</strong>
+              <span className="block sm:inline">{t("Something went wrong.")}</span>
             </div>
-            <p className="mt-8">Try again later. <Link href="/" className="text-cyan-500">Click here</Link> to return to homepage.</p>
+            <p className="mt-8">
+              {t("Try again later.")}
+              {' '}
+              <Link href="/" className="text-cyan-500">{t("Click here")}</Link>
+              {' '}
+              {t("to return to homepage.")}
+            </p>
+
           </div>
         )}
         {! error && loaded && (
           <h1 className="text-lg">
-            Import {loaded ? (`“${name}”` || 'Amica') : '...'}
+            {t("Import")} {loaded ? (`“${name}”` || 'Amica') : '...'}
           </h1>
         )}
       </div>
@@ -159,7 +168,7 @@ export default function Import() {
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none ml-2"
                   disabled={buttonDisabled}
                 >
-                  Import
+                  {t("Import")}
                 </button>
               </div>
             )}
@@ -169,7 +178,7 @@ export default function Import() {
           { name && name != defaultConfig('name') && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
-                Name
+                {t("Name")}
               </label>
               <div className="mt-2">
                 <input
@@ -185,7 +194,7 @@ export default function Import() {
           {systemPrompt && systemPrompt != defaultConfig('system_prompt') && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
-                System Prompt
+                {t("System Prompt")}
               </label>
               <div className="mt-2">
                 <textarea
@@ -201,7 +210,7 @@ export default function Import() {
           {visionSystemPrompt && visionSystemPrompt != defaultConfig('vision_system_prompt') && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
-                Vision System Prompt
+                {t("Vision System Prompt")}
               </label>
               <div className="mt-2">
                 <textarea
@@ -217,7 +226,7 @@ export default function Import() {
           {bgUrl && bgUrl != defaultConfig('bg_url') && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
-                Background Url
+                {t("Background Url")}
               </label>
               <div className="mt-2">
                 <input
@@ -234,7 +243,7 @@ export default function Import() {
           {youtubeVideoId && youtubeVideoId != defaultConfig('youtube_videoid') && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
-                Youtube Video Id
+                {t("Youtube Video Id")}
               </label>
               <div className="mt-2">
                 <input
@@ -251,7 +260,7 @@ export default function Import() {
           {vrmUrl && vrmUrl != defaultConfig('vrm_url') && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
-                VRM Url
+                {t("VRM Url")}
               </label>
               <div className="mt-2">
                 <input
@@ -267,7 +276,7 @@ export default function Import() {
           {animationUrl && animationUrl != defaultConfig('animation_url') && (
             <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
-                Animation Url
+                {t("Animation Url")}
               </label>
               <div className="mt-2">
                 <input
