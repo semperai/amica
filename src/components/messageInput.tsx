@@ -143,48 +143,46 @@ export default function MessageInput({
   }
 
   return (
-    <div className="fixed bottom-0 z-20 w-full">
-      <div className="bg-base text-black">
-        <div className="mx-auto max-w-4xl p-2">
-          <div className="grid grid-flow-col grid-cols-[min-content_1fr_min-content] gap-[8px]">
-            <div className='flex flex-col justify-center items-center'>
-              <IconButton
-                iconName={vad.listening ? "24/PauseAlt" : "24/Microphone"}
-                className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
-                isProcessing={vad.userSpeaking}
-                disabled={config('stt_backend') === 'none' || vad.loading || Boolean(vad.errored)}
-                onClick={vad.toggle}
-              />
-            </div>
+    <div className="fixed bottom-2 z-20 w-full">
+      <div className="mx-auto max-w-4xl p-2 backdrop-blur-lg border-0 rounded-lg">
+        <div className="grid grid-flow-col grid-cols-[min-content_1fr_min-content] gap-[8px]">
+          <div className='flex flex-col justify-center items-center'>
+            <IconButton
+              iconName={vad.listening ? "24/PauseAlt" : "24/Microphone"}
+              className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
+              isProcessing={vad.userSpeaking}
+              disabled={config('stt_backend') === 'none' || vad.loading || Boolean(vad.errored)}
+              onClick={vad.toggle}
+            />
+          </div>
 
-            <input
-              type="text"
-              ref={inputRef}
-              placeholder="Write message here..."
-              onChange={onChangeUserMessage}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  if (userMessage === "") {
-                    return false;
-                  }
-
-                  clickedSendButton();
+          <input
+            type="text"
+            ref={inputRef}
+            placeholder="Write message here..."
+            onChange={onChangeUserMessage}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                if (userMessage === "") {
+                  return false;
                 }
-              }}
-              disabled={false}
 
-              className="disabled block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
-              value={userMessage}></input>
+                clickedSendButton();
+              }
+            }}
+            disabled={false}
+
+            className="disabled block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
+            value={userMessage}></input>
   
-            <div className='flex flex-col justify-center items-center'>
-              <IconButton
-                iconName="24/Send"
-                className="ml-2 bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
-                isProcessing={isChatProcessing || transcriber.isBusy}
-                disabled={isChatProcessing || !userMessage || transcriber.isModelLoading}
-                onClick={clickedSendButton}
-              />
-            </div>
+          <div className='flex flex-col justify-center items-center'>
+            <IconButton
+              iconName="24/Send"
+              className="ml-2 bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
+              isProcessing={isChatProcessing || transcriber.isBusy}
+              disabled={isChatProcessing || !userMessage || transcriber.isModelLoading}
+              onClick={clickedSendButton}
+            />
           </div>
         </div>
       </div>
