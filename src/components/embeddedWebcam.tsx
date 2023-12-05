@@ -49,7 +49,7 @@ export function EmbeddedWebcam({
 
 
   return (
-    <div className="fixed top-16">
+    <div className="fixed right-[calc(320px)] top-0 z-[11]">
       <div className="fixed">
         <>
           { ! cameraDisabled && (
