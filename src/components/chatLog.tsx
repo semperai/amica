@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { clsx } from "clsx";
 import { useContext, useEffect, useRef, useState } from "react";
 import FlexTextarea from "@/components/flexTextarea/flexTextarea";
 import { Message } from "@/features/chat/messages";
@@ -13,6 +15,7 @@ export const ChatLog = ({
 }: {
   messages: Message[];
 }) => {
+  const { t } = useTranslation();
   const { chat: bot } = useContext(ChatContext);
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
@@ -71,12 +74,18 @@ export const ChatLog = ({
   );
 };
 
-const Chat = ({ role, message, num, onClickResumeButton }: {
+function Chat({
+  role,
+  message,
+  num,
+  onClickResumeButton
+}: {
   role: string;
   message: string;
   num: number;
   onClickResumeButton: (num: number, message: string) => void;
-}) => {
+}) {
+  const { t } = useTranslation();
   const [textAreaValue, setTextAreaValue] = useState(message);
 
   const onClickButton = () => {
@@ -85,33 +94,35 @@ const Chat = ({ role, message, num, onClickResumeButton }: {
   };
 
 
-  const roleColor =
-    role === "assistant" ? "bg-secondary text-white " : "bg-base text-gray-700";
-  const roleText = role === "assistant" ? "text-secondary" : "text-gray-600";
-  const offsetX = role === "user" ? "pl-20" : "pr-20";
 
   return (
-    <div className={`mx-auto max-w-sm my-8 ${offsetX}`}>
+    <div className={clsx(
+      'mx-auto max-w-sm my-8',
+      role === "assistant" ? "pr-20" : "pl-20",
+    )}>
       <div
-        className={`px-8 py-2 rounded-t-lg font-bold tracking-wider ${roleColor} flex justify-between shadow-inner`}
-
+        className={clsx(
+          'px-8 py-2 rounded-t-lg font-bold tracking-wider flex justify-between shadow-inner bg-white/80 backdrop-blur-lg',
+          role === "assistant" ? "bg-pink-600/50" : "bg-cyan-600/50",
+        )}
       >
-        <div className="text-bold">
-          {role === "assistant" ? config('name').toUpperCase() : "YOU"}
+        <div className="text-bold text-white">
+          {role === "assistant" && config('name').toUpperCase()}
+          {role === "user" && t("YOU")}
         </div>
         <button
           className="text-right"
           onClick={onClickButton}
         >
-          {role !== "assistant" && (
-            <div className="ml-16 p-1 bg-yellow-50/25 border border-yellow-800/5 rounded-full">
-              <ArrowPathIcon className="h-5 w-5 hover:animate-spin" aria-hidden="true" />
+          {role === "user" && (
+            <div className="ml-16 p-1 rounded-full">
+              <ArrowPathIcon className="h-5 w-5 hover:animate-spin text-white" aria-hidden="true" />
             </div>
           )}
         </button>
       </div>
-      <div className="px-4 py-2 bg-white rounded-b-lg shadow-sm">
-        <div className={`typography-16 font-M_PLUS_2 font-bold ${roleText}`}>
+      <div className="px-4 py-2 bg-white/80 backdrop-blur-lg rounded-b-lg shadow-sm">
+        <div className='typography-16 font-M_PLUS_2 font-bold text-gray-800'>
           {role === "assistant" ? (
             <div>{textAreaValue}</div>
           ) : (
