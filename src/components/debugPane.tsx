@@ -62,7 +62,7 @@ export function DebugPane({ onClickClose }: {
 
   return (
     <div className="fixed bg-white/95 w-full h-full top-0 left-0 z-20">
-      <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20 overflow-y-auto">
+      <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20">
         <div className="p-2 bg-white">
           <IconButton
             iconName="24/Close"
@@ -102,7 +102,7 @@ export function DebugPane({ onClickClose }: {
             </span>
           </span>
         </div>
-        <div className="relative w-full max-h-[80%] overflow-y-scroll inline-block px-2 md:px-8">
+        <div className="relative w-full max-h-screen overflow-y-scroll inline-block px-2 md:px-8">
           {(window as any).error_handler_logs.slice(-TOTAL_ITEMS_TO_SHOW).filter((log: any) => {
             if (log.type === 'debug' && !typeDebugEnabled) return false;
             if ((log.type === 'info' || log.type === 'log') && !typeInfoEnabled) return false;
@@ -137,7 +137,7 @@ export function DebugPane({ onClickClose }: {
             </div>
           ))}
           <div ref={scrollRef} className="my-20" />
-          <div className="my-10" />
+          <div className="my-40" />
         </div>
       </div>
     </div>
