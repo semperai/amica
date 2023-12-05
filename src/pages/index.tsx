@@ -1,10 +1,25 @@
-import { useCallback, useContext, useEffect, useState, useRef } from "react";
+import {
+  Fragment,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+import { Menu, Transition } from '@headlessui/react'
 import { clsx } from "clsx";
 import { M_PLUS_2, Montserrat } from "next/font/google";
 import { useTranslation, Trans } from 'react-i18next';
 import {
+  ChatBubbleLeftIcon,
+  ChatBubbleLeftRightIcon,
+  CodeBracketSquareIcon,
+  LanguageIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
+  VideoCameraIcon,
+  VideoCameraSlashIcon,
+  WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 
 import { AssistantText } from "@/components/assistantText";
@@ -25,7 +40,7 @@ import { Message, Role } from "@/features/chat/messages";
 import { ChatContext } from "@/features/chat/chatContext";
 
 import { config, updateConfig } from '@/utils/config';
-import LanguageSwitcher from "@/i18n/languageSwitcher";
+import { langs } from '@/i18n/langs';
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -41,7 +56,8 @@ const montserrat = Montserrat({
 
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currLang = i18n.resolvedLanguage;
   const { viewer } = useContext(ViewerContext);
   const { chat: bot } = useContext(ChatContext);
 
@@ -63,6 +79,7 @@ export default function Home() {
   // null indicates havent loaded config yet
   const [muted, setMuted] = useState<boolean|null>(null);
   const [webcamEnabled, setWebcamEnabled] = useState(false);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
 
   useEffect(() => {
@@ -118,82 +135,128 @@ export default function Home() {
       )}
 
       <Introduction open={config("show_introduction") === 'true'} />
+
       <LoadingProgress />
+
+      { webcamEnabled && <EmbeddedWebcam setWebcamEnabled={setWebcamEnabled} /> }
       { showDebug && <DebugPane onClickClose={() => setShowDebug(false) }/> }
+
       <VrmViewer />
-      <MessageInputContainer
-        isChatProcessing={chatProcessing}
-      />
+
+      <MessageInputContainer isChatProcessing={chatProcessing} />
 
       {/* main menu */}
       <div className="absolute z-10 m-2">
-        <div className="grid grid-flow-col gap-[8px]">
-          <IconButton
-            iconName="24/Menu"
-            label={t("Settings")}
-            isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm z-[11]"
-            onClick={() => setShowSettings(true)}
-          ></IconButton>
-
-
-          <IconButton
-            iconName={webcamEnabled ? "24/Close" : "24/Camera"}
-            isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-            onClick={() => {
-              setWebcamEnabled(!webcamEnabled);
-            }} />
-          { webcamEnabled && (
-            <EmbeddedWebcam
-              setWebcamEnabled={setWebcamEnabled}
-            />
-          )}
-
-          {showChatLog ? (
-            <IconButton
-              iconName="24/CommentOutline"
-              label={t("Conversation")}
-              isProcessing={false}
-              onClick={() => setShowChatLog(false)}
-              className="shadow-sm z-[11]"
-            />
-          ) : (
-            <IconButton
-              iconName="24/CommentFill"
-              label={t("Conversation")}
-              isProcessing={false}
-              disabled={chatLog.length <= 0}
-              onClick={() => setShowChatLog(true)}
-              className="shadow-sm z-[11]"
-            />
-          )}
-
-          <div className="shadow-sm z-[11]"><LanguageSwitcher></LanguageSwitcher></div>
-
-          <IconButton
-            iconName="24/Error"
-            label={t("Debug")}
-            isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm z-[11]"
-            onClick={() => setShowDebug(true)}
-          ></IconButton>
-        </div>
         <div className="grid grid-flow-col gap-[8px] place-content-end mt-2">
-          <div className='flex flex-col justify-center items-center mr-2'>
-            { muted ? (
-              <SpeakerXMarkIcon
+          <div className='flex flex-col justify-center items-center mr-2 space-y-2'>
+            <div className="flex flex-row items-center space-x-2">
+              <WrenchScrewdriverIcon
                 className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                 aria-hidden="true"
-                onClick={toggleTTSMute}
+                onClick={() => setShowSettings(true)}
               />
-            ) : (
-              <SpeakerWaveIcon
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              {showChatLog ? (
+                <ChatBubbleLeftIcon
+                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setShowChatLog(false)}
+                />
+              ) : (
+                <ChatBubbleLeftRightIcon
+                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setShowChatLog(true)}
+                />
+              )}
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              { muted ? (
+                <SpeakerXMarkIcon
+                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={toggleTTSMute}
+                />
+              ) : (
+                <SpeakerWaveIcon
+                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={toggleTTSMute}
+                />
+              )}
+              <span className="text-white hidden">Mute / Unmute</span>
+            </div>
+
+
+            <div className="flex flex-row items-center space-x-2">
+              { webcamEnabled ? (
+                <VideoCameraIcon
+                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setWebcamEnabled(false)}
+                />
+              ) : (
+                <VideoCameraSlashIcon
+                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setWebcamEnabled(true)}
+                />
+              )}
+              <span className="text-white hidden">Webcam</span>
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              <Menu as="div">
+                <div>
+                  <Menu.Button>
+                    <LanguageIcon
+                      className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                      aria-hidden="true"
+                    />
+                  </Menu.Button>
+                </div>
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="absolute left-10 -mt-8 z-10 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div className="py-0">
+
+                      {Object.keys(langs).map((lng) => (
+                        <Menu.Item key={lng}>
+                          <button
+                            className={clsx(
+                              currLang === lng && 'bg-cyan-400 text-white',
+                              'group flex w-full items-center px-2 py-2 text-sm'
+                            )}
+                            onClick={() => i18n.changeLanguage(lng)}>
+                            {langs[lng].nativeName}
+                          </button>
+                        </Menu.Item>
+                      ))}
+                    </div>
+                  </Menu.Items>
+                </Transition>
+              </Menu>
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              <CodeBracketSquareIcon
                 className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                 aria-hidden="true"
-                onClick={toggleTTSMute}
+                onClick={() => setShowDebug(true)}
               />
-            )}
+              <span className="text-white hidden">Debug</span>
+            </div>
+
           </div>
         </div>
       </div>
@@ -203,6 +266,12 @@ export default function Home() {
       {showSettings && (
         <Settings
           onClickClose={() => setShowSettings(false)}
+        />
+      )}
+
+      { showLanguageSelector && (
+        <LanguageSwitcher
+          onClickClose={() => setShowLanguageSelector(false)}
         />
       )}
 

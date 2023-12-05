@@ -40,10 +40,10 @@ export const ChatLog = ({
 
   return (
     <>
-      <div className="absolute left-2 top-16 z-10">
+      <div className="absolute left-12 top-4 z-10">
         <IconButton
           iconName="24/ReloadLoop"
-          label="Restart"
+          label={t("Restart")}
           isProcessing={false}
           className="bg-slate-600 hover:bg-slate-500 active:bg-slate-500 shadow-xl"
           onClick={() => {
