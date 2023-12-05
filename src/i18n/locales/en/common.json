@@ -4,6 +4,7 @@
   "Accept": "Accept",
   "Decline": "Decline",
   "Close": "Close",
+  "Restart": "Restart",
   "YOU": "YOU",
   "Welcome to Amica": "Welcome to Amica",
   "amica_intro": "\nAmica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.\nIt is designed to be able to be attached to any ChatBot API.\nIt can be used with any VRM model and is very customizable.\nYou can even run Amica on your own computer without an internet connection, or on your phone.",
