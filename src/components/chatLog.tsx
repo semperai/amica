@@ -49,7 +49,7 @@ export const ChatLog = ({
         ></IconButton>
       </div>
 
-      <div className="absolute w-col-span-6 max-w-full h-[100svh] pb-16">
+      <div className="fixed w-col-span-6 max-w-full h-full pb-16">
 
         <div className="max-h-full px-16 pt-20 pb-4 overflow-y-auto scroll-hidden">
           {messages.map((msg, i) => {

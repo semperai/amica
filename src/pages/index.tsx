@@ -92,9 +92,9 @@ export default function Home() {
       montserrat.variable,
     )}>
       { config("youtube_videoid") !== '' && (
-        <div className="absolute video-container w-screen h-screen z-0">
+        <div className="fixed video-container w-full h-full z-0">
           <iframe
-            className="w-screen h-screen"
+            className="w-full h-full"
             src={`https://www.youtube.com/embed/${config("youtube_videoid")}?&autoplay=1&mute=1&playsinline=1&loop=1&controls=0&disablekb=1&fs=0&playlist=${config("youtube_videoid")}`}
             frameBorder="0"></iframe>
         </div>

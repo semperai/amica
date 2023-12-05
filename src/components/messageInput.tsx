@@ -149,7 +149,7 @@ export default function MessageInput({
   }
 
   return (
-    <div className="absolute bottom-0 z-20 w-screen">
+    <div className="fixed bottom-0 z-20 w-full">
       <div className="bg-base text-black">
         <div className="mx-auto max-w-4xl p-2">
           <div className="grid grid-flow-col grid-cols-[min-content_1fr_min-content] gap-[8px]">
