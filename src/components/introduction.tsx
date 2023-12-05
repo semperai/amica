@@ -14,12 +14,9 @@ export const Introduction = ({ open }: {
   }
 
   return (
-    <div className="absolute z-40 h-full w-full bg-black/30 mx-auto sm:px-24 lg:px-32  py-40 font-M_PLUS_2"
-      onClick={() => {
-        setOpened(false);
-      }}
+    <div className="absolute z-40 h-full w-full bg-black/30 mx-auto sm:px-24 lg:px-32 font-M_PLUS_2"
     >
-      <div className="mx-auto my-auto max-h-full overflow-auto rounded-lg bg-white/40 p-4 backdrop-blur-lg shadow-lg">
+      <div className="mx-auto max-h-full overflow-auto rounded-lg bg-white/40 p-4 backdrop-blur-lg shadow-lg">
         <div className="my-4">
           <div className="my-8 font-bold text-xl">
             {t("Welcome to Amica")} v0.1
@@ -41,7 +38,7 @@ export const Introduction = ({ open }: {
             You can change the voice, language, and attach to different backends or in-browser models.
           `)}
           {' '}
-          <a href="https://docs.heyamica.com" target="_blank" className="text-cyan-600">{t("Read the full documentation here.")}</a>
+          <a href="https://docs.heyamica.com" target="_blank" className="text-cyan-500">{t("Read the full documentation here.")}</a>
           </p>
         </div>
 
