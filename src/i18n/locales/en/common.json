@@ -8,7 +8,7 @@
   "amica_intro": "\nAmica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.\nIt is designed to be able to be attached to any ChatBot API.\nIt can be used with any VRM model and is very customizable.\nYou can even run Amica on your own computer without an internet connection, or on your phone.",
   "Setup": "Setup",
   "amica_setup": "\nClick on the top left of the screen to open settings.\nYou can change the voice, language, and attach to different backends or in-browser models.",
-  "here": "here",
+  "Read the full documentation here.": "Read the full documentation here.",
   "dont_show_again": "Don't show again",
   "Background Color": "Background Color",
   "bg_color_desc": "Configure the background color. This overrides background image.",

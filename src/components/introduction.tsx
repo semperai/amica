@@ -14,7 +14,7 @@ export const Introduction = ({ open }: {
   }
 
   return (
-    <div className="absolute z-40 h-full w-full bg-black/30 mx-auto max-w-7xl sm:px-24 lg:px-32  py-40 font-M_PLUS_2"
+    <div className="absolute z-40 h-full w-full bg-black/30 mx-auto sm:px-24 lg:px-32  py-40 font-M_PLUS_2"
       onClick={() => {
         setOpened(false);
       }}
@@ -39,9 +39,9 @@ export const Introduction = ({ open }: {
           <p>{t('amica_setup', `
             Click on the top left of the screen to open settings.
             You can change the voice, language, and attach to different backends or in-browser models.
-            Read the full documentation.
           `)}
-          <a href="https://github.com/semperai/amica/tree/master/docs" target="_blank" className="text-secondary">{t("here")}</a>
+          {' '}
+          <a href="https://docs.heyamica.com" target="_blank" className="text-secondary">{t("Read the full documentation here.")}</a>
           </p>
         </div>
 
