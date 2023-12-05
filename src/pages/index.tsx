@@ -269,12 +269,6 @@ export default function Home() {
         />
       )}
 
-      { showLanguageSelector && (
-        <LanguageSwitcher
-          onClickClose={() => setShowLanguageSelector(false)}
-        />
-      )}
-
       {! showChatLog && (
         <>
           { shownMessage === 'assistant' && (
