@@ -2,6 +2,10 @@ import { useCallback, useContext, useEffect, useState, useRef } from "react";
 import { clsx } from "clsx";
 import { M_PLUS_2, Montserrat } from "next/font/google";
 import { useTranslation, Trans } from 'react-i18next';
+import {
+  SpeakerWaveIcon,
+  SpeakerXMarkIcon,
+} from "@heroicons/react/24/outline";
 
 import { AssistantText } from "@/components/assistantText";
 import { AddToHomescreen } from "@/components/addToHomescreen";
@@ -56,14 +60,27 @@ export default function Home() {
   const [showChatLog, setShowChatLog] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
 
+  // null indicates havent loaded config yet
+  const [muted, setMuted] = useState<boolean|null>(null);
+  const [webcamEnabled, setWebcamEnabled] = useState(false);
+
 
   useEffect(() => {
+    if (muted === null) {
+      setMuted(config('tts_muted') === 'true');
+    }
+
     if (config("bg_color") !== '') {
       document.body.style.backgroundColor = config("bg_color");
     } else {
       document.body.style.backgroundImage = `url(${config("bg_url")})`;
     }
   }, []);
+
+  function toggleTTSMute() {
+    updateConfig('tts_muted', config('tts_muted') === 'true' ? 'false' : 'true')
+    setMuted(config('tts_muted') === 'true')
+  }
 
   useEffect(() => {
     bot.initialize(
@@ -161,6 +178,23 @@ export default function Home() {
             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press shadow-sm z-[11]"
             onClick={() => setShowDebug(true)}
           ></IconButton>
+        </div>
+        <div className="grid grid-flow-col gap-[8px] place-content-end mt-2">
+          <div className='flex flex-col justify-center items-center mr-2'>
+            { muted ? (
+              <SpeakerXMarkIcon
+                className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                aria-hidden="true"
+                onClick={toggleTTSMute}
+              />
+            ) : (
+              <SpeakerWaveIcon
+                className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                aria-hidden="true"
+                onClick={toggleTTSMute}
+              />
+            )}
+          </div>
         </div>
       </div>
 

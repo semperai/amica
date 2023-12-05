@@ -28,7 +28,6 @@ export default function MessageInput({
   const [whisperOpenAIOutput, setWhisperOpenAIOutput] = useState<any | null>(null);
   const [whisperCppOutput, setWhisperCppOutput] = useState<any | null>(null);
   const { chat: bot } = useContext(ChatContext);
-  const [muted, setMuted] = useState(config('tts_muted') === 'true' );
 
   const vad = useMicVAD({
     startOnLoad: false,
@@ -143,11 +142,6 @@ export default function MessageInput({
     setUserMessage("");
   }
 
-  function toggleTTSMute() {
-    updateConfig('tts_muted', config('tts_muted') === 'true' ? 'false' : 'true')
-    setMuted(config('tts_muted') === 'true')
-  }
-
   return (
     <div className="fixed bottom-0 z-20 w-full">
       <div className="bg-base text-black">
@@ -189,18 +183,6 @@ export default function MessageInput({
                 isProcessing={isChatProcessing || transcriber.isBusy}
                 disabled={isChatProcessing || !userMessage || transcriber.isModelLoading}
                 onClick={clickedSendButton}
-              />
-            </div>
-            <div className='flex flex-col justify-center items-center'>
-              <IconButton
-                title="Mute / Unmute TTS"
-                iconName="24/Announcement"
-                className={clsx(
-                  "ml-2 bg-secondary hover:bg-secondary-hover active:bg-secondary-press",
-                  muted && 'opacity-50 ',
-                )}
-                isProcessing={false}
-                onClick={toggleTTSMute}
               />
             </div>
           </div>
