@@ -23,6 +23,7 @@ export const SecretTextInput = ({
         placeholder="sk-..."
         value={value}
         onChange={onChange}
+        autoComplete="off"
       />
 
 
