@@ -147,8 +147,8 @@ export default function Home() {
 
       {/* main menu */}
       <div className="absolute z-10 m-2">
-        <div className="grid grid-flow-col gap-[8px] place-content-end mt-2">
-          <div className='flex flex-col justify-center items-center mr-2 space-y-2'>
+        <div className="grid grid-flow-col gap-[8px] place-content-end mt-2 bg-black/30 backdrop-invert[.25]">
+          <div className='flex flex-col justify-center items-center p-1 space-y-2'>
             <div className="flex flex-row items-center space-x-2">
               <WrenchScrewdriverIcon
                 className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
