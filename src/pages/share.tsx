@@ -130,13 +130,13 @@ export default function Share() {
       `}
       </style>
 
-      <div className="col-span-3 max-w-xs rounded-xl mt-4">
+      <div className="col-span-3 max-w-md rounded-xl mt-4">
         <h1 className="text-lg">Character Creator</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("Name")}
             </label>
@@ -152,7 +152,7 @@ export default function Share() {
             </div>
           </div>
 
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("System Prompt")}
             </label>
@@ -168,7 +168,7 @@ export default function Share() {
             </div>
           </div>
 
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("Vision System Prompt")}
             </label>
@@ -184,7 +184,7 @@ export default function Share() {
             </div>
           </div>
 
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("Background URL")}
             </label>
@@ -233,7 +233,7 @@ export default function Share() {
             </div>
           </div>
 
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("YouTube Video ID")}
             </label>
@@ -253,7 +253,7 @@ export default function Share() {
             </div>
           </div>
 
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("VRM Url")}
             </label>
@@ -312,7 +312,7 @@ export default function Share() {
                 }}
               />
 
-              <div className="sm:col-span-3 max-w-xs rounded-xl mt-4 bg-gray-100">
+              <div className="sm:col-span-3 max-w-md rounded-xl mt-4 bg-gray-100">
                 {vrmUrl && (
                   <VrmDemo
                     vrmUrl={vrmUrl}
@@ -342,7 +342,7 @@ export default function Share() {
           </div>
 
           {/*
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               Animation Url
             </label>
@@ -393,7 +393,7 @@ export default function Share() {
             </div>
           </div>
 
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               Voice Url
             </label>
@@ -443,7 +443,7 @@ export default function Share() {
           </div>
           */}
 
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-8">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
             <button
               onClick={registerCharacter}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-fuchsia-500 disabled:cursor-not-allowed"

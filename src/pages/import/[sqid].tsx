@@ -122,7 +122,7 @@ export default function Import() {
 
   return (
     <div className="p-4 md:p-20">
-      <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+      <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
         {error && (
           <div>
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
@@ -148,7 +148,7 @@ export default function Import() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-4 bg-gray-100">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4 bg-gray-100">
             { loaded && (
               <VrmDemo
                 vrmUrl={vrmUrl}
@@ -156,9 +156,9 @@ export default function Import() {
               />
             )}
           </div>
-          <div className="sm:col-span-3 max-w-xs rounded-xl mt-2">
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
             {loaded && vrmLoaded && (
-              <div className="sm:col-span-3 max-w-xs rounded-xl mt-2">
+              <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
                 <button
                   onClick={() => {
                     overrideConfig();
@@ -176,7 +176,7 @@ export default function Import() {
         </div>
         <div>
           { name && name != defaultConfig('name') && (
-            <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 {t("Name")}
               </label>
@@ -192,7 +192,7 @@ export default function Import() {
           )}
 
           {systemPrompt && systemPrompt != defaultConfig('system_prompt') && (
-            <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 {t("System Prompt")}
               </label>
@@ -208,7 +208,7 @@ export default function Import() {
           )}
 
           {visionSystemPrompt && visionSystemPrompt != defaultConfig('vision_system_prompt') && (
-            <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 {t("Vision System Prompt")}
               </label>
@@ -224,7 +224,7 @@ export default function Import() {
           )}
 
           {bgUrl && bgUrl != defaultConfig('bg_url') && (
-            <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 {t("Background Url")}
               </label>
@@ -241,7 +241,7 @@ export default function Import() {
           )}
 
           {youtubeVideoId && youtubeVideoId != defaultConfig('youtube_videoid') && (
-            <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 {t("Youtube Video Id")}
               </label>
@@ -258,7 +258,7 @@ export default function Import() {
           )}
 
           {vrmUrl && vrmUrl != defaultConfig('vrm_url') && (
-            <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 {t("VRM Url")}
               </label>
@@ -274,7 +274,7 @@ export default function Import() {
           )}
 
           {animationUrl && animationUrl != defaultConfig('animation_url') && (
-            <div className="sm:col-span-3 max-w-xs rounded-xl mt-4">
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 {t("Animation Url")}
               </label>
