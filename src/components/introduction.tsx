@@ -19,9 +19,9 @@ export const Introduction = ({ open }: {
         setOpened(false);
       }}
     >
-      <div className="mx-auto my-auto max-h-full overflow-auto rounded-lg bg-white p-4">
+      <div className="mx-auto my-auto max-h-full overflow-auto rounded-lg bg-white/40 p-4 backdrop-blur-lg shadow-lg">
         <div className="my-4">
-          <div className="my-8 font-bold text-secondary text-xl">
+          <div className="my-8 font-bold text-xl">
             {t("Welcome to Amica")} v0.1
           </div>
           <p>{t("amica_intro", `
@@ -33,7 +33,7 @@ export const Introduction = ({ open }: {
           </p>
         </div>
         <div className="my-4">
-          <div className="my-8 font-bold text-secondary typography-20">
+          <div className="my-8 font-bold typography-20">
             {t("Setup")}
           </div>
           <p>{t('amica_setup', `
@@ -41,7 +41,7 @@ export const Introduction = ({ open }: {
             You can change the voice, language, and attach to different backends or in-browser models.
           `)}
           {' '}
-          <a href="https://docs.heyamica.com" target="_blank" className="text-secondary">{t("Read the full documentation here.")}</a>
+          <a href="https://docs.heyamica.com" target="_blank" className="text-cyan-600">{t("Read the full documentation here.")}</a>
           </p>
         </div>
 
