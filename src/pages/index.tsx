@@ -6,6 +6,7 @@ import {
   useState,
   useRef,
 } from "react";
+import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
 import { clsx } from "clsx";
 import { M_PLUS_2, Montserrat } from "next/font/google";
@@ -15,6 +16,7 @@ import {
   ChatBubbleLeftRightIcon,
   CodeBracketSquareIcon,
   LanguageIcon,
+  ShareIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
   VideoCameraIcon,
@@ -212,7 +214,8 @@ export default function Home() {
               <span className="text-white hidden">Webcam</span>
             </div>
 
-            <div className="flex flex-row items-center space-x-2">
+            {/* 28px hack to force size */}
+            <div className="flex flex-row items-center space-x-2 w-[28px] h-[28px]">
               <Menu as="div">
                 <div>
                   <Menu.Button>
@@ -250,6 +253,16 @@ export default function Home() {
                   </Menu.Items>
                 </Transition>
               </Menu>
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              <Link href="/share" target="_blank">
+                <ShareIcon
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                />
+              </Link>
+              <span className="text-white hidden">Share</span>
             </div>
 
             <div className="flex flex-row items-center space-x-2">
