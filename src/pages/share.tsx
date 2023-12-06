@@ -73,6 +73,8 @@ export default function Share() {
 
   const [vrmLoaded, setVrmLoaded] = useState(false);
 
+  const [sqid, setSqid] = useState('');
+
   useEffect(() => {
     setName(config('name'));
     setSystemPrompt(config('system_prompt'));
@@ -111,7 +113,7 @@ export default function Share() {
       const data = await res.json();
       console.log('response', data);
 
-      window.location.href = `/import/${data.sqid}`;
+      setSqid(data.sqid);
 
       setIsRegistering(false);
     }
@@ -147,6 +149,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={name}
+                readOnly={!! sqid}
                 onChange={(e) => {
                   setName(e.target.value);
                 }}
@@ -163,6 +166,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={systemPrompt}
+                readOnly={!! sqid}
                 onChange={(e) => {
                   setSystemPrompt(e.target.value);
                 }}
@@ -179,6 +183,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={visionSystemPrompt}
+                readOnly={!! sqid}
                 onChange={(e) => {
                   setVisionSystemPrompt(e.target.value);
                 }}
@@ -195,6 +200,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={bgUrl}
+                readOnly={!! sqid}
                 onChange={(e) => {
                   setBgUrl(e.target.value);
                 }}
@@ -231,6 +237,7 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
+                disabled={!! sqid}
               />
             </div>
           </div>
@@ -245,6 +252,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={youtubeVideoId}
+                readOnly={!! sqid}
                 onChange={(e) => {
                   setYoutubeVideoId(e.target.value);
                 }}
@@ -265,6 +273,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={vrmUrl}
+                readOnly={!! sqid}
                 onChange={(e) => {
                   setVrmUrl(e.target.value);
                   updateVrmAvatar(viewer, e.target.value);
@@ -312,6 +321,7 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
+                disabled={!! sqid}
               />
 
               <div className="sm:col-span-3 max-w-md rounded-xl mt-4 bg-gray-100">
@@ -353,6 +363,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={animationUrl}
+                readOnly={!! sqid}
                 onChange={(e) => {
                   setAnimationUrl(e.target.value);
                 }}
@@ -391,6 +402,7 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
+                disabled={!! sqid}
               />
             </div>
           </div>
@@ -404,6 +416,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={voiceUrl}
+                readOnly={!! sqid}
                 onChange={(e) => {
                   setVoiceUrl(e.target.value);
                 }}
@@ -440,20 +453,49 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
+                disabled={!! sqid}
               />
             </div>
           </div>
           */}
 
-          <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
-            <button
-              onClick={registerCharacter}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-fuchsia-500 disabled:cursor-not-allowed"
-              disabled={!vrmLoaded || isRegistering}
-            >
-              {t("Save Character")}
-            </button>
-          </div>
+          {! sqid && (
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
+              <button
+                onClick={registerCharacter}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-fuchsia-500 disabled:cursor-not-allowed"
+                disabled={!vrmLoaded || isRegistering}
+              >
+                {t("Save Character")}
+              </button>
+            </div>
+          )}
+
+          {sqid && (
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
+              <p>{t("Share this code (click to copy):")}</p>
+              <input
+                type="text"
+                className="inline-flex items-center px-2 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-fuchsia-600 bg-fuchsia-100 hover:bg-fuchsia-200 focus:outline-transparent focus:border-transparent border-transparent disabled:opacity-50 disabled:hover:bg-fuchsia-50 disabled:cursor-not-allowed hover:cursor-copy"
+                defaultValue={sqid}
+                readOnly
+                onClick={(e) => {
+                  // @ts-ignore
+                  navigator.clipboard.writeText(e.target.value);
+                }}
+              />
+              <p className="mt-6">
+                {t("Or, you can share this direct link:")}
+                {' '}
+                <Link
+                  href={`https://amica.arbius.ai/import/${sqid}`}
+                  className="text-cyan-600 hover:text-cyan-700"
+                >
+                  https://amica.arbius.ai/import/{sqid}
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
         <div>
           {/* empty column */}
