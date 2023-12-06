@@ -103,7 +103,7 @@ function Chat({
       <div
         className={clsx(
           'px-8 py-2 rounded-t-lg font-bold tracking-wider flex justify-between shadow-inner backdrop-blur-lg',
-          role === "assistant" ? "bg-pink-600/50" : "bg-cyan-600/50",
+          role === "assistant" ? "bg-pink-400/80" : "bg-cyan-300/80",
         )}
       >
         <div className="text-bold text-white">
