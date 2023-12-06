@@ -18,7 +18,7 @@ export const UserText = ({ message }: { message: string }) => {
         <div className="backdrop-blur-lg rounded-lg">
           <div className="bg-white/70 rounded-lg backdrop-blur-lg shadow-lg">
             <div className="px-8 pr-1 py-3 bg-rose/90 rounded-t-lg text-white font-bold tracking-wider">
-              <span className="p-4 bg-cyan-600/40 rounded-lg rounded-tl-none rounded-tr-none">
+              <span className="p-4 bg-cyan-600/80 rounded-lg rounded-tl-none rounded-tr-none shadow-sm">
                 {t("YOU")}
               </span>
             </div>
