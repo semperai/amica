@@ -23,7 +23,5 @@ export function cleanTalk(talk: Talk) {
   // remove double spaces
   talk.message = talk.message.replace(/  /g, ' ');
 
-  // make sure there is no space at the beginning or end
-  talk.message = talk.message.trim();
   return talk;
 }
