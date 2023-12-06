@@ -98,11 +98,11 @@ function Chat({
   return (
     <div className={clsx(
       'mx-auto max-w-sm my-8',
-      role === "assistant" ? "pr-20" : "pl-20",
+      role === "assistant" ? "pr-10 sm:pr-20" : "pl-10 sm:pl-20",
     )}>
       <div
         className={clsx(
-          'px-8 py-2 rounded-t-lg font-bold tracking-wider flex justify-between shadow-inner bg-white/80 backdrop-blur-lg',
+          'px-8 py-2 rounded-t-lg font-bold tracking-wider flex justify-between shadow-inner backdrop-blur-lg',
           role === "assistant" ? "bg-pink-600/50" : "bg-cyan-600/50",
         )}
       >
