@@ -14,6 +14,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import {
   ChatBubbleLeftIcon,
   ChatBubbleLeftRightIcon,
+  CloudArrowDownIcon,
   CodeBracketSquareIcon,
   LanguageIcon,
   ShareIcon,
@@ -263,6 +264,16 @@ export default function Home() {
                 />
               </Link>
               <span className="text-white hidden">Share</span>
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              <Link href="/import">
+                <CloudArrowDownIcon
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                />
+              </Link>
+              <span className="text-white hidden">Import</span>
             </div>
 
             <div className="flex flex-row items-center space-x-2">
