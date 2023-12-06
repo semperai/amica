@@ -24,6 +24,7 @@ import {
 
 import { AssistantText } from "@/components/assistantText";
 import { AddToHomescreen } from "@/components/addToHomescreen";
+import { Alert } from "@/components/alert";
 import { UserText } from "@/components/userText";
 import { IconButton } from "@/components/iconButton";
 import { ChatLog } from "@/components/chatLog";
@@ -38,6 +39,7 @@ import { EmbeddedWebcam } from "@/components/embeddedWebcam";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Message, Role } from "@/features/chat/messages";
 import { ChatContext } from "@/features/chat/chatContext";
+import { AlertContext } from "@/features/alert/alertContext";
 
 import { config, updateConfig } from '@/utils/config';
 import { langs } from '@/i18n/langs';
@@ -59,6 +61,7 @@ export default function Home() {
   const { t, i18n } = useTranslation();
   const currLang = i18n.resolvedLanguage;
   const { viewer } = useContext(ViewerContext);
+  const { alert } = useContext(AlertContext);
   const { chat: bot } = useContext(ChatContext);
 
   const [chatProcessing, setChatProcessing] = useState(false);
@@ -102,6 +105,7 @@ export default function Home() {
   useEffect(() => {
     bot.initialize(
       viewer,
+      alert,
       setChatLog,
       setUserMessage,
       setAssistantMessage,
@@ -281,6 +285,8 @@ export default function Home() {
       )}
 
       <AddToHomescreen />
+
+      <Alert />
     </div>
   );
 }

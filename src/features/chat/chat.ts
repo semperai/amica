@@ -1,6 +1,7 @@
 import { Queue } from 'typescript-collections';
 import { Message, Role, Screenplay, Talk, textsToScreenplay } from "./messages";
 import { Viewer } from "@/features/vrmViewer/viewer";
+import { Alert } from "@/features/alert/alert";
 
 import { getEchoChatResponseStream } from './echoChat';
 import { getOpenAiChatResponseStream } from './openAiChat';
@@ -33,6 +34,7 @@ export class Chat {
   public initialized: boolean;
 
   public viewer?: Viewer;
+  public alert?: Alert;
 
   public setChatLog?: (messageLog: Message[]) => void;
   public setUserMessage?: (message: string) => void;
@@ -82,6 +84,7 @@ export class Chat {
 
   public initialize(
     viewer: Viewer,
+    alert: Alert,
     setChatLog: (messageLog: Message[]) => void,
     setUserMessage: (message: string) => void,
     setAssistantMessage: (message: string) => void,
@@ -89,6 +92,7 @@ export class Chat {
     setChatProcessing: (processing: boolean) => void,
   ) {
     this.viewer = viewer;
+    this.alert = alert;
     this.setChatLog = setChatLog;
     this.setUserMessage = setUserMessage;
     this.setAssistantMessage = setAssistantMessage;
@@ -275,15 +279,14 @@ export class Chat {
     } catch(e: any) {
       const errMsg = e.toString();
       console.error(errMsg);
-
-      this.bubbleMessage('assistant', errMsg);
+      this.alert.error("Failed to get chat response", errMsg);
       return errMsg;
     }
 
     if (this.streams[this.streams.length-1] == null) {
       const errMsg = "Error: Null stream encountered.";
       console.error(errMsg);
-      this.bubbleMessage('assistant', errMsg);
+      this.alert.error("Null stream encountered", errMsg);
       return errMsg;
     }
 
@@ -419,6 +422,7 @@ export class Chat {
       }
     } catch (e: any) {
       console.error(e.toString());
+      this.alert.error("Failed to get TTS response", e.toString());
     }
 
     return null;
@@ -474,6 +478,7 @@ export class Chat {
       }
     } catch (e: any) {
       console.error("getVisionResponse", e.toString());
+      this.alert.error("Failed to get vision response", e.toString());
     }
   }
 }

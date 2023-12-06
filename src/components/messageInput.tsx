@@ -4,6 +4,7 @@ import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
 import { cleanTranscript } from "@/utils/stringProcessing";
+import { AlertContext } from "@/features/alert/alertContext";
 import { ChatContext } from "@/features/chat/chatContext";
 import { openaiWhisper  } from "@/features/openaiWhisper/openaiWhisper";
 import { whispercpp  } from "@/features/whispercpp/whispercpp";
@@ -28,6 +29,7 @@ export default function MessageInput({
   const [whisperOpenAIOutput, setWhisperOpenAIOutput] = useState<any | null>(null);
   const [whisperCppOutput, setWhisperCppOutput] = useState<any | null>(null);
   const { chat: bot } = useContext(ChatContext);
+  const { alert } = useContext(AlertContext);
 
   const vad = useMicVAD({
     startOnLoad: false,
@@ -44,48 +46,63 @@ export default function MessageInput({
         active: true,
       };
 
-      switch (config("stt_backend")) {
-        case 'whisper_browser': {
-          console.debug('whisper_browser attempt');
-          // since VAD sample rate is same as whisper we do nothing here
-          // both are 16000
-          const audioCtx = new AudioContext();
-          const buffer = audioCtx.createBuffer(1, audio.length, 16000);
-          buffer.copyToChannel(audio, 0, 0);
-          transcriber.start(buffer);
-          break;
+      try {
+        switch (config("stt_backend")) {
+          case 'whisper_browser': {
+            console.debug('whisper_browser attempt');
+            // since VAD sample rate is same as whisper we do nothing here
+            // both are 16000
+            const audioCtx = new AudioContext();
+            const buffer = audioCtx.createBuffer(1, audio.length, 16000);
+            buffer.copyToChannel(audio, 0, 0);
+            transcriber.start(buffer);
+            break;
+          }
+          case 'whisper_openai': {
+            console.debug('whisper_openai attempt');
+            const wav = new WaveFile();
+            wav.fromScratch(1, 16000, '32f', audio);
+            const file = new File([wav.toBuffer()], "input.wav", { type: "audio/wav" });
+
+            let prompt;
+            // TODO load prompt if it exists
+
+            (async () => {
+              try {
+                const transcript = await openaiWhisper(file, prompt);
+                setWhisperOpenAIOutput(transcript);
+              } catch (e: any) {
+                console.error('whisper_openai error', e);
+                alert.error('whisper_openai error', e.toString());
+              }
+            })();
+            break;
+          }
+          case 'whispercpp': {
+            console.debug('whispercpp attempt');
+            const wav = new WaveFile();
+            wav.fromScratch(1, 16000, '32f', audio);
+            wav.toBitDepth('16');
+            const file = new File([wav.toBuffer()], "input.wav", { type: "audio/wav" });
+
+            let prompt;
+            // TODO load prompt if it exists
+
+            (async () => {
+              try {
+                const transcript = await whispercpp(file, prompt);
+                setWhisperCppOutput(transcript);
+              } catch (e: any) {
+                console.error('whispercpp error', e);
+                alert.error('whispercpp error', e.toString());
+              }
+            })();
+            break;
+          }
         }
-        case 'whisper_openai': {
-          console.debug('whisper_openai attempt');
-          const wav = new WaveFile();
-          wav.fromScratch(1, 16000, '32f', audio);
-          const file = new File([wav.toBuffer()], "input.wav", { type: "audio/wav" });
-
-          let prompt;
-          // TODO load prompt if it exists
-
-          (async () => {
-            const transcript = await openaiWhisper(file, prompt);
-            setWhisperOpenAIOutput(transcript);
-          })();
-          break;
-        }
-        case 'whispercpp': {
-          console.debug('whispercpp attempt');
-          const wav = new WaveFile();
-          wav.fromScratch(1, 16000, '32f', audio);
-          wav.toBitDepth('16');
-          const file = new File([wav.toBuffer()], "input.wav", { type: "audio/wav" });
-
-          let prompt;
-          // TODO load prompt if it exists
-
-          (async () => {
-            const transcript = await whispercpp(file, prompt);
-            setWhisperCppOutput(transcript);
-          })();
-          break;
-        }
+      } catch (e: any) {
+        console.error('stt_backend error', e);
+        alert.error('STT backend error', e.toString());
       }
     },
   });
