@@ -391,7 +391,7 @@ export class Chat {
     // in their respective functions
     // this is just a simple solution for now
     talk = cleanTalk(talk);
-    if (talk.message === '' || config("tts_muted") === 'true') {
+    if (talk.message.trim() === '' || config("tts_muted") === 'true') {
       return null;
     }
 
