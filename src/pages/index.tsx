@@ -151,11 +151,11 @@ export default function Home() {
 
       {/* main menu */}
       <div className="absolute z-10 m-2">
-        <div className="grid grid-flow-col gap-[8px] place-content-end mt-2 bg-black/30 backdrop-invert[.25]">
-          <div className='flex flex-col justify-center items-center p-1 space-y-2'>
+        <div className="grid grid-flow-col gap-[8px] place-content-end mt-2 bg-slate-800/40 rounded-md backdrop-blur-md shadow-sm">
+          <div className='flex flex-col justify-center items-center p-1 space-y-3'>
             <div className="flex flex-row items-center space-x-2">
               <WrenchScrewdriverIcon
-                className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                 aria-hidden="true"
                 onClick={() => setShowSettings(true)}
               />
@@ -164,13 +164,13 @@ export default function Home() {
             <div className="flex flex-row items-center space-x-2">
               {showChatLog ? (
                 <ChatBubbleLeftIcon
-                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   onClick={() => setShowChatLog(false)}
                 />
               ) : (
                 <ChatBubbleLeftRightIcon
-                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   onClick={() => setShowChatLog(true)}
                 />
@@ -180,13 +180,13 @@ export default function Home() {
             <div className="flex flex-row items-center space-x-2">
               { muted ? (
                 <SpeakerXMarkIcon
-                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   onClick={toggleTTSMute}
                 />
               ) : (
                 <SpeakerWaveIcon
-                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   onClick={toggleTTSMute}
                 />
@@ -198,13 +198,13 @@ export default function Home() {
             <div className="flex flex-row items-center space-x-2">
               { webcamEnabled ? (
                 <VideoCameraIcon
-                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   onClick={() => setWebcamEnabled(false)}
                 />
               ) : (
                 <VideoCameraSlashIcon
-                  className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   onClick={() => setWebcamEnabled(true)}
                 />
@@ -217,7 +217,7 @@ export default function Home() {
                 <div>
                   <Menu.Button>
                     <LanguageIcon
-                      className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                      className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                       aria-hidden="true"
                     />
                   </Menu.Button>
@@ -254,7 +254,7 @@ export default function Home() {
 
             <div className="flex flex-row items-center space-x-2">
               <CodeBracketSquareIcon
-                className="h-6 w-6 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                 aria-hidden="true"
                 onClick={() => setShowDebug(true)}
               />
