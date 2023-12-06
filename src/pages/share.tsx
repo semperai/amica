@@ -77,7 +77,9 @@ export default function Share() {
     setName(config('name'));
     setSystemPrompt(config('system_prompt'));
     setVisionSystemPrompt(config('vision_system_prompt'));
-    setBgUrl(config('bg_url'));
+    if (! config('bg_url').startsWith('data')) {
+      setBgUrl(config('bg_url'));
+    }
     setYoutubeVideoId(config('youtube_videoid'));
     setVrmUrl(config('vrm_url'));
     setAnimationUrl(config('animation_url'));
