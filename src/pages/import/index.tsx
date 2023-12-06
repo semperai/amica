@@ -17,6 +17,12 @@ export default function Import() {
               <h1 className="text-lg">
                 {t("Import character")}
               </h1>
+
+              <p className="text-sm mt-2">
+                {t("Wrong place?")}
+                {' '}
+                <Link href="/" className="text-cyan-600 hover:text-cyan-700">{t('Go home')}</Link>
+              </p>
             </div>
   
   
