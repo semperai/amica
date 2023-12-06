@@ -279,14 +279,14 @@ export class Chat {
     } catch(e: any) {
       const errMsg = e.toString();
       console.error(errMsg);
-      this.alert.error("Failed to get chat response", errMsg);
+      this.alert?.error("Failed to get chat response", errMsg);
       return errMsg;
     }
 
     if (this.streams[this.streams.length-1] == null) {
       const errMsg = "Error: Null stream encountered.";
       console.error(errMsg);
-      this.alert.error("Null stream encountered", errMsg);
+      this.alert?.error("Null stream encountered", errMsg);
       return errMsg;
     }
 
@@ -422,7 +422,7 @@ export class Chat {
       }
     } catch (e: any) {
       console.error(e.toString());
-      this.alert.error("Failed to get TTS response", e.toString());
+      this.alert?.error("Failed to get TTS response", e.toString());
     }
 
     return null;
@@ -478,7 +478,7 @@ export class Chat {
       }
     } catch (e: any) {
       console.error("getVisionResponse", e.toString());
-      this.alert.error("Failed to get vision response", e.toString());
+      this.alert?.error("Failed to get vision response", e.toString());
     }
   }
 }
