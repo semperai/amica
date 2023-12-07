@@ -57,6 +57,7 @@ export default function Share() {
   const { t } = useTranslation();
   const { viewer } = useContext(ViewerContext);
 
+  const [description, setDescription] = useState('');
   const [name, setName] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
   const [visionSystemPrompt, setVisionSystemPrompt] = useState('');
@@ -99,6 +100,7 @@ export default function Share() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          description,
           name,
           system_prompt: systemPrompt,
           vision_system_prompt: visionSystemPrompt,
@@ -140,6 +142,24 @@ export default function Share() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
+          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              {t("Description")}
+            </label>
+            <div className="mt-2">
+              <textarea
+                rows={4}
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={description}
+                readOnly={!! sqid}
+                placeholder={t("Provide a description of the character")}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                }}
+              />
+            </div>
+          </div>
+
           <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("Name")}
@@ -406,6 +426,7 @@ export default function Share() {
               />
             </div>
           </div>
+          */}
 
           <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
@@ -457,7 +478,6 @@ export default function Share() {
               />
             </div>
           </div>
-          */}
 
           {! sqid && (
             <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
