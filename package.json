@@ -10,6 +10,8 @@
     "i18n": "i18next",
     "lint": "next lint",
     "test": "jest",
+    "test:ci": "jest --ci --reporters='./github-actions-reporter.js'",
+    "act": "act -j test",
     "generate:paths": "npx node scripts/generate_paths.js"
   },
   "dependencies": {
