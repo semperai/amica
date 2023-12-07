@@ -7,7 +7,7 @@
     "build": "npm run generate:paths && next build",
     "start": "npm run generate:paths && next start",
     "export": "npm run generate:paths && next export",
-    "i18n": "npx i18next",
+    "i18n": "i18next",
     "lint": "next lint",
     "test": "jest",
     "generate:paths": "npx node scripts/generate_paths.js"
