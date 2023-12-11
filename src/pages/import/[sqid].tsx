@@ -12,6 +12,7 @@ export default function Import() {
   const { viewer } = useContext(ViewerContext);
   const router = useRouter()
 
+  const [description, setDescription] = useState('');
   const [name, setName] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
   const [visionSystemPrompt, setVisionSystemPrompt] = useState('');
@@ -31,7 +32,7 @@ export default function Import() {
     async function getCharacter() {
       const { data, error } = await supabase
         .from('characters')
-        .select(`name, system_prompt, vision_system_prompt, bg_url, youtube_videoid, vrm_url, animation_url, voice_url`)
+        .select(`description, name, system_prompt, vision_system_prompt, bg_url, youtube_videoid, vrm_url, animation_url, voice_url`)
         .eq('sqid', router.query.sqid)
         .single();
 
@@ -41,6 +42,7 @@ export default function Import() {
       }
 
       const {
+        description,
         name,
         system_prompt,
         vision_system_prompt,
@@ -51,6 +53,7 @@ export default function Import() {
         voice_url,
       } = data;
 
+      setDescription(description as string);
       setName(name as string);
       setSystemPrompt(system_prompt as string);
       setVisionSystemPrompt(vision_system_prompt as string);
@@ -176,6 +179,22 @@ export default function Import() {
           </div>
         </div>
         <div>
+          {description && (
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
+              <label className="block text-sm font-medium leading-6 text-gray-900">
+                {t("Description")}
+              </label>
+              <div className="mt-2">
+                <textarea
+                  rows={4}
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  defaultValue={description}
+                  disabled={true}
+                />
+              </div>
+            </div>
+          )}
+
           { name && name != defaultConfig('name') && (
             <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
