@@ -186,6 +186,7 @@ function getLabelFromPage(page: string): string {
     case 'koboldai_settings':   return t('KoboldAI');
     case 'name'         :       return t('Name');
     case 'system_prompt':       return t('System Prompt');
+    case 'character':           return t('Character');
 
     case 'tts_backend':         return t('TTS Backend');
     case 'elevenlabs_settings': return t('ElevenLabs');

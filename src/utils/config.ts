@@ -20,6 +20,7 @@ const defaults = {
   koboldai_url: process.env.NEXT_PUBLIC_KOBOLDAI_URL ?? 'http://localhost:5001',
   koboldai_use_extra: process.env.NEXT_PUBLIC_KOBOLDAI_USE_EXTRA ?? 'false',
   tts_muted: 'false',
+  current_character_id: '',
   tts_backend: process.env.NEXT_PUBLIC_TTS_BACKEND ?? 'none',
   stt_backend: process.env.NEXT_PUBLIC_STT_BACKEND ?? 'whisper_browser',
   vision_backend: process.env.NEXT_PUBLIC_VISION_BACKEND ?? 'none',

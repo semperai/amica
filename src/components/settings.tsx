@@ -57,6 +57,7 @@ import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
 import { NamePage } from './settings/NamePage';
 import { SystemPromptPage } from './settings/SystemPromptPage';
+import { CharacterPage } from "./settings/CharacterPage";
 
 export const Settings = ({
   onClickClose,
@@ -231,7 +232,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        keys={["chatbot_backend", "character", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'tts':
@@ -452,6 +453,14 @@ export const Settings = ({
         name={name}
         setName={setName}
         setSettingsUpdated={setSettingsUpdated}
+        />
+    case 'character':
+      return <CharacterPage
+        setSettingsUpdated={setSettingsUpdated}
+        systemPrompt={systemPrompt}
+        setSystemPrompt={setSystemPrompt}
+        name={name}
+        setName={setName}
         />
 
     default:

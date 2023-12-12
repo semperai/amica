@@ -39,3 +39,5 @@ next-env.d.ts
 
 working/*
 !working/.gitkeep
+
+amica.db
