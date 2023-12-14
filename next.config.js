@@ -25,6 +25,14 @@ const nextConfig = {
       new CopyPlugin({
         patterns: [
           {
+            from: "./node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm",
+            to: "static/chunks/[name][ext]",
+          },
+          {
+            from: "./node_modules/onnxruntime-web/dist/ort-wasm-threaded.wasm",
+            to: "static/chunks/[name][ext]",
+          },
+          {
             from: "./node_modules/onnxruntime-web/dist/ort-wasm.wasm",
             to: "static/chunks/[name][ext]",
           },
