@@ -12,6 +12,7 @@
     "test": "jest",
     "test:ci": "jest --ci --reporters='./github-actions-reporter.js'",
     "act": "act -j test",
+    "tauri": "tauri",
     "generate:paths": "npx node scripts/generate_paths.js"
   },
   "dependencies": {
@@ -51,6 +52,8 @@
   "devDependencies": {
     "@gltf-transform/core": "^2.4.6",
     "@pixiv/three-vrm": "^1.0.9",
+    "@tauri-apps/api": "^1.5.2",
+    "@tauri-apps/cli": "^1.5.8",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.2",
     "@types/node": "18.15.10",
