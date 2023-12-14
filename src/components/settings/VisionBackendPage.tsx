@@ -6,6 +6,7 @@ import { updateConfig } from "@/utils/config";
 const visionEngines = [
   {key: "none",            label: "None"},
   {key: "vision_llamacpp", label: "LLama.cpp"},
+  {key: "vision_ollama",   label: "Ollama"},
 ];
 
 function idToTitle(id: string): string {
@@ -52,7 +53,7 @@ export function VisionBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["vision_llamacpp"].includes(visionBackend) && (
+        { ["vision_llamacpp", "vision_ollama"].includes(visionBackend) && (
           <li className="py-4">
             <FormRow label={`${t("Configure")} ${t(idToTitle(visionBackend))}`}>
               <button
