@@ -62,7 +62,7 @@ Install the required packages.
 npm install
 ```
 
-After installing the packages, copy `.env.example` to `.env.local` then start the development web server using the following command:
+After installing the packages, start the development web server using the following command:
 
 ```bash
 npm run dev
