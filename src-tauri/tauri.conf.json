@@ -51,7 +51,12 @@
       "csp": null
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://releases.heyamica.com/{{target}}/{{arch}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEMzMzQxMENEMTZBRkJBOQpSV1NwKzJyUkRFRXpERldrZWNnVjY1azErT2hyb1BuTDlhemt1U0FlNkM1MHluVVM4UFA0RzVjMAo="
     },
     "windows": [
       {
