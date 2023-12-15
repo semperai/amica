@@ -7,7 +7,7 @@ import { getEchoChatResponseStream } from './echoChat';
 import { getOpenAiChatResponseStream } from './openAiChat';
 import { getLlamaCppChatResponseStream, getLlavaCppChatResponse } from './llamaCppChat';
 import { getWindowAiChatResponseStream } from './windowAiChat';
-import { getOllamaChatResponseStream } from './ollamaChat';
+import { getOllamaChatResponseStream, getOllamaVisionChatResponse } from './ollamaChat';
 import { getKoboldAiChatResponseStream } from './koboldAiChat';
 
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
@@ -453,29 +453,34 @@ export class Chat {
       const visionBackend = config("vision_backend");
 
       console.debug('vision_backend', visionBackend);
-      if (visionBackend === 'vision_llamacpp') {
-        const res = await getLlavaCppChatResponse(
-          [
-            { role: "system", content: config("vision_system_prompt") },
-            ...this.messageList!,
-            {
-              role: 'user',
-              content: "Describe the image as accurately as possible"
-            },
-          ],
-          imageData,
-        );
-        console.info('llava response', res);
 
-        await this.makeAndHandleStream([
-          { role: "system", content: config("system_prompt") },
-          ...this.messageList!,
-          {
-            role: "user",
-            content: `This is a picture I just took from my webcam (described between [[ and ]] ): [[${res}]] Please respond accordingly and as if it were just sent and as though you can see it.`,
-          },
-        ]);
+      const messages: Message[] = [
+        { role: "system", content: config("vision_system_prompt") },
+        ...this.messageList!,
+        {
+          role: 'user',
+          content: "Describe the image as accurately as possible"
+        },
+      ];
+
+      let res = '';
+      if (visionBackend === 'vision_llamacpp') {
+        res = await getLlavaCppChatResponse(messages, imageData);
+      } else if (visionBackend === 'vision_ollama') {
+        res = await getOllamaVisionChatResponse(messages, imageData);
+      } else {
+        console.warn('vision_backend not supported', visionBackend);
+        return;
       }
+
+      await this.makeAndHandleStream([
+        { role: "system", content: config("system_prompt") },
+        ...this.messageList!,
+        {
+          role: "user",
+          content: `This is a picture I just took from my webcam (described between [[ and ]] ): [[${res}]] Please respond accordingly and as if it were just sent and as though you can see it.`,
+        },
+      ]);
     } catch (e: any) {
       console.error("getVisionResponse", e.toString());
       this.alert?.error("Failed to get vision response", e.toString());

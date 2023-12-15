@@ -70,3 +70,27 @@ export async function getOllamaChatResponseStream(messages: Message[]) {
 
   return stream;
 }
+
+export async function getOllamaVisionChatResponse(messages: Message[], imageData: string) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  const prompt = buildPrompt(messages);
+  const res = await fetch(`${config("vision_ollama_url")}/api/generate`, {
+    headers: headers,
+    method: "POST",
+    body: JSON.stringify({
+      model: config("vision_ollama_model"),
+      prompt,
+      images: [imageData],
+      stream: false,
+    }),
+  });
+
+  if (res.status !== 200) {
+    throw new Error(`Ollama chat error (${res.status})`);
+  }
+
+  const json = await res.json();
+  return json.response;
+}
