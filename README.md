@@ -22,6 +22,18 @@ Amica is an application that allows you to easily converse with 3D characters in
 
 You can import VRM files, adjust the voice to fit the character, and generate response text that includes emotional expressions.
 
+<p align="center">
+  <a href="https://github.com/semperai/amica/releases/latest">
+    <img src="https://img.shields.io/badge/Download%20for%20Windows%20-black?style=for-the-badge&logo=windows" />
+  </a>
+  <a href="https://github.com/semperai/amica/releases/latest">
+    <img src="https://img.shields.io/badge/Download%20for%20Mac%20-black?style=for-the-badge&logo=apple" />
+  </a>
+  <a href="https://github.com/semperai/amica/releases/latest">
+    <img src="https://img.shields.io/badge/Download%20for%20Linux%20-black?style=for-the-badge&logo=linux" />
+  </a>
+</p>
+
 The various features of Amica mainly use the following technologies:
 
 - 3D Rendering
@@ -71,6 +83,28 @@ npm run dev
 Once started, please visit the following URL to confirm that it is working properly.
 
 [http://localhost:3000](http://localhost:3000)
+
+### 📝 Configuration
+
+Most of the configuration is done in the `.env.local` file. Reference the `config.ts` file for the available options.
+
+```bash
+amica
+├── .env.local
+├── src
+│   ├── utils
+│   │   └── config.ts
+```
+
+### 📦 Desktop Application
+
+Amica uses [Tauri](https://tauri.app/) to build the desktop application.
+
+To develop the desktop application, use the following command:
+
+```bash
+npm run tauri dev
+```
 
 ## 📖 Documentation
 
