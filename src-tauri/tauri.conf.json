@@ -50,6 +50,7 @@
         "timestampUrl": ""
       }
     },
+    "macOSPrivateApi": true,
     "security": {
       "csp": null
     },
@@ -62,11 +63,12 @@
     },
     "windows": [
       {
-        "fullscreen": false,
+        "width": 800,
         "height": 600,
+        "fullscreen": false,
         "resizable": true,
         "title": "Amica",
-        "width": 800
+        "transparent": true
       }
     ]
   }
