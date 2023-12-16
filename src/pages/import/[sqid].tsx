@@ -3,6 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { updateConfig, defaultConfig } from '@/utils/config';
+import { isTauri } from '@/utils/isTauri';
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import VrmDemo from "@/components/vrmDemo";
 import { supabase } from '@/utils/supabase';
@@ -181,15 +182,17 @@ export default function Import() {
                   </button>
                 </div>
 
-                <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
-                  <Link href="/">
-                    <button
-                      className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-red-500 disabled:cursor-not-allowed ml-2"
-                    >
-                      {t("Cancel")}
-                    </button>
-                  </Link>
-                </div>
+                { isTauri() && (
+                  <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
+                    <Link href="/">
+                      <button
+                        className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-red-500 disabled:cursor-not-allowed ml-2"
+                      >
+                        {t("Cancel")}
+                      </button>
+                    </Link>
+                  </div>
+                ) }
               </>
             )}
           </div>
