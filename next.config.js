@@ -6,7 +6,6 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
-  output: "export",
   assetPrefix: process.env.BASE_PATH || "",
   basePath: process.env.BASE_PATH || "",
   trailingSlash: true,
