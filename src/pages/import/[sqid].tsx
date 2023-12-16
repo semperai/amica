@@ -166,19 +166,31 @@ export default function Import() {
           </div>
           <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
             {loaded && vrmLoaded && (
-              <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
-                <button
-                  onClick={() => {
-                    overrideConfig();
-                    window.location.href = '/';
-                    setButtonDisabled(true);
-                  }}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none ml-2"
-                  disabled={buttonDisabled}
-                >
-                  {t("Import")}
-                </button>
-              </div>
+              <>
+                <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
+                  <button
+                    onClick={() => {
+                      overrideConfig();
+                      window.location.href = '/';
+                      setButtonDisabled(true);
+                    }}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none ml-2"
+                    disabled={buttonDisabled}
+                  >
+                    {t("Import")}
+                  </button>
+                </div>
+
+                <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
+                  <Link href="/">
+                    <button
+                      className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-red-500 disabled:cursor-not-allowed ml-2"
+                    >
+                      {t("Cancel")}
+                    </button>
+                  </Link>
+                </div>
+              </>
             )}
           </div>
         </div>
