@@ -124,6 +124,13 @@ export default function Share() {
     register();
   }
 
+  useEffect(() => {
+    document.body.style.backgroundImage = `url(/liquid-metaballs.jpg)`;
+    document.body.style.backgroundSize = `cover`;
+    document.body.style.backgroundRepeat = `no-repeat`;
+    document.body.style.backgroundPosition = `bottom right`;
+  }, []);
+
   return (
     <div className="p-4 md:p-20">
       <style jsx global>
