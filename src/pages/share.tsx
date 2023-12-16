@@ -5,6 +5,7 @@ import { useTranslation, Trans } from 'react-i18next';
 
 import { config, updateConfig } from '@/utils/config';
 import { supabase } from '@/utils/supabase';
+import { isTauri } from '@/utils/isTauri';
 import { FilePond, registerPlugin } from 'react-filepond';
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import VrmDemo from "@/components/vrmDemo";
@@ -137,7 +138,14 @@ export default function Share() {
       </style>
 
       <div className="col-span-3 max-w-md rounded-xl mt-4">
-        <h1 className="text-lg">Character Creator</h1>
+        <h1 className="text-lg">{t("Character Creator")}</h1>
+        { isTauri() && (
+          <p className="text-sm mt-2">
+            {t("Wrong place?")}
+            {' '}
+            <Link href="/" className="text-cyan-600 hover:text-cyan-700">{t('Go home')}</Link>
+          </p>
+        ) }
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

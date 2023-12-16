@@ -45,6 +45,7 @@ import { ChatContext } from "@/features/chat/chatContext";
 import { AlertContext } from "@/features/alert/alertContext";
 
 import { config, updateConfig } from '@/utils/config';
+import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
 
 const m_plus_2 = M_PLUS_2({
@@ -259,7 +260,7 @@ export default function Home() {
             <div className="flex flex-row items-center space-x-2">
               <Link
                 href="/share"
-                target={window.hasOwnProperty('__TAURI__') ? '' : '_blank'}
+                target={isTauri() ? '' : '_blank'}
               >
                 <ShareIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
