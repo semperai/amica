@@ -29,6 +29,10 @@ export default function Import() {
   const [vrmLoaded, setVrmLoaded] = useState(false);
 
   useEffect(() => {
+    document.body.style.backgroundColor = '#ffffff';
+  }, []);
+
+  useEffect(() => {
     async function getCharacter() {
       const { data, error } = await supabase
         .from('characters')
