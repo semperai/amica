@@ -480,33 +480,28 @@ export const Settings = ({
         className="absolute top-0 left-0 w-full h-full bg-violet-700 opacity-10 z-index-50"
       ></div>
       <div className="fixed w-full top-0 left-0 z-50 p-2 bg-white">
-        {breadcrumbs.length === 0 && (
-          <IconButton
-            iconName="24/Close"
-            isProcessing={false}
-            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-            onClick={onClickClose} />
-        )}
 
         <nav aria-label="Breadcrumb" className="inline-block ml-4">
           <ol role="list" className="flex items-center space-x-4">
-            {breadcrumbs.length > 0 && (
-              <>
-                <li className="flex">
-                  <div className="flex items-center">
-                    <span
-                      onClick={() => {
-                        setPage('main_menu');
-                        setBreadcrumbs([]);
-                      }}
-                      className="text-gray-400 hover:text-gray-500 cursor-pointer">
-                      <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-                      <span className="sr-only">Home</span>
-                    </span>
-                  </div>
-                </li>
-              </>
-            )}
+            <li className="flex">
+              <div className="flex items-center">
+                <span
+                  onClick={() => {
+                    if (breadcrumbs.length === 0) {
+                      onClickClose();
+                      return;
+                    }
+                    setPage('main_menu');
+                    setBreadcrumbs([]);
+                  }}
+                  className="text-gray-400 hover:text-gray-500 cursor-pointer"
+                >
+                  <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                  <span className="sr-only">Home</span>
+                </span>
+              </div>
+            </li>
+
             {breadcrumbs.map((breadcrumb) => (
               <li key={breadcrumb.key} className="flex">
                 <div className="flex items-center">
@@ -535,7 +530,7 @@ export const Settings = ({
       </div>
 
       <div className="h-screen overflow-auto opacity-95 backdrop-blur">
-        <div className="mx-auto max-w-3xl py-16 text-text1">
+        <div className="mx-auto max-w-2xl py-16 text-text1">
           <div className="mt-16">
             <TextButton
               className="rounded-b-none text-lg ml-4 px-8 shadow-sm"
