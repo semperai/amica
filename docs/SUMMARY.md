@@ -28,6 +28,7 @@
 * [Using Coqui](./guides/using-coqui.md)
 * [Using LLaVA](./guides/using-llava.md)
 * [Using SpeechT5](./guides/using-speecht5.md)
+* [Using Oobabooga](./guides/using-oobabooga.md)
 
 ## 🌻 Tutorials
 
