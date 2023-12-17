@@ -19,7 +19,7 @@ export const Introduction = ({ open }: {
       <div className="mx-auto max-h-full overflow-auto rounded-lg bg-white/40 p-4 backdrop-blur-lg shadow-lg">
         <div className="my-4">
           <div className="my-8 font-bold text-xl">
-            {t("Welcome to Amica")} v0.1
+            {t("Welcome to Amica")}
           </div>
           <p>{t("amica_intro", `
             Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.
