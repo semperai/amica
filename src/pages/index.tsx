@@ -38,6 +38,7 @@ import { LoadingProgress } from "@/components/loadingProgress";
 import { DebugPane } from "@/components/debugPane";
 import { Settings } from "@/components/settings";
 import { EmbeddedWebcam } from "@/components/embeddedWebcam";
+import { ShareModal } from "@/components/shareModal";
 
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Message, Role } from "@/features/chat/messages";
@@ -45,7 +46,6 @@ import { ChatContext } from "@/features/chat/chatContext";
 import { AlertContext } from "@/features/alert/alertContext";
 
 import { config, updateConfig } from '@/utils/config';
-import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
 
 const m_plus_2 = M_PLUS_2({
@@ -78,6 +78,8 @@ export default function Home() {
   // otherwise issues from usage of localStorage and window will occur
   const [showContent, setShowContent] = useState(false);
 
+  //show/hide share in modal View
+  const [showShare, setShowShare] = useState(false);
 
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
@@ -258,15 +260,11 @@ export default function Home() {
             </div>
 
             <div className="flex flex-row items-center space-x-2">
-              <Link
-                href="/share"
-                target={isTauri() ? '' : '_blank'}
-              >
                 <ShareIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
+                  onClick={() => setShowShare(true)}
                 />
-              </Link>
               <span className="text-white hidden">Share</span>
             </div>
 
@@ -310,6 +308,10 @@ export default function Home() {
             <UserText message={userMessage} />
           )}
         </>
+      )}
+
+      {showShare && (
+        <ShareModal onClickClose={()=>setShowShare(false)} />
       )}
 
       <AddToHomescreen />

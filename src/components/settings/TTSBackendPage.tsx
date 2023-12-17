@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { BasicPage, FormRow, Link, getLinkFromPage } from './common';
+import { BasicPage, FormRow, CustomLink, getLinkFromPage } from './common';
 import { updateConfig } from "@/utils/config";
 
 const ttsEngines = [
@@ -27,8 +27,8 @@ export function TTSBackendPage({
   setTTSBackend: (backend: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
   setPage: (page: string) => void;
-  breadcrumbs: Link[];
-  setBreadcrumbs: (breadcrumbs: Link[]) => void;
+  breadcrumbs: CustomLink[];
+  setBreadcrumbs: (breadcrumbs: CustomLink[]) => void;
 }) {
   const { t } = useTranslation();
 
