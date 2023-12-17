@@ -32,7 +32,6 @@ import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 
 import { CustomLink } from "./settings/common";
-import isTauri from "@/utils/isTauri";
 import { t } from "i18next";
 import Link from "next/dist/client/link";
 
@@ -239,8 +238,8 @@ export const ShareModal = ({
         className="absolute top-0 left-0 w-full h-full bg-violet-700 opacity-10 z-index-50"
       ></div>
       <div className="h-screen overflow-auto opacity-95 backdrop-blur">
-        <div className="mx-auto max-w-3xl py-16 text-text1">
-          <div className="mt-16">
+        <div className="mx-auto max-w-2xl py-16">
+          <div>
             <TextButton
               className="rounded-b-none text-lg ml-4 px-8 shadow-sm"
               onClick={() => {
@@ -254,19 +253,12 @@ export const ShareModal = ({
             </TextButton>
 
             <div className="bg-white flex-col justify-center p-7 rounded-xl">
-              <div className="col-span-3 max-w-md rounded-xl mt-4 bg-white">
-                <h1 className="text-lg">{t("Character Creator")}</h1>
-                { isTauri() && (
-                  <p className="text-sm mt-2">
-                    {t("Wrong place?")}
-                    {' '}
-                    <Link href="/" className="text-cyan-600 hover:text-cyan-700">{t('Go home')}</Link>
-                  </p>
-                ) }
-              </div>
-
               <div className="flex justify-center">
                 <div>
+                  <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
+                    <h1 className="text-lg">{t("Character Creator")}</h1>
+                  </div>
+
                   <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
                     <label className="block text-sm font-medium leading-6 text-gray-900">
                       {t("Description")}
@@ -634,18 +626,12 @@ export const ShareModal = ({
                         {' '}
                         <Link
                           href={`https://amica.arbius.ai/import/${sqid}`}
-                          target={isTauri() ? "_blank" : ''}
+                          target="_blank"
                           className="text-cyan-600 hover:text-cyan-700"
                         >
                           https://amica.arbius.ai/import/{sqid}
                         </Link>
                       </p>
-
-                        <button
-                          className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-emerald-500 disabled:cursor-not-allowed"
-                        onClick={onClickClose}>
-                          {t("Return Home")}
-                        </button>
                     </div>
                   )}
                 </div>
