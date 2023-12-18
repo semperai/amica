@@ -22,6 +22,8 @@ Amica is an application that allows you to easily converse with 3D characters in
 
 You can import VRM files, adjust the voice to fit the character, and generate response text that includes emotional expressions.
 
+> **For Windows Users**: Please create a new folder for Amica during installation to prevent the unintentional deletion of other files during uninstallation.
+
 <p align="center">
   <a href="https://github.com/semperai/amica/releases/latest">
     <img src="https://img.shields.io/badge/Download%20for%20Windows%20-black?style=for-the-badge&logo=windows" />
