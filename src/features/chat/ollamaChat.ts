@@ -67,13 +67,12 @@ export async function getOllamaVisionChatResponse(messages: Message[], imageData
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
-  const prompt = buildPrompt(messages);
-  const res = await fetch(`${config("vision_ollama_url")}/api/generate`, {
+  const res = await fetch(`${config("vision_ollama_url")}/api/chat`, {
     headers: headers,
     method: "POST",
     body: JSON.stringify({
       model: config("vision_ollama_model"),
-      prompt,
+      messages,
       images: [imageData],
       stream: false,
     }),
