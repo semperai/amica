@@ -60,16 +60,6 @@
     },
     "updater": {
       "active": false
-    },
-    "windows": [
-      {
-        "width": 800,
-        "height": 600,
-        "fullscreen": false,
-        "resizable": true,
-        "title": "Amica",
-        "transparent": true
-      }
-    ]
+    }
   }
 }

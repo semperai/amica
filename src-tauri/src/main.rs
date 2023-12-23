@@ -8,6 +8,7 @@ use tauri::{
   SystemTrayMenu,
   SystemTrayMenuItem,
   utils::config::AppUrl,
+  window::WindowBuilder,
   WindowUrl,
 };
 use tauri::Manager;
@@ -22,9 +23,22 @@ fn main() {
   // rewrite the config so the IPC is enabled on this URL
   context.config_mut().build.dist_dir = AppUrl::Url(window_url.clone());
 
-
   tauri::Builder::default()
     .plugin(tauri_plugin_localhost::Builder::new(port).build())
+    .setup(move |app| {
+      WindowBuilder::new(
+        app,
+        "main".to_string(),
+        WindowUrl::External(format!("http://localhost:{}", port).parse().unwrap()),
+      )
+      .title("Amica")
+      .inner_size(800.0, 600.0)
+      .transparent(true)
+      .fullscreen(false)
+      .resizable(true)
+      .build()?;
+      Ok(())
+    })
     .system_tray(SystemTray::new()
       .with_menu(SystemTrayMenu::new()
         .add_item(CustomMenuItem::new("checkforupdates".to_string(), "Check for updates"))
