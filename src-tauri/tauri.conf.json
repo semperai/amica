@@ -35,7 +35,7 @@
       "identifier": "com.heyamica.dev",
       "longDescription": "",
       "macOS": {
-        "entitlements": null,
+        "entitlements": "Release.entitlements",
         "exceptionDomain": "",
         "frameworks": [],
         "providerShortName": null,
