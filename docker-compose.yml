@@ -1,0 +1,8 @@
+version: "3"
+services:
+    amica:
+        build: .
+        ports:
+            - "80:3000"
+        container_name: amica
+
