@@ -8,7 +8,6 @@ use tauri::{
   SystemTrayMenu,
   SystemTrayMenuItem,
   utils::config::AppUrl,
-  window::WindowBuilder,
   WindowUrl,
 };
 use tauri::Manager;
