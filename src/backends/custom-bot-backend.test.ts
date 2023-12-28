@@ -1,4 +1,4 @@
-import { CustomBackend } from "../custom-backend"
+import { CustomBackend } from "./custom-backend"
 import { CustomBotBackend } from "./custom-bot-backend"
 
 describe('CustomBotBackend', () => {

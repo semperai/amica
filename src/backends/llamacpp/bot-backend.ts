@@ -16,7 +16,7 @@ export class LlamaCppBotBackend extends CustomBotBackend {
       body: JSON.stringify({
         stream: true,
         n_predict: 400,
-        temperature: 0.7,
+        temperature: this.temperature,
         cache_prompt: true,
         stop: [
           "</s>",
