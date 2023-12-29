@@ -3,64 +3,7 @@ import { addFactoryAbility, CustomFactory, isString } from 'custom-factory';
 import { PropDescriptors, Properties, PropertyAbility } from 'property-manager';
 import type { RJSFSchema } from '@rjsf/utils';
 import type { ICustomFactoryOptions } from 'custom-factory';
-
-const CUstomBackendSchema = {
-  name: {
-    type: 'string',
-    required: true,
-    get() {
-      let result = (this as any).$name
-      if (!result) {
-        const ctor = (this as any).constructor
-        result = CustomBackend.formatNameFromClass(ctor)
-      }
-      return result;
-    },
-    set(value: string) {
-      if (value) {(this as any).$name = value}
-    },
-    description: 'the unique name of the backend',
-  },
-  enabled: {
-    type: 'boolean',
-    // the default value is true
-    value: true,
-    description: 'enable the backend or not',
-  },
-  icon: {
-    type: 'string',
-    description: 'the icon name of the backend',
-  },
-  displayName: {
-    type: 'string',
-    description: 'the backend display name',
-  },
-  alias: {
-    type: ['string', 'array'],
-    items: {
-      type: 'string',
-    },
-    description: 'the another unique name of the backend',
-  },
-  description: {
-    type: 'string',
-    description: 'the optional description of the backend',
-  }
-}
-
-
-export interface CustomBackendProps {
-  name: string,
-  /**
-   * the backend whether is enabled, defaults to true
-   */
-  enabled: boolean,
-  icon?: boolean,
-  displayName?: string,
-  alias?: string|string[],
-  description?: string,
-  [k: string]: any,
-}
+import { BackendProps, BackendSchema } from './backend-options';
 
 type BackendClassForEachFn = (ctor: typeof CustomBackend, name: string) => 'brk' | string | undefined;
 
@@ -121,10 +64,10 @@ export declare namespace CustomBackend {
    * Get the attribute descriptors of the class
    */
   function getProperties(): any;
-  function toJSON(): CustomBackendProps;
+  function toJSON(): BackendProps;
 }
 
-export declare interface CustomBackend extends CustomBackendProps {
+export declare interface CustomBackend extends BackendProps {
   initialize(args?: any): void;
 }
 
@@ -198,4 +141,4 @@ CustomBackend.prototype.name = 'Backend';
 addFactoryAbility(CustomBackend, {exclude: ['@register']})
 PropertyAbility(CustomBackend)
 
-CustomBackend.defineProperties(CustomBackend, CUstomBackendSchema)
+CustomBackend.defineProperties(CustomBackend, BackendSchema)
