@@ -1,9 +1,9 @@
 import { buildPrompt } from "@/utils/buildPrompt";
-import { CustomBotBackend } from '../custom-bot-backend';
+import { BotBackend, MessageParams } from '../bot-backend';
 import { Message } from '../messages';
 
-export class LlamaCppBotBackend extends CustomBotBackend {
-  async getResponseStream(messages: Message[]): Promise<ReadableStream>{
+export class LlamaCppBotBackend extends BotBackend {
+  async getResponseStream({messages}: MessageParams): Promise<ReadableStream>{
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       "Connection": "keep-alive",
@@ -87,4 +87,4 @@ export class LlamaCppBotBackend extends CustomBotBackend {
   }
 }
 
-CustomBotBackend.register(LlamaCppBotBackend);
+BotBackend.registerItem(LlamaCppBotBackend);

@@ -1,9 +1,9 @@
-import { CustomBotBackend } from '../custom-bot-backend';
+import { BotBackend } from '../bot-backend';
 import { LlamaCppBotBackend } from './bot-backend'
 
 describe('LlamaCppBotBackend', () => {
   it('should register LlamaCppBotBackend Item', ()=>{
-    expect(CustomBotBackend.registeredClass('LlamaCppBot')).toBe(LlamaCppBotBackend)
+    expect(BotBackend.registeredClass('LlamaCppBot')).toBe(LlamaCppBotBackend)
     expect(LlamaCppBotBackend.enabled).toBeTruthy()
     expect(LlamaCppBotBackend.isDir).toBeFalsy()
   })
