@@ -1,4 +1,4 @@
-import { BotOptions } from "../message-options";
+import { BotProps } from "../message-options";
 
 export interface LlamaImage {
   id: string,
@@ -11,7 +11,7 @@ export interface LlamaSystemPrompt {
   assistant_name?: string,
 }
 
-export interface LlamaOptions extends BotOptions {
+export interface LlamaProps extends BotProps {
   cache_prompt?: boolean,
   grammar?: string,
   ignore_eos?: boolean,
@@ -34,4 +34,95 @@ export interface LlamaOptions extends BotOptions {
   tfs_z?: number,
   top_k?: number,
   typical_p?: number,
+}
+
+export const LlamaPropsSchema = {
+  cache_prompt: {
+  type: 'boolean',
+  description: '',
+},
+  grammar: {
+  type: 'string',
+  description: '',
+},
+  ignore_eos: {
+  type: 'boolean',
+  description: '',
+},
+  image_data: {
+  type: 'LlamaImage[]',
+  description: '',
+},
+  input_prefix: {
+  type: 'string',
+  description: '',
+},
+  input_suffix: {
+  type: 'string',
+  description: '',
+},
+  min_p: {
+  type: 'number',
+  description: '',
+},
+  mirostat: {
+  type: 'number',
+  description: '',
+},
+  mirostat_tau: {
+  type: 'number',
+  description: '',
+},
+  mirostat_eta: {
+  type: 'number',
+  description: '',
+},
+  n_keep: {
+  type: 'number',
+  description: '',
+},
+  n_predict: {
+  type: 'number',
+  description: '',
+},
+  n_probs: {
+  type: 'number',
+  description: '',
+},
+  penalize_nl: {
+  type: 'number',
+  description: '',
+},
+  penalty_prompt: {
+  type: ['string', 'number[]'],
+  description: '',
+},
+  presence_penalty: {
+  type: 'number',
+  description: '',
+},
+  repeat_last_n: {
+  type: 'number',
+  description: '',
+},
+  repeat_penalty: {
+  type: 'number',
+  description: '',
+},
+  system_prompt: {
+  type: 'LlamaSystemPrompt',
+  description: '',
+},
+  tfs_z: {
+  type: 'number',
+  description: '',
+},
+  top_k: {
+  type: 'number',
+  description: '',
+},
+  typical_p: {
+  type: 'number',
+  description: '',
+},
 }
