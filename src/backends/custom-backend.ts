@@ -1,6 +1,6 @@
 import type { JSONSchemaType } from 'ajv';
 import { addFactoryAbility, CustomFactory, isString } from 'custom-factory';
-import { PropDescriptors, Properties, PropertyAbility } from 'property-manager';
+import { PropDescriptors, Properties, PropertyAbility as addPropertyAbility } from 'property-manager';
 import type { RJSFSchema } from '@rjsf/utils';
 import type { ICustomFactoryOptions } from 'custom-factory';
 import { BackendProps, BackendSchema } from './backend-options';
@@ -139,6 +139,6 @@ export class CustomBackend {
 CustomBackend.prototype.name = 'Backend';
 
 addFactoryAbility(CustomBackend, {exclude: ['@register']})
-PropertyAbility(CustomBackend)
+addPropertyAbility(CustomBackend)
 
 CustomBackend.defineProperties(CustomBackend, BackendSchema)
