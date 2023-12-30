@@ -5,7 +5,6 @@ describe('BotBackend', () => {
   class TestBrainBackend extends BotBackend {}
   beforeAll(()=>{
     BotBackend.registerItem(TestBrainBackend);
-
   })
   afterAll(()=>{
     BotBackend.unregister(TestBrainBackend)

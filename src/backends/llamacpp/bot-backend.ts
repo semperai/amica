@@ -1,6 +1,10 @@
 import { buildPrompt } from "@/utils/buildPrompt";
 import { BotBackend, MessageParams } from '../bot-backend';
 import { Message } from '../messages';
+import { LlamaPropsSchema } from "./bot-options";
+import type { LlamaProps } from "./bot-options";
+
+export declare interface LlamaCppBotBackend extends LlamaProps {}
 
 export class LlamaCppBotBackend extends BotBackend {
   async getResponseStream({messages}: MessageParams): Promise<ReadableStream>{
@@ -10,21 +14,19 @@ export class LlamaCppBotBackend extends BotBackend {
       "Accept": "text/event-stream",
     };
     const prompt = buildPrompt(messages);
+    const opts = this.toJSON();
+    opts.prompt = prompt;
+    if (!opts.stop) {
+      opts.stop = [
+        "</s>",
+        `${this.name}:`,
+        "User:"
+      ]
+    }
     const res = await fetch(`${this.url}/completion`, {
       headers: headers,
       method: "POST",
-      body: JSON.stringify({
-        stream: true,
-        n_predict: 400,
-        temperature: this.temperature,
-        cache_prompt: true,
-        stop: [
-          "</s>",
-          `${this.name}:`,
-          "User:"
-        ],
-        prompt,
-      }),
+      body: JSON.stringify(opts),
     });
 
     const reader = res.body?.getReader();
@@ -88,3 +90,4 @@ export class LlamaCppBotBackend extends BotBackend {
 }
 
 BotBackend.registerItem(LlamaCppBotBackend);
+BotBackend.defineProperties(BotBackend, LlamaPropsSchema)
