@@ -39,6 +39,8 @@ export interface LlamaProps extends BotProps {
 export const LlamaPropsSchema = {
   cache_prompt: {
   type: 'boolean',
+  value: true,
+  skipDefault: false,
   description: '',
 },
   grammar: {
@@ -83,6 +85,8 @@ export const LlamaPropsSchema = {
 },
   n_predict: {
   type: 'number',
+  value: 400,
+  skipDefault: false,
   description: '',
 },
   n_probs: {

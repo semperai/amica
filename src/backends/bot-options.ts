@@ -73,6 +73,9 @@ export const BotPropsSchema = {
   },
   stream: {
     type: 'boolean',
+    value: true,
+    // export the default value always
+    skipDefault: false,
     description: 'If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message. ',
   },
   temperature: {
