@@ -1,5 +1,5 @@
 import { Backend } from './backend';
-import { BotPropsSchema } from './message-options';
+import { BotPropsSchema } from './bot-options';
 import type { Message } from './messages';
 
 export interface MessageParams {
