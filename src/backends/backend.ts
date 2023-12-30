@@ -121,11 +121,12 @@ export class Backend {
   declare private $name: string|undefined;
 
   constructor(args?: any, BackendType?: string|typeof Backend|false) {
-    if (typeof BackendType === 'string') {
-      BackendType = Backend.registeredClass(BackendType);
-    }
-    if (this.constructor === Backend) {
-      if (!BackendType) throw new TypeError('can not determine the backend type.')
+    if (BackendType) {
+      const ctor = this.constructor as unknown as Backend;
+      if (typeof BackendType === 'string') {
+        BackendType = ctor.registeredClass(BackendType) as typeof Backend;
+      }
+      if (!BackendType) throw new TypeError('can not determine the backend type.');
       if (BackendType !== Backend) return new BackendType(args)
     }
     this.initialize(args);
