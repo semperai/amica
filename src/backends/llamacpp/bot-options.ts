@@ -1,4 +1,4 @@
-import { BotProps } from "../message-options";
+import { BotProps } from "../bot-options";
 
 export interface LlamaImage {
   id: string,

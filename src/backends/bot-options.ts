@@ -78,6 +78,8 @@ export const BotPropsSchema = {
   temperature: {
     type: 'number',
     value: 0.7,
+    // export the default value always
+    skipDefault: false,
     description: 'a parameter that controls the “creativity” or randomness of the text generated. A higher temperature (e.g., 0.7) results in more diverse and creative output, while a lower temperature (e.g., 0.2) makes the output more deterministic and focused.',
   },
   top_p: {
