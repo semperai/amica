@@ -2,7 +2,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { Backend } from './backend';
 import { BotBackend, MessageParams } from './bot-backend';
-import { BotProps, BotPropsSchema } from './bot-options';
+import { BotPropsSchema } from './bot-options';
 
 export interface VisionMessageParams extends MessageParams {
   imageData: string|string[]
