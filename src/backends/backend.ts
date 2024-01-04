@@ -3,6 +3,8 @@ import { addFactoryAbility, CustomFactory, isString } from 'custom-factory';
 import { PropDescriptors, Properties, PropertyAbility as addPropertyAbility } from 'property-manager';
 import type { RJSFSchema } from '@rjsf/utils';
 import type { ICustomFactoryOptions } from 'custom-factory';
+import { EventEmitter } from 'events-ex';
+
 import { BackendProps, BackendSchema } from './backend-options';
 
 type BackendClassForEachFn = (ctor: typeof Backend, name: string) => 'brk' | string | undefined;
@@ -71,7 +73,7 @@ export declare interface Backend extends BackendProps {
   initialize(args?: any): void;
 }
 
-export class Backend {
+export class Backend extends EventEmitter {
   static schema: RJSFSchema;
   // static ROOT_NAME = 'Backend';
   static enabled = true;
