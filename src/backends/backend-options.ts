@@ -1,3 +1,4 @@
+import type { Backend } from "./backend";
 
 export const BackendSchema = {
   name: {
@@ -44,7 +45,11 @@ export const BackendSchema = {
   description: {
     type: 'string',
     description: 'the optional description of the backend',
-  }
+  },
+  current: {
+    type: 'Backend',
+    description: 'the optional current backend',
+  },
 }
 
 
@@ -59,6 +64,7 @@ export interface BackendProps {
   alias?: string|string[],
   description?: string,
   url?: string,
+  current?: Backend,
   [k: string]: any,
 }
 
