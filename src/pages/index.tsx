@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
 import { clsx } from "clsx";
-import { M_PLUS_2, Montserrat } from "next/font/google";
+import { M_PLUS_2, Montserrat, Share } from "next/font/google";
 import { useTranslation, Trans } from 'react-i18next';
 import {
   ChatBubbleLeftIcon,
@@ -47,6 +47,9 @@ import { AlertContext } from "@/features/alert/alertContext";
 import { config, updateConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
+import { ShareModal } from "@/components/shareModal";
+
+
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -61,12 +64,14 @@ const montserrat = Montserrat({
 });
 
 
+
 export default function Home() {
   const { t, i18n } = useTranslation();
   const currLang = i18n.resolvedLanguage;
   const { viewer } = useContext(ViewerContext);
   const { alert } = useContext(AlertContext);
   const { chat: bot } = useContext(ChatContext);
+
 
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
@@ -78,6 +83,8 @@ export default function Home() {
   // otherwise issues from usage of localStorage and window will occur
   const [showContent, setShowContent] = useState(false);
 
+  //show/hide share in modal View
+  const [showShare, setShowShare] = useState(false);
 
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
@@ -87,6 +94,7 @@ export default function Home() {
   const [muted, setMuted] = useState<boolean|null>(null);
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+
 
 
   useEffect(() => {
@@ -258,15 +266,11 @@ export default function Home() {
             </div>
 
             <div className="flex flex-row items-center space-x-2">
-              <Link
-                href="/share"
-                target={isTauri() ? '' : '_blank'}
-              >
                 <ShareIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
+                  onClick={() => setShowShare(true)}
                 />
-              </Link>
               <span className="text-white hidden">Share</span>
             </div>
 
@@ -311,6 +315,10 @@ export default function Home() {
           )}
         </>
       )}
+
+      {showShare && (
+        <ShareModal onClickClose={()=>setShowShare(false)} />
+                )}
 
       <AddToHomescreen />
 
