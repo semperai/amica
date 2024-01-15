@@ -9,27 +9,25 @@ export class LlamaCppVisionBackend extends VisionBackend {
       "Accept": "text/event-stream",
     };
     const prompt = buildVisionPrompt(messages);
+    const opts = this.toJSON();
+    opts.prompt = prompt;
     if (typeof imageData === 'string') {
       imageData = [imageData]
     }
     const image_data = imageData.map((data, id) => ({data, id}));
+    opts.image_data = image_data;
+    if (!opts.stop) {
+      opts.stop = [
+        "</s>",
+        `${this.bot_name}:`,
+        "User:"
+      ]
+    }
 
     const res = await fetch(`${this.url}/completion`, {
       headers: headers,
       method: "POST",
-      body: JSON.stringify({
-        stream: true,
-        n_predict: 400,
-        temperature: 0.7,
-        cache_prompt: true,
-        stop: [
-          "</s>",
-          `${this.bot_name}:`,
-          "User:"
-        ],
-        image_data,
-        prompt,
-      }),
+      body: JSON.stringify(opts),
     });
 
     if (! res.ok) {
