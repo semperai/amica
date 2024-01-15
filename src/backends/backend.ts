@@ -123,6 +123,7 @@ export class Backend extends EventEmitter {
   declare private $name: string|undefined;
 
   constructor(args?: any, BackendType?: string|typeof Backend|false) {
+    super();
     if (BackendType) {
       const ctor = this.constructor as unknown as Backend;
       if (typeof BackendType === 'string') {
