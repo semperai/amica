@@ -19,7 +19,7 @@ export class LlamaCppBotBackend extends BotBackend {
     if (!opts.stop) {
       opts.stop = [
         "</s>",
-        `${this.name}:`,
+        `${this.bot_name}:`,
         "User:"
       ]
     }
