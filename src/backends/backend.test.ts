@@ -35,4 +35,23 @@ describe('Backend', () => {
     testMyTest(new MyTestBackend)
     testMyTest(new Backend(null, 'MyTest'))
   })
+  it('should toJsonSchema', ()=>{
+    const result = Backend.toJsonSchema()
+    expect(result).toMatchObject({
+      properties: {
+        alias: {
+          anyOf: [
+            {type: 'string', },
+            {
+              title: 'Alias List',
+              type: 'array',
+              items: { 
+                type: 'string', 
+              },
+            },
+          ]
+        }
+      }
+    });
+  })
 })

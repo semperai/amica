@@ -1,7 +1,7 @@
 import type { JSONSchemaType } from 'ajv';
 import { addFactoryAbility, CustomFactory, isString } from 'custom-factory';
 import { PropDescriptors, Properties, PropertyAbility as addPropertyAbility } from 'property-manager';
-import type { RJSFSchema } from '@rjsf/utils';
+import type { RJSFSchema, UiSchema } from '@rjsf/utils';
 import type { ICustomFactoryOptions } from 'custom-factory';
 import { EventEmitter } from 'events-ex';
 
@@ -73,9 +73,76 @@ export declare interface Backend extends BackendProps {
   initialize(args?: any): void;
 }
 
+export function toUiSchema(json: any): UiSchema {
+  const result: UiSchema<any> = {};
+  Object.keys(json).forEach((k: string) => {
+    result[k] = {
+      "ui:title": json.title || k,
+      "ui:description": json.description,
+      "ui:placeholder": json.placeholder || json.description,
+      "ui:help": json.hint,
+    }
+  })
+  return result;
+}
+
+function capitalize(s: string) {
+  if (s && s[0]) {s = s.charAt(0).toUpperCase() + s.slice(1); }
+  return s;
+}
+function updateArrayType(v: any, obj?: any) {
+  if (v.type === 'array' && !v.title) { 
+    const n = obj?.name || v.name;
+    if (n) { v.title = capitalize(n) + ' List'; }
+  }
+}
+function updateAnyOfSchema(value: any[], obj?: any) {
+  if (value && Array.isArray(value)) {
+    value.forEach(item => {
+      updateArrayType(item, obj);
+    })
+  }
+}
+
+export function toJsonSchema(json: any): RJSFSchema {
+  const required: string[] = [];
+  const properties: any = {};
+  const result: RJSFSchema = { required, properties };
+  Object.keys(json).forEach((k: string) => {
+    let v = json[k];
+    if (v.required && required.indexOf(k) === -1) { required.push(k); }
+    v = properties[k] = {...v};
+    if (v.name === undefined) { v.name = k; }
+    if (v.value != null) { v.default = v.value; }
+    updateArrayType(v);
+    if (Array.isArray(v.anyOf)) { updateAnyOfSchema(v.anyOf, v); }
+    if (Array.isArray(v.oneOf)) { updateAnyOfSchema(v.oneOf, v); }
+    if (v.anyOf || v.oneOf) {
+      delete v.type;
+    }
+  })
+  return result;
+}
+
 export class Backend extends EventEmitter {
-  static schema: RJSFSchema;
+  // convert the JsonSchema to UiSchema
+  static toUiSchema(): UiSchema {
+    const json = this.toJSON();
+    return toUiSchema(json);
+  }
+
+  static toJsonSchema(): RJSFSchema {
+    const result = toJsonSchema(this.getProperties());
+    result.title = this.title || this.name;
+    result.type = 'object';
+    if (this.description) result.description = this.description;
+    return result;
+  }
+
+  // static schema: RJSFSchema;
   // static ROOT_NAME = 'Backend';
+  static title = '';
+  static description = '';
   static enabled = true;
   static _baseNameOnly = 1;
   // overwrite it to specify the root factory class

@@ -37,9 +37,16 @@ export const BackendSchema = {
   },
   alias: {
     type: ['string', 'array'],
-    items: {
-      type: 'string',
-    },
+    anyOf: [
+      {type: 'string', title:'Alias'},
+      {
+        type: 'array',
+        items: { 
+          type: 'string', 
+        },
+      },
+  
+    ],
     description: 'the another unique name of the backend',
   },
   description: {
