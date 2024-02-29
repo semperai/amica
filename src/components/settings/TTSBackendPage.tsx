@@ -9,6 +9,7 @@ const ttsEngines = [
   {key: "speecht5",   label: "SpeechT5"},
   {key: "coqui",      label: "Coqui TTS"},
   {key: "openai_tts", label: "OpenAI TTS"},
+  {key: "localXTTS",  label: "Local XTTS"}, // Our local TTS endpoint (XTTS based)
 ];
 
 function idToTitle(id: string): string {
