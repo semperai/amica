@@ -14,6 +14,7 @@ import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
+import { localXTTSTTS} from "@/features/localXTTS/localXTTS";
 import { config } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
@@ -418,6 +419,9 @@ export class Chat {
         case 'openai_tts': {
           const voice = await openaiTTS(talk.message);
           return voice.audio;
+        }
+        case 'localXTTS': {
+          const voice = await localXTTSTTS(talk.message);
         }
       }
     } catch (e: any) {
