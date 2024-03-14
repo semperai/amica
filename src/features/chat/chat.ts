@@ -61,6 +61,8 @@ export class Chat {
   private currentAssistantMessage: string;
   private currentUserMessage: string;
 
+  private lastAwake: number;
+
   private messageList: Message[];
 
   private currentStreamIdx: number;
@@ -81,6 +83,8 @@ export class Chat {
 
     this.messageList = [];
     this.currentStreamIdx = 0;
+
+    this.lastAwake = 0;
   }
 
   public initialize(
@@ -104,6 +108,7 @@ export class Chat {
     this.processTtsJobs();
     this.processSpeakJobs();
 
+    this.updateAwake();
     this.initialized = true;
   }
 
@@ -115,6 +120,16 @@ export class Chat {
     this.setAssistantMessage!(this.currentAssistantMessage);
     this.setUserMessage!(this.currentAssistantMessage);
     this.currentStreamIdx++;
+  }
+
+  public isAwake() {
+    let sinceLastAwakeSec = ((new Date()).getTime() - this.lastAwake) / 1000;
+    let timeBeforeIdleSec = parseInt(config("time_before_idle_sec"));
+    return sinceLastAwakeSec  < timeBeforeIdleSec;
+  }
+
+  public updateAwake() {
+    this.lastAwake = (new Date()).getTime();
   }
 
   public async processTtsJobs() {
@@ -251,6 +266,9 @@ export class Chat {
     console.log('receiveMessageFromUser', message)
     if (message === null || message === "") {
       return;
+    }
+    if (config("wake_word_enabled")) {
+      this.updateAwake();
     }
 
     console.time('performance_interrupting');
