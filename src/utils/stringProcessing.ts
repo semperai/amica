@@ -11,8 +11,9 @@ export function cleanFromWakeWord(text: string, wakeWord: string) {
   }
 
   const wakeWordLength = wakeWord.split(" ").length;
+  const textWithoutWakeWord = text.split(" ").slice(wakeWordLength).join(" ");
 
-  return text.split(" ").slice(wakeWordLength).join(" ");
+  return `${("" + textWithoutWakeWord.charAt(0)).toUpperCase()}${textWithoutWakeWord.substring(1)}`;
 }
 
 export function cleanFromPunctuation(text: string) {

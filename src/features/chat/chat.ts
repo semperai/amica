@@ -124,7 +124,7 @@ export class Chat {
 
   public isAwake() {
     let sinceLastAwakeSec = ((new Date()).getTime() - this.lastAwake) / 1000;
-    let timeBeforeIdleSec = parseInt(config("time_before_idle_sec"));
+    let timeBeforeIdleSec = parseInt(config("wake_word_time_before_idle_sec"));
     return sinceLastAwakeSec  < timeBeforeIdleSec;
   }
 
@@ -184,6 +184,7 @@ export class Chat {
         this.bubbleMessage('assistant', speak.screenplay.talk.message);
         if (speak.audioBuffer) {
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);
+          this.updateAwake();
         }
       } while (this.speakJobs.size() > 0);
       await wait(50);
