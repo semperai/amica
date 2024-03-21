@@ -28,6 +28,8 @@
     "@tailwindcss/line-clamp": "^0.4.4",
     "@xenova/transformers": "^2.7.0",
     "clsx": "^2.0.0",
+    "dexie": "^3.2.7",
+    "dexie-react-hooks": "^1.1.7",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-type": "^1.2.8",
     "filepond-plugin-image-preview": "^4.6.11",

@@ -2,9 +2,11 @@ import { useContext, useCallback, useState } from "react";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from "@/utils/config";
+import { VrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
+  const { vrmStore } = useContext(VrmStoreContext);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
 
@@ -12,11 +14,16 @@ export default function VrmViewer() {
     (canvas: HTMLCanvasElement) => {
       if (canvas) {
         viewer.setup(canvas);
-        const vrmUrl = config("vrm_url");
+        const vrmHash = config("vrm_hash");
         (new Promise(async (resolve, reject) => {
           try {
-            await viewer.loadVrm(buildUrl(vrmUrl));
-            resolve(true);
+            await vrmStore.loadFromLocalStorage();
+            const vrm = vrmStore.getItemByHash(vrmHash);
+            if (vrm) {
+              await viewer.loadVrm(buildUrl(vrm.url));
+              resolve(true);
+            }
+            reject("cant find vrm in localStorage");
           } catch (e) {
             reject(e);
           }
@@ -52,9 +59,16 @@ export default function VrmViewer() {
 
           const file_type = file.name.split(".").pop();
           if (file_type === "vrm") {
-            const blob = new Blob([file], { type: "application/octet-stream" });
-            const url = window.URL.createObjectURL(blob);
-            viewer.loadVrm(url);
+            const url = vrmStore.addItem(file);
+            viewer.loadVrm(url)
+              .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
+              .then(() => {
+                viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
+                  if (!thumbBlob)
+                    return;
+                  vrmStore.updateVrmThumb(url, thumbBlob);
+                });
+              });
           }
         });
       }

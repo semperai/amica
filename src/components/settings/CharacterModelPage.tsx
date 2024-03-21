@@ -1,24 +1,25 @@
 import { useTranslation } from 'react-i18next';
 import { clsx } from "clsx";
 import { BasicPage } from "./common";
-import { vrmList } from '@/paths';
-import { thumbPrefix } from './common';
+import { VrmStoreContext } from '@/features/vrmStore/vrmStoreContext';
 import { updateConfig } from "@/utils/config";
 import { TextButton } from "@/components/textButton";
+import { useContext } from 'react';
 
 export function CharacterModelPage({
   viewer,
-  vrmUrl,
-  setVrmUrl,
+  vrmHash,
+  setVrmHash,
   setSettingsUpdated,
   handleClickOpenVrmFile,
 }: {
   viewer: any; // TODO
-  vrmUrl: string;
-  setVrmUrl: (url: string) => void;
+  vrmHash: string;
+  setVrmHash: (hash: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
   handleClickOpenVrmFile: () => void;
 }) {
+  const { vrmStore } = useContext(VrmStoreContext);
   const { t } = useTranslation();
 
   return (
@@ -27,23 +28,24 @@ export function CharacterModelPage({
       description={t("character_desc", "Select the Character to play")}
     >
       <div className="rounded-lg shadow-lg bg-white flex flex-wrap justify-center space-x-4 space-y-4 p-4">
-        { vrmList.map((url) =>
+        { vrmStore.loadedVrmList.map((vrm) =>
           <button
-            key={url}
+            key={vrm.url}
             onClick={() => {
-              viewer.loadVrm(url);
-              updateConfig("vrm_url", url);
-              setVrmUrl(url);
+              viewer.loadVrm(vrm.url);
+              console.log(`VRM URL: ${vrm.url}`);
+              updateConfig("vrm_hash", vrm.getHash());
+              setVrmHash(vrm.getHash());
               setSettingsUpdated(true);
             }}
             className={clsx(
               "mx-4 py-2 rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100 rounded-xl",
-              vrmUrl === url ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100"
+              vrm.url === vrmHash ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100"
             )}
             >
               <img
-                src={`${thumbPrefix(url)}.jpg`}
-                alt={url}
+                src={vrm.thumbUrl}
+                alt={vrm.url}
                 width="160"
                 height="93"
                 className="m-0 rounded mx-4 pt-0 pb-0 pl-0 pr-0 shadow-sm shadow-black hover:shadow-md hover:shadow-black rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100"

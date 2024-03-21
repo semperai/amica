@@ -17,7 +17,6 @@ import {
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
-import { IconButton } from "@/components/iconButton";
 import { TextButton } from "@/components/textButton";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { config, updateConfig } from "@/utils/config";
@@ -58,6 +57,7 @@ import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
 import { NamePage } from './settings/NamePage';
 import { SystemPromptPage } from './settings/SystemPromptPage';
+import { VrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 
 export const Settings = ({
   onClickClose,
@@ -65,6 +65,7 @@ export const Settings = ({
   onClickClose: () => void;
 }) => {
   const { viewer } = useContext(ViewerContext);
+  const { vrmStore } = useContext(VrmStoreContext);
   useKeyboardShortcut("Escape", onClickClose);
 
   const [page, setPage] = useState('main_menu');
@@ -104,7 +105,7 @@ export const Settings = ({
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [bgColor, setBgColor] = useState(config("bg_color"));
-  const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
+  const [vrmHash, setVrmHash] = useState(config("vrm_hash"));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
@@ -131,6 +132,7 @@ export const Settings = ({
   const handleChangeVrmFile = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
+
       if (!files) return;
 
       const file = files[0];
@@ -139,9 +141,17 @@ export const Settings = ({
       const file_type = file.name.split(".").pop();
 
       if (file_type === "vrm") {
-        const blob = new Blob([file], { type: "application/octet-stream" });
-        const url = window.URL.createObjectURL(blob);
-        viewer.loadVrm(url);
+        const url = vrmStore.addItem(file);
+        viewer.loadVrm(url)
+          .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
+          .then(() => {
+            viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
+              if (!thumbBlob)
+                return;
+
+              vrmStore.updateVrmThumb(url, thumbBlob);
+            });
+          });
       }
 
       event.target.value = "";
@@ -209,14 +219,13 @@ export const Settings = ({
     visionOllamaUrl, visionOllamaModel,
     visionSystemPrompt,
     bgColor,
-    bgUrl, vrmUrl, youtubeVideoID, animationUrl,
+    bgUrl, vrmHash, youtubeVideoID, animationUrl,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
     name,
     systemPrompt,
   ]);
-
 
   function handleMenuClick(link: Link) {
     setPage(link.key)
@@ -286,8 +295,8 @@ export const Settings = ({
     case 'character_model':
       return <CharacterModelPage
         viewer={viewer}
-        vrmUrl={vrmUrl}
-        setVrmUrl={setVrmUrl}
+        vrmHash={vrmHash}
+        setVrmHash={setVrmHash}
         setSettingsUpdated={setSettingsUpdated}
         handleClickOpenVrmFile={handleClickOpenVrmFile}
         />
