@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import { getWindowAI } from "window.ai";
 import { BasicPage, Link, FormRow, getLinkFromPage } from './common';
 import { updateConfig } from "@/utils/config";
+import { isTauri } from "@/utils/isTauri";
 
 const chatbotBackends = [
   {key: "echo",       label: "Echo"},
   {key: "chatgpt",    label: "ChatGPT"},
   {key: "llamacpp",   label: "LLama.cpp"},
-  {key: "windowai",   label: "Window.ai"},
+  ...isTauri() ? [] : [{key: "windowai", label: "Window.ai"}], // Hides Window.ai when using the desktop app
   {key: "ollama",     label: "Ollama"},
   {key: "koboldai",   label: "KoboldAI"},
 ];
