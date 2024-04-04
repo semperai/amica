@@ -4,6 +4,7 @@ import { vrmList } from "@/paths";
 import { thumbPrefix } from "@/components/settings/common";
 import { AddItemCallbackType, VrmStoreActionType, vrmListReducer } from "./vrmStoreReducer";
 import { Viewer } from "../vrmViewer/viewer";
+import { updateConfig } from "@/utils/config";
 
 interface VrmStoreContextType {
     vrmList: VrmData[];
@@ -23,6 +24,7 @@ export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Eleme
             viewer.loadVrm(callbackProp.url)
               .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
               .then(() => {
+                updateConfig("vrm_hash", callbackProp.hash);
                 viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
                   if (!thumbBlob) return;
                   vrmListDispatch({ type: VrmStoreActionType.updateVrmThumb, url: callbackProp.url, thumbBlob, vrmList: callbackProp.vrmList, callback: (updatedThumbVrmList: VrmData[]) => {
@@ -31,7 +33,7 @@ export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Eleme
                 });
               });
         }});
-    }
+    };
 
     useEffect(() => {
         vrmListDispatch({ type: VrmStoreActionType.loadFromLocalStorage, vrmList: vrmInitList, callback: (updatedVmList: VrmData[]) => {

@@ -10,12 +10,13 @@ export default function VrmViewer() {
   const { vrmList, vrmListAddFile } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
+  const vrmHash = config("vrm_hash");
 
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
       if (canvas) {
         viewer.setup(canvas);
-        const vrmHash = config("vrm_hash");
+        
         (new Promise(async (resolve, reject) => {
           try {
             const vrm = vrmList.find(( vrm: VrmData ) => vrm.getHash() == vrmHash);
@@ -65,7 +66,7 @@ export default function VrmViewer() {
         });
       }
     },
-    [vrmList, viewer]
+    [vrmList.findIndex(value => value.hashEquals(vrmHash)), viewer]
   );
 
   return (
