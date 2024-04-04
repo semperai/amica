@@ -2,11 +2,13 @@ import { useContext, useCallback, useState } from "react";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from "@/utils/config";
-import { VrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
+import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
+import { VrmData } from "@/features/vrmStore/vrmData";
+import { AddItemCallbackType, VrmStoreActionType } from "@/features/vrmStore/vrmStoreReducer";
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
-  const { vrmStore } = useContext(VrmStoreContext);
+  const { vrmList, vrmListDispatch } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
 
@@ -17,8 +19,7 @@ export default function VrmViewer() {
         const vrmHash = config("vrm_hash");
         (new Promise(async (resolve, reject) => {
           try {
-            await vrmStore.loadFromLocalStorage();
-            const vrm = vrmStore.getItemByHash(vrmHash);
+            const vrm = vrmList.find(( vrm: VrmData ) => vrm.getHash() == vrmHash);
             if (vrm) {
               await viewer.loadVrm(buildUrl(vrm.url));
               resolve(true);
@@ -30,6 +31,7 @@ export default function VrmViewer() {
         }))
         .then(() => {
           console.log("vrm loaded");
+          setLoadingError(false);
           setIsLoading(false);
         })
         .catch((e) => {
@@ -59,21 +61,23 @@ export default function VrmViewer() {
 
           const file_type = file.name.split(".").pop();
           if (file_type === "vrm") {
-            const url = vrmStore.addItem(file);
-            viewer.loadVrm(url)
-              .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
-              .then(() => {
-                viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
-                  if (!thumbBlob)
-                    return;
-                  vrmStore.updateVrmThumb(url, thumbBlob);
+            vrmListDispatch({ type: VrmStoreActionType.addItem, itemFile: file, callback: (callbackProp: AddItemCallbackType) => {
+              viewer.loadVrm(callbackProp.url)
+                .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
+                .then(() => {
+                  viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
+                    if (!thumbBlob) return;
+                    vrmListDispatch({ type: VrmStoreActionType.updateVrmThumb, url: callbackProp.url, thumbBlob, vrmList: callbackProp.vrmList, callback: (updatedThumbVrmList: VrmData[]) => {
+                      vrmListDispatch({ type: VrmStoreActionType.setVrmList, vrmList: updatedThumbVrmList });
+                    }});
+                  });
                 });
-              });
+            }});
           }
         });
       }
     },
-    [viewer]
+    [vrmList, viewer]
   );
 
   return (

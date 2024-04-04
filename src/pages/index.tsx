@@ -1,10 +1,8 @@
 import {
   Fragment,
-  useCallback,
   useContext,
   useEffect,
   useState,
-  useRef,
 } from "react";
 import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
@@ -29,7 +27,6 @@ import { AssistantText } from "@/components/assistantText";
 import { AddToHomescreen } from "@/components/addToHomescreen";
 import { Alert } from "@/components/alert";
 import { UserText } from "@/components/userText";
-import { IconButton } from "@/components/iconButton";
 import { ChatLog } from "@/components/chatLog";
 import VrmViewer from "@/components/vrmViewer";
 import { MessageInputContainer } from "@/components/messageInputContainer";
@@ -47,6 +44,7 @@ import { AlertContext } from "@/features/alert/alertContext";
 import { config, updateConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
+import { VrmStoreProvider } from "@/features/vrmStore/vrmStoreContext";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -149,8 +147,15 @@ export default function Home() {
       { webcamEnabled && <EmbeddedWebcam setWebcamEnabled={setWebcamEnabled} /> }
       { showDebug && <DebugPane onClickClose={() => setShowDebug(false) }/> }
 
-      <VrmViewer />
-
+      <VrmStoreProvider>
+        <VrmViewer />
+        {showSettings && (
+          <Settings
+            onClickClose={() => setShowSettings(false)}
+          />
+        )}
+      </VrmStoreProvider>
+      
       <MessageInputContainer isChatProcessing={chatProcessing} />
 
       {/* main menu */}
@@ -294,12 +299,6 @@ export default function Home() {
       </div>
 
       {showChatLog && <ChatLog messages={chatLog} />}
-
-      {showSettings && (
-        <Settings
-          onClickClose={() => setShowSettings(false)}
-        />
-      )}
 
       {! showChatLog && (
         <>

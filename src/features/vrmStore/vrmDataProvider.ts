@@ -25,3 +25,5 @@ export class VrmDataProvider {
         this.db.vrms.where("hash").equals(hash).modify({ thumbData: vrmThumbData });
     }
 }
+
+export const vrmDataProvider = new VrmDataProvider();
