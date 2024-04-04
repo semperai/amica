@@ -4,11 +4,10 @@ import { buildUrl } from "@/utils/buildUrl";
 import { config } from "@/utils/config";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { VrmData } from "@/features/vrmStore/vrmData";
-import { AddItemCallbackType, VrmStoreActionType } from "@/features/vrmStore/vrmStoreReducer";
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
-  const { vrmList, vrmListDispatch } = useVrmStoreContext();
+  const { vrmList, vrmListAddFile } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
 
@@ -61,18 +60,7 @@ export default function VrmViewer() {
 
           const file_type = file.name.split(".").pop();
           if (file_type === "vrm") {
-            vrmListDispatch({ type: VrmStoreActionType.addItem, itemFile: file, callback: (callbackProp: AddItemCallbackType) => {
-              viewer.loadVrm(callbackProp.url)
-                .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
-                .then(() => {
-                  viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
-                    if (!thumbBlob) return;
-                    vrmListDispatch({ type: VrmStoreActionType.updateVrmThumb, url: callbackProp.url, thumbBlob, vrmList: callbackProp.vrmList, callback: (updatedThumbVrmList: VrmData[]) => {
-                      vrmListDispatch({ type: VrmStoreActionType.setVrmList, vrmList: updatedThumbVrmList });
-                    }});
-                  });
-                });
-            }});
+            vrmListAddFile(file, viewer);
           }
         });
       }

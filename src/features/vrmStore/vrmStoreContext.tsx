@@ -1,22 +1,37 @@
-import { Dispatch, PropsWithChildren, createContext, useContext, useEffect, useReducer } from "react";
+import { PropsWithChildren, createContext, useContext, useEffect, useReducer } from "react";
 import { VrmData } from "./vrmData";
 import { vrmList } from "@/paths";
 import { thumbPrefix } from "@/components/settings/common";
-import { VrmDispatchAction, VrmStoreActionType, vrmListReducer } from "./vrmStoreReducer";
+import { AddItemCallbackType, VrmStoreActionType, vrmListReducer } from "./vrmStoreReducer";
+import { Viewer } from "../vrmViewer/viewer";
 
 interface VrmStoreContextType {
     vrmList: VrmData[];
-    vrmListDispatch: Dispatch<VrmDispatchAction>;
+    vrmListAddFile: (file: File, viewer: Viewer) => void;
 };
 
 const vrmInitList = vrmList.map((url: string) => {
     return new VrmData(url, url, `${thumbPrefix(url)}.jpg`);
 });
 
-export const VrmStoreContext = createContext<VrmStoreContextType>({ vrmList: vrmInitList, vrmListDispatch: () => {} });
+export const VrmStoreContext = createContext<VrmStoreContextType>({ vrmList: vrmInitList, vrmListAddFile: () => {} });
 
 export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Element => {
     const [loadedVrmList, vrmListDispatch] = useReducer(vrmListReducer, vrmInitList);
+    const vrmListAddFile = (file: File, viewer: Viewer) => {
+        vrmListDispatch({ type: VrmStoreActionType.addItem, itemFile: file, callback: (callbackProp: AddItemCallbackType) => {
+            viewer.loadVrm(callbackProp.url)
+              .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
+              .then(() => {
+                viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
+                  if (!thumbBlob) return;
+                  vrmListDispatch({ type: VrmStoreActionType.updateVrmThumb, url: callbackProp.url, thumbBlob, vrmList: callbackProp.vrmList, callback: (updatedThumbVrmList: VrmData[]) => {
+                    vrmListDispatch({ type: VrmStoreActionType.setVrmList, vrmList: updatedThumbVrmList });
+                  }});
+                });
+              });
+        }});
+    }
 
     useEffect(() => {
         vrmListDispatch({ type: VrmStoreActionType.loadFromLocalStorage, vrmList: vrmInitList, callback: (updatedVmList: VrmData[]) => {
@@ -25,7 +40,7 @@ export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Eleme
     }, []);
 
     return (
-        <VrmStoreContext.Provider value={{vrmList: loadedVrmList, vrmListDispatch}}>
+        <VrmStoreContext.Provider value={{vrmList: loadedVrmList, vrmListAddFile}}>
             {children}
         </VrmStoreContext.Provider>
     );
