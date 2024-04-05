@@ -7,7 +7,7 @@ import { VrmData } from "@/features/vrmStore/vrmData";
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
-  const { vrmList, vrmListAddFile, isLoadingVrmList, setIsLoadingVrmList } = useVrmStoreContext();
+  const { vrmList, vrmListAddFile, isLoadingVrmList } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const vrmHash = config("vrm_hash");
