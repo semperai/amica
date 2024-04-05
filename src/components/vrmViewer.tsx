@@ -7,14 +7,14 @@ import { VrmData } from "@/features/vrmStore/vrmData";
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
-  const { vrmList, vrmListAddFile } = useVrmStoreContext();
+  const { vrmList, vrmListAddFile, isLoadingVrmList, setIsLoadingVrmList } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const vrmHash = config("vrm_hash");
 
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
-      if (canvas) {
+      if (canvas && !isLoadingVrmList) {
         viewer.setup(canvas);
         
         (new Promise(async (resolve, reject) => {

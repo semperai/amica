@@ -19,7 +19,7 @@ export enum VrmStoreActionType {
     loadFromLocalStorage
 };
 
-export const vrmListReducer = (state: VrmData[], action: VrmDispatchAction): VrmData[] => {
+export const vrmStoreReducer = (state: VrmData[], action: VrmDispatchAction): VrmData[] => {
     let newState = state;
     switch (action.type) {
         case VrmStoreActionType.addItem:
