@@ -17,7 +17,6 @@ import {
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
-import { IconButton } from "@/components/iconButton";
 import { TextButton } from "@/components/textButton";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { config, updateConfig } from "@/utils/config";
@@ -221,6 +220,7 @@ export const Settings = ({
     whisperCppUrl,
     name,
     systemPrompt,
+    sttWakeWordEnabled, sttWakeWord, sttWakeWordIdleTime
   ]);
 
 
