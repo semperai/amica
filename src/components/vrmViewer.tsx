@@ -2,6 +2,9 @@ import { useContext, useCallback, useState } from "react";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from "@/utils/config";
+import isTauri from "@/utils/isTauri";
+import { invoke } from "@tauri-apps/api/tauri";
+
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
@@ -24,11 +27,13 @@ export default function VrmViewer() {
         .then(() => {
           console.log("vrm loaded");
           setIsLoading(false);
+          if (isTauri()) invoke("close_splashscreen");
         })
         .catch((e) => {
           console.error("vrm loading error", e);
           setLoadingError(true);
           setIsLoading(false);
+          if (isTauri()) invoke("close_splashscreen");
         });
 
 
