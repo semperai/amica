@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "npm run build && npm run export",
+    "beforeBuildCommand": "npm run build && npm run export && npm run splash",
     "beforeDevCommand": "npm run dev",
     "devPath": "http://localhost:3000",
     "distDir": "../out"
@@ -68,7 +68,19 @@
         "fullscreen": false,
         "resizable": true,
         "title": "Amica",
-        "transparent": true
+        "transparent": true,
+        "visible": false,
+        "label": "main"
+      },
+      {
+        "fullscreen": false,
+        "transparent": true,
+        "resizable": false,
+        "width": 400,
+        "height": 215,
+        "decorations": false,
+        "url": "/splashscreen.html",
+        "label": "splashscreen"
       }
     ]
   }
