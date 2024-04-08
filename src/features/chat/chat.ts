@@ -10,6 +10,7 @@ import { getWindowAiChatResponseStream } from './windowAiChat';
 import { getOllamaChatResponseStream, getOllamaVisionChatResponse } from './ollamaChat';
 import { getKoboldAiChatResponseStream } from './koboldAiChat';
 
+import { piper} from "@/features/piper/piper";
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
@@ -441,6 +442,10 @@ export class Chat {
         }
         case 'localXTTS': {
           const voice = await localXTTSTTS(talk.message);
+        }
+        case 'piper': {
+          const voice = await piper(talk.message);
+          return voice.audio;
         }
       }
     } catch (e: any) {

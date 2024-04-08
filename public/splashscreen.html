@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Splash Screen</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    .splash-container {
+      position: relative;
+      width: 200px; 
+      height: 200px; 
+    }
+    .splash-logo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('logo.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      border-radius: 50%;
+    }
+    .loading-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      animation: spin 1s linear infinite; 
+      border: 4px solid transparent; 
+      border-top-color: #ff00dd; 
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); border-top-color: #ff00dd; } 
+      25% { border-top-color: #e91e63; } 
+      50% { border-top-color: #140f08; } 
+      75% { border-top-color: #ffeb3b; } 
+      100% { transform: rotate(360deg); border-top-color: #ff00dd; } 
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-container">
+    <div class="splash-logo"></div>
+    <div class="loading-indicator"></div>
+  </div>
+</body>
+</html>

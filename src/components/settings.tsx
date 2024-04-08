@@ -46,6 +46,8 @@ import { SpeechT5SettingsPage } from './settings/SpeechT5SettingsPage';
 import { CoquiSettingsPage } from './settings/CoquiSettingsPage';
 import { OpenAITTSSettingsPage } from './settings/OpenAITTSSettingsPage';
 
+import { PiperSettingsPage } from './settings/PiperSettingsPage';
+
 import { STTBackendPage } from './settings/STTBackendPage';
 import { STTWakeWordSettingsPage } from './settings/STTWakeWordSettingsPage';
 
@@ -96,6 +98,8 @@ export const Settings = ({
   const [openAITTSUrl, setOpenAITTSUrl] = useState(config("openai_tts_url"));
   const [openAITTSModel, setOpenAITTSModel] = useState(config("openai_tts_model"));
   const [openAITTSVoice, setOpenAITTSVoice] = useState(config("openai_tts_voice"));
+
+  const [piperUrl, setPiperUrl] = useState(config("piper_url"));
 
   const [visionBackend, setVisionBackend] = useState(config("vision_backend"));
   const [visionLlamaCppUrl, setVisionLlamaCppUrl] = useState(config("vision_llamacpp_url"));
@@ -209,6 +213,7 @@ export const Settings = ({
     speechT5SpeakerEmbeddingsUrl,
     coquiApiKey, coquiVoiceId,
     openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
+    piperUrl,
     visionBackend,
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
@@ -248,7 +253,7 @@ export const Settings = ({
 
     case 'tts':
       return <MenuPage
-        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings", "openai_tts_settings"]}
+        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings", "openai_tts_settings", "piper_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'stt':
@@ -397,6 +402,13 @@ export const Settings = ({
         setOpenAITTSModel={setOpenAITTSModel}
         openAITTSVoice={openAITTSVoice}
         setOpenAITTSVoice={setOpenAITTSVoice}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'piper_settings':
+      return <PiperSettingsPage
+        piperUrl={piperUrl}
+        setPiperUrl={setPiperUrl}
         setSettingsUpdated={setSettingsUpdated}
         />
 
