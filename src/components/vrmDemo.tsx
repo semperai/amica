@@ -12,6 +12,7 @@ export default function VrmDemo({
   onLoaded?: () => void,
   onError?: () => void,
 }) {
+  
   const { viewer } = useContext(ViewerContext);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
