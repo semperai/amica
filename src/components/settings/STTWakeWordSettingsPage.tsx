@@ -28,15 +28,15 @@ export function STTWakeWordSettingsPage({
 
     return (
         <BasicPage
-          title={`${t("Wake word")} ${t("Settings")}`}
-          description={`${t("Configure")} ${t("Wake word")}`}
+          title={`${t("Wake Word")} ${t("Settings")}`}
+          description={`${t("Configure")} ${t("Wake Word")}`}
         >
             <ul role="list" className="divide-y divide-gray-100 max-w-xs">
                 <li className="py-4">
-                    <FormRow label={`${t("Use")} ${t("Wake word")}`}>
+                    <FormRow label={`${t("Use")} ${t("Wake Word")}`}>
                         <SwitchBox
                             value={sttWakeWordEnabled}
-                            label={`${t("Wake word")} ${t("Enabled")}`}
+                            label={`${t("Wake Word")} ${t("Enabled")}`}
                             onChange={(value: boolean) => {
                                 setSTTWakeWordEnabled(value);
                                 updateConfig("wake_word_enabled", value.toString());
@@ -48,7 +48,7 @@ export function STTWakeWordSettingsPage({
                 { sttWakeWordEnabled && (
                     <>
                         <li className="py-4">
-                            <FormRow label={`${t("Specify")} ${t("Wake word")}`}>
+                            <FormRow label={`${t("Specify")} ${t("Wake Word")}`}>
                                 <TextInput
                                     value={sttWakeWord}
                                     onChange={(event: React.ChangeEvent<any>) => {
