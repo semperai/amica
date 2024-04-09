@@ -91,6 +91,14 @@ export function thumbPrefix(path: string) {
   return a.join("/");
 }
 
+export function hashCode(str: string): string {
+  var hash = 0, i = 0, len = str.length;
+  while ( i < len ) {
+      hash  = ((hash << 5) - hash + str.charCodeAt(i++)) << 0;
+  }
+  return hash.toString();
+}
+
 export type Link = {
   key: string;
   label: string;

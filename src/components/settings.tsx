@@ -61,6 +61,7 @@ import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
 import { NamePage } from './settings/NamePage';
 import { SystemPromptPage } from './settings/SystemPromptPage';
+import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 
 export const Settings = ({
   onClickClose,
@@ -68,6 +69,7 @@ export const Settings = ({
   onClickClose: () => void;
 }) => {
   const { viewer } = useContext(ViewerContext);
+  const { vrmList, vrmListAddFile } = useVrmStoreContext();
   useKeyboardShortcut("Escape", onClickClose);
 
   const [page, setPage] = useState('main_menu');
@@ -109,7 +111,7 @@ export const Settings = ({
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [bgColor, setBgColor] = useState(config("bg_color"));
-  const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
+  const [vrmHash, setVrmHash] = useState(config("vrm_hash"));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
@@ -140,6 +142,7 @@ export const Settings = ({
   const handleChangeVrmFile = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
+
       if (!files) return;
 
       const file = files[0];
@@ -148,9 +151,7 @@ export const Settings = ({
       const file_type = file.name.split(".").pop();
 
       if (file_type === "vrm") {
-        const blob = new Blob([file], { type: "application/octet-stream" });
-        const url = window.URL.createObjectURL(blob);
-        viewer.loadVrm(url);
+        vrmListAddFile(file, viewer);
       }
 
       event.target.value = "";
@@ -164,8 +165,6 @@ export const Settings = ({
 
     const file = files[0];
     if (!file) return;
-
-    const file_type = file.name.split(".").pop();
 
     if (! file.type.match('image.*')) return;
 
@@ -219,7 +218,7 @@ export const Settings = ({
     visionOllamaUrl, visionOllamaModel,
     visionSystemPrompt,
     bgColor,
-    bgUrl, vrmUrl, youtubeVideoID, animationUrl,
+    bgUrl, vrmHash, youtubeVideoID, animationUrl,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
@@ -227,7 +226,6 @@ export const Settings = ({
     systemPrompt,
     sttWakeWordEnabled, sttWakeWord, sttWakeWordIdleTime
   ]);
-
 
   function handleMenuClick(link: Link) {
     setPage(link.key)
@@ -297,8 +295,9 @@ export const Settings = ({
     case 'character_model':
       return <CharacterModelPage
         viewer={viewer}
-        vrmUrl={vrmUrl}
-        setVrmUrl={setVrmUrl}
+        vrmHash={vrmHash}
+        vrmList={vrmList}
+        setVrmHash={setVrmHash}
         setSettingsUpdated={setSettingsUpdated}
         handleClickOpenVrmFile={handleClickOpenVrmFile}
         />
