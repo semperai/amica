@@ -17,7 +17,7 @@ export default function VrmViewer() {
 
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
-      if (canvas && !isLoadingVrmList) {
+      if (canvas && (vrmHash.includes("/vrm/AvatarSample") || !isLoadingVrmList)) {
         viewer.setup(canvas);
         
         (new Promise(async (resolve, reject) => {
@@ -71,7 +71,7 @@ export default function VrmViewer() {
         });
       }
     },
-    [vrmList.findIndex(value => value.hashEquals(vrmHash)), viewer]
+    [vrmList.findIndex(value => value.hashEquals(vrmHash)) < 0, viewer]
   );
 
   return (
