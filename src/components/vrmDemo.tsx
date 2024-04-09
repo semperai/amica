@@ -35,6 +35,7 @@ export default function VrmDemo({
           }
         }))
         .then(() => {
+          console.log("vrm loaded");
           setIsLoading(false);
           setLoadingError(false);
           onLoaded && onLoaded();

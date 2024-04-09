@@ -106,7 +106,7 @@ Test that everything works. If something doesn't, open the debug window or your 
 The following environment variables may be set to configure the application:
 
 * `NEXT_PUBLIC_BG_URL` - The URL of the background image.
-* `NEXT_PUBLIC_VRM_HASH` - The url of local VRM file or hash of localStorage VRM file.
+* `NEXT_PUBLIC_VRM_URL` - The URL of the VRM file.
 * `NEXT_PUBLIC_YOUTUBE_VIDEOID` - The ID of the YouTube video.
 * `NEXT_PUBLIC_ANIMATION_URL` - The URL of the animation file.
 * `NEXT_PUBLIC_CHATBOT_BACKEND` - The backend to use for chatbot. Valid values are `echo`, `openai`, `llamacpp`, `ollama`, and `koboldai` 

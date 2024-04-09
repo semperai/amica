@@ -2,39 +2,30 @@ import { useContext, useCallback, useState } from "react";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 import { config } from "@/utils/config";
-import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
-import { VrmData } from "@/features/vrmStore/vrmData";
 import isTauri from "@/utils/isTauri";
 import { invoke } from "@tauri-apps/api/tauri";
 
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
-  const { vrmList, vrmListAddFile, isLoadingVrmList } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
-  const vrmHash = config("vrm_hash");
 
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
-      if (canvas && (vrmHash.includes("/vrm/AvatarSample") || !isLoadingVrmList)) {
+      if (canvas) {
         viewer.setup(canvas);
-        
+        const vrmUrl = config("vrm_url");
         (new Promise(async (resolve, reject) => {
           try {
-            const vrm = vrmList.find(( vrm: VrmData ) => vrm.getHash() == vrmHash);
-            if (vrm) {
-              await viewer.loadVrm(buildUrl(vrm.url));
-              resolve(true);
-            }
-            reject("cant find vrm in localStorage");
+            await viewer.loadVrm(buildUrl(vrmUrl));
+            resolve(true);
           } catch (e) {
             reject(e);
           }
         }))
         .then(() => {
           console.log("vrm loaded");
-          setLoadingError(false);
           setIsLoading(false);
           if (isTauri()) invoke("close_splashscreen");
         })
@@ -66,12 +57,14 @@ export default function VrmViewer() {
 
           const file_type = file.name.split(".").pop();
           if (file_type === "vrm") {
-            vrmListAddFile(file, viewer);
+            const blob = new Blob([file], { type: "application/octet-stream" });
+            const url = window.URL.createObjectURL(blob);
+            viewer.loadVrm(url);
           }
         });
       }
     },
-    [vrmList.findIndex(value => value.hashEquals(vrmHash)) < 0, viewer]
+    [viewer]
   );
 
   return (

@@ -3,10 +3,11 @@ import { VRM, VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { VRMAnimation } from "@/lib/VRMAnimation/VRMAnimation";
 import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlugin/VRMLookAtSmootherLoaderPlugin";
+import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { LipSync } from "@/features/lipSync/lipSync";
 import { EmoteController } from "@/features/emoteController/emoteController";
 import { Screenplay } from "@/features/chat/messages";
-import { config, updateConfig } from "@/utils/config";
+import { config } from "@/utils/config";
 
 /**
  * 3Dキャラクターを管理するクラス
