@@ -8,15 +8,19 @@ import { VrmData } from '@/features/vrmStore/vrmData';
 export function CharacterModelPage({
   viewer,
   vrmHash,
+  vrmUrl,
   vrmList,
   setVrmHash,
+  setVrmUrl,
   setSettingsUpdated,
   handleClickOpenVrmFile,
 }: {
   viewer: any; // TODO
   vrmHash: string;
+  vrmUrl: string;
   vrmList: VrmData[],
   setVrmHash: (hash: string) => void;
+  setVrmUrl: (url: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
   handleClickOpenVrmFile: () => void;
 }) {
@@ -34,13 +38,19 @@ export function CharacterModelPage({
               key={vrm.url}
               onClick={() => {
                 viewer.loadVrm(vrm.url);
-                updateConfig("vrm_hash", vrm.getHash());
-                setVrmHash(vrm.getHash());
+                updateConfig('vrm_save_type', vrm.saveType);
+                  if (vrm.saveType == 'local') {
+                  updateConfig('vrm_hash', vrm.getHash());
+                  setVrmHash(vrm.getHash());
+                } else {
+                  updateConfig('vrm_url', vrm.url);
+                  setVrmUrl(vrm.url);
+                }
                 setSettingsUpdated(true);
               }}
               className={clsx(
                 "mx-4 py-2 rounded-4 transition-all bg-gray-100 hover:bg-white active:bg-gray-100 rounded-xl",
-                vrm.url === vrmHash ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100"
+                ( vrm.saveType === 'web' && vrm.url === vrmUrl) || ( vrm.saveType === 'local' && vrm.getHash() === vrmHash) ? "opacity-100 shadow-md" : "opacity-60 hover:opacity-100"
               )}
               >
                 <img

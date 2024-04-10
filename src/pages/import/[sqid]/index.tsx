@@ -111,6 +111,7 @@ export default function Import() {
 
     if (vrmUrl) {
       updateConfig('vrm_url', vrmUrl as string);
+      updateConfig('vrm_save_type', 'web');
     } else {
       updateConfig('vrm_url', defaultConfig('vrm_url'));
     }

@@ -109,6 +109,7 @@ export const Settings = ({
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [bgColor, setBgColor] = useState(config("bg_color"));
+  const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
   const [vrmHash, setVrmHash] = useState(config("vrm_hash"));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
@@ -212,7 +213,7 @@ export const Settings = ({
     visionOllamaUrl, visionOllamaModel,
     visionSystemPrompt,
     bgColor,
-    bgUrl, vrmHash, youtubeVideoID, animationUrl,
+    bgUrl, vrmHash, vrmUrl, youtubeVideoID, animationUrl,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
@@ -289,8 +290,10 @@ export const Settings = ({
       return <CharacterModelPage
         viewer={viewer}
         vrmHash={vrmHash}
+        vrmUrl={vrmUrl}
         vrmList={vrmList}
         setVrmHash={setVrmHash}
+        setVrmUrl={setVrmUrl}
         setSettingsUpdated={setSettingsUpdated}
         handleClickOpenVrmFile={handleClickOpenVrmFile}
         />

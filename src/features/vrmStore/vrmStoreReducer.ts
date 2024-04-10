@@ -53,7 +53,7 @@ const addItem = (vrmList: VrmData[], file: File, callback: (prop: AddItemCallbac
     BlobToBase64(blob).then((data: string) => {
         const hash = hashCode(data);
         if (loadedVrmList.findIndex((vrm: VrmData) => vrm.hashEquals(hash)) == -1) {
-            loadedVrmList = [...loadedVrmList, new VrmData(hash, url, '/vrm/thumb-placeholder.jpg')];
+            loadedVrmList = [...loadedVrmList, new VrmData(hash, url, '/vrm/thumb-placeholder.jpg', 'local')];
             vrmDataProvider.addItem(hash, data);
             callback({ url, vrmList: loadedVrmList, hash });
         }
@@ -129,7 +129,7 @@ const VrmDbModelToVrmData = async (vrmDbModel: VrmDbModel): Promise<VrmData> => 
         thumbBlobUrl = window.URL.createObjectURL(thumbBlob);
     }
     return new Promise((resolve, reject) => {
-        resolve(new VrmData(vrmDbModel.hash, vrmBlobUrl, thumbBlobUrl)); 
+        resolve(new VrmData(vrmDbModel.hash, vrmBlobUrl, thumbBlobUrl, 'local')); 
     });
 };
 
