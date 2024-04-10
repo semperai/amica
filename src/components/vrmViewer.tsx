@@ -13,7 +13,6 @@ export default function VrmViewer() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const isVrmLocal = 'local' == config("vrm_save_type");
-  const vrmHash = config("vrm_hash");
 
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
@@ -72,7 +71,7 @@ export default function VrmViewer() {
         });
       }
     },
-    [vrmList.findIndex(value => value.hashEquals(vrmHash)) < 0, viewer]
+    [vrmList.findIndex(value => value.hashEquals(getCurrentVrm()?.getHash() || "")) < 0, viewer]
   );
 
   return (

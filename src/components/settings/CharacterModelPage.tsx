@@ -9,18 +9,22 @@ export function CharacterModelPage({
   viewer,
   vrmHash,
   vrmUrl,
+  vrmSaveType,
   vrmList,
   setVrmHash,
   setVrmUrl,
+  setVrmSaveType,
   setSettingsUpdated,
   handleClickOpenVrmFile,
 }: {
   viewer: any; // TODO
   vrmHash: string;
   vrmUrl: string;
+  vrmSaveType: string;
   vrmList: VrmData[],
   setVrmHash: (hash: string) => void;
   setVrmUrl: (url: string) => void;
+  setVrmSaveType: (saveType: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
   handleClickOpenVrmFile: () => void;
 }) {
@@ -38,9 +42,12 @@ export function CharacterModelPage({
               key={vrm.url}
               onClick={() => {
                 viewer.loadVrm(vrm.url);
+                setVrmSaveType(vrm.saveType);
                 updateConfig('vrm_save_type', vrm.saveType);
-                  if (vrm.saveType == 'local') {
+                if (vrm.saveType == 'local') {
                   updateConfig('vrm_hash', vrm.getHash());
+                  updateConfig('vrm_url', vrm.url);
+                  setVrmUrl(vrm.url);
                   setVrmHash(vrm.getHash());
                 } else {
                   updateConfig('vrm_url', vrm.url);

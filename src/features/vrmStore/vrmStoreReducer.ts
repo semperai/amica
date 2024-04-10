@@ -2,6 +2,8 @@ import { hashCode } from "@/components/settings/common";
 import { VrmData } from "./vrmData";
 import { vrmDataProvider } from "./vrmDataProvider";
 import VrmDbModel from "./vrmDbModel";
+import "@/utils/base64ToBlob";
+import { Base64ToBlob } from "@/utils/base64ToBlob";
 
 export type VrmDispatchAction = {
     type: VrmStoreActionType;
@@ -131,9 +133,4 @@ const VrmDbModelToVrmData = async (vrmDbModel: VrmDbModel): Promise<VrmData> => 
     return new Promise((resolve, reject) => {
         resolve(new VrmData(vrmDbModel.hash, vrmBlobUrl, thumbBlobUrl, 'local')); 
     });
-};
-
-const Base64ToBlob = async (data: string): Promise<Blob> => {
-    return fetch(data)
-        .then(res => res.blob());
 };

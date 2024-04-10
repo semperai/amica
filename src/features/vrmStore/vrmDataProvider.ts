@@ -1,6 +1,7 @@
 import { VrmDexie } from "./vrmDb";
 import VrmDbModel from "./vrmDbModel";
 import { db } from "./vrmDb";
+import { Base64ToBlob } from "@/utils/base64ToBlob";
 
 export class VrmDataProvider {
     private db: VrmDexie;
@@ -24,6 +25,15 @@ export class VrmDataProvider {
     public updateItemThumb(hash: string, vrmThumbData: string): void {
         this.db.vrms.where("hash").equals(hash).modify({ thumbData: vrmThumbData });
     }
+
+    public getItemAsBlob(hash: string): Promise<Blob | undefined> {
+        return this.db.vrms.where("hash").equals(hash).first()
+            .then(vrmDbModel => { console.log(`hash: ${hash}`); console.log(`vrmDbModel: ${vrmDbModel}`); return vrmDbModel ? Base64ToBlob(vrmDbModel?.vrmData) : undefined; });
+    }
+
+    // public addItemUrl(hash: string, url: string) {
+    //     this.db.vrms.where("hash").equals(hash).modify({ vrmUrl: url });
+    // }
 }
 
 export const vrmDataProvider = new VrmDataProvider();

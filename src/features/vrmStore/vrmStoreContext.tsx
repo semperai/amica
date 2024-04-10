@@ -33,6 +33,7 @@ export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Eleme
             viewer.loadVrm(callbackProp.url)
               .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
               .then(() => {
+                updateConfig("vrm_url", callbackProp.url);
                 updateConfig("vrm_hash", callbackProp.hash);
                 updateConfig("vrm_save_type", "local");
                 viewer.getScreenshotBlob((thumbBlob: Blob | null) => {

@@ -111,6 +111,7 @@ export const Settings = ({
   const [bgColor, setBgColor] = useState(config("bg_color"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
   const [vrmHash, setVrmHash] = useState(config("vrm_hash"));
+  const [vrmSaveType, setVrmSaveType] = useState(config('vrm_save_type'));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
@@ -291,9 +292,11 @@ export const Settings = ({
         viewer={viewer}
         vrmHash={vrmHash}
         vrmUrl={vrmUrl}
+        vrmSaveType={vrmSaveType}
         vrmList={vrmList}
         setVrmHash={setVrmHash}
         setVrmUrl={setVrmUrl}
+        setVrmSaveType={setVrmSaveType}
         setSettingsUpdated={setSettingsUpdated}
         handleClickOpenVrmFile={handleClickOpenVrmFile}
         />
