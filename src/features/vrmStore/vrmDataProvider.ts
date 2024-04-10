@@ -14,8 +14,8 @@ export class VrmDataProvider {
         this.db.close();
     }
     
-    public addItem(hash: string, vrmData: string): void {
-        this.db.vrms.put(new VrmDbModel(hash, vrmData));
+    public addItem(hash: string, saveType: 'local' | 'web', vrmData: string = "", vrmUrl: string = ""): void {
+        this.db.vrms.put(new VrmDbModel(hash, saveType, vrmData, vrmUrl));
     }
 
     public async getItems(): Promise<VrmDbModel[]> {
@@ -31,9 +31,9 @@ export class VrmDataProvider {
             .then(vrmDbModel => { console.log(`hash: ${hash}`); console.log(`vrmDbModel: ${vrmDbModel}`); return vrmDbModel ? Base64ToBlob(vrmDbModel?.vrmData) : undefined; });
     }
 
-    // public addItemUrl(hash: string, url: string) {
-    //     this.db.vrms.where("hash").equals(hash).modify({ vrmUrl: url });
-    // }
+    public addItemUrl(hash: string, url: string) {
+        this.db.vrms.where("hash").equals(hash).modify({ saveType: 'web', vrmUrl: url });
+    }
 }
 
 export const vrmDataProvider = new VrmDataProvider();

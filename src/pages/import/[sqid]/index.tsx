@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { updateConfig, defaultConfig } from '@/utils/config';
@@ -7,10 +7,10 @@ import { isTauri } from '@/utils/isTauri';
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import VrmDemo from "@/components/vrmDemo";
 import { supabase } from '@/utils/supabase';
+import { vrmDataProvider } from '@/features/vrmStore/vrmDataProvider';
 
 export default function Import() {
   const { t } = useTranslation();
-  const { viewer } = useContext(ViewerContext);
   const router = useRouter()
 
   const [description, setDescription] = useState('');
@@ -112,6 +112,7 @@ export default function Import() {
     if (vrmUrl) {
       updateConfig('vrm_url', vrmUrl as string);
       updateConfig('vrm_save_type', 'web');
+      vrmDataProvider.addItem(vrmUrl, 'web', "", vrmUrl);
     } else {
       updateConfig('vrm_url', defaultConfig('vrm_url'));
     }

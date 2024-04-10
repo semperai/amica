@@ -56,7 +56,7 @@ const addItem = (vrmList: VrmData[], file: File, callback: (prop: AddItemCallbac
         const hash = hashCode(data);
         if (loadedVrmList.findIndex((vrm: VrmData) => vrm.hashEquals(hash)) == -1) {
             loadedVrmList = [...loadedVrmList, new VrmData(hash, url, '/vrm/thumb-placeholder.jpg', 'local')];
-            vrmDataProvider.addItem(hash, data);
+            vrmDataProvider.addItem(hash, 'local', data);
             callback({ url, vrmList: loadedVrmList, hash });
         }
     });
@@ -121,16 +121,24 @@ const VrmDataArrayFromVrmDbModelArray = async (vrms: VrmDbModel[]): Promise<VrmD
 };
 
 const VrmDbModelToVrmData = async (vrmDbModel: VrmDbModel): Promise<VrmData> => {
-    const vrmBlob = await Base64ToBlob(vrmDbModel.vrmData);
-    const vrmBlobUrl = window.URL.createObjectURL(vrmBlob);
-    let thumbBlobUrl: string;
+    let thumbUrl: string;
+    let vrmUrl: string;
+
+    if (vrmDbModel.saveType == 'local') {
+        const vrmBlob = await Base64ToBlob(vrmDbModel.vrmData);
+        vrmUrl = window.URL.createObjectURL(vrmBlob);
+    } else {
+        vrmUrl = vrmDbModel.vrmUrl;
+    }
+
     if (!vrmDbModel.thumbData || !vrmDbModel.thumbData.length) {
-        thumbBlobUrl = '/vrm/thumb-placeholder.jpg';
+        thumbUrl = '/vrm/thumb-placeholder.jpg';
     } else {
         const thumbBlob = await Base64ToBlob(vrmDbModel.thumbData);
-        thumbBlobUrl = window.URL.createObjectURL(thumbBlob);
+        thumbUrl = window.URL.createObjectURL(thumbBlob);
     }
+    
     return new Promise((resolve, reject) => {
-        resolve(new VrmData(vrmDbModel.hash, vrmBlobUrl, thumbBlobUrl, 'local')); 
+        resolve(new VrmData(vrmDbModel.hash, vrmUrl, thumbUrl, vrmDbModel.saveType)); 
     });
 };
