@@ -11,6 +11,7 @@ const ttsEngines = [
   {key: "openai_tts", label: "OpenAI TTS"},
   {key: "localXTTS",  label: "Local XTTS"}, // Our local TTS endpoint (XTTS based)
   {key: "piper",      label: "Piper"},
+  {key: "coquiLocal", label: "Coqui Local"},
 ];
 
 function idToTitle(id: string): string {
@@ -57,7 +58,7 @@ export function TTSBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["elevenlabs", "speecht5", "coqui", "openai_tts", "piper"].includes(ttsBackend) && (
+        { ["elevenlabs", "speecht5", "coqui", "openai_tts", "piper", "coquiLocal"].includes(ttsBackend) && (
           <li className="py-4">
             <FormRow label={`${t("Configure")} ${t(idToTitle(ttsBackend))}`}>
               <button
