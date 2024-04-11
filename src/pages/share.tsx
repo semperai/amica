@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useContext, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { config } from '@/utils/config';
+import { config, updateConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import { FilePond, registerPlugin } from 'react-filepond';
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
@@ -77,6 +77,9 @@ export default function Share() {
 
   const [vrmLoaded, setVrmLoaded] = useState(false);
   const [vrmLoadedFromIndexedDb, setVrmLoadedFromIndexedDb] = useState(false);
+  const [vrmLoadingFromIndexedDb, setVrmLoadingFromIndexedDb] = useState(false);
+  const [showUploadLocalVrmMessage, setShowUploadLocalVrmMessage] = useState(vrmSaveType == 'local');
+  
 
   const [sqid, setSqid] = useState('');
 
@@ -85,10 +88,7 @@ export default function Share() {
   async function uploadVrmFromIndexedDb() {
     const blob = await vrmDataProvider.getItemAsBlob(vrmHash);
     if (vrmUploadFilePond.current && blob) {
-      vrmUploadFilePond.current.addFile(blob).then(() => {
-        setVrmLoadedFromIndexedDb(true);
-      });
-      
+      vrmUploadFilePond.current.addFile(blob).then(() => { setVrmLoadingFromIndexedDb(true); });
     }
   }
 
@@ -106,6 +106,15 @@ export default function Share() {
     setAnimationUrl(config('animation_url'));
     setVoiceUrl(config('voice_url'));
   }, []);
+
+  useEffect(() => {
+    vrmDataProvider.addItemUrl(vrmHash, vrmUrl);
+    updateConfig('vrm_url', vrmUrl);
+  }, [vrmLoadedFromIndexedDb]);
+
+  useEffect(() => {
+    setShowUploadLocalVrmMessage(vrmSaveType == 'local' && !vrmLoadedFromIndexedDb && !vrmLoadingFromIndexedDb && !vrmUrl.includes(`${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}`));
+  }, [vrmSaveType, vrmLoadedFromIndexedDb, vrmLoadingFromIndexedDb, vrmUrl]);
 
   const [isRegistering, setIsRegistering] = useState(false);
   function registerCharacter() {
@@ -315,7 +324,7 @@ export default function Share() {
             </div>
           </div>
 
-          {vrmSaveType == 'local' && !vrmLoadedFromIndexedDb && (
+          {showUploadLocalVrmMessage && (
             <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 {t("Upload VRM")}
@@ -335,7 +344,7 @@ export default function Share() {
             </div>
           )}
           
-          <div className={"sm:col-span-3 max-w-md rounded-xl mt-4" + (vrmSaveType == 'web' || vrmLoadedFromIndexedDb ? "" : " hidden" )}>
+          <div className={"sm:col-span-3 max-w-md rounded-xl mt-4" + ( !showUploadLocalVrmMessage ? "" : " hidden" )}>
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("VRM Url")}
             </label>
@@ -389,6 +398,10 @@ export default function Share() {
                     const url = `${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}/${hashValue}`;
                     setVrmUrl(url);
                     updateVrmAvatar(viewer, url);
+                    if (vrmSaveType == 'local') {
+                      setVrmLoadingFromIndexedDb(false);
+                      setVrmLoadedFromIndexedDb(true);
+                    }
                     setVrmLoaded(false);
                   }
 

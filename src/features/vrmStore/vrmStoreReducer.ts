@@ -2,8 +2,8 @@ import { hashCode } from "@/components/settings/common";
 import { VrmData } from "./vrmData";
 import { vrmDataProvider } from "./vrmDataProvider";
 import VrmDbModel from "./vrmDbModel";
-import "@/utils/base64ToBlob";
-import { Base64ToBlob } from "@/utils/base64ToBlob";
+import "@/utils/blobDataUtils";
+import { Base64ToBlob, BlobToBase64 } from "@/utils/blobDataUtils";
 
 export type VrmDispatchAction = {
     type: VrmStoreActionType;
@@ -61,20 +61,6 @@ const addItem = (vrmList: VrmData[], file: File, callback: (prop: AddItemCallbac
         }
     });
     return vrmList;
-};
-
-const BlobToBase64 = async (blob: Blob): Promise<string> => {
-    return new Promise((resolve, reject) =>
-    {
-        let reader = new FileReader();
-
-        reader.onload = () => {
-            if (reader.result && typeof reader.result == "string")
-                resolve(reader.result);
-        }
-        reader.onerror = reject;
-        reader.readAsDataURL(blob); // converts the blob to base64 and calls onload
-    });
 };
 
 const updateVrmThumb = (vrmList: VrmData[], action: VrmDispatchAction): VrmData[] => {

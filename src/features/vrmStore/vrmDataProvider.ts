@@ -1,7 +1,7 @@
 import { VrmDexie } from "./vrmDb";
 import VrmDbModel from "./vrmDbModel";
 import { db } from "./vrmDb";
-import { Base64ToBlob } from "@/utils/base64ToBlob";
+import { Base64ToBlob } from "@/utils/blobDataUtils";
 
 export class VrmDataProvider {
     private db: VrmDexie;
@@ -14,8 +14,8 @@ export class VrmDataProvider {
         this.db.close();
     }
     
-    public addItem(hash: string, saveType: 'local' | 'web', vrmData: string = "", vrmUrl: string = ""): void {
-        this.db.vrms.put(new VrmDbModel(hash, saveType, vrmData, vrmUrl));
+    public addItem(hash: string, saveType: 'local' | 'web', vrmData: string = "", vrmUrl: string = "", thumbData: string = ""): void {
+        this.db.vrms.put(new VrmDbModel(hash, saveType, vrmData, vrmUrl, thumbData));
     }
 
     public async getItems(): Promise<VrmDbModel[]> {
@@ -32,7 +32,7 @@ export class VrmDataProvider {
     }
 
     public addItemUrl(hash: string, url: string) {
-        this.db.vrms.where("hash").equals(hash).modify({ saveType: 'web', vrmUrl: url });
+        this.db.vrms.where("hash").equals(hash).modify({ vrmUrl: url });
     }
 }
 

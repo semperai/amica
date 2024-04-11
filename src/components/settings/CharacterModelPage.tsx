@@ -50,6 +50,7 @@ export function CharacterModelPage({
                   setVrmUrl(vrm.url);
                   setVrmHash(vrm.getHash());
                 } else {
+                  updateConfig('vrm_hash', '');
                   updateConfig('vrm_url', vrm.url);
                   setVrmUrl(vrm.url);
                 }

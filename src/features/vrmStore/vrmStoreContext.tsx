@@ -15,7 +15,7 @@ interface VrmStoreContextType {
 };
 
 const vrmInitList = vrmList.map((url: string) => {
-    return new VrmData(url, url, `${thumbPrefix(url)}.jpg`);
+    return new VrmData(url, url, `${thumbPrefix(url)}.jpg`, 'web');
 });
 
 export const VrmStoreContext = createContext<VrmStoreContextType>({
