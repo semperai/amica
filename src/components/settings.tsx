@@ -49,6 +49,8 @@ import { OpenAITTSSettingsPage } from './settings/OpenAITTSSettingsPage';
 import { PiperSettingsPage } from './settings/PiperSettingsPage';
 
 import { STTBackendPage } from './settings/STTBackendPage';
+import { STTWakeWordSettingsPage } from './settings/STTWakeWordSettingsPage';
+
 import { WhisperOpenAISettingsPage } from './settings/WhisperOpenAISettingsPage';
 import { WhisperCppSettingsPage } from './settings/WhisperCppSettingsPage';
 
@@ -116,6 +118,10 @@ export const Settings = ({
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
   const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
+  const [sttWakeWordEnabled, setSTTWakeWordEnabled] = useState<boolean>(config("wake_word_enabled") === 'true' ? true : false);
+  const [sttWakeWord, setSTTWakeWord] = useState(config("wake_word"));
+  const [sttWakeWordIdleTime, setSTTWakeWordIdleTime] = useState<number>(parseInt(config("wake_word_time_before_idle_sec")));
+  
   const [whisperOpenAIUrl, setWhisperOpenAIUrl] = useState(config("openai_whisper_url"));
   const [whisperOpenAIApiKey, setWhisperOpenAIApiKey] = useState(config("openai_whisper_apikey"));
   const [whisperOpenAIModel, setWhisperOpenAIModel] = useState(config("openai_whisper_model"));
@@ -138,7 +144,6 @@ export const Settings = ({
   const handleChangeVrmFile = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
-
       if (!files) return;
 
       const file = files[0];
@@ -147,7 +152,9 @@ export const Settings = ({
       const file_type = file.name.split(".").pop();
 
       if (file_type === "vrm") {
-        vrmListAddFile(file, viewer);
+        const blob = new Blob([file], { type: "application/octet-stream" });
+        const url = window.URL.createObjectURL(blob);
+        viewer.loadVrm(url);
       }
 
       event.target.value = "";
@@ -161,6 +168,8 @@ export const Settings = ({
 
     const file = files[0];
     if (!file) return;
+
+    const file_type = file.name.split(".").pop();
 
     if (! file.type.match('image.*')) return;
 
@@ -220,7 +229,9 @@ export const Settings = ({
     whisperCppUrl,
     name,
     systemPrompt,
+    sttWakeWordEnabled, sttWakeWord, sttWakeWordIdleTime
   ]);
+
 
   function handleMenuClick(link: Link) {
     setPage(link.key)
@@ -251,7 +262,7 @@ export const Settings = ({
 
     case 'stt':
       return <MenuPage
-        keys={["stt_backend", "whisper_openai_settings", "whispercpp_settings"]}
+        keys={["stt_backend", "stt_wake_word", "whisper_openai_settings", "whispercpp_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'vision':
@@ -418,6 +429,17 @@ export const Settings = ({
         setPage={setPage}
         breadcrumbs={breadcrumbs}
         setBreadcrumbs={setBreadcrumbs}
+        />
+
+    case'stt_wake_word':
+      return <STTWakeWordSettingsPage
+        sttWakeWordEnabled={sttWakeWordEnabled}
+        sttWakeWord={sttWakeWord}
+        sttWakeWordIdleTime={sttWakeWordIdleTime}
+        setSTTWakeWordEnabled={setSTTWakeWordEnabled}
+        setSTTWakeWord={setSTTWakeWord}
+        setSTTWakeWordIdleTime={setSTTWakeWordIdleTime}
+        setSettingsUpdated={setSettingsUpdated}
         />
 
     case 'whisper_openai_settings':

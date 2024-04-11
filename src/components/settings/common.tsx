@@ -18,7 +18,8 @@ import {
   PencilIcon,
   EyeDropperIcon,
   EyeIcon,
-  SwatchIcon
+  SwatchIcon,
+  MoonIcon
 } from '@heroicons/react/24/outline';
 
 export function basicPage(
@@ -160,6 +161,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'piper_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'stt_backend':         return <PencilSquareIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'stt_wake_word':  return <MoonIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'whisper_openai_settings':  return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'whispercpp_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
@@ -210,6 +212,7 @@ function getLabelFromPage(page: string): string {
     case 'vision_system_prompt':     return t('System Prompt');
 
     case 'stt_backend':             return t('STT Backend');
+    case 'stt_wake_word':           return t("Wake word");
     case 'whisper_openai_settings': return t("Whisper (OpenAI)");
     case 'whispercpp_settings':     return t("Whisper.cpp");
   }

@@ -120,5 +120,14 @@
   "Import Character": "Import Character",
   "Copy URL": "Copy URL",
   "Preview": "Preview",
-  "None": "None"
+  "None": "None",
+  "Speech-to-Text": "Speech-to-Text",
+  "Set time before bot go idle": "Set time before bot go idle",
+  "time before bot go idle": "time before bot go idle",
+  "Wake word": "Wake Word",
+  "Specify": "Specify",
+  "sec": "sec",
+  "Use": "Use",
+  "Set": "Set",
+  "Enabled": "Enabled"
 }

@@ -31,8 +31,7 @@ export function CharacterModelPage({
   const { t } = useTranslation();
 
   return (
-    
-      <BasicPage
+    <BasicPage
       title={t("Character Model")}
       description={t("character_desc", "Select the Character to play")}
       >
