@@ -2,7 +2,6 @@ import * as ort from "onnxruntime-web"
 ort.env.wasm.wasmPaths = '/_next/static/chunks/'
 
 import { useContext, useEffect, useRef, useState } from "react";
-import { clsx } from "clsx";
 import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
@@ -11,8 +10,8 @@ import { AlertContext } from "@/features/alert/alertContext";
 import { ChatContext } from "@/features/chat/chatContext";
 import { openaiWhisper  } from "@/features/openaiWhisper/openaiWhisper";
 import { whispercpp  } from "@/features/whispercpp/whispercpp";
-import { config, updateConfig } from "@/utils/config";
-import wavefile, { WaveFile } from "wavefile";
+import { config } from "@/utils/config";
+import { WaveFile } from "wavefile";
 
 export default function MessageInput({
   userMessage,
