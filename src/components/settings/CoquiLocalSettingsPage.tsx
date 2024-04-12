@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from "@/components/textInput";
 import { config, updateConfig } from "@/utils/config";
+import { coquiLocalVoiceIdList } from "@/paths";
 
 export function CoquiLocalSettingsPage({
   coquiLocalUrl,
@@ -42,7 +43,7 @@ export function CoquiLocalSettingsPage({
             />
             <li className="py-4">
           <FormRow label={t("Voice ID")}>
-            <TextInput
+            <select
               value={coquiLocalVoiceId}
               onChange={(event: React.ChangeEvent<any>) => {
                 event.preventDefault();
@@ -50,7 +51,16 @@ export function CoquiLocalSettingsPage({
                 updateConfig("coquiLocal_voiceid", event.target.value);
                 setSettingsUpdated(true);
               }}
-            />
+            >
+              {coquiLocalVoiceIdList.map((voiceId) =>
+                <option
+                  key={voiceId}
+                  value={voiceId}
+                >
+                  {voiceId}
+                </option>
+              )}
+            </select>
           </FormRow>
         </li>
           </FormRow>
