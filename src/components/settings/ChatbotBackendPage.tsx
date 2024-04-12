@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { getWindowAI } from "window.ai";
-import { BasicPage, Link, FormRow, getLinkFromPage } from './common';
+import { BasicPage, CustomLink, FormRow, getLinkFromPage } from './common';
 import { updateConfig } from "@/utils/config";
 import { isTauri } from "@/utils/isTauri";
 
@@ -30,8 +30,8 @@ export function ChatbotBackendPage({
   setChatbotBackend: (backend: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
   setPage: (page: string) => void;
-  breadcrumbs: Link[];
-  setBreadcrumbs: (breadcrumbs: Link[]) => void;
+  breadcrumbs: CustomLink[];
+  setBreadcrumbs: (breadcrumbs: CustomLink[]) => void;
 }) {
   const { t } = useTranslation();
   const [windowAiDetected, setWindowAiDetected] = useState(false);

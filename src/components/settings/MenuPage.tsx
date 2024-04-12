@@ -2,14 +2,14 @@ import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
-import { Link, pagesToLinks } from './common';
+import { CustomLink, pagesToLinks } from './common';
 
 export function MenuPage({
   keys,
   menuClick,
 }: {
   keys: string[];
-  menuClick: (link: Link) => void;
+  menuClick: (link: CustomLink) => void;
 }) {
   const { t } = useTranslation();
 

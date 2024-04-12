@@ -22,7 +22,7 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { config, updateConfig } from "@/utils/config";
 
 
-import { Link } from "./settings/common";
+import { CustomLink } from "./settings/common";
 
 import { MenuPage } from './settings/MenuPage';
 import { ResetSettingsPage } from './settings/ResetSettingsPage';
@@ -71,7 +71,7 @@ export const Settings = ({
   useKeyboardShortcut("Escape", onClickClose);
 
   const [page, setPage] = useState('main_menu');
-  const [breadcrumbs, setBreadcrumbs] = useState<Link[]>([]);
+  const [breadcrumbs, setBreadcrumbs] = useState<CustomLink[]>([]);
   const [showNotification, setShowNotification] = useState(false);
   const [settingsUpdated, setSettingsUpdated] = useState(false);
 
@@ -229,7 +229,7 @@ export const Settings = ({
   ]);
 
 
-  function handleMenuClick(link: Link) {
+  function handleMenuClick(link: CustomLink) {
     setPage(link.key)
     setBreadcrumbs([...breadcrumbs, link]);
   }

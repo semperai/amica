@@ -91,7 +91,7 @@ export function thumbPrefix(path: string) {
   return a.join("/");
 }
 
-export type Link = {
+export type CustomLink = {
   key: string;
   label: string;
   icon?: JSX.Element;
@@ -107,8 +107,8 @@ export function getLinkFromPage(page: string) {
   };
 }
 
-export function pagesToLinks(keys: string[]): Link[] {
-  const links: Link[] = [];
+export function pagesToLinks(keys: string[]): CustomLink[] {
+  const links: CustomLink[] = [];
   for (const key of keys) {
     links.push(getLinkFromPage(key));
   }
@@ -117,8 +117,8 @@ export function pagesToLinks(keys: string[]): Link[] {
 
 export type PageProps = {
   setPage: (page: string) => void;
-  breadcrumbs: Link[];
-  setBreadcrumbs: (breadcrumbs: Link[]) => void;
+  breadcrumbs: CustomLink[];
+  setBreadcrumbs: (breadcrumbs: CustomLink[]) => void;
 }
 
 export function getIconFromPage(page: string): JSX.Element {
