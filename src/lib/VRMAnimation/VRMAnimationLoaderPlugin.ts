@@ -3,7 +3,7 @@ import {
   GLTF,
   GLTFLoaderPlugin,
   GLTFParser,
-} from "three/examples/jsm/loaders/GLTFLoader";
+} from "three/addons/loaders/GLTFLoader.js";
 import { VRMAnimationLoaderPluginOptions } from "./VRMAnimationLoaderPluginOptions";
 import { GLTF as GLTFSchema } from "@gltf-transform/core";
 import { VRMCVRMAnimation } from "./VRMCVRMAnimation";
