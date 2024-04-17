@@ -550,7 +550,7 @@ export default function Share() {
               <button
                 onClick={registerCharacter}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-fuchsia-500 disabled:cursor-not-allowed"
-                disabled={!vrmLoaded || !showUploadLocalVrmMessage || isRegistering}
+                disabled={!vrmLoaded || showUploadLocalVrmMessage || vrmLoadingFromIndexedDb || isRegistering}
               >
                 {t("Save Character")}
               </button>
