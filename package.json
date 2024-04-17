@@ -17,7 +17,7 @@
     "splash": "cp ./public/splashscreen.html out/"
   },
   "dependencies": {
-    "@charcoal-ui/icons": "^2.6.0",
+    "@charcoal-ui/icons": "^2.10.0",
     "@charcoal-ui/theme": "^2.7.0",
     "@ducanh2912/next-pwa": "^9.7.2",
     "@headlessui/react": "^1.7.17",
@@ -29,6 +29,8 @@
     "@tailwindcss/line-clamp": "^0.4.4",
     "@xenova/transformers": "^2.7.0",
     "clsx": "^2.0.0",
+    "dexie": "^4.0.4",
+    "dexie-react-hooks": "^1.1.7",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-type": "^1.2.8",
     "filepond-plugin-image-preview": "^4.6.11",

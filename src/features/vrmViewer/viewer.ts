@@ -2,8 +2,7 @@ import * as THREE from "three";
 import { Model } from "./model";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
-import { buildUrl } from "@/utils/buildUrl";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { config } from "@/utils/config";
 
 /**
@@ -21,8 +20,13 @@ export class Viewer {
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
 
+  private sendScreenshotToCallback: boolean;
+  private screenshotCallback: BlobCallback | undefined;
+
   constructor() {
     this.isReady = false;
+    this.sendScreenshotToCallback = false;
+    this.screenshotCallback = undefined;
 
     // scene
     const scene = new THREE.Scene();
@@ -169,6 +173,16 @@ export class Viewer {
 
     if (this._renderer && this._camera) {
       this._renderer.render(this._scene, this._camera);
+      if (this.sendScreenshotToCallback && this.screenshotCallback) {
+        this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
+        this.sendScreenshotToCallback = false;
+
+      }
     }
+  };
+
+  public getScreenshotBlob = (callback: BlobCallback) => {
+    this.screenshotCallback = callback;
+    this.sendScreenshotToCallback = true;
   };
 }

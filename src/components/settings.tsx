@@ -61,6 +61,7 @@ import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
 import { NamePage } from './settings/NamePage';
 import { SystemPromptPage } from './settings/SystemPromptPage';
+import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 
 export const Settings = ({
   onClickClose,
@@ -68,6 +69,7 @@ export const Settings = ({
   onClickClose: () => void;
 }) => {
   const { viewer } = useContext(ViewerContext);
+  const { vrmList, vrmListAddFile } = useVrmStoreContext();
   useKeyboardShortcut("Escape", onClickClose);
 
   const [page, setPage] = useState('main_menu');
@@ -110,6 +112,8 @@ export const Settings = ({
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [bgColor, setBgColor] = useState(config("bg_color"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
+  const [vrmHash, setVrmHash] = useState(config("vrm_hash"));
+  const [vrmSaveType, setVrmSaveType] = useState(config('vrm_save_type'));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
@@ -148,9 +152,7 @@ export const Settings = ({
       const file_type = file.name.split(".").pop();
 
       if (file_type === "vrm") {
-        const blob = new Blob([file], { type: "application/octet-stream" });
-        const url = window.URL.createObjectURL(blob);
-        viewer.loadVrm(url);
+        vrmListAddFile(file, viewer);
       }
 
       event.target.value = "";
@@ -219,7 +221,7 @@ export const Settings = ({
     visionOllamaUrl, visionOllamaModel,
     visionSystemPrompt,
     bgColor,
-    bgUrl, vrmUrl, youtubeVideoID, animationUrl,
+    bgUrl, vrmHash, vrmUrl, youtubeVideoID, animationUrl,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
@@ -297,8 +299,13 @@ export const Settings = ({
     case 'character_model':
       return <CharacterModelPage
         viewer={viewer}
+        vrmHash={vrmHash}
         vrmUrl={vrmUrl}
+        vrmSaveType={vrmSaveType}
+        vrmList={vrmList}
+        setVrmHash={setVrmHash}
         setVrmUrl={setVrmUrl}
+        setVrmSaveType={setVrmSaveType}
         setSettingsUpdated={setSettingsUpdated}
         handleClickOpenVrmFile={handleClickOpenVrmFile}
         />
