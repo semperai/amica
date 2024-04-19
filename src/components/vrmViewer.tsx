@@ -23,7 +23,8 @@ export default function VrmViewer() {
           try {
             const currentVrm = getCurrentVrm();
             if (!currentVrm) {
-              reject("cant find vrm");
+              setIsLoading(true);
+              resolve(false);
             } else {
               await viewer.loadVrm(buildUrl(currentVrm.url));
               resolve(true);
@@ -32,11 +33,13 @@ export default function VrmViewer() {
             reject(e);
           }
         }))
-        .then(() => {
-          console.log("vrm loaded");
-          setLoadingError(false);
-          setIsLoading(false);
-          if (isTauri()) invoke("close_splashscreen");
+        .then((loaded) => {
+          if (loaded) {
+            console.log("vrm loaded");
+            setLoadingError(false);
+            setIsLoading(false);
+            if (isTauri()) invoke("close_splashscreen");
+          }
         })
         .catch((e) => {
           console.error("vrm loading error", e);

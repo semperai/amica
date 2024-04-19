@@ -78,7 +78,7 @@ export default function Share() {
   const [vrmLoaded, setVrmLoaded] = useState(false);
   const [vrmLoadedFromIndexedDb, setVrmLoadedFromIndexedDb] = useState(false);
   const [vrmLoadingFromIndexedDb, setVrmLoadingFromIndexedDb] = useState(false);
-  const [showUploadLocalVrmMessage, setShowUploadLocalVrmMessage] = useState(vrmSaveType == 'local');
+  const [showUploadLocalVrmMessage, setShowUploadLocalVrmMessage] = useState(false);
   
 
   const [sqid, setSqid] = useState('');
@@ -108,13 +108,17 @@ export default function Share() {
   }, []);
 
   useEffect(() => {
-    vrmDataProvider.addItemUrl(vrmHash, vrmUrl);
-    updateConfig('vrm_url', vrmUrl);
+    if (vrmLoadedFromIndexedDb) {
+      vrmDataProvider.addItemUrl(vrmHash, vrmUrl);
+      updateConfig('vrm_url', vrmUrl);
+      updateConfig('vrm_save_type', 'web');
+      setVrmSaveType('web');
+    }
   }, [vrmLoadedFromIndexedDb]);
 
   useEffect(() => {
-    setShowUploadLocalVrmMessage(vrmSaveType == 'local' && !vrmLoadedFromIndexedDb && !vrmLoadingFromIndexedDb && !vrmUrl.includes(`${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}`));
-  }, [vrmSaveType, vrmLoadedFromIndexedDb, vrmLoadingFromIndexedDb, vrmUrl]);
+    setShowUploadLocalVrmMessage(vrmSaveType == 'local' && !vrmLoadedFromIndexedDb && !vrmLoadingFromIndexedDb);
+  }, [vrmSaveType, vrmLoadedFromIndexedDb, vrmLoadingFromIndexedDb]);
 
   const [isRegistering, setIsRegistering] = useState(false);
   function registerCharacter() {
