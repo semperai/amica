@@ -13,7 +13,6 @@ import { getKoboldAiChatResponseStream } from './koboldAiChat';
 import { coquiLocal} from "@/features/coquiLocal/coquiLocal";
 import { piper} from "@/features/piper/piper";
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
-import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { localXTTSTTS} from "@/features/localXTTS/localXTTS";
@@ -430,11 +429,6 @@ export class Chat {
         case 'speecht5': {
           const speakerEmbeddingUrl = config('speecht5_speaker_embedding_url');
           const voice = await speecht5(talk.message, speakerEmbeddingUrl);
-          return voice.audio;
-        }
-        case 'coqui': {
-          const voiceId = config('coqui_voice_id');
-          const voice = await coqui(talk.message, voiceId, talk.style);
           return voice.audio;
         }
         case 'openai_tts': {

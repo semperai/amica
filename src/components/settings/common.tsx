@@ -148,7 +148,6 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'tts_backend':         return <SpeakerWaveIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'elevenlabs_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'speecht5_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'coqui_settings':      return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'openai_tts_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'piper_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'coquiLocal_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -195,7 +194,6 @@ function getLabelFromPage(page: string): string {
     case 'tts_backend':         return t('TTS Backend');
     case 'elevenlabs_settings': return t('ElevenLabs');
     case 'speecht5_settings':   return t('SpeechT5');
-    case 'coqui_settings':      return t('Coqui');
     case 'openai_tts_settings': return t('OpenAI');
     case 'piper_settings':      return t('Piper');
     case 'coquiLocal_settings':      return t('coquiLocal');
