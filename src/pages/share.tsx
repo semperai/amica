@@ -85,10 +85,15 @@ export default function Share() {
 
   const vrmUploadFilePond = useRef<FilePond | null>(null);
   
+  const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
   async function uploadVrmFromIndexedDb() {
     const blob = await vrmDataProvider.getItemAsBlob(vrmHash);
     if (vrmUploadFilePond.current && blob) {
       vrmUploadFilePond.current.addFile(blob).then(() => { setVrmLoadingFromIndexedDb(true); });
+    } else {
+      console.log("FilePond not loaded, retry in 0.5 sec");
+      delay(500).then(uploadVrmFromIndexedDb);
     }
   }
 
