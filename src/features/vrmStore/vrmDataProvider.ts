@@ -32,7 +32,7 @@ export class VrmDataProvider {
     }
 
     public addItemUrl(hash: string, url: string) {
-        this.db.vrms.where("hash").equals(hash).modify({ vrmUrl: url });
+        this.db.vrms.where("hash").equals(hash).modify({ vrmUrl: url, saveType: 'web' });
     }
 }
 
