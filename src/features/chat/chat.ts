@@ -10,6 +10,7 @@ import { getWindowAiChatResponseStream } from './windowAiChat';
 import { getOllamaChatResponseStream, getOllamaVisionChatResponse } from './ollamaChat';
 import { getKoboldAiChatResponseStream } from './koboldAiChat';
 
+import { rvc } from "@/features/rvc/rvc";
 import { piper} from "@/features/piper/piper";
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
@@ -121,6 +122,32 @@ export class Chat {
     this.setAssistantMessage!(this.currentAssistantMessage);
     this.setUserMessage!(this.currentAssistantMessage);
     this.currentStreamIdx++;
+  }
+
+  public async handleRvc(audio: any) {
+    const rvcModelName = config("rvc_model_name");
+    const rvcIndexPath = config("rvc_index_path");
+    const rvcF0upKey = parseInt(config("rvc_f0_upkey"));
+    const rvcF0Method = config("rvc_f0_method");
+    const rvcIndexRate = config("rvc_index_rate");
+    const rvcFilterRadius = parseInt(config("rvc_filter_radius"));
+    const rvcResampleSr = parseInt(config("rvc_resample_sr"));
+    const rvcRmsMixRate = parseInt(config("rvc_rms_mix_rate"));
+    const rvcProtect = parseInt(config("rvc_protect"));
+
+    const voice = await rvc(
+      audio,
+      rvcModelName,
+      rvcIndexPath,
+      rvcF0upKey,
+      rvcF0Method,
+      rvcIndexRate,
+      rvcFilterRadius,
+      rvcResampleSr,
+      rvcRmsMixRate,
+      rvcProtect);
+
+    return voice.audio;
   }
 
   public isAwake() {
@@ -416,6 +443,8 @@ export class Chat {
       return null;
     }
 
+    const rvcEnabled = config("rvc_enabled") === 'true';
+
     try {
       switch (config("tts_backend")) {
         case 'none': {
@@ -424,27 +453,34 @@ export class Chat {
         case 'elevenlabs': {
           const voiceId = config("elevenlabs_voiceid");
           const voice = await elevenlabs(talk.message, voiceId, talk.style);
+          if (rvcEnabled) { return await this.handleRvc(voice.audio) }
           return voice.audio;
         }
         case 'speecht5': {
           const speakerEmbeddingUrl = config('speecht5_speaker_embedding_url');
           const voice = await speecht5(talk.message, speakerEmbeddingUrl);
+          if (rvcEnabled) { return await this.handleRvc(voice.audio) }
           return voice.audio;
         }
         case 'coqui': {
           const voiceId = config('coqui_voice_id');
           const voice = await coqui(talk.message, voiceId, talk.style);
+          if (rvcEnabled) { return await this.handleRvc(voice.audio) }
           return voice.audio;
         }
         case 'openai_tts': {
           const voice = await openaiTTS(talk.message);
+          if (rvcEnabled) { return await this.handleRvc(voice.audio) }
           return voice.audio;
         }
         case 'localXTTS': {
           const voice = await localXTTSTTS(talk.message);
+          if (rvcEnabled) { return await this.handleRvc(voice.audio) }
+          return voice.audio;
         }
         case 'piper': {
           const voice = await piper(talk.message);
+          if (rvcEnabled) { return await this.handleRvc(voice.audio) }
           return voice.audio;
         }
       }

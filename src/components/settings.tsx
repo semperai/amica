@@ -48,6 +48,8 @@ import { OpenAITTSSettingsPage } from './settings/OpenAITTSSettingsPage';
 
 import { PiperSettingsPage } from './settings/PiperSettingsPage';
 
+import { RVCSettingsPage } from './settings/RVCSettingsPage';
+
 import { STTBackendPage } from './settings/STTBackendPage';
 import { STTWakeWordSettingsPage } from './settings/STTWakeWordSettingsPage';
 
@@ -102,6 +104,18 @@ export const Settings = ({
   const [openAITTSVoice, setOpenAITTSVoice] = useState(config("openai_tts_voice"));
 
   const [piperUrl, setPiperUrl] = useState(config("piper_url"));
+
+  const [rvcUrl, setRvcUrl] = useState(config("rvc_url"));
+  const [rvcEnabled, setRvcEnabled] = useState<boolean>(config("rvc_enabled") === 'true' ? true : false);
+  const [rvcModelName, setRvcModelName] = useState(config("rvc_model_name"));
+  const [rvcIndexPath, setRvcIndexPath] = useState(config("rvc_index_path"));
+  const [rvcF0upKey, setRvcF0UpKey] = useState<number>(parseInt(config("rvc_f0_upkey")));
+  const [rvcF0Method, setRvcF0Method] = useState(config("rvc_f0_method"));
+  const [rvcIndexRate, setRvcIndexRate] = useState(config("rvc_index_rate"));
+  const [rvcFilterRadius, setRvcFilterRadius] = useState<number>(parseInt(config("rvc_filter_radius")));
+  const [rvcResampleSr, setRvcResampleSr] = useState<number>(parseInt(config("rvc_resample_sr")));
+  const [rvcRmsMixRate, setRvcRmsMixRate] = useState<number>(parseInt(config("rvc_rms_mix_rate")));
+  const [rvcProtect, setRvcProtect] = useState<number>(parseInt(config("rvc_protect")));
 
   const [visionBackend, setVisionBackend] = useState(config("vision_backend"));
   const [visionLlamaCppUrl, setVisionLlamaCppUrl] = useState(config("vision_llamacpp_url"));
@@ -216,6 +230,7 @@ export const Settings = ({
     coquiApiKey, coquiVoiceId,
     openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
     piperUrl,
+    rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,,rvcResampleSr,rvcRmsMixRate,rvcProtect,
     visionBackend,
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
@@ -255,7 +270,7 @@ export const Settings = ({
 
     case 'tts':
       return <MenuPage
-        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings", "openai_tts_settings", "piper_settings"]}
+        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings", "openai_tts_settings", "piper_settings", "rvc_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'stt':
@@ -416,6 +431,33 @@ export const Settings = ({
       return <PiperSettingsPage
         piperUrl={piperUrl}
         setPiperUrl={setPiperUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'rvc_settings':
+      return <RVCSettingsPage
+        rvcUrl={rvcUrl}
+        rvcEnabled={rvcEnabled}
+        rvcModelName={rvcModelName}
+        rvcIndexPath={rvcIndexPath}
+        rvcF0upKey={rvcF0upKey}
+        rvcF0Method={rvcF0Method}
+        rvcIndexRate={rvcIndexRate}
+        rvcFilterRadius={rvcFilterRadius}
+        rvcResampleSr={rvcResampleSr}
+        rvcRmsMixRate={rvcRmsMixRate}
+        rvcProtect={rvcProtect}
+        setRvcUrl={setRvcUrl}
+        setRvcEnabled={setRvcEnabled}
+        setRvcModelName={setRvcModelName}
+        setRvcIndexPath={setRvcIndexPath}
+        setRvcF0upKey={setRvcF0UpKey}
+        setRvcF0Method={setRvcF0Method}
+        setRvcIndexRate={setRvcIndexRate}
+        setRvcFilterRadius={setRvcFilterRadius}
+        setRvcResampleSr={setRvcResampleSr}
+        setRvcRmsMixRate={setRvcRmsMixRate}
+        setRvcProtect={setRvcProtect}
         setSettingsUpdated={setSettingsUpdated}
         />
 
