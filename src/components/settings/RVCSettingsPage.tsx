@@ -124,7 +124,7 @@ export function RVCSettingsPage({
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowModelNameInfo(true)} onMouseLeave={() => setShowModelNameInfo(false)} />
                                         {showModelNameInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
                                                 {t("the name of the model which was previously trained in the gui like the name in logs folder")}
                                             </div>
                                         )}
@@ -146,7 +146,7 @@ export function RVCSettingsPage({
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowIndexPathInfo(true)} onMouseLeave={() => setShowIndexPathInfo(false)} />
                                         {showIndexPathInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
                                                 {t("the index file of the previously trained model if none then use default dir logs by rvc.")}
                                             </div>
                                         )}
@@ -170,7 +170,7 @@ export function RVCSettingsPage({
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowF0UpKeyInfo(true)} onMouseLeave={() => setShowF0UpKeyInfo(false)} />
                                         {showF0UpKeyInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-40">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-40">
                                                 {t("0 or 1")}
                                             </div>
                                         )}
@@ -197,7 +197,7 @@ export function RVCSettingsPage({
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowF0MethodInfo(true)} onMouseLeave={() => setShowF0MethodInfo(false)} />
                                         {showF0MethodInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-48">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-48">
                                                 {t("Select the pitch extraction algorithm ('pm': faster extraction but lower-quality speech; 'harvest': better bass but extremely slow; 'crepe': better quality but GPU intensive), 'rmvpe': best quality, and little GPU requirement")}
                                             </div>
                                         )}
@@ -220,7 +220,7 @@ export function RVCSettingsPage({
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowIndexRateInfo(true)} onMouseLeave={() => setShowIndexRateInfo(false)} />
                                         {showIndexRateInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-40">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-40">
                                                 {t("Default is 0.66")}
                                             </div>
                                         )}
@@ -244,7 +244,7 @@ export function RVCSettingsPage({
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowFilterRadiusInfo(true)} onMouseLeave={() => setShowFilterRadiusInfo(false)} />
                                         {showFilterRadiusInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
                                                 {t("If >=3: apply median filtering to the harvested pitch results. The value represents the filter radius and can reduce breathiness. [ 0 to 7 ]")}
                                             </div>
                                         )}
@@ -269,7 +269,7 @@ export function RVCSettingsPage({
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowResampleSrInfo(true)} onMouseLeave={() => setShowResampleSrInfo(false)} />
                                         {showResampleSrInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
                                                 {t("Resample the output audio in post-processing to the final sample rate. Set to 0 for no resampling [ 0 to 48000 ]")}
                                             </div>
                                         )}
@@ -287,14 +287,14 @@ export function RVCSettingsPage({
                                         max={1}
                                         onChange={(event: React.ChangeEvent<any>) => {
                                             setRvcRmsMixRate(event.target.value);
-                                            updateConfig("rvc_rmx_mix_rate", event.target.value);
+                                            updateConfig("rvc_rms_mix_rate", event.target.value);
                                             setSettingsUpdated(true);
                                         }}
                                     />
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowRmsMixRateInfo(true)} onMouseLeave={() => setShowRmsMixRateInfo(false)} />
                                         {showRmsMixRateInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
                                                 {t("Adjust the volume envelope scaling. Closer to 0, the more it mimicks the volume of the original vocals. Can help mask noise and make volume sound more natural when set relatively low. Closer to 1 will be more of a consistently loud volume [ 0 to 1]")}
                                             </div>
                                         )}
@@ -319,7 +319,7 @@ export function RVCSettingsPage({
                                     <div className="relative ml-1">
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowProtectInfo(true)} onMouseLeave={() => setShowProtectInfo(false)} />
                                         {showProtectInfo && (
-                                            <div className="absolute top-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
+                                            <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
                                                 {t("Protect voiceless consonants and breath sounds to prevent artifacts such as tearing in electronic music. Set to 0.5 to disable. Decrease the value to increase protection, but it may reduce indexing accuracy [ 0 to 0.5 ]")}
                                             </div>
                                         )}
