@@ -1,14 +1,16 @@
 import {
   Fragment,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
 import { clsx } from "clsx";
 import { M_PLUS_2, Montserrat } from "next/font/google";
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
   ChatBubbleLeftIcon,
   ChatBubbleLeftRightIcon,
@@ -44,7 +46,10 @@ import { AlertContext } from "@/features/alert/alertContext";
 import { config, updateConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
-import { VrmStoreProvider } from "@/features/vrmStore/vrmStoreContext";
+import { UsersIcon } from "@heroicons/react/20/solid";
+import { CharacterListPage } from "@/components/character/CharacterListPage";
+import { CharacterDetailsPage } from "@/components/character/CharacterDetailsPage";
+import { CharacterStoreContextProvider } from "@/features/characters/characterStoreContext";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -79,13 +84,15 @@ export default function Home() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
+  const [showCharacters, setShowCharacters] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
 
   // null indicates havent loaded config yet
   const [muted, setMuted] = useState<boolean|null>(null);
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
-
+  const [settingsUpdated, setSettingsUpdated] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
     if (muted === null) {
@@ -124,6 +131,49 @@ export default function Home() {
 
   // this exists to prevent build errors with ssr
   useEffect(() => setShowContent(true), []);
+
+  // useEffect(() => {
+  //   showSettingsUpdatedNotification();
+  // }, [bgColor, bgUrl, vrmUrl, youtubeVideoID, animationUrl]);
+
+  const showSettingsUpdatedNotification = (): () => void => {
+    const timeOutId = setTimeout(() => {
+      if (settingsUpdated) {
+        setShowNotification(true);
+        setTimeout(() => {
+          setShowNotification(false);
+        }, 5000);
+      }
+    }, 1000);
+    return () => clearTimeout(timeOutId);
+  }
+
+  const vrmFileInputRef = useRef<HTMLInputElement>(null);
+  const handleClickOpenVrmFile = useCallback(() => {
+    vrmFileInputRef.current?.click();
+  }, []);
+
+  const handleChangeVrmFile = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files) return;
+
+      const file = files[0];
+      if (!file) return;
+
+      const file_type = file.name.split(".").pop();
+
+      if (file_type === "vrm") {
+        const blob = new Blob([file], { type: "application/octet-stream" });
+        const url = window.URL.createObjectURL(blob);
+        viewer.loadVrm(url);
+      }
+
+      event.target.value = "";
+    },
+    [viewer]
+  );
+
   if (!showContent) return <></>;
 
   return (
@@ -147,14 +197,7 @@ export default function Home() {
       { webcamEnabled && <EmbeddedWebcam setWebcamEnabled={setWebcamEnabled} /> }
       { showDebug && <DebugPane onClickClose={() => setShowDebug(false) }/> }
 
-      <VrmStoreProvider>
-        <VrmViewer />
-        {showSettings && (
-          <Settings
-            onClickClose={() => setShowSettings(false)}
-          />
-        )}
-      </VrmStoreProvider>
+      <VrmViewer />
       
       <MessageInputContainer isChatProcessing={chatProcessing} />
 
@@ -263,6 +306,15 @@ export default function Home() {
             </div>
 
             <div className="flex flex-row items-center space-x-2">
+              <UsersIcon
+                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                aria-hidden="true"
+                onClick={() => setShowCharacters(!showCharacters)}
+              />
+            </div>
+
+
+            <div className="flex flex-row items-center space-x-2">
               <Link
                 href="/share"
                 target={isTauri() ? '' : '_blank'}
@@ -299,6 +351,27 @@ export default function Home() {
       </div>
 
       {showChatLog && <ChatLog messages={chatLog} />}
+                    
+      {/* ADD PROVIDER */}
+      {showSettings && (
+        <Settings
+          showNotification={showNotification}
+          setShowNotification={setShowNotification}
+          setSettingsUpdated={setSettingsUpdated}
+          showSettingsUpdatedNotification={showSettingsUpdatedNotification}
+          handleClickOpenVrmFile={handleClickOpenVrmFile}
+          onClickClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {showCharacters && (
+        <CharacterStoreContextProvider>
+          <CharacterDetailsPage
+            setSettingsUpdated={setSettingsUpdated}
+            handleClickOpenVrmFile={handleClickOpenVrmFile}
+          />
+        </CharacterStoreContextProvider>
+      )}
 
       {! showChatLog && (
         <>
@@ -314,6 +387,14 @@ export default function Home() {
       <AddToHomescreen />
 
       <Alert />
+
+      <input
+        type="file"
+        className="hidden"
+        accept=".vrm"
+        ref={vrmFileInputRef}
+        onChange={handleChangeVrmFile}
+      />
     </div>
   );
 }

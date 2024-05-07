@@ -1,10 +1,10 @@
-import { VrmDexie } from "./vrmDb";
+import { AmicaDexie } from "../../indexedDb/amicaDb";
 import VrmDbModel from "./vrmDbModel";
-import { db } from "./vrmDb";
+import { db } from "../../indexedDb/amicaDb";
 import { Base64ToBlob } from "@/utils/blobDataUtils";
 
 export class VrmDataProvider {
-    private db: VrmDexie;
+    private db: AmicaDexie;
 
     constructor() {
         this.db = db;
@@ -31,8 +31,8 @@ export class VrmDataProvider {
             .then(vrmDbModel => { console.log(`hash: ${hash}`); console.log(`vrmDbModel: ${vrmDbModel}`); return vrmDbModel ? Base64ToBlob(vrmDbModel?.vrmData) : undefined; });
     }
 
-    public addItemUrl(hash: string, url: string) {
-        this.db.vrms.where("hash").equals(hash).modify({ vrmUrl: url, saveType: 'web' });
+    public updateLoadedLocalVrm(hash: string,  url: string) {
+        this.db.vrms.where("hash").equals(hash).modify({ vrmUrl: url, hash: url, saveType: 'web' });
     }
 }
 

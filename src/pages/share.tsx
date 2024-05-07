@@ -16,7 +16,7 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
-import { vrmDataProvider } from "@/features/vrmStore/vrmDataProvider";
+import { vrmDataProvider } from "@/features/vrmStore/db/vrmDataProvider";
 
 registerPlugin(
   FilePondPluginImagePreview,
@@ -114,7 +114,7 @@ export default function Share() {
 
   useEffect(() => {
     if (vrmLoadedFromIndexedDb) {
-      vrmDataProvider.addItemUrl(vrmHash, vrmUrl);
+      vrmDataProvider.updateLoadedLocalVrm(vrmHash, vrmUrl);
       updateConfig('vrm_url', vrmUrl);
       updateConfig('vrm_save_type', 'web');
       setVrmSaveType('web');

@@ -6,7 +6,7 @@ import { updateConfig, defaultConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import VrmDemo from "@/components/vrmDemo";
 import { supabase } from '@/utils/supabase';
-import { vrmDataProvider } from '@/features/vrmStore/vrmDataProvider';
+import { vrmDataProvider } from '@/features/vrmStore/db/vrmDataProvider';
 import { BlobToBase64 } from '@/utils/blobDataUtils';
 
 export default function Import() {

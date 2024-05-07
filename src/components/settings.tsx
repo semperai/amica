@@ -31,7 +31,7 @@ import { CommunityPage } from './settings/CommunityPage';
 import { BackgroundImgPage } from './settings/BackgroundImgPage';
 import { BackgroundColorPage } from './settings/BackgroundColorPage';
 import { BackgroundVideoPage } from './settings/BackgroundVideoPage';
-import { CharacterModelPage } from './settings/CharacterModelPage';
+import { CharacterListPage } from './character/CharacterListPage';
 import { CharacterAnimationPage } from './settings/CharacterAnimationPage';
 
 import { ChatbotBackendPage } from './settings/ChatbotBackendPage';
@@ -64,8 +64,18 @@ import { SystemPromptPage } from './settings/SystemPromptPage';
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 
 export const Settings = ({
+  showNotification,
+  setShowNotification,
+  setSettingsUpdated,
+  showSettingsUpdatedNotification,
+  handleClickOpenVrmFile,
   onClickClose,
 }: {
+  showNotification: boolean;
+  setShowNotification: (updated: boolean) => void;
+  setSettingsUpdated: (updated: boolean) => void;
+  showSettingsUpdatedNotification: () => () => void;
+  handleClickOpenVrmFile: () => void;
   onClickClose: () => void;
 }) => {
   const { viewer } = useContext(ViewerContext);
@@ -74,8 +84,6 @@ export const Settings = ({
 
   const [page, setPage] = useState('main_menu');
   const [breadcrumbs, setBreadcrumbs] = useState<Link[]>([]);
-  const [showNotification, setShowNotification] = useState(false);
-  const [settingsUpdated, setSettingsUpdated] = useState(false);
 
   const [chatbotBackend, setChatbotBackend] = useState(config("chatbot_backend"));
   const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
@@ -109,14 +117,6 @@ export const Settings = ({
   const [visionOllamaModel, setVisionOllamaModel] = useState(config("vision_ollama_model"));
   const [visionSystemPrompt, setVisionSystemPrompt] = useState(config("vision_system_prompt"));
 
-  const [bgUrl, setBgUrl] = useState(config("bg_url"));
-  const [bgColor, setBgColor] = useState(config("bg_color"));
-  const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
-  const [vrmHash, setVrmHash] = useState(config("vrm_hash"));
-  const [vrmSaveType, setVrmSaveType] = useState(config('vrm_save_type'));
-  const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
-  const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
-
   const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
   const [sttWakeWordEnabled, setSTTWakeWordEnabled] = useState<boolean>(config("wake_word_enabled") === 'true' ? true : false);
   const [sttWakeWord, setSTTWakeWord] = useState(config("wake_word"));
@@ -127,14 +127,7 @@ export const Settings = ({
   const [whisperOpenAIModel, setWhisperOpenAIModel] = useState(config("openai_whisper_model"));
   const [whisperCppUrl, setWhisperCppUrl] = useState(config("whispercpp_url"));
 
-  const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
-
-
-  const vrmFileInputRef = useRef<HTMLInputElement>(null);
-  const handleClickOpenVrmFile = useCallback(() => {
-    vrmFileInputRef.current?.click();
-  }, []);
 
   const bgImgFileInputRef = useRef<HTMLInputElement>(null);
   const handleClickOpenBgImgFile = useCallback(() => {
@@ -195,15 +188,7 @@ export const Settings = ({
   }
 
   useEffect(() => {
-    const timeOutId = setTimeout(() => {
-      if (settingsUpdated) {
-        setShowNotification(true);
-        setTimeout(() => {
-          setShowNotification(false);
-        }, 5000);
-      }
-    }, 1000);
-    return () => clearTimeout(timeOutId);
+    showSettingsUpdatedNotification();
   }, [
     chatbotBackend,
     openAIApiKey, openAIUrl, openAIModel,
@@ -220,8 +205,6 @@ export const Settings = ({
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
     visionSystemPrompt,
-    bgColor,
-    bgUrl, vrmHash, vrmUrl, youtubeVideoID, animationUrl,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
@@ -240,17 +223,17 @@ export const Settings = ({
     switch(page) {
     case 'main_menu':
       return <MenuPage
-        keys={["appearance", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
+        keys={[/*"appearance", */"chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
         menuClick={handleMenuClick} />;
 
-    case 'appearance':
-      return <MenuPage
-        keys={["background_img", "background_color", "background_video", "character_model", "character_animation"]}
-        menuClick={handleMenuClick} />;
+    // case 'appearance':
+    //   return <MenuPage
+    //     keys={["background_img", "background_color", "background_video", "character_list", "character_animation"]}
+    //     menuClick={handleMenuClick} />;
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        keys={["chatbot_backend", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'tts':
@@ -274,49 +257,42 @@ export const Settings = ({
     case 'community':
       return <CommunityPage />
 
-    case 'background_img':
-      return <BackgroundImgPage
-        bgUrl={bgUrl}
-        setBgUrl={setBgUrl}
-        setSettingsUpdated={setSettingsUpdated}
-        handleClickOpenBgImgFile={handleClickOpenBgImgFile}
-        />
+    // case 'background_img':
+    //   return <BackgroundImgPage
+    //     bgUrl={bgUrl}
+    //     setBgUrl={setBgUrl}
+    //     setSettingsUpdated={setSettingsUpdated}
+    //     handleClickOpenBgImgFile={handleClickOpenBgImgFile}
+    //     />
 
-    case 'background_color':
-      return <BackgroundColorPage
-        bgColor={bgColor}
-        setBgColor={setBgColor}
-        setSettingsUpdated={setSettingsUpdated}
-        />
+    // case 'background_color':
+    //   return <BackgroundColorPage
+    //     bgColor={bgColor}
+    //     setBgColor={setBgColor}
+    //     setSettingsUpdated={setSettingsUpdated}
+    //     />
 
-    case 'background_video':
-      return <BackgroundVideoPage
-        youtubeVideoID={youtubeVideoID}
-        setYoutubeVideoID={setYoutubeVideoID}
-        setSettingsUpdated={setSettingsUpdated}
-        />;
+    // case 'background_video':
+    //   return <BackgroundVideoPage
+    //     youtubeVideoID={youtubeVideoID}
+    //     setYoutubeVideoID={setYoutubeVideoID}
+    //     setSettingsUpdated={setSettingsUpdated}
+    //     />;
 
-    case 'character_model':
-      return <CharacterModelPage
-        viewer={viewer}
-        vrmHash={vrmHash}
-        vrmUrl={vrmUrl}
-        vrmSaveType={vrmSaveType}
-        vrmList={vrmList}
-        setVrmHash={setVrmHash}
-        setVrmUrl={setVrmUrl}
-        setVrmSaveType={setVrmSaveType}
-        setSettingsUpdated={setSettingsUpdated}
-        handleClickOpenVrmFile={handleClickOpenVrmFile}
-        />
+    // case 'character_list':
+    //   return <CharacterListPage
+    //     viewer={viewer}
+    //     setSettingsUpdated={setSettingsUpdated}
+    //     handleClickOpenVrmFile={handleClickOpenVrmFile}
+    //     />
 
-    case 'character_animation':
-      return <CharacterAnimationPage
-        viewer={viewer}
-        animationUrl={animationUrl}
-        setAnimationUrl={setAnimationUrl}
-        setSettingsUpdated={setSettingsUpdated}
-        />
+    // case 'character_animation':
+    //   return <CharacterAnimationPage
+    //     viewer={viewer}
+    //     animationUrl={animationUrl}
+    //     setAnimationUrl={setAnimationUrl}
+    //     setSettingsUpdated={setSettingsUpdated}
+    //     />
 
     case 'chatbot_backend':
       return <ChatbotBackendPage
@@ -491,20 +467,13 @@ export const Settings = ({
         setSettingsUpdated={setSettingsUpdated}
         />
 
-    case 'system_prompt':
-      return <SystemPromptPage
-        systemPrompt={systemPrompt}
-        setSystemPrompt={setSystemPrompt}
-        setSettingsUpdated={setSettingsUpdated}
-        />
-
-    case 'name':
-      return <NamePage
-        name={name}
-        setName={setName}
-        setSettingsUpdated={setSettingsUpdated}
-        />
-
+    // case 'system_prompt':
+    //   return <SystemPromptPage
+    //     systemPrompt={systemPrompt}
+    //     setSystemPrompt={setSystemPrompt}
+    //     setSettingsUpdated={setSettingsUpdated}
+    //     />
+        
     default:
       throw new Error('page not found');
     }
@@ -639,13 +608,6 @@ export const Settings = ({
         </div>
       </div>
 
-      <input
-        type="file"
-        className="hidden"
-        accept=".vrm"
-        ref={vrmFileInputRef}
-        onChange={handleChangeVrmFile}
-      />
       <input
         type="file"
         className="hidden"
