@@ -1,13 +1,14 @@
 import { hashCode } from "@/components/settings/common";
 import { VrmData } from "./vrmData";
-import { vrmDataProvider } from "./vrmDataProvider";
-import VrmDbModel from "./vrmDbModel";
+import { vrmDataProvider } from "./db/vrmDataProvider";
+import VrmDbModel from "./db/vrmDbModel";
 import "@/utils/blobDataUtils";
 import { Base64ToBlob, BlobToBase64 } from "@/utils/blobDataUtils";
 
 export type VrmDispatchAction = {
     type: VrmStoreActionType;
     itemFile?: File;
+    hash?: string;
     url?: string;
     thumbBlob?: Blob;
     vrmList?: VrmData[];
@@ -18,7 +19,8 @@ export enum VrmStoreActionType {
     addItem,
     updateVrmThumb,
     setVrmList,
-    loadFromLocalStorage
+    loadFromLocalStorage,
+    updateLoadedLocalVrm
 };
 
 export const vrmStoreReducer = (state: VrmData[], action: VrmDispatchAction): VrmData[] => {
@@ -30,12 +32,19 @@ export const vrmStoreReducer = (state: VrmData[], action: VrmDispatchAction): Vr
             break;
         case VrmStoreActionType.updateVrmThumb:
             newState = updateVrmThumb(state, action);
+            break;
         case VrmStoreActionType.setVrmList:
             if (action.vrmList && action.vrmList.length)
                 newState = action.vrmList;
+            break;
         case VrmStoreActionType.loadFromLocalStorage:
             if (action.vrmList && action.callback)
                 newState = LoadFromLocalStorage(action)
+            break;
+        case VrmStoreActionType.updateLoadedLocalVrm:
+            if (action.hash && action.url)
+                UpdateLoadedLocalVrm(action.hash, action.url);
+            break;
         default:
             break;
     }
@@ -98,6 +107,10 @@ const LoadFromLocalStorage = (action: VrmDispatchAction): VrmData[] => {
 
     return action.vrmList || new Array<VrmData>;
 };
+
+const UpdateLoadedLocalVrm = (hash: string,  url: string): void => {
+    vrmDataProvider.updateLoadedLocalVrm(hash, url);
+}
 
 const VrmDataArrayFromVrmDbModelArray = async (vrms: VrmDbModel[]): Promise<VrmData[]> => {
     const promiseArray = vrms.map((vrmDbModel: VrmDbModel): Promise<VrmData> => {

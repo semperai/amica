@@ -3,32 +3,22 @@ import { clsx } from "clsx";
 import { BasicPage } from "./common";
 import { updateConfig } from "@/utils/config";
 import { TextButton } from "@/components/textButton";
-import { VrmData } from '@/features/vrmStore/vrmData';
+import { useVrmStoreContext } from '@/features/vrmStore/vrmStoreContext';
+import { useCharacterStoreContext } from '@/features/characters/characterStoreContext';
 
-export function CharacterModelPage({
+export function VrmListPage({
   viewer,
-  vrmHash,
-  vrmUrl,
-  vrmSaveType,
-  vrmList,
-  setVrmHash,
-  setVrmUrl,
-  setVrmSaveType,
   setSettingsUpdated,
   handleClickOpenVrmFile,
 }: {
   viewer: any; // TODO
-  vrmHash: string;
-  vrmUrl: string;
-  vrmSaveType: string;
-  vrmList: VrmData[],
-  setVrmHash: (hash: string) => void;
-  setVrmUrl: (url: string) => void;
-  setVrmSaveType: (saveType: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
   handleClickOpenVrmFile: () => void;
 }) {
   const { t } = useTranslation();
+  const vrmStoreContext = useVrmStoreContext();
+  const vrmList = vrmStoreContext.vrmList;
+  const characterContext = useCharacterStoreContext();
 
   return (
     <BasicPage
@@ -41,17 +31,17 @@ export function CharacterModelPage({
               key={vrm.url}
               onClick={() => {
                 viewer.loadVrm(vrm.url);
-                setVrmSaveType(vrm.saveType);
-                updateConfig('vrm_save_type', vrm.saveType);
+                const hash = vrm.getHash();
+                characterContext.setVrmSaveType(hash, vrm.saveType);
                 if (vrm.saveType == 'local') {
-                  updateConfig('vrm_hash', vrm.getHash());
+                  updateConfig('vrm_hash', hash);
                   updateConfig('vrm_url', vrm.url);
-                  setVrmUrl(vrm.url);
-                  setVrmHash(vrm.getHash());
+                  characterContext.setVrmUrl(hash, vrm.url);
+                  characterContext.setVrmHash(hash);
                 } else {
-                  updateConfig('vrm_hash', '');
+                  updateConfig('vrm_hash', vrm.url);
                   updateConfig('vrm_url', vrm.url);
-                  setVrmUrl(vrm.url);
+                  characterContext.setVrmUrl(hash, vrm.url);
                 }
                 setSettingsUpdated(true);
               }}

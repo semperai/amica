@@ -10,6 +10,7 @@ interface VrmStoreContextType {
     getCurrentVrm: () => VrmData | undefined;
     vrmList: VrmData[];
     vrmListAddFile: (file: File, viewer: Viewer) => void;
+    updateLoadedLocalVrm: (hash: string, url: string) => void;
     isLoadingVrmList: boolean;
     setIsLoadingVrmList: Dispatch<SetStateAction<boolean>>;
 };
@@ -22,6 +23,7 @@ export const VrmStoreContext = createContext<VrmStoreContextType>({
     getCurrentVrm: () => {return undefined;},
     vrmList: vrmInitList,
     vrmListAddFile: () => {},
+    updateLoadedLocalVrm: () => {},
     isLoadingVrmList: false, setIsLoadingVrmList: () => {}
 });
 
@@ -54,11 +56,16 @@ export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Eleme
     }, []);
 
     const getCurrentVrm = () => {
-        return config('vrm_save_type') == 'local' ? loadedVrmList.find(vrm => vrm.getHash() == config('vrm_hash') ) : loadedVrmList.find(vrm => vrm.url == config('vrm_url') );
+        return loadedVrmList.find(vrm => vrm.getHash() == config('vrm_hash'));
+    }
+
+    const updateLoadedLocalVrm = (hash: string, url: string) => {
+        updateConfig('vrm_save_type', 'web');
+        vrmListDispatch({ type: VrmStoreActionType.updateLoadedLocalVrm, hash, url });
     }
 
     return (
-        <VrmStoreContext.Provider value={{getCurrentVrm: getCurrentVrm, vrmList: loadedVrmList, vrmListAddFile, isLoadingVrmList, setIsLoadingVrmList}}>
+        <VrmStoreContext.Provider value={{getCurrentVrm: getCurrentVrm, vrmList: loadedVrmList, vrmListAddFile, updateLoadedLocalVrm, isLoadingVrmList, setIsLoadingVrmList}}>
             {children}
         </VrmStoreContext.Provider>
     );
