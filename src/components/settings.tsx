@@ -28,12 +28,6 @@ import { MenuPage } from './settings/MenuPage';
 import { ResetSettingsPage } from './settings/ResetSettingsPage';
 import { CommunityPage } from './settings/CommunityPage';
 
-import { BackgroundImgPage } from './settings/BackgroundImgPage';
-import { BackgroundColorPage } from './settings/BackgroundColorPage';
-import { BackgroundVideoPage } from './settings/BackgroundVideoPage';
-import { CharacterListPage } from './character/CharacterListPage';
-import { CharacterAnimationPage } from './settings/CharacterAnimationPage';
-
 import { ChatbotBackendPage } from './settings/ChatbotBackendPage';
 import { ChatGPTSettingsPage } from './settings/ChatGPTSettingsPage';
 import { LlamaCppSettingsPage } from './settings/LlamaCppSettingsPage';
@@ -59,8 +53,6 @@ import { VisionLlamaCppSettingsPage } from './settings/VisionLlamaCppSettingsPag
 import { VisionOllamaSettingsPage } from './settings/VisionOllamaSettingsPage';
 import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
-import { NamePage } from './settings/NamePage';
-import { SystemPromptPage } from './settings/SystemPromptPage';
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 
 export const Settings = ({
@@ -265,26 +257,12 @@ export const Settings = ({
     //     handleClickOpenBgImgFile={handleClickOpenBgImgFile}
     //     />
 
-    // case 'background_color':
-    //   return <BackgroundColorPage
-    //     bgColor={bgColor}
-    //     setBgColor={setBgColor}
-    //     setSettingsUpdated={setSettingsUpdated}
-    //     />
-
     // case 'background_video':
     //   return <BackgroundVideoPage
     //     youtubeVideoID={youtubeVideoID}
     //     setYoutubeVideoID={setYoutubeVideoID}
     //     setSettingsUpdated={setSettingsUpdated}
     //     />;
-
-    // case 'character_list':
-    //   return <CharacterListPage
-    //     viewer={viewer}
-    //     setSettingsUpdated={setSettingsUpdated}
-    //     handleClickOpenVrmFile={handleClickOpenVrmFile}
-    //     />
 
     // case 'character_animation':
     //   return <CharacterAnimationPage
@@ -466,13 +444,6 @@ export const Settings = ({
         setVisionSystemPrompt={setVisionSystemPrompt}
         setSettingsUpdated={setSettingsUpdated}
         />
-
-    // case 'system_prompt':
-    //   return <SystemPromptPage
-    //     systemPrompt={systemPrompt}
-    //     setSystemPrompt={setSystemPrompt}
-    //     setSettingsUpdated={setSettingsUpdated}
-    //     />
         
     default:
       throw new Error('page not found');

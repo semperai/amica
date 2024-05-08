@@ -9,6 +9,8 @@ interface CharacterStore {
     setCharacterTag: (characterTag: string) => void;
     name: string;
     setName: (name: string) => void;
+    systemPrompt: string;
+    setSystemPrompt: (name: string) => void;
     vrmHash: string;
     setVrmHash: (vrmHash: string) => void;
     bgUrl: string;
@@ -32,6 +34,7 @@ export const GetCharacterStore = (): CharacterStore => {
     const [characterId, setCharacterId] = useState(-1);
     const [characterTag, setCharacterTag] = useState('');
     const [name, setName] = useState('');
+    const [systemPrompt, setSystemPrompt] = useState('');
     const [vrmHash, setVrmHash] = useState('');
     const [bgUrl, setBgUrl] = useState('');
     const [bgColor, setBgColor] = useState('');
@@ -42,6 +45,7 @@ export const GetCharacterStore = (): CharacterStore => {
         setCharacterId(parseInt(config('character_id')));
         setCharacterTag(config('character_tag'));
         setName(config('name'));
+        setSystemPrompt(config('system_prompt'));
         setVrmHash(config('vrm_hash'));
         setBgUrl(config('bg_url'));
         setBgColor(config('bg_color'));
@@ -63,6 +67,11 @@ export const GetCharacterStore = (): CharacterStore => {
         setName: (name: string): void => {
             setName(name);
             updateConfig('name', name);
+        },
+        systemPrompt: systemPrompt,
+        setSystemPrompt: (systemPrompt: string): void => {
+            setSystemPrompt(systemPrompt);
+            updateConfig('system_prompt', systemPrompt);
         },
         vrmHash: vrmHash,
         setVrmHash: (vrmHash: string): void => {

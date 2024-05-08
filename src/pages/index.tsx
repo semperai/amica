@@ -47,9 +47,8 @@ import { config, updateConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
 import { UsersIcon } from "@heroicons/react/20/solid";
-import { CharacterListPage } from "@/components/character/CharacterListPage";
-import { CharacterDetailsPage } from "@/components/character/CharacterDetailsPage";
 import { CharacterStoreContextProvider } from "@/features/characters/characterStoreContext";
+import { CharactersPage } from "@/components/character/CharactersPage";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -366,9 +365,10 @@ export default function Home() {
 
       {showCharacters && (
         <CharacterStoreContextProvider>
-          <CharacterDetailsPage
+          <CharactersPage
             setSettingsUpdated={setSettingsUpdated}
             handleClickOpenVrmFile={handleClickOpenVrmFile}
+            onClickClose={() => setShowSettings(showCharacters)}
           />
         </CharacterStoreContextProvider>
       )}

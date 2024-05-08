@@ -9,6 +9,7 @@ interface CharacterStoreContextType {
     characterId: number;
     characterTag: string;
     name: string;
+    systemPrompt: string;
     vrmHash: string;
     bgUrl: string;
     bgColor: string;
@@ -17,6 +18,7 @@ interface CharacterStoreContextType {
 
     setCharacterTag: (characterTag: string) => void;
     setName: (name: string) => void;
+    setSystemPrompt: (name: string) => void;
     setVrmHash: (vrmHash: string) => void;
     setBgUrl: (bgUrl: string) => void;
     setBgColor: (bgColor: string) => void;
@@ -35,6 +37,7 @@ const CharacterStoreContext = createContext<CharacterStoreContextType>({
     characterId: -1,
     characterTag: '',
     name: '',
+    systemPrompt: '',
     vrmHash: '',
     bgUrl: '',
     bgColor: '',
@@ -43,6 +46,7 @@ const CharacterStoreContext = createContext<CharacterStoreContextType>({
 
     setCharacterTag: () => {},
     setName: () => {},
+    setSystemPrompt: () => {},
     setVrmHash: () => {},
     setBgUrl: () => {},
     setBgColor: () => {},
@@ -77,6 +81,7 @@ export const CharacterStoreContextProvider = ({ children }: PropsWithChildren<{}
         characterId: characterStore.characterId,
         characterTag: characterStore.characterTag,
         name: characterStore.name,
+        systemPrompt: characterStore.systemPrompt,
         vrmHash: characterStore.vrmHash,
         bgUrl: characterStore.bgUrl,
         bgColor: characterStore.bgColor,
@@ -85,6 +90,7 @@ export const CharacterStoreContextProvider = ({ children }: PropsWithChildren<{}
 
         setCharacterTag: characterStore.setCharacterTag,
         setName: characterStore.setName,
+        setSystemPrompt: characterStore.setSystemPrompt,
         setVrmHash: characterStore.setVrmHash,
         setBgUrl: characterStore.setBgUrl,
         setBgColor: characterStore.setBgColor,
