@@ -20,7 +20,7 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
       stop: [
         "</s>",
         `${config("name")}:`,
-        "User:"
+        "User:", "(End)", "[END]", "Note", "***", "You:"
       ],
       prompt,
     }),
