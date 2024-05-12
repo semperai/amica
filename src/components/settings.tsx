@@ -86,6 +86,7 @@ export const Settings = ({
   const [ollamaModel, setOllamaModel] = useState(config("ollama_model"));
   const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
   const [koboldAiUseExtra, setKoboldAiUseExtra] = useState<boolean>(config("koboldai_use_extra") === 'true' ? true : false);
+  const [koboldAiStopSequence, setKoboldAiStopSequence] = useState(config("koboldai_stop_sequence"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -209,7 +210,7 @@ export const Settings = ({
     openAIApiKey, openAIUrl, openAIModel,
     llamaCppUrl,
     ollamaUrl, ollamaModel,
-    koboldAiUrl, koboldAiUseExtra,
+    koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -361,6 +362,8 @@ export const Settings = ({
         setKoboldAiUrl={setKoboldAiUrl}
         koboldAiUseExtra={koboldAiUseExtra}
         setKoboldAiUseExtra={setKoboldAiUseExtra}
+        koboldAiStopSequence={koboldAiStopSequence}
+        setKoboldAiStopSequence={setKoboldAiStopSequence}
         setSettingsUpdated={setSettingsUpdated}
         />
 
