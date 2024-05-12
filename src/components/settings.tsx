@@ -82,6 +82,7 @@ export const Settings = ({
   const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
   const [llamaCppUrl, setLlamaCppUrl] = useState(config("llamacpp_url"));
+  const [llamaCppStopSequence, setLlamaCppStopSequence] = useState(config("llamacpp_stop_sequence"));
   const [ollamaUrl, setOllamaUrl] = useState(config("ollama_url"));
   const [ollamaModel, setOllamaModel] = useState(config("ollama_model"));
   const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
@@ -208,7 +209,7 @@ export const Settings = ({
   }, [
     chatbotBackend,
     openAIApiKey, openAIUrl, openAIModel,
-    llamaCppUrl,
+    llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
     ttsBackend,
@@ -344,6 +345,8 @@ export const Settings = ({
       return <LlamaCppSettingsPage
         llamaCppUrl={llamaCppUrl}
         setLlamaCppUrl={setLlamaCppUrl}
+        llamaCppStopSequence={llamaCppStopSequence}
+        setLlamaCppStopSequence={setLlamaCppStopSequence}
         setSettingsUpdated={setSettingsUpdated}
         />
 
