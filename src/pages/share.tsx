@@ -19,7 +19,6 @@ import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import { vrmDataProvider } from "@/features/vrmStore/vrmDataProvider";
 import { IconButton } from '@/components/iconButton';
-import next from 'next';
 
 registerPlugin(
   FilePondPluginImagePreview,

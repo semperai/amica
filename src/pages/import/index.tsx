@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Link from 'next/link';
 import { IconButton } from '@/components/iconButton';
 import { useRouter } from 'next/router';
 
