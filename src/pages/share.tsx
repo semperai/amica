@@ -1,5 +1,6 @@
 import { createHash } from 'crypto';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +18,8 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import { vrmDataProvider } from "@/features/vrmStore/vrmDataProvider";
+import { IconButton } from '@/components/iconButton';
+import next from 'next';
 
 registerPlugin(
   FilePondPluginImagePreview,
@@ -79,12 +82,12 @@ export default function Share() {
   const [vrmLoadedFromIndexedDb, setVrmLoadedFromIndexedDb] = useState(false);
   const [vrmLoadingFromIndexedDb, setVrmLoadingFromIndexedDb] = useState(false);
   const [showUploadLocalVrmMessage, setShowUploadLocalVrmMessage] = useState(false);
-  
+
 
   const [sqid, setSqid] = useState('');
 
   const vrmUploadFilePond = useRef<FilePond | null>(null);
-  
+
   const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
   async function uploadVrmFromIndexedDb() {
@@ -101,7 +104,7 @@ export default function Share() {
     setName(config('name'));
     setSystemPrompt(config('system_prompt'));
     setVisionSystemPrompt(config('vision_system_prompt'));
-    if (! config('bg_url').startsWith('data')) {
+    if (!config('bg_url').startsWith('data')) {
       setBgUrl(config('bg_url'));
     }
     setYoutubeVideoId(config('youtube_videoid'));
@@ -159,6 +162,12 @@ export default function Share() {
     register();
   }
 
+  const router = useRouter();
+
+  const handleCloseIcon = () => {
+    router.push('/');
+  };
+
   useEffect(() => {
     document.body.style.backgroundImage = `url(/liquid-metaballs.jpg)`;
     document.body.style.backgroundSize = `cover`;
@@ -167,9 +176,10 @@ export default function Share() {
   }, []);
 
   return (
+    
     <div className="p-4 md:p-20">
       <style jsx global>
-      {`
+        {`
         body {
           background-image: url('/liquid-metaballs.jpg');
           background-size: cover;
@@ -178,16 +188,17 @@ export default function Share() {
         }
       `}
       </style>
-
+      <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20">
+        <div className="p-2 bg-white">
+            <IconButton
+              iconName="24/Close"
+              isProcessing={false}
+              className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+              onClick={handleCloseIcon}/>
+        </div>
+      </div>
       <div className="col-span-3 max-w-md rounded-xl mt-4">
         <h1 className="text-lg">{t("Character Creator")}</h1>
-        { isTauri() && (
-          <p className="text-sm mt-2">
-            {t("Wrong place?")}
-            {' '}
-            <Link href="/" className="text-cyan-600 hover:text-cyan-700">{t('Go home')}</Link>
-          </p>
-        ) }
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,7 +212,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={description}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 placeholder={t("Provide a description of the character")}
                 onChange={(e) => {
                   setDescription(e.target.value);
@@ -219,7 +230,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={name}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setName(e.target.value);
                 }}
@@ -236,7 +247,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={systemPrompt}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setSystemPrompt(e.target.value);
                 }}
@@ -253,7 +264,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={visionSystemPrompt}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setVisionSystemPrompt(e.target.value);
                 }}
@@ -270,7 +281,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={bgUrl}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setBgUrl(e.target.value);
                 }}
@@ -307,7 +318,7 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
-                disabled={!! sqid}
+                disabled={!!sqid}
               />
             </div>
           </div>
@@ -322,7 +333,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={youtubeVideoId}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setYoutubeVideoId(e.target.value);
                 }}
@@ -352,8 +363,8 @@ export default function Share() {
               </div>
             </div>
           )}
-          
-          <div className={"sm:col-span-3 max-w-md rounded-xl mt-4" + ( !showUploadLocalVrmMessage ? "" : " hidden" )}>
+
+          <div className={"sm:col-span-3 max-w-md rounded-xl mt-4" + (!showUploadLocalVrmMessage ? "" : " hidden")}>
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("VRM Url")}
             </label>
@@ -363,7 +374,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={vrmUrl}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setVrmUrl(e.target.value);
                   updateVrmAvatar(viewer, e.target.value);
@@ -416,7 +427,7 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
-                disabled={!! sqid}
+                disabled={!!sqid}
               />
 
               <div className="sm:col-span-3 max-w-md rounded-xl mt-4 bg-gray-100">
@@ -428,7 +439,7 @@ export default function Share() {
                       (async () => {
                         try {
                           const animation = await loadVRMAnimation("/animations/idle_loop.vrma");
-                          if (! animation) {
+                          if (!animation) {
                             console.error('loading animation failed');
                             return;
                           }
@@ -512,7 +523,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={voiceUrl}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setVoiceUrl(e.target.value);
                 }}
@@ -549,12 +560,12 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
-                disabled={!! sqid}
+                disabled={!!sqid}
               />
             </div>
           </div>
 
-          {! sqid && (
+          {!sqid && (
             <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
               <button
                 onClick={registerCharacter}
