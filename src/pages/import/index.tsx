@@ -16,7 +16,7 @@ export default function Import() {
 
   return (
     <div className="fixed w-full h-full top-0 left-0 backdrop-blur-sm bg-gray-900 bg-opacity-50 z-50 flex">
-      <div className="p-4 md:p-20">
+      <div className="p-20 md:p-25">
         <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20">
           <div className="p-2 bg-white">
             <IconButton

@@ -176,7 +176,7 @@ export default function Share() {
 
   return (
     
-    <div className="p-4 md:p-20">
+    <div className="p-10 md:p-20">
       <style jsx global>
         {`
         body {
