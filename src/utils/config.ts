@@ -45,7 +45,7 @@ const defaults = {
   rvc_enabled: process.env.NEXT_PUBLIC_RVC_ENABLED ?? 'false',
   rvc_model_name: process.env.NEXT_PUBLIC_RVC_MODEL_NAME ?? 'model_name.pth',
   rvc_f0_upkey: process.env.NEXT_PUBLIC_RVC_F0_UPKEY ?? '0',
-  rvc_f0_method: process.env.NEXT_PUBLIC_RVC_METHOD ?? 'crepe',
+  rvc_f0_method: process.env.NEXT_PUBLIC_RVC_METHOD ?? 'pm',
   rvc_index_path: process.env.NEXT_PUBLIC_RVC_INDEX_PATH ?? 'none',
   rvc_index_rate: process.env.NEXT_PUBLIC_RVC_INDEX_RATE ?? '0.66',
   rvc_filter_radius: process.env.NEXT_PUBLIC_RVC_FILTER_RADIUS ?? '3',

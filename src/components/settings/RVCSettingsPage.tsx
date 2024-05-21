@@ -9,11 +9,8 @@ import { NumberInput } from '../numberInput';
 import { useState } from 'react';
 
 const f0Method = [
-    { key: "none", label: "None" },
-    { key: "crepe", label: "crepe" },
     { key: "harvest", label: "harvest" },
     { key: "pm", label: "pm" },
-    { key: "rmvpe", label: "rmvpe" },
 ];
 
 export function RVCSettingsPage({
@@ -125,7 +122,7 @@ export function RVCSettingsPage({
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowModelNameInfo(true)} onMouseLeave={() => setShowModelNameInfo(false)} />
                                         {showModelNameInfo && (
                                             <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-60">
-                                                {t("the name of the model which was previously trained in the gui like the name in logs folder")}
+                                                {t("the name of the model which was included in your '/assets/weights' folder")}
                                             </div>
                                         )}
                                     </div>
@@ -198,7 +195,7 @@ export function RVCSettingsPage({
                                         <InformationCircleIcon className="h-5 w-5 text-gray-400 cursor-pointer" onMouseEnter={() => setShowF0MethodInfo(true)} onMouseLeave={() => setShowF0MethodInfo(false)} />
                                         {showF0MethodInfo && (
                                             <div className="absolute bottom-0 left-full ml-2 bg-white rounded-md shadow-md p-2 text-sm text-gray-600 w-48">
-                                                {t("Select the pitch extraction algorithm ('pm': faster extraction but lower-quality speech; 'harvest': better bass but extremely slow; 'crepe': better quality but GPU intensive), 'rmvpe': best quality, and little GPU requirement")}
+                                                {t("Select the pitch extraction algorithm ('pm': faster extraction but lower-quality speech; 'harvest': better bass but extremely slow;)")}
                                             </div>
                                         )}
                                     </div>
