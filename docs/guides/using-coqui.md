@@ -5,6 +5,8 @@ order: 9
 
 Navigate to [Coqui](https://coqui.ai/) and click on the **Get Started** button.
 
+> Coqui.ai has been discontinued. Enthusiasts can setup locally by reviewing the Coqui Local PR on the repo.
+
 Once you have signed up, you will be redirected to the **Dashboard** page.
 
 Navigate to your [account page](https://app.coqui.ai/account) and on the bottom of the page, you will see a **Create new API Key** button.
