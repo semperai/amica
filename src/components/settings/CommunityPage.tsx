@@ -31,6 +31,15 @@ export function CommunityPage() {
           </a>
         </li>
         <li className="py-4">
+          <a
+            href="https://discord.gg/SVtjU4d9jB"
+            target="_blank"
+            className="rounded bg-indigo-600 px-2 py-1 text-lg font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+            {t("Discord")}
+          </a>
+        </li>
+        <li className="py-4">
           <GitHubLink />
         </li>
         <li className="py-4">
