@@ -9,6 +9,7 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
     "Accept": "text/event-stream",
   };
   const prompt = buildPrompt(messages);
+  const stop: string[] = [`${config("name")}:`, ...`${config("llamacpp_stop_sequence")}`.split("||")];
   const res = await fetch(`${config("llamacpp_url")}/completion`, {
     headers: headers,
     method: "POST",
@@ -17,11 +18,7 @@ export async function getLlamaCppChatResponseStream(messages: Message[]) {
       n_predict: 400,
       temperature: 0.7,
       cache_prompt: true,
-      stop: [
-        "</s>",
-        `${config("name")}:`,
-        "User:"
-      ],
+      stop,
       prompt,
     }),
   });

@@ -82,10 +82,12 @@ export const Settings = ({
   const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
   const [llamaCppUrl, setLlamaCppUrl] = useState(config("llamacpp_url"));
+  const [llamaCppStopSequence, setLlamaCppStopSequence] = useState(config("llamacpp_stop_sequence"));
   const [ollamaUrl, setOllamaUrl] = useState(config("ollama_url"));
   const [ollamaModel, setOllamaModel] = useState(config("ollama_model"));
   const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
   const [koboldAiUseExtra, setKoboldAiUseExtra] = useState<boolean>(config("koboldai_use_extra") === 'true' ? true : false);
+  const [koboldAiStopSequence, setKoboldAiStopSequence] = useState(config("koboldai_stop_sequence"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -207,9 +209,9 @@ export const Settings = ({
   }, [
     chatbotBackend,
     openAIApiKey, openAIUrl, openAIModel,
-    llamaCppUrl,
+    llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
-    koboldAiUrl, koboldAiUseExtra,
+    koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -343,6 +345,8 @@ export const Settings = ({
       return <LlamaCppSettingsPage
         llamaCppUrl={llamaCppUrl}
         setLlamaCppUrl={setLlamaCppUrl}
+        llamaCppStopSequence={llamaCppStopSequence}
+        setLlamaCppStopSequence={setLlamaCppStopSequence}
         setSettingsUpdated={setSettingsUpdated}
         />
 
@@ -361,6 +365,8 @@ export const Settings = ({
         setKoboldAiUrl={setKoboldAiUrl}
         koboldAiUseExtra={koboldAiUseExtra}
         setKoboldAiUseExtra={setKoboldAiUseExtra}
+        koboldAiStopSequence={koboldAiStopSequence}
+        setKoboldAiStopSequence={setKoboldAiStopSequence}
         setSettingsUpdated={setSettingsUpdated}
         />
 
