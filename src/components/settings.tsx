@@ -232,7 +232,6 @@ export const Settings = ({
     sttWakeWordEnabled, sttWakeWord, sttWakeWordIdleTime
   ]);
 
-
   function handleMenuClick(link: Link) {
     setPage(link.key)
     setBreadcrumbs([...breadcrumbs, link]);

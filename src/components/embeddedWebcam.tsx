@@ -47,12 +47,34 @@ export function EmbeddedWebcam({
     [webcamRef]
   );
 
+  const imgFileInputRef = useRef<HTMLInputElement>(null);
+  const handleClickOpenImgFile = useCallback(() => {
+    imgFileInputRef.current?.click();
+  }, []);
+
+  const handleChangeImgFile = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files) return;
+
+      const file = files?.[0];
+      if (!file) return;
+
+      if (!file.type.match('image.*')) return;
+
+      const imageSrc = URL.createObjectURL(file)
+      setCameraDisabled(true);
+      setImageData(imageSrc);
+
+      event.target.value = "";
+    }, []);
+
 
   return (
     <div className="fixed right-[calc(320px)] top-0 z-[11]">
       <div className="fixed">
         <>
-          { ! cameraDisabled && (
+          {!cameraDisabled && (
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -68,7 +90,7 @@ export function EmbeddedWebcam({
               )}
             />
           )}
-          { cameraDisabled && (
+          {cameraDisabled && (
             <img
               src={imageData}
               alt="Captured image"
@@ -78,9 +100,16 @@ export function EmbeddedWebcam({
                 "rounded-bl-none rounded-br-none rounded-lg bg-black",
                 cameraDisabled && "animate-pulse",
               )}
-              />
+            />
           )}
-          <div className="p-1 shadow-md flex flex-auto justify-center bg-gray-50 rounded-tl-none rounded-tr-none rounded-full">
+          <div className="p-1 shadow-md flex flex-auto justify-evenly bg-gray-50 rounded-tl-none rounded-tr-none rounded-full">
+            <IconButton
+              iconName="24/UploadAlt"
+              isProcessing={false}
+              className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+              onClick={handleClickOpenImgFile}
+              disabled={cameraDisabled}
+            />
             <IconButton
               iconName="24/Shutter"
               isProcessing={false}
@@ -89,21 +118,29 @@ export function EmbeddedWebcam({
               disabled={cameraDisabled}
             />
 
-            <button className="ml-8 px-1.5 rounded-lg text-sm p-1 text-center inline-flex items-center">
-            <ArrowPathIcon
-              className="w-5 h-5 text-gray-700 focus:animate-spin"
-              onClick={() => {
-                if (facingMode === 'user') {
-                  setFacingMode('environment');
-                } else if (facingMode === 'environment') {
-                  setFacingMode('user');
-                }
-              }}
-            />
+            <button className="pr-2 rounded-lg text-sm p-1 text-center inline-flex items-center">
+              <ArrowPathIcon
+                className="w-5 h-5 text-gray-700 focus:animate-spin"
+                onClick={() => {
+                  if (facingMode === 'user') {
+                    setFacingMode('environment');
+                  } else if (facingMode === 'environment') {
+                    setFacingMode('user');
+                  }
+                }}
+              />
             </button>
           </div>
         </>
       </div>
+      <input
+        type="file"
+        className="hidden"
+        accept=".jpg,.jpeg,.png"
+        ref={imgFileInputRef}
+        onChange={handleChangeImgFile}
+      />
     </div>
-  )
+
+  );
 }
