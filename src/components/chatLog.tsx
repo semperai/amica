@@ -12,7 +12,7 @@ import { ChatContext } from "@/features/chat/chatContext";
 import { saveAs } from 'file-saver';
 
 export const ChatLog = ({
-   messages,
+  messages,
 }: {
   messages: Message[];
 }) => {
@@ -50,14 +50,20 @@ export const ChatLog = ({
           return null;
         }).filter(Boolean) as Message[];
 
-        bot.setMessageList(parsedChat);
+        try {
+          if (parsedChat.length > 0) {
+            const lastMessage = parsedChat[parsedChat.length - 1];
+            bot.setMessageList(parsedChat.slice(0, parsedChat.length - 1));
 
-        if (parsedChat.length > 0 && parsedChat[parsedChat.length - 1].role === "user") {
-          bot.setMessageList(messages.slice(0, parsedChat.length - 1));
-          bot.receiveMessageFromUser(parsedChat[parsedChat.length - 1].content);
-        } else {
-          bot.setMessageList(messages.slice(0, parsedChat.length - 1));
-          bot.bubbleMessage(parsedChat[parsedChat.length - 1].role,parsedChat[parsedChat.length - 1].content);
+            if (lastMessage.role === "user") {
+              bot.receiveMessageFromUser(lastMessage.content);
+            } else {
+              bot.bubbleMessage(lastMessage.role, lastMessage.content);
+            }
+          } 
+          console.error("Please attach the correct file format.");
+        } catch (e: any) {
+          console.error(e.toString());
         }
       };
 
@@ -70,12 +76,12 @@ export const ChatLog = ({
 
   const exportMessagesToTxt = (messages: any[]) => {
     const blob = new Blob(
-      [messages.map((msg: { role: string; content: string; }) => `${msg.role} : ${msg.content}`).join('\n\n')], 
+      [messages.map((msg: { role: string; content: string; }) => `${msg.role} : ${msg.content}`).join('\n\n')],
       { type: 'text/plain' }
     );
     saveAs(blob, 'chat_log.txt');
   };
-  
+
   useEffect(() => {
     chatScrollRef.current?.scrollIntoView({
       behavior: "auto",
@@ -129,7 +135,7 @@ export const ChatLog = ({
                   message={msg.content}
                   num={i}
                   onClickResumeButton={handleResumeButtonClick}
-                  />
+                />
 
               </div>
             );
@@ -167,7 +173,7 @@ function Chat({
   };
 
 
-  
+
   return (
     <div className={clsx(
       'mx-auto max-w-sm my-8',
