@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { clsx } from "clsx";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import FlexTextarea from "@/components/flexTextarea/flexTextarea";
 import { Message } from "@/features/chat/messages";
 import { IconButton } from "@/components/iconButton";
@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/20/solid';
 import { config } from "@/utils/config";
 import { ChatContext } from "@/features/chat/chatContext";
-import { saveAs} from 'file-saver';
+import { saveAs } from 'file-saver';
 
 export const ChatLog = ({
    messages,
@@ -25,7 +25,43 @@ export const ChatLog = ({
     bot.receiveMessageFromUser(newMessage);
   };
 
+  const txtFileInputRef = useRef<HTMLInputElement>(null);
+  const handleClickOpenTxtFile = useCallback(() => {
+    txtFileInputRef.current?.click();
+  }, []);
+
+  const handleChangeTxtFile = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files) return;
+
+      const file = files[0];
+      if (!file) return;
+
+      const fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        const content = e.target?.result as string;
+        const lines = content.split("\n");
+        const parsedChat = lines.map((line) => {
+          const match = line.match(/^(user|assistant)\s*:\s*(.*)$/);
+          if (match) {
+            return { role: match[1], content: match[2] };
+          }
+          return null;
+        }).filter(Boolean) as Message[];
+
+        bot.setMessageList(parsedChat);
+      };
+
+      fileReader.readAsText(file);
+
+      event.target.value = "";
+    },
+    [bot]
+  );
+
   const exportMessagesToTxt = (messages: any[]) => {
+    console.debug(messages)
     const blob = new Blob(
       [messages.map((msg: { role: string; content: string; }) => `${msg.role} : ${msg.content}`).join('\n\n')], 
       { type: 'text/plain' }
@@ -60,6 +96,13 @@ export const ChatLog = ({
           }}
         ></IconButton>
         <IconButton
+          iconName="24/UploadAlt"
+          label={t("Load Chat")}
+          isProcessing={false}
+          className="bg-slate-600 hover:bg-slate-500 active:bg-slate-500 shadow-xl"
+          onClick={handleClickOpenTxtFile}
+        ></IconButton>
+        <IconButton
           iconName="24/Save"
           label={t("Save")}
           isProcessing={false}
@@ -86,6 +129,13 @@ export const ChatLog = ({
           })}
         </div>
       </div>
+      <input
+        type="file"
+        accept=".txt"
+        ref={txtFileInputRef}
+        onChange={handleChangeTxtFile}
+        className="hidden"
+      />
     </>
   );
 };
