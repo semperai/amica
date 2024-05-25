@@ -331,6 +331,7 @@ export class Chat {
 
     let aiTextLog = "";
     let tag = "";
+    let rolePlay = "";
     let receivedMessage = "";
 
     let firstTokenEncountered = false;
@@ -359,6 +360,7 @@ export class Chat {
           aiTextLog,
           receivedMessage,
           tag,
+          rolePlay,
           callback: (aiTalks: Screenplay[]): boolean => {
             // Generate & play audio for each sentence, display responses
             console.debug('enqueue tts', aiTalks);
@@ -385,6 +387,7 @@ export class Chat {
         aiTextLog = proc.aiTextLog;
         receivedMessage = proc.receivedMessage;
         tag = proc.tag;
+        rolePlay = proc.rolePlay;
         if (proc.shouldBreak) {
           break;
         }
