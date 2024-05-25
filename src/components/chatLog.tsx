@@ -51,6 +51,14 @@ export const ChatLog = ({
         }).filter(Boolean) as Message[];
 
         bot.setMessageList(parsedChat);
+
+        if (parsedChat.length > 0 && parsedChat[parsedChat.length - 1].role === "user") {
+          bot.setMessageList(messages.slice(0, parsedChat.length - 1));
+          bot.receiveMessageFromUser(parsedChat[parsedChat.length - 1].content);
+        } else {
+          bot.setMessageList(messages.slice(0, parsedChat.length - 1));
+          bot.bubbleMessage(parsedChat[parsedChat.length - 1].role,parsedChat[parsedChat.length - 1].content);
+        }
       };
 
       fileReader.readAsText(file);
@@ -160,7 +168,7 @@ function Chat({
   };
 
 
-
+  
   return (
     <div className={clsx(
       'mx-auto max-w-sm my-8',
