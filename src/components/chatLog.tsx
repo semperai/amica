@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/20/solid';
 import { config } from "@/utils/config";
 import { ChatContext } from "@/features/chat/chatContext";
+import { saveAs} from 'file-saver';
 
 export const ChatLog = ({
    messages,
@@ -24,6 +25,14 @@ export const ChatLog = ({
     bot.receiveMessageFromUser(newMessage);
   };
 
+  const exportMessagesToTxt = (messages: any[]) => {
+    const blob = new Blob(
+      [messages.map((msg: { role: string; content: string; }) => `${msg.role} : ${msg.content}`).join('\n\n')], 
+      { type: 'text/plain' }
+    );
+    saveAs(blob, 'chat_log.txt');
+  };
+  
   useEffect(() => {
     chatScrollRef.current?.scrollIntoView({
       behavior: "auto",
@@ -49,6 +58,13 @@ export const ChatLog = ({
           onClick={() => {
             bot.setMessageList([]);
           }}
+        ></IconButton>
+        <IconButton
+          iconName="24/Save"
+          label={t("Save")}
+          isProcessing={false}
+          className="bg-slate-600 hover:bg-slate-500 active:bg-slate-500 shadow-xl"
+          onClick={() => exportMessagesToTxt(messages)}
         ></IconButton>
       </div>
 
