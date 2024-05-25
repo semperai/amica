@@ -24,7 +24,7 @@ export function EmbeddedWebcam({
   useEffect(() => {
     (async () => {
       if (imageData !== "") {
-        const fixed = imageData.replace("/^data:image\/\w+;base64,/", "");
+        const fixed = imageData.replace("data:image/jpeg;base64,", "");
         await bot.getVisionResponse(fixed);
       }
 
@@ -140,7 +140,7 @@ export function EmbeddedWebcam({
       <input
         type="file"
         className="hidden"
-        accept=".jpg,.jpeg,.png"
+        accept=".jpeg"
         ref={imgFileInputRef}
         onChange={handleChangeImgFile}
       />
