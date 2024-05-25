@@ -69,7 +69,6 @@ export const ChatLog = ({
   );
 
   const exportMessagesToTxt = (messages: any[]) => {
-    console.debug(messages)
     const blob = new Blob(
       [messages.map((msg: { role: string; content: string; }) => `${msg.role} : ${msg.content}`).join('\n\n')], 
       { type: 'text/plain' }
