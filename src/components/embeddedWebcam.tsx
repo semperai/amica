@@ -24,7 +24,7 @@ export function EmbeddedWebcam({
   useEffect(() => {
     (async () => {
       if (imageData !== "") {
-        const fixed = imageData.replace("data:image/jpeg;base64,", "");
+        const fixed = imageData.replace("/^data:image\/\w+;base64,/", "");
         await bot.getVisionResponse(fixed);
       }
 
@@ -62,9 +62,13 @@ export function EmbeddedWebcam({
 
       if (!file.type.match('image.*')) return;
 
-      const imageSrc = URL.createObjectURL(file)
-      setCameraDisabled(true);
-      setImageData(imageSrc);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageSrc = reader.result as string;
+        setCameraDisabled(true);
+        setImageData(imageSrc);
+      };
+      reader.readAsDataURL(file);
 
       event.target.value = "";
     }, []);
