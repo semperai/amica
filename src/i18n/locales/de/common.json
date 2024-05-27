@@ -5,6 +5,8 @@
   "Decline": "Abfall",
   "Close": "Schließen",
   "Restart": "Restart",
+  "Save": "Speichern",
+  "Load Chat": "Chat laden",
   "YOU": "YOU",
   "Welcome to Amica": "Amica heißt Sie willkommen",
   "amica_intro": "\n Amica ist eine Open-Source-Chatbot-Schnittstelle, die Emotionen, Text-zu-Sprache und Sprache-zu-Text-Funktionen bietet.\n Es ist so konzipiert, dass es an jede ChatBot-API angehängt werden kann.\n Es kann mit jedem VRM-Modell verwendet werden ist sehr anpassbar.\n Sie können Amica sogar auf Ihrem eigenen Computer ohne Internetverbindung oder auf Ihrem Telefon ausführen.",

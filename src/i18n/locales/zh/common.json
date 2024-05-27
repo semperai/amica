@@ -5,6 +5,8 @@
   "Decline": "拒绝",
   "Close": "关闭",
   "Restart": "Restart",
+  "Save": "節省",
+  "Load Chat": "載入聊天",
   "YOU": "YOU",
   "Welcome to Amica": "Amica欢迎你的光临",
   "amica_intro": "\n Amica 是一个开源聊天机器人界面，提供情感、文本到语音和语音到文本功能。\n 它被设计为能够附加到任何 ChatBot API。\n 它可以与任何 VRM 模型一起工作,可定制。\n您甚至可以在没有互联网连接的情况下在自己的计算机上或手机上运行 Amica。\n",
