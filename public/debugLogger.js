@@ -32,15 +32,33 @@ if (typeof window !== "undefined") {
     window.console = new Proxy({}, handler);
 
     window.addEventListener("error", (e) => {
-      console.error(`Error occurred: ${e.error.message} ${e.error.stack}`);
+      const errorDetails = {
+        message: e.error?.message || e.message || 'Unknown error',
+        stack: e.error?.stack || 'No stack trace available',
+        filename: e.filename,
+        lineno: e.lineno,
+        colno: e.colno,
+        timeStamp: e.timeStamp,
+        type: 'error',
+      };
+      window.error_handler_logs.push(errorDetails);
+      console.error(`Error occurred: ${errorDetails.message}\nStack: ${errorDetails.stack}\nFilename: ${errorDetails.filename}:${errorDetails.lineno}:${errorDetails.colno}\nTime: ${new Date(errorDetails.timeStamp)}`);
       return false;
     });
 
     window.addEventListener("unhandledrejection", (e) => {
-      console.error(`Unhandled rejection: ${e.message}`);
+      const errorDetails = {
+        message: e.reason?.message || e.message || 'Unhandled promise rejection',
+        stack: e.reason?.stack || 'No stack trace available',
+        reason: e.reason,
+        timeStamp: e.timeStamp,
+        type: 'unhandledrejection',
+      };
+      window.error_handler_logs.push(errorDetails);
+      console.error(`Unhandled rejection: ${errorDetails.message}\nStack: ${errorDetails.stack}\nReason: ${errorDetails.reason}\nTime: ${new Date(errorDetails.timeStamp)}`);
       return false;
     });
-
+    
     window.error_handler_installed = true;
   }
 }
