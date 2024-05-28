@@ -16,6 +16,7 @@ export function EmbeddedWebcam({
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [cameraDisabled, setCameraDisabled] = useState(false);
   const [imageData, setImageData] = useState("");
+  const [fileType, setFileType] = useState<string | undefined>(undefined);
 
   useKeyboardShortcut("Escape", () => {
     setWebcamEnabled(false);
@@ -23,14 +24,15 @@ export function EmbeddedWebcam({
 
   useEffect(() => {
     (async () => {
-      if (imageData !== "") {
-        const fixed = imageData.replace("data:image/jpeg;base64,", "");
+      if (imageData !== "" && fileType) {
+        const dataPrefix = `data:image/${fileType};base64,`;
+        const fixed = imageData.replace(dataPrefix, "");
         await bot.getVisionResponse(fixed);
       }
 
       setCameraDisabled(false);
     })();
-  }, [imageData]);
+  }, [imageData, fileType, bot]);
 
   const capture = useCallback(
     () => {
@@ -42,6 +44,7 @@ export function EmbeddedWebcam({
       if (imageSrc) {
         setCameraDisabled(true);
         setImageData(imageSrc);
+        setFileType('jpeg');
       }
     },
     [webcamRef]
@@ -61,6 +64,9 @@ export function EmbeddedWebcam({
       if (!file) return;
 
       if (!file.type.match('image.*')) return;
+
+      const fileType = file.type.split("/").pop();
+      setFileType(fileType);
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -140,7 +146,7 @@ export function EmbeddedWebcam({
       <input
         type="file"
         className="hidden"
-        accept=".jpeg"
+        accept="image/*"
         ref={imgFileInputRef}
         onChange={handleChangeImgFile}
       />
