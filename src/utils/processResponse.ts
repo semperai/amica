@@ -41,7 +41,7 @@ export function processResponse({
   const rolePlayMatch = receivedMessage.match(/\*(.*?)\*/);
   if (rolePlayMatch && rolePlayMatch[0]) {
     rolePlay = rolePlayMatch[0];
-    receivedMessage = receivedMessage.replace(rolePlay, '').trim();
+    receivedMessage = receivedMessage.replace(rolePlay, '');
   }
 
   // Cut out and process the response sentence by sentence
