@@ -66,12 +66,12 @@ export function EmbeddedWebcam({
       if (!file.type.match('image.*')) return;
 
       const fileType = file.type.split("/").pop();
-      console.debug(`${fileType} : ${file}`)
       setFileType(fileType);
 
       const reader = new FileReader();
       reader.onloadend = () => {
         const imageSrc = reader.result as string;
+        console.debug(`${fileType} : ${imageSrc}`)
         setCameraDisabled(true);
         setImageData(imageSrc);
       };
