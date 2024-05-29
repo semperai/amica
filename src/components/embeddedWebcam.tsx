@@ -5,7 +5,6 @@ import { ChatContext } from "@/features/chat/chatContext";
 import { IconButton } from "./iconButton";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { clsx } from "clsx";
-import sharp from 'sharp';
 
 export function EmbeddedWebcam({
   setWebcamEnabled,
@@ -17,7 +16,7 @@ export function EmbeddedWebcam({
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [cameraDisabled, setCameraDisabled] = useState(false);
   const [imageData, setImageData] = useState("");
-
+  const [fileType, setFileType] = useState<string | undefined>(undefined);
 
   useKeyboardShortcut("Escape", () => {
     setWebcamEnabled(false);
@@ -25,20 +24,15 @@ export function EmbeddedWebcam({
 
   useEffect(() => {
     (async () => {
-      if (imageData !== "") {
-        const fixed = imageData.replace(/^data:image\/\w+;base64,/, "");
-        const imgBuffer = Buffer.from(fixed, 'base64');
-        const jpegBuffer = await sharp(imgBuffer)
-          .jpeg()
-          .toBuffer();
-  
-        const jpegBase64 = jpegBuffer.toString('base64');
-        await bot.getVisionResponse(jpegBase64);
+      if (imageData !== "" && fileType) {
+        const dataPrefix = `data:image/${fileType};base64,`;
+        const fixed = imageData.replace(dataPrefix, "");
+        await bot.getVisionResponse(fixed);
       }
 
       setCameraDisabled(false);
     })();
-  }, [imageData, bot]);
+  }, [imageData, fileType, bot]);
 
   const capture = useCallback(
     () => {
@@ -50,6 +44,7 @@ export function EmbeddedWebcam({
       if (imageSrc) {
         setCameraDisabled(true);
         setImageData(imageSrc);
+        setFileType('jpeg');
       }
     },
     [webcamRef]
@@ -69,6 +64,10 @@ export function EmbeddedWebcam({
       if (!file) return;
 
       if (!file.type.match('image.*')) return;
+
+      const fileType = file.type.split("/").pop();
+      console.debug(`${fileType} : ${file}`)
+      setFileType(fileType);
 
       const reader = new FileReader();
       reader.onloadend = () => {
