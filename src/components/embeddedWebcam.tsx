@@ -23,45 +23,41 @@ export function EmbeddedWebcam({
     setWebcamEnabled(false);
   });
 
+  const processImageFromCanvas = async (data: string) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = imgRef.current!.width;
+    canvas.height = imgRef.current!.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return "";
+
+    const img = new Image();
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, imgRef.current!.width, imgRef.current!.height);
+        resolve();
+      };
+      img.onerror = reject;
+      img.src = data;
+    });
+    return canvas.toDataURL('image/jpeg').replace('data:image/jpeg;base64,', '');
+  };
+
   useEffect(() => {
-    (async () => {
-      if (imageData !== "") {
-        let fixed = imageData;
-        if (imageMode !== "webcam") {
-          const canvas = document.createElement('canvas');
-          canvas.width = imgRef.current!.width;
-          canvas.height = imgRef.current!.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            const img = new Image();
-
-            const loadImage = () => {
-              return new Promise<void>((resolve, reject) => {
-                img.onload = () => {
-                  ctx.drawImage(img, 0, 0, imgRef.current!.width, imgRef.current!.height);
-                  resolve();
-                };
-                img.onerror = reject;
-                img.src = imageData;
-              });
-            };
-
-            await loadImage();
-            fixed = canvas.toDataURL('image/jpeg').replace('data:image/jpeg;base64,', '');
-            await bot.getVisionResponse(fixed);
-          }
-        } else {
-          fixed = imageData.replace(`data:image/jpeg;base64,`, "");
-          await bot.getVisionResponse(fixed);
-        }
+    const handleImageDataChange = async () => {
+      if (imageData) {
+        const fixedImageData = imageMode === "webcam"
+          ? imageData.replace('data:image/jpeg;base64,', '')
+          : await processImageFromCanvas(imageData);
+        await bot.getVisionResponse(fixedImageData);
+        setCameraDisabled(false);
+        setImageData("");
       }
+    };
 
-      setCameraDisabled(false);
-    })();
+    handleImageDataChange();
   }, [imageData, imageMode, bot]);
-  
-  const capture = useCallback(
-    () => {
+
+  const capture = useCallback(() => {
       if (webcamRef.current === null) {
         return;
       }
@@ -81,27 +77,22 @@ export function EmbeddedWebcam({
     imgFileInputRef.current?.click();
   }, []);
 
-  const handleChangeImgFile = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (!files) return;
-
-      const file = files?.[0];
-      if (!file) return;
-
-      if (!file.type.match('image.*')) return;
-
+  const handleChangeImgFile = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.match("image.*")) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        let imageSrc = reader.result as string;
         setCameraDisabled(true);
-        setImageMode('uploader');
-        setImageData(imageSrc);
+        setImageMode("uploader");
+        setImageData(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  }, []);
 
-    }, []);
-
+  const toggleFacingMode = () => {
+    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
+  };
 
   return (
     <div className="fixed right-[calc(320px)] top-0 z-[11]">
@@ -155,13 +146,7 @@ export function EmbeddedWebcam({
             <button className="pr-2 rounded-lg text-sm p-1 text-center inline-flex items-center">
               <ArrowPathIcon
                 className="w-5 h-5 text-gray-700 focus:animate-spin"
-                onClick={() => {
-                  if (facingMode === 'user') {
-                    setFacingMode('environment');
-                  } else if (facingMode === 'environment') {
-                    setFacingMode('user');
-                  }
-                }}
+                onClick={toggleFacingMode}
               />
             </button>
           </div>
