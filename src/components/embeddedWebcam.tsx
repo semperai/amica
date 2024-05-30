@@ -27,7 +27,6 @@ export function EmbeddedWebcam({
     (async () => {
       if (imageData !== "" && fileType) {
         let fixed = imageData;
-
         if (fileType !== "jpeg" && imgRef.current) {
           const canvas = document.createElement('canvas');
           canvas.width = imgRef.current.width;
@@ -40,6 +39,7 @@ export function EmbeddedWebcam({
               fixed = canvas.toDataURL('image/jpeg').replace('data:image/jpeg;base64,', '');
               await bot.getVisionResponse(fixed);
             };
+            img.src = imageData;
           }
         } else {
           const dataPrefix = `data:image/jpeg;base64,`;
