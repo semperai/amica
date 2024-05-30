@@ -155,7 +155,7 @@ export function EmbeddedWebcam({
       <input
         type="file"
         className="hidden"
-        accept="image/*"
+        accept=".jpeg, .jpg, .png, .webp, .heic"
         ref={imgFileInputRef}
         onChange={handleChangeImgFile}
       />
