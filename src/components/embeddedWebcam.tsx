@@ -17,6 +17,7 @@ export function EmbeddedWebcam({
   const [cameraDisabled, setCameraDisabled] = useState(false);
   const [imageData, setImageData] = useState("");
   const [fileType, setFileType] = useState<string | undefined>(undefined);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   useKeyboardShortcut("Escape", () => {
     setWebcamEnabled(false);
@@ -25,9 +26,26 @@ export function EmbeddedWebcam({
   useEffect(() => {
     (async () => {
       if (imageData !== "" && fileType) {
-        const dataPrefix = `data:image/${fileType};base64,`;
-        const fixed = imageData.replace(dataPrefix, "");
-        await bot.getVisionResponse(fixed);
+        let fixed = imageData;
+
+        if (fileType !== "jpeg" && imgRef.current) {
+          const canvas = document.createElement('canvas');
+          canvas.width = imgRef.current.width;
+          canvas.height = imgRef.current.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            const img = new Image();
+            img.onload = async () => {
+              ctx.drawImage(img, 0, 0, imgRef.current!.width, imgRef.current!.height);
+              fixed = canvas.toDataURL('image/jpeg').replace('data:image/jpeg;base64,', '');
+              await bot.getVisionResponse(fixed);
+            };
+          }
+        } else {
+          const dataPrefix = `data:image/jpeg;base64,`;
+          fixed = imageData.replace(dataPrefix, "");
+          await bot.getVisionResponse(fixed);
+        }
       }
 
       setCameraDisabled(false);
@@ -71,7 +89,6 @@ export function EmbeddedWebcam({
       const reader = new FileReader();
       reader.onloadend = () => {
         const imageSrc = reader.result as string;
-        console.debug(`${fileType} : ${imageSrc}`)
         setCameraDisabled(true);
         setImageData(imageSrc);
       };
@@ -103,6 +120,7 @@ export function EmbeddedWebcam({
           )}
           {cameraDisabled && (
             <img
+              ref={imgRef}
               src={imageData}
               alt="Captured image"
               width={320}
