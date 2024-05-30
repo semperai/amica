@@ -73,7 +73,7 @@ export function EmbeddedWebcam({
           canvas.height = img.height;
           const ctx = canvas.getContext('2d');
           if (ctx) {
-            ctx.drawImage(img, 0, 0, img.width, img.height);
+            ctx.drawImage(img, 0, 0, 320, 240);
             const newImageData = canvas.toDataURL('image/jpeg');
             setCameraDisabled(true);
             setImageData(newImageData);
