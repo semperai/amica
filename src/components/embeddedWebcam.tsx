@@ -24,47 +24,42 @@ export function EmbeddedWebcam({
   });
 
   useEffect(() => {
-    const processImageData = async () => {
-      if (!imageData) return;
+    (async () => {
+      if (imageData !== "") {
+        let fixed = imageData;
+        if (imageMode !== "webcam") {
+          const canvas = document.createElement('canvas');
+          canvas.width = imgRef.current!.width;
+          canvas.height = imgRef.current!.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            const img = new Image();
 
-      let processedData = imageData;
-      if (imageMode !== "webcam") {
-        processedData = await drawImageOnCanvas(imageData);
-      } else {
-        processedData = imageData.replace(`data:image/jpeg;base64,`, "");
+            const loadImage = () => {
+              return new Promise<void>((resolve, reject) => {
+                img.onload = () => {
+                  ctx.drawImage(img, 0, 0, imgRef.current!.width, imgRef.current!.height);
+                  resolve();
+                };
+                img.onerror = reject;
+                img.src = imageData;
+              });
+            };
+
+            await loadImage();
+            fixed = canvas.toDataURL('image/jpeg').replace('data:image/jpeg;base64,', '');
+            await bot.getVisionResponse(fixed);
+          }
+        } else {
+          fixed = imageData.replace(`data:image/jpeg;base64,`, "");
+          await bot.getVisionResponse(fixed);
+        }
       }
 
-      await bot.getVisionResponse(processedData);
       setCameraDisabled(false);
-    };
-
-    const drawImageOnCanvas = (src: string): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = imgRef.current!.width;
-        canvas.height = imgRef.current!.height;
-        const context = canvas.getContext('2d');
-        const img = new Image();
-
-        if (!context) {
-          reject(new Error("Canvas context is not available"));
-          return;
-        }
-
-        img.onload = () => {
-          context.drawImage(img, 0, 0, imgRef.current!.width, imgRef.current!.height);
-          const dataUrl = canvas.toDataURL('image/jpeg');
-          resolve(dataUrl.replace('data:image/jpeg;base64,', ''));
-        };
-
-        img.onerror = reject;
-        img.src = src;
-      });
-    };
-
-    processImageData();
+    })();
   }, [imageData, imageMode, bot]);
-
+  
   const capture = useCallback(
     () => {
       if (webcamRef.current === null) {
