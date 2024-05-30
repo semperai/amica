@@ -16,7 +16,6 @@ export function EmbeddedWebcam({
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [cameraDisabled, setCameraDisabled] = useState(false);
   const [imageData, setImageData] = useState("");
-  const [imageMode, setImageMode] = useState<"webcam" | "uploader">("webcam");
 
   useKeyboardShortcut("Escape", () => {
     setWebcamEnabled(false);
@@ -25,33 +24,12 @@ export function EmbeddedWebcam({
   useEffect(() => {
     (async () => {
       if (imageData !== "") {
-        let fixed = imageData;
-        if (imageMode !== "webcam") {
-          const canvas = document.createElement('canvas');
-          const img = new Image();
-          
-          img.onload = async () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0, img.width, img.height);
-              fixed = canvas.toDataURL('image/jpeg').replace('data:image/jpeg;base64,', '');
-              await bot.getVisionResponse(fixed);
-            }
-          };
-  
-          img.src = imageData;
-        } else {
-          const dataPrefix = `data:image/jpeg;base64,`;
-          fixed = imageData.replace(dataPrefix, "");
-          await bot.getVisionResponse(fixed);
-        }
+        const fixed = imageData.replace(`data:image/jpeg;base64,`, "");
+        await bot.getVisionResponse(fixed);
       }
-  
       setCameraDisabled(false);
     })();
-  }, [imageData, imageMode, bot]);
+  }, [imageData, bot]);
 
   const capture = useCallback(
     () => {
@@ -63,7 +41,6 @@ export function EmbeddedWebcam({
       if (imageSrc) {
         setCameraDisabled(true);
         setImageData(imageSrc);
-        setImageMode('webcam');
       }
     },
     [webcamRef]
@@ -84,11 +61,22 @@ export function EmbeddedWebcam({
 
       if (!file.type.match('image.*')) return;
 
-      setImageMode('uploader');
-
       const reader = new FileReader();
       reader.onloadend = () => {
-        const imageSrc = reader.result as string;
+        let imageSrc = reader.result as string;
+        const canvas = document.createElement('canvas');
+        const img = new Image();
+
+        img.onload = async () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+            imageSrc = canvas.toDataURL('image/jpeg');
+          }
+        };
+        
         setCameraDisabled(true);
         setImageData(imageSrc);
       };
