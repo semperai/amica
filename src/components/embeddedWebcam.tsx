@@ -63,7 +63,7 @@ export function EmbeddedWebcam({
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        let imageSrc = reader.result as string;
+        // const imageSrc = reader.result as string;
         const canvas = document.createElement('canvas');
         const img = new Image();
 
@@ -73,16 +73,13 @@ export function EmbeddedWebcam({
           const ctx = canvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(img, 0, 0, img.width, img.height);
-            imageSrc = canvas.toDataURL('image/jpeg');
+            let imageSrc = canvas.toDataURL('image/jpeg');
+            setCameraDisabled(true);
+            setImageData(imageSrc);
           }
         };
-        
-        setCameraDisabled(true);
-        setImageData(imageSrc);
       };
       reader.readAsDataURL(file);
-
-      event.target.value = "";
     }, []);
 
 
