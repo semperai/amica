@@ -81,7 +81,7 @@ export function EmbeddedWebcam({
               ctx.drawImage(img, 0, 0, img.width, img.height);
               const newImageData = canvas.toDataURL('image/jpeg');
               setCameraDisabled(true);
-              setImageData(imageSrc);
+              setImageData(newImageData);
             }
           };
         }
@@ -112,6 +112,7 @@ export function EmbeddedWebcam({
           )}
           {cameraDisabled && (
             <img
+              ref={imgRef}
               src={imageData}
               alt="Captured image"
               width={320}
