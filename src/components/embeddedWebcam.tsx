@@ -16,6 +16,7 @@ export function EmbeddedWebcam({
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [cameraDisabled, setCameraDisabled] = useState(false);
   const [imageData, setImageData] = useState("");
+  const imgRef = useRef<HTMLImageElement>(null);
 
   useKeyboardShortcut("Escape", () => {
     setWebcamEnabled(false);
@@ -61,24 +62,29 @@ export function EmbeddedWebcam({
 
       if (!file.type.match('image.*')) return;
 
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const imageSrc = reader.result as string;
-        const img = new Image();
-        img.src = imageSrc; 
+        // const img = new Image();
+        // img.src = imageSrc; 
+        if (imgRef.current) {
+          imgRef.current!.src = imageSrc;
+          const img = imgRef.current;
 
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, 320, 240);
-            const newImageData = canvas.toDataURL('image/jpeg');
-            setCameraDisabled(true);
-            setImageData(newImageData);
-          }
-        };
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, img.width, img.height);
+              const newImageData = canvas.toDataURL('image/jpeg');
+              setCameraDisabled(true);
+              setImageData(imageSrc);
+            }
+          };
+        }
       };
       reader.readAsDataURL(file);
     }, []);
