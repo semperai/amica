@@ -16,6 +16,7 @@ export function EmbeddedWebcam({
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [cameraDisabled, setCameraDisabled] = useState(false);
   const [imageData, setImageData] = useState("");
+  const [imageMode, setImageMode] = useState<"webcam" | "uploader">("webcam");
   const imgRef = useRef<HTMLImageElement>(null);
 
   useKeyboardShortcut("Escape", () => {
@@ -25,12 +26,40 @@ export function EmbeddedWebcam({
   useEffect(() => {
     (async () => {
       if (imageData !== "") {
-        const fixed = imageData.replace(`data:image/jpeg;base64,`, "");
-        await bot.getVisionResponse(fixed);
+        let fixed = imageData;
+        if (imageMode !== "webcam") {
+          const canvas = document.createElement('canvas');
+          canvas.width = imgRef.current!.width;
+          canvas.height = imgRef.current!.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            const img = new Image();
+
+            const loadImage = () => {
+              return new Promise<void>((resolve, reject) => {
+                img.onload = () => {
+                  ctx.drawImage(img, 0, 0, img.width, img.height);
+                  resolve();
+                };
+                img.onerror = reject;
+                img.src = imageData;
+              });
+            };
+
+            await loadImage();
+            fixed = canvas.toDataURL('image/jpeg').replace('data:image/jpeg;base64,', '');
+            await bot.getVisionResponse(fixed);
+          }
+        } else {
+          const dataPrefix = `data:image/jpeg;base64,`;
+          fixed = imageData.replace(dataPrefix, "");
+          await bot.getVisionResponse(fixed);
+        }
       }
+
       setCameraDisabled(false);
     })();
-  }, [imageData, bot]);
+  }, [imageData, imageMode, bot]);
 
   const capture = useCallback(
     () => {
@@ -42,6 +71,7 @@ export function EmbeddedWebcam({
       if (imageSrc) {
         setCameraDisabled(true);
         setImageData(imageSrc);
+        setImageMode('webcam');
       }
     },
     [webcamRef]
@@ -62,31 +92,16 @@ export function EmbeddedWebcam({
 
       if (!file.type.match('image.*')) return;
 
+      setImageMode('uploader');
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        const imageSrc = reader.result as string;
-        // const img = new Image();
-        // img.src = imageSrc; 
-        if (imgRef.current) {
-          imgRef.current!.src = imageSrc;
-          const img = imgRef.current;
-
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0, img.width, img.height);
-              const newImageData = canvas.toDataURL('image/jpeg');
-              setCameraDisabled(true);
-              setImageData(newImageData);
-            }
-          };
-        }
+        let imageSrc = reader.result as string;
+        setCameraDisabled(true);
+        setImageData(imageSrc);
       };
       reader.readAsDataURL(file);
+
     }, []);
 
 
