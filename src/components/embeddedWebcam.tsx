@@ -38,7 +38,7 @@ export function EmbeddedWebcam({
             const loadImage = () => {
               return new Promise<void>((resolve, reject) => {
                 img.onload = () => {
-                  ctx.drawImage(img, 0, 0, img.width, img.height);
+                  ctx.drawImage(img, 0, 0, imgRef.current!.width, imgRef.current!.height);
                   resolve();
                 };
                 img.onerror = reject;
