@@ -5,6 +5,7 @@ export type ProcessResponseRetVal = {
   aiTextLog: string;
   receivedMessage: string;
   tag: string;
+  rolePlay: string;
   shouldBreak: boolean;
 }
 
@@ -17,12 +18,14 @@ export function processResponse({
   aiTextLog,
   receivedMessage,
   tag,
+  rolePlay,
   callback,
 }: {
   sentences: string[],
   aiTextLog: string,
   receivedMessage: string,
   tag: string,
+  rolePlay: string,
   callback: (aiTalks: Screenplay[]) => boolean,
 }): ProcessResponseRetVal {
   let shouldBreak = false;
@@ -32,6 +35,13 @@ export function processResponse({
   if (tagMatch && tagMatch[0]) {
     tag = tagMatch[0];
     receivedMessage = receivedMessage.slice(tag.length);
+  }
+
+  // Detection of role play part of reply content e.g. *smiling nervously*
+  const rolePlayMatch = receivedMessage.match(/\*(.*?)\*/);
+  if (rolePlayMatch && rolePlayMatch[0]) {
+    rolePlay = rolePlayMatch[0];
+    receivedMessage = receivedMessage.replace(rolePlay, '');
   }
 
   // Cut out and process the response sentence by sentence
@@ -58,6 +68,7 @@ export function processResponse({
         aiTextLog,
         receivedMessage,
         tag,
+        rolePlay,
         shouldBreak,
       }
     }
@@ -74,6 +85,7 @@ export function processResponse({
     aiTextLog,
     receivedMessage,
     tag,
+    rolePlay,
     shouldBreak,
   }
 }
