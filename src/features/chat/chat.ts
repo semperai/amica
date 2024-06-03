@@ -10,16 +10,18 @@ import { getWindowAiChatResponseStream } from './windowAiChat';
 import { getOllamaChatResponseStream, getOllamaVisionChatResponse } from './ollamaChat';
 import { getKoboldAiChatResponseStream } from './koboldAiChat';
 
-import { piper} from "@/features/piper/piper";
+import { piper } from "@/features/piper/piper";
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { localXTTSTTS} from "@/features/localXTTS/localXTTS";
+import { AmicaLife } from '@/features/amicaLife/amicaLife';
 import { config } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
+import { isCharacterIdle } from "@/utils/isIdle";
 
 type Speak = {
   audioBuffer: ArrayBuffer|null;
@@ -52,6 +54,8 @@ export class Chat {
   public reader: ReadableStreamDefaultReader<Uint8Array>|null;
   public readers: ReadableStreamDefaultReader<Uint8Array>[];
 
+  private amicaLife: AmicaLife;
+
   // process these immediately as they come in and add to audioToPlay
   public ttsJobs: Queue<TTSJob>;
 
@@ -68,6 +72,8 @@ export class Chat {
 
   private currentStreamIdx: number;
 
+  private idleFlag: boolean;
+
   constructor() {
     this.initialized = false;
 
@@ -76,6 +82,7 @@ export class Chat {
     this.streams = [];
     this.readers = [];
 
+    this.amicaLife = new AmicaLife(this);
     this.ttsJobs = new Queue<TTSJob>();
     this.speakJobs = new Queue<Speak>();
 
@@ -86,6 +93,8 @@ export class Chat {
     this.currentStreamIdx = 0;
 
     this.lastAwake = 0;
+
+    this.idleFlag = false;
   }
 
   public initialize(
@@ -124,13 +133,12 @@ export class Chat {
   }
 
   public isAwake() {
-    let sinceLastAwakeSec = ((new Date()).getTime() - this.lastAwake) / 1000;
-    let timeBeforeIdleSec = parseInt(config("wake_word_time_before_idle_sec"));
-    return sinceLastAwakeSec  < timeBeforeIdleSec;
+    return !isCharacterIdle(this.lastAwake);
   }
 
   public updateAwake() {
     this.lastAwake = (new Date()).getTime();
+    console.log("updateAwake")
   }
 
   public async processTtsJobs() {
@@ -173,7 +181,6 @@ export class Chat {
         }
         console.debug('processing speak');
 
-
         if((window as any).chatvrm_latency_tracker) {
           if((window as any).chatvrm_latency_tracker.active) {
             const ms = +(new Date)-(window as any).chatvrm_latency_tracker.start;
@@ -182,12 +189,14 @@ export class Chat {
           };
         }
 
-        this.bubbleMessage('assistant', speak.screenplay.talk.message);
+        !this.idleFlag ? this.bubbleMessage('assistant', speak.screenplay.talk.message) : null;
+
         if (speak.audioBuffer) {
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);
           this.updateAwake();
         }
       } while (this.speakJobs.size() > 0);
+      this.isAwake() ? this.amicaLife.stopIdleLoop() : this.amicaLife.startIdleLoop();
       await wait(50);
     }
   }
@@ -218,6 +227,11 @@ export class Chat {
     }
 
     if (role === 'assistant') {
+      // add space if there is already a partial message and in case of idleLoopRunning
+      if (this.currentAssistantMessage !== '' && this.amicaLife.isIdleLoopRunningStatus()) {
+        this.currentAssistantMessage += ' ';
+      }
+
       this.currentAssistantMessage += text;
       this.setUserMessage!("");
       this.setAssistantMessage!(this.currentAssistantMessage);
@@ -264,14 +278,16 @@ export class Chat {
   }
 
   // this happens either from text or from voice / whisper completion
-  public async receiveMessageFromUser(message: string) {
-    console.log('receiveMessageFromUser', message)
+  public async receiveMessage(message: string, role:  Role) {
+    console.log('receiveMessage', message, 'from ',role);
     if (message === null || message === "") {
       return;
     }
     if (config("wake_word_enabled")) {
       this.updateAwake();
     }
+
+    this.updateAwake();
 
     console.time('performance_interrupting');
     console.debug('interrupting...');
@@ -280,23 +296,35 @@ export class Chat {
     await wait(0);
     console.debug('wait complete');
 
-    this.bubbleMessage!('user', message);
+    if (role === "user") {
+      this.bubbleMessage("user",message);
+      this.idleFlag = false;
+    } else {
+      this.bubbleMessage("assistant",message)
+      this.idleFlag = true;
+    }
+
+    let currentMessage = role === "user" ? this.currentUserMessage : this.currentAssistantMessage;
 
     // make new stream
     const messages: Message[] = [
       { role: "system", content: config("system_prompt") },
       ...this.messageList!,
-      { role: "user", content: this.currentUserMessage},
+      { role: role, content: currentMessage},
     ];
     console.debug('messages', messages);
 
-    await this.makeAndHandleStream(messages);
+    await this.makeAndHandleStream(messages, role);
   }
 
 
-  public async makeAndHandleStream(messages: Message[]) {
+  public async makeAndHandleStream(messages: Message[], role: Role) {
     try {
-      this.streams.push(await this.getChatResponseStream(messages));
+      let responseStream = role === "user"
+        ? await this.getChatResponseStream(messages)
+        : await getEchoChatResponseStream(messages);
+
+      this.streams.push(responseStream);
     } catch(e: any) {
       const errMsg = e.toString();
       console.error(errMsg);
@@ -391,6 +419,7 @@ export class Chat {
         if (proc.shouldBreak) {
           break;
         }
+        
       }
     } catch (e: any) {
       const errMsg = e.toString();
@@ -511,7 +540,7 @@ export class Chat {
           role: "user",
           content: `This is a picture I just took from my webcam (described between [[ and ]] ): [[${res}]] Please respond accordingly and as if it were just sent and as though you can see it.`,
         },
-      ]);
+      ],"user");
     } catch (e: any) {
       console.error("getVisionResponse", e.toString());
       this.alert?.error("Failed to get vision response", e.toString());

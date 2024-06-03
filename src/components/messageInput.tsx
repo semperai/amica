@@ -130,7 +130,7 @@ export default function MessageInput({
 
     if (config("autosend_from_mic") === 'true') {
         if (!wakeWordEnabled || bot.isAwake()) {
-        bot.receiveMessageFromUser(text);
+        bot.receiveMessage(text,"user");
       }
     } else {
       setUserMessage(text);
@@ -163,7 +163,7 @@ export default function MessageInput({
   }, [whisperCppOutput]);
 
   function clickedSendButton() {
-    bot.receiveMessageFromUser(userMessage);
+    bot.receiveMessage(userMessage,"user");
     // only if we are using non-VAD mode should we focus on the input
     if (! vad.listening) {
       inputRef.current?.focus();
