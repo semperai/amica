@@ -2,7 +2,7 @@ const defaults = {
   autosend_from_mic: 'true',
   wake_word_enabled: 'false',
   wake_word: 'Hey Amica',
-  wake_word_time_before_idle_sec: '60',
+  time_before_idle_sec: '20',
   debug_gfx: 'false',
   language: 'en',
   show_introduction: 'true',

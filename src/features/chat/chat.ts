@@ -138,7 +138,6 @@ export class Chat {
 
   public updateAwake() {
     this.lastAwake = (new Date()).getTime();
-    console.log("updateAwake")
   }
 
   public async processTtsJobs() {
@@ -189,14 +188,14 @@ export class Chat {
           };
         }
 
-        !this.idleFlag ? this.bubbleMessage('assistant', speak.screenplay.talk.message) : null;
+        this.idleFlag ? null : this.bubbleMessage('assistant', speak.screenplay.talk.message);
 
         if (speak.audioBuffer) {
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);
           this.updateAwake();
         }
       } while (this.speakJobs.size() > 0);
-      this.isAwake() ? this.amicaLife.stopIdleLoop() : this.amicaLife.startIdleLoop();
+      !this.isAwake() ? this.amicaLife.startIdleLoop() : null;
       await wait(50);
     }
   }
@@ -227,14 +226,23 @@ export class Chat {
     }
 
     if (role === 'assistant') {
-      // add space if there is already a partial message and in case of idleLoopRunning
-      if (this.currentAssistantMessage !== '' && this.amicaLife.isIdleLoopRunningStatus()) {
-        this.currentAssistantMessage += ' ';
-      }
+      // adding new bubble message when AmicaLife event is running
+      if (this.currentAssistantMessage !== '' && this.idleFlag) {
+        this.messageList!.push({
+          role: "assistant",
+          content: this.currentAssistantMessage,
+        });
 
-      this.currentAssistantMessage += text;
-      this.setUserMessage!("");
-      this.setAssistantMessage!(this.currentAssistantMessage);
+        this.currentAssistantMessage = text;
+        this.setUserMessage!("");
+        this.setAssistantMessage!(this.currentAssistantMessage);
+
+      } else {
+        this.currentAssistantMessage += text;
+        this.setUserMessage!("");
+        this.setAssistantMessage!(this.currentAssistantMessage);
+
+      }
 
       if (this.currentUserMessage !== '') {
         this.messageList!.push({
@@ -287,8 +295,6 @@ export class Chat {
       this.updateAwake();
     }
 
-    this.updateAwake();
-
     console.time('performance_interrupting');
     console.debug('interrupting...');
     await this.interrupt();
@@ -297,11 +303,13 @@ export class Chat {
     console.debug('wait complete');
 
     if (role === "user") {
-      this.bubbleMessage("user",message);
+      this.updateAwake();
       this.idleFlag = false;
+      this.amicaLife.stopIdleLoop();
+      this.bubbleMessage("user",message);
     } else {
-      this.bubbleMessage("assistant",message)
       this.idleFlag = true;
+      this.bubbleMessage("assistant",message)
     }
 
     let currentMessage = role === "user" ? this.currentUserMessage : this.currentAssistantMessage;

@@ -24,7 +24,7 @@ export type Talk = {
 };
 
 const emotions = ["neutral", "happy", "angry", "sad", "relaxed"] as const;
-type EmotionType = (typeof emotions)[number] & VRMExpressionPresetName;
+export type EmotionType = (typeof emotions)[number] & VRMExpressionPresetName;
 
 /**
  * A set that includes utterances, voice emotions, and model emotional expressions.

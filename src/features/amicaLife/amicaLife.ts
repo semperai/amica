@@ -3,11 +3,11 @@ import { Message } from "@/features/chat/messages";
 import { Chat } from "@/features/chat/chat";
 
 
-const intervalRange: [number, number] = [ 5 , 7 ];
+const intervalRange: [number, number] = [ 7 , 12 ];
 
 const idleEvents = ["idleText"/*,"fnCalling"*/] as const;
 
-const idleMessages = [ "I am ignoring you!", "tell me a joke!", "Speak to me about a topic you are interested in.", "I just poked you!" ] as const;
+const idleMessages = [ "[angry] I am ignoring you!", "[happy] Tell me a joke!", "[relaxed] Speak to me about a topic you are interested in.", "[sad] I just poked you!" ] as const;
 
 export type IdleEvents = (typeof idleEvents)[number];
 
@@ -20,11 +20,13 @@ export class AmicaLife {
    
     public mainEvents: Queue<AmicaLifeEvents>;
     private isIdleLoopRunning: boolean;
+    private isFirstCall: boolean;
     private chat: Chat | null;
 
     constructor(chat: Chat) {
         this.mainEvents = new Queue<AmicaLifeEvents>();
         this.isIdleLoopRunning = false;
+        this.isFirstCall = true;
         this.chat = chat;
         this.initializeDefaultEvents(); 
     }
@@ -40,13 +42,14 @@ export class AmicaLife {
         defaultEvents.forEach(event => this.mainEvents.enqueue(event));
     }
 
-    public isIdleLoopRunningStatus() {
-        return this.isIdleLoopRunning;
-    }
-
     public async startIdleLoop() {
         if (this.isIdleLoopRunning) {
             return; 
+        }
+
+        if (this.isFirstCall) {
+            this.isFirstCall = false;
+            return;
         }
 
         this.isIdleLoopRunning = true;
@@ -74,7 +77,6 @@ export class AmicaLife {
 
     public stopIdleLoop() {
         this.isIdleLoopRunning = false;
-        console.log("Stopping idle loop");
     }
 
     private async handleIdleEvent(event: AmicaLifeEvents) {

@@ -122,7 +122,7 @@ export const Settings = ({
   const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
   const [sttWakeWordEnabled, setSTTWakeWordEnabled] = useState<boolean>(config("wake_word_enabled") === 'true' ? true : false);
   const [sttWakeWord, setSTTWakeWord] = useState(config("wake_word"));
-  const [sttWakeWordIdleTime, setSTTWakeWordIdleTime] = useState<number>(parseInt(config("wake_word_time_before_idle_sec")));
+  const [sttWakeWordIdleTime, setSTTWakeWordIdleTime] = useState<number>(parseInt(config("time_before_idle_sec")));
   
   const [whisperOpenAIUrl, setWhisperOpenAIUrl] = useState(config("openai_whisper_url"));
   const [whisperOpenAIApiKey, setWhisperOpenAIApiKey] = useState(config("openai_whisper_apikey"));

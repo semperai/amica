@@ -67,7 +67,7 @@ export function STTWakeWordSettingsPage({
                                     max={60 * 60}
                                     onChange={(event: React.ChangeEvent<any>) => {
                                         setSTTWakeWordIdleTime(event.target.value);
-                                        updateConfig("wake_word_time_before_idle_sec", event.target.value);
+                                        updateConfig("time_before_idle_sec", event.target.value);
                                         setSettingsUpdated(true);
                                     }}
                                 />
