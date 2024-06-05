@@ -72,8 +72,6 @@ export class Chat {
 
   private currentStreamIdx: number;
 
-  private idleFlag: boolean;
-
   constructor() {
     this.initialized = false;
 
@@ -93,8 +91,6 @@ export class Chat {
     this.currentStreamIdx = 0;
 
     this.lastAwake = 0;
-
-    this.idleFlag = false;
   }
 
   public initialize(
@@ -130,6 +126,12 @@ export class Chat {
     this.setAssistantMessage!(this.currentAssistantMessage);
     this.setUserMessage!(this.currentAssistantMessage);
     this.currentStreamIdx++;
+  }
+
+  public handlePoked() {
+    if (!this.isAwake() && config("amica_life_enabled") === "true") {
+      this.receiveMessageFromUser("I just poked you!",true);
+    }
   }
 
   public isAwake() {
@@ -188,14 +190,14 @@ export class Chat {
           };
         }
 
-        this.idleFlag ? null : this.bubbleMessage('assistant', speak.screenplay.talk.message);
+        this.bubbleMessage("assistant",speak.screenplay.talk.message);
 
         if (speak.audioBuffer) {
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);
-          this.updateAwake();
+          this.isAwake() ? this.updateAwake() : null;
         }
       } while (this.speakJobs.size() > 0);
-      !this.isAwake() ? this.amicaLife.startIdleLoop() : null;
+      config("amica_life_enabled") === "true" && !this.isAwake() ? this.amicaLife.startIdleLoop() : null;
       await wait(50);
     }
   }
@@ -226,22 +228,20 @@ export class Chat {
     }
 
     if (role === 'assistant') {
-      // adding new bubble message when AmicaLife event is running
-      if (this.currentAssistantMessage !== '' && this.idleFlag) {
+      if (this.currentAssistantMessage != '' && !this.isAwake() && config("amica_life_enabled") === 'true') {
         this.messageList!.push({
           role: "assistant",
           content: this.currentAssistantMessage,
         });
 
-        this.currentAssistantMessage = text;
-        this.setUserMessage!("");
-        this.setAssistantMessage!(this.currentAssistantMessage);
+        console.log("got in the bubbleMessage")
 
+        this.currentAssistantMessage = text;
+        this.setAssistantMessage!(this.currentAssistantMessage);
       } else {
         this.currentAssistantMessage += text;
         this.setUserMessage!("");
         this.setAssistantMessage!(this.currentAssistantMessage);
-
       }
 
       if (this.currentUserMessage !== '') {
@@ -286,53 +286,43 @@ export class Chat {
   }
 
   // this happens either from text or from voice / whisper completion
-  public async receiveMessage(message: string, role:  Role) {
-    console.log('receiveMessage', message, 'from ',role);
+  public async receiveMessageFromUser(message: string, amicaLife: boolean) {
+    console.log('receiveMessageFromUser', message);
     if (message === null || message === "") {
       return;
     }
-    if (config("wake_word_enabled")) {
+    if (config("wake_word_enabled") === 'true') {
       this.updateAwake();
     }
 
     console.time('performance_interrupting');
     console.debug('interrupting...');
-    await this.interrupt();
+    await this.interrupt(); 
     console.timeEnd('performance_interrupting');
     await wait(0);
     console.debug('wait complete');
 
-    if (role === "user") {
+    if (!amicaLife || config("amica_life_enabled") === 'false') {
       this.updateAwake();
-      this.idleFlag = false;
       this.amicaLife.stopIdleLoop();
       this.bubbleMessage("user",message);
-    } else {
-      this.idleFlag = true;
-      this.bubbleMessage("assistant",message)
-    }
-
-    let currentMessage = role === "user" ? this.currentUserMessage : this.currentAssistantMessage;
+    } 
 
     // make new stream
     const messages: Message[] = [
       { role: "system", content: config("system_prompt") },
       ...this.messageList!,
-      { role: role, content: currentMessage},
+      { role: "user", content: amicaLife ? message : this.currentUserMessage},
     ];
     console.debug('messages', messages);
 
-    await this.makeAndHandleStream(messages, role);
+    await this.makeAndHandleStream(messages);
   }
 
 
-  public async makeAndHandleStream(messages: Message[], role: Role) {
+  public async makeAndHandleStream(messages: Message[]) {
     try {
-      let responseStream = role === "user"
-        ? await this.getChatResponseStream(messages)
-        : await getEchoChatResponseStream(messages);
-
-      this.streams.push(responseStream);
+      this.streams.push(await this.getChatResponseStream(messages));
     } catch(e: any) {
       const errMsg = e.toString();
       console.error(errMsg);
@@ -548,7 +538,7 @@ export class Chat {
           role: "user",
           content: `This is a picture I just took from my webcam (described between [[ and ]] ): [[${res}]] Please respond accordingly and as if it were just sent and as though you can see it.`,
         },
-      ],"user");
+      ]);
     } catch (e: any) {
       console.error("getVisionResponse", e.toString());
       this.alert?.error("Failed to get vision response", e.toString());

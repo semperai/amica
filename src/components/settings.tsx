@@ -61,6 +61,7 @@ import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
 import { NamePage } from './settings/NamePage';
 import { SystemPromptPage } from './settings/SystemPromptPage';
+import { AmicaLifePage } from "./settings/AmicaLifePage";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 
 export const Settings = ({
@@ -122,12 +123,16 @@ export const Settings = ({
   const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
   const [sttWakeWordEnabled, setSTTWakeWordEnabled] = useState<boolean>(config("wake_word_enabled") === 'true' ? true : false);
   const [sttWakeWord, setSTTWakeWord] = useState(config("wake_word"));
-  const [sttWakeWordIdleTime, setSTTWakeWordIdleTime] = useState<number>(parseInt(config("time_before_idle_sec")));
   
   const [whisperOpenAIUrl, setWhisperOpenAIUrl] = useState(config("openai_whisper_url"));
   const [whisperOpenAIApiKey, setWhisperOpenAIApiKey] = useState(config("openai_whisper_apikey"));
   const [whisperOpenAIModel, setWhisperOpenAIModel] = useState(config("openai_whisper_model"));
   const [whisperCppUrl, setWhisperCppUrl] = useState(config("whispercpp_url"));
+
+  const [amicaLifeEnabled,setAmicaLifeEnabled] = useState<boolean>(config("amica_life_enabled") === 'true' ? true : false);
+  const [timeBeforeIdle, setTimeBeforeIdle] = useState<number>(parseInt(config("time_before_idle_sec")));
+  const [minTimeInterval,setMinTimeInterval] = useState<number>(parseInt(config("min_time_interval_sec")));
+  const [maxTimeInterval, setMaxTimeInterval] = useState<number>(parseInt(config("max_time_interval_sec")));
 
   const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
@@ -226,9 +231,10 @@ export const Settings = ({
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
+    amicaLifeEnabled,timeBeforeIdle,minTimeInterval,maxTimeInterval,
     name,
     systemPrompt,
-    sttWakeWordEnabled, sttWakeWord, sttWakeWordIdleTime
+    sttWakeWordEnabled, sttWakeWord,
   ]);
 
 
@@ -251,7 +257,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        keys={["chatbot_backend", "amica_life" ,"name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'tts':
@@ -438,10 +444,10 @@ export const Settings = ({
       return <STTWakeWordSettingsPage
         sttWakeWordEnabled={sttWakeWordEnabled}
         sttWakeWord={sttWakeWord}
-        sttWakeWordIdleTime={sttWakeWordIdleTime}
+        timeBeforeIdle={timeBeforeIdle}
         setSTTWakeWordEnabled={setSTTWakeWordEnabled}
         setSTTWakeWord={setSTTWakeWord}
-        setSTTWakeWordIdleTime={setSTTWakeWordIdleTime}
+        setTimeBeforeIdle={setTimeBeforeIdle}
         setSettingsUpdated={setSettingsUpdated}
         />
 
@@ -507,6 +513,19 @@ export const Settings = ({
       return <NamePage
         name={name}
         setName={setName}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'amica_life':
+      return <AmicaLifePage
+        amicaLifeEnabled={amicaLifeEnabled}
+        timeBeforeIdle={timeBeforeIdle}
+        minTimeInterval={minTimeInterval}
+        maxTimeInterval={maxTimeInterval}
+        setAmicaLifeEnabled={setAmicaLifeEnabled}
+        setTimeBeforeIdle={setTimeBeforeIdle}
+        setMinTimeInterval={setMinTimeInterval}
+        setMaxTimeInterval={setMaxTimeInterval}
         setSettingsUpdated={setSettingsUpdated}
         />
 

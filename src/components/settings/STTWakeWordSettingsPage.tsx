@@ -10,18 +10,18 @@ import { NumberInput } from '../numberInput';
 export function STTWakeWordSettingsPage({
     sttWakeWordEnabled,
     sttWakeWord,
-    sttWakeWordIdleTime,
+    timeBeforeIdle,
     setSTTWakeWordEnabled,
     setSTTWakeWord,
-    setSTTWakeWordIdleTime,
+    setTimeBeforeIdle,
     setSettingsUpdated,
 }: {
     sttWakeWordEnabled: boolean;
     sttWakeWord: string;
-    sttWakeWordIdleTime: number;
+    timeBeforeIdle: number;
     setSTTWakeWordEnabled: (wakeWordEnabled: boolean) => void;
     setSTTWakeWord: (wakeWord: string) => void;
-    setSTTWakeWordIdleTime: (timeBeforeIdle: number) => void;
+    setTimeBeforeIdle: (timeBeforeIdle: number) => void;
     setSettingsUpdated: (updated: boolean) => void;
 }) {
     const { t } = useTranslation();
@@ -62,11 +62,11 @@ export function STTWakeWordSettingsPage({
                         <li className="py-4">
                             <FormRow label={`${t("Set time before bot go idle")}(${t("sec")})`}>
                                 <NumberInput
-                                    value={sttWakeWordIdleTime}
+                                    value={timeBeforeIdle}
                                     min={0}
                                     max={60 * 60}
                                     onChange={(event: React.ChangeEvent<any>) => {
-                                        setSTTWakeWordIdleTime(event.target.value);
+                                        setTimeBeforeIdle(event.target.value);
                                         updateConfig("time_before_idle_sec", event.target.value);
                                         setSettingsUpdated(true);
                                     }}
