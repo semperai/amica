@@ -26,7 +26,7 @@ const emotions = ["neutral", "happy", "angry", "sad", "relaxed", "Surprised"] as
 // type EmotionType = (typeof emotions)[number];
 
 //Name of all the expression in the vrm can 
-export const emotionNames: string[] = [] as const;
+export const emotionNames: readonly string[] = [] as const;
 console.log(emotionNames);
 type EmotionType = (typeof emotionNames)[number];
 
