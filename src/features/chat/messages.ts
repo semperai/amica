@@ -22,7 +22,10 @@ export type Talk = {
   message: string;
 };
 
-const emotions = ["neutral", "happy", "angry", "sad", "relaxed", "Surprised"] as const;
+const emotions = 
+["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
+"Shy", "Jealous", "Bored", "Serious", "Sus", "Victory", "Wavehand",
+"Sorrow", "Sleep", "shakeHead", "NodHead", "Love", "Dance"] as const;
 // type EmotionType = (typeof emotions)[number];
 
 //Name of all the expression in the vrm can 
@@ -53,18 +56,10 @@ export const textsToScreenplay = (
     const message = text.replace(/\[(.*?)\]/g, "");
 
     let expression = prevExpression;
-    if (emotionNames.length > 0) { 
-      if (emotionNames.includes(tag as any)) {
-        expression = tag;
-        prevExpression = tag;
-      }
-    } else {
-      if (emotions.includes(tag as any)) {
-        expression = tag;
-        prevExpression = tag;
-      }
+    if (emotions.includes(tag as any)) {
+      expression = tag;
+      prevExpression = tag;
     }
-    
 
     screenplays.push({
       expression: expression as EmotionType,
