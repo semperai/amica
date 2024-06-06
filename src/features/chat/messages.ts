@@ -1,4 +1,3 @@
-
 export type Role = "assistant" | "system" | "user";
 
 // ChatGPT API
@@ -22,16 +21,17 @@ export type Talk = {
   message: string;
 };
 
+//Name of all the expression in the vrm can 
+export const emotionNames: string[] = [];
+console.log(emotionNames);
+
+// const emotions = ["neutral", "happy", "angry", "sad", "relaxed", "Surprised"] as const;
 const emotions = 
 ["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
 "Shy", "Jealous", "Bored", "Serious", "Sus", "Victory", "Wavehand",
 "Sorrow", "Sleep", "shakeHead", "NodHead", "Love", "Dance"] as const;
-type EmotionType = (typeof emotions)[number];
 
-//Name of all the expression in the vrm can 
-export const emotionNames: string[] = [] as const;
-console.log(emotionNames);
-// type EmotionType = (typeof emotionNames)[number];
+type EmotionType = (typeof emotions)[number];
 
 /**
  * A set that includes utterances, voice emotions, and model emotional expressions.
