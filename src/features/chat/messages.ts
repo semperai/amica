@@ -26,12 +26,12 @@ const emotions =
 ["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
 "Shy", "Jealous", "Bored", "Serious", "Sus", "Victory", "Wavehand",
 "Sorrow", "Sleep", "shakeHead", "NodHead", "Love", "Dance"] as const;
-// type EmotionType = (typeof emotions)[number];
+type EmotionType = (typeof emotions)[number];
 
 //Name of all the expression in the vrm can 
 export const emotionNames: readonly string[] = [] as const;
 console.log(emotionNames);
-type EmotionType = (typeof emotionNames)[number];
+// type EmotionType = (typeof emotionNames)[number];
 
 /**
  * A set that includes utterances, voice emotions, and model emotional expressions.
