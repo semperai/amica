@@ -6,6 +6,7 @@ import {
 } from "@pixiv/three-vrm";
 import { AutoLookAt } from "./autoLookAt";
 import { AutoBlink } from "./autoBlink";
+import { emotionNames } from "@/features/chat/messages";
 
 /**
  * Expressionを管理するクラス
@@ -17,22 +18,41 @@ export class ExpressionController {
   private _autoLookAt: AutoLookAt;
   private _autoBlink?: AutoBlink;
   private _expressionManager?: VRMExpressionManager;
-  private _currentEmotion: VRMExpressionPresetName;
+  private _currentEmotion: VRMExpressionPresetName | string;
   private _currentLipSync: {
-    preset: VRMExpressionPresetName;
+    preset: VRMExpressionPresetName | string;
     value: number;
   } | null;
   constructor(vrm: VRM, camera: THREE.Object3D) {
     this._autoLookAt = new AutoLookAt(vrm, camera);
     this._currentEmotion = "neutral";
     this._currentLipSync = null;
+    this.registerExpression(vrm)
     if (vrm.expressionManager) {
       this._expressionManager = vrm.expressionManager;
       this._autoBlink = new AutoBlink(vrm.expressionManager);
     }
   }
 
-  public playEmotion(preset: VRMExpressionPresetName) {
+  public registerExpression(vrm: VRM) {
+    const expressionManager = vrm.expressionManager;
+    if (!expressionManager) return;
+  
+    const { expressionMap: allExpressions, presetExpressionMap: presetExpressions } = expressionManager;
+    const oddExpressions = Object.keys(allExpressions).filter(key => !(key in presetExpressions));
+  
+    oddExpressions.forEach(expressionName => {
+      const expression = allExpressions[expressionName];
+      if (expression) expressionManager.registerExpression(expression);
+    });
+
+    const allExpressionNames = Object.keys(allExpressions);
+    emotionNames.push(...allExpressionNames);
+
+    return allExpressionNames;
+  }
+
+  public playEmotion(preset: VRMExpressionPresetName | string) {
     if (this._currentEmotion != "neutral") {
       this._expressionManager?.setValue(this._currentEmotion, 0);
     }
@@ -50,7 +70,7 @@ export class ExpressionController {
     }, t * 1000);
   }
 
-  public lipSync(preset: VRMExpressionPresetName, value: number) {
+  public lipSync(preset: VRMExpressionPresetName | string, value: number) {
     if (this._currentLipSync) {
       this._expressionManager?.setValue(this._currentLipSync.preset, 0);
     }
