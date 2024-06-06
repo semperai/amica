@@ -22,13 +22,13 @@ export type Talk = {
   message: string;
 };
 
-//Name of all the expression in the vrm can 
-export const emotionNames: string[] = [];
-console.log(emotionNames);
-
 const emotions = ["neutral", "happy", "angry", "sad", "relaxed", "Surprised"] as const;
+// type EmotionType = (typeof emotions)[number];
 
-type EmotionType = (typeof emotions)[number];
+//Name of all the expression in the vrm can 
+export const emotionNames: string[] = [] as const;
+console.log(emotionNames);
+type EmotionType = (typeof emotionNames)[number];
 
 /**
  * A set that includes utterances, voice emotions, and model emotional expressions.
@@ -53,7 +53,7 @@ export const textsToScreenplay = (
     const message = text.replace(/\[(.*?)\]/g, "");
 
     let expression = prevExpression;
-    if (emotions.includes(tag as any)) {
+    if (emotionNames.includes(tag as any)) {
       expression = tag;
       prevExpression = tag;
     }

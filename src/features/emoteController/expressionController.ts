@@ -47,9 +47,7 @@ export class ExpressionController {
     });
 
     const allExpressionNames = Object.keys(allExpressions);
-
     emotionNames.push(...allExpressionNames);
-    console.log(emotionNames)
 
     return allExpressionNames;
   }
