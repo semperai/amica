@@ -29,7 +29,7 @@ const emotions =
 type EmotionType = (typeof emotions)[number];
 
 //Name of all the expression in the vrm can 
-export const emotionNames: readonly string[] = [] as const;
+export const emotionNames: string[] = [] as const;
 console.log(emotionNames);
 // type EmotionType = (typeof emotionNames)[number];
 
@@ -56,7 +56,7 @@ export const textsToScreenplay = (
     const message = text.replace(/\[(.*?)\]/g, "");
 
     let expression = prevExpression;
-    if (emotions.includes(tag as any)) {
+    if (emotionNames.includes(tag as any)) {
       expression = tag;
       prevExpression = tag;
     }
