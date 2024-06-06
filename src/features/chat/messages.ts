@@ -1,5 +1,3 @@
-import { VRMExpressionPresetName } from "@pixiv/three-vrm";
-
 export type Role = "assistant" | "system" | "user";
 
 // ChatGPT API
@@ -23,8 +21,16 @@ export type Talk = {
   message: string;
 };
 
-const emotions = ["neutral", "happy", "angry", "sad", "relaxed"] as const;
-type EmotionType = (typeof emotions)[number] & VRMExpressionPresetName;
+//Name of all the expression in the vrm 
+export const emotionNames: string[] = [];
+// console.log(emotionNames);
+
+const emotions = 
+["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
+"Shy", "Jealous", "Bored", "Serious", "Sus", "Victory", "Sorrow", 
+"Sleep", "Love"] as const;
+
+type EmotionType = (typeof emotions)[number];
 
 /**
  * A set that includes utterances, voice emotions, and model emotional expressions.
