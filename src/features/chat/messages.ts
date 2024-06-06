@@ -56,7 +56,7 @@ export const textsToScreenplay = (
     const message = text.replace(/\[(.*?)\]/g, "");
 
     let expression = prevExpression;
-    if (emotionNames.includes(tag as any)) {
+    if (emotions.includes(tag as any)) {
       expression = tag;
       prevExpression = tag;
     }
