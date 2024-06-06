@@ -28,21 +28,25 @@ export const RangeInput = ({
       <label className="flex items-center">
         <span className="mr-2 block text-small font-medium leading-6 text-gray-900">{`${t("Min")}`}</span>
         <input
-          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
+          className="w-32 block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
           type="number"
           value={min}
           onChange={handleMinChange}
           placeholder="Min"
+          min={0}
+          max={max - 1}
         />
       </label>
       <label className="flex items-center">
         <span className="mr-2 block text-small font-medium leading-6 text-gray-900">{`${t("Max")}`}</span>
         <input
-          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
+          className="w-32 block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
           type="number"
           value={max}
           onChange={handleMaxChange}
           placeholder="Max"
+          min={min + 1}
+          max={3600}
         />
       </label>
     </div>

@@ -234,8 +234,6 @@ export class Chat {
           content: this.currentAssistantMessage,
         });
 
-        console.log("got in the bubbleMessage")
-
         this.currentAssistantMessage = text;
         this.setAssistantMessage!(this.currentAssistantMessage);
       } else {

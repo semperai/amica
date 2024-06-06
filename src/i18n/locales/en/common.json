@@ -1,4 +1,8 @@
 {
+  "Amica Life": "Amica Life",
+  "Set min max interval range": "Set min max interval range",
+  "Min": "Min",
+  "Max": "Max",
   "add_to_homescreen": "Add Amica to Homescreen",
   "add_to_homescreen_desc": "Amica can be installed locally for faster loading and less UI clutter.",
   "Accept": "Accept",
