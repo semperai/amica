@@ -27,7 +27,7 @@ export const emotionNames: string[] = [];
 
 const emotions = 
 ["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
-"Shy", "Jealous", "Bored", "Serious", "Sus", "Victory", "Sorrow", 
+"Shy", "Jealous", "Bored", "Serious", "Sus", "Victory", 
 "Sleep", "Love"] as const;
 
 // Convert user input to system format e.g. ["suspicious"] -> ["Sus"], ["sleep"] -> ["Sleep"]
@@ -70,8 +70,8 @@ export const textsToScreenplay = (
     const systemTag = userInputToSystem(tag);
 
     if (emotions.includes(systemTag as any)) {
-      expression = tag;
-      prevExpression = tag;
+      expression = systemTag;
+      prevExpression = systemTag;
     }
 
     screenplays.push({
