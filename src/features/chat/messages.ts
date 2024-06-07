@@ -27,13 +27,12 @@ export const emotionNames: string[] = [];
 
 const emotions = 
 ["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
-"Shy", "Jealous", "Bored", "Serious", "Sus", "Victory", 
+"Shy", "Jealous", "Bored", "Serious", "Suspicious", "Victory", 
 "Sleep", "Love"] as const;
 
 // Convert user input to system format e.g. ["suspicious"] -> ["Sus"], ["sleep"] -> ["Sleep"]
 const userInputToSystem = (input: string) => {
   const mapping: { [key: string]: string } = {
-    "suspicious": "Sus",
     ...Object.fromEntries(emotions
       .filter(e => e[0] === e[0].toUpperCase())
       .map(e => [e.toLowerCase(), e]))
