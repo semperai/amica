@@ -1,6 +1,6 @@
 import { Queue } from "typescript-collections";
 import { Chat } from "@/features/chat/chat";
-import { config } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 
 const idleEvents = [
   "I am ignoring you!",
@@ -17,6 +17,8 @@ type AmicaLifeEvents = {
 export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
   private isIdleLoopRunning: boolean;
+  private callCount: number; 
+  private readonly maxIdleTime: number = 3600;
   private isFirstCall: boolean;
   public chat: Chat | null;
 
@@ -24,8 +26,15 @@ export class AmicaLife {
     this.mainEvents = new Queue<AmicaLifeEvents>();
     this.isIdleLoopRunning = false;
     this.isFirstCall = true;
+    this.callCount = 0; 
     this.chat = chat;
     this.initializeDefaultEvents();
+  }
+
+  private updateIdleTime() {
+    const idleTimeSec = Math.min(parseInt(config("time_before_idle_sec")) * 1.5, 3600);
+    updateConfig("time_before_idle_sec",idleTimeSec.toString());
+    console.log(`Updated time before idle to ${idleTimeSec} seconds`);
   }
 
   private initializeDefaultEvents() {
@@ -42,6 +51,11 @@ export class AmicaLife {
     if (this.isFirstCall) {
       this.isFirstCall = false;
       return;
+    }
+
+    this.callCount++; 
+    if (this.callCount > 1) {
+      this.updateIdleTime();
     }
 
     this.isIdleLoopRunning = true;
