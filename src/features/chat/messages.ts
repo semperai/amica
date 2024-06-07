@@ -30,6 +30,18 @@ const emotions =
 "Shy", "Jealous", "Bored", "Serious", "Sus", "Victory", "Sorrow", 
 "Sleep", "Love"] as const;
 
+// Convert user input to system format e.g. ["suspicious"] -> ["Sus"], ["sleep"] -> ["Sleep"]
+const userInputToSystem = (input: string) => {
+  const mapping: { [key: string]: string } = {
+    "suspicious": "Sus",
+    ...Object.fromEntries(emotions
+      .filter(e => e[0] === e[0].toUpperCase())
+      .map(e => [e.toLowerCase(), e]))
+  };
+
+  return mapping[input.toLowerCase()] || input;
+};
+
 type EmotionType = (typeof emotions)[number];
 
 /**
@@ -55,7 +67,9 @@ export const textsToScreenplay = (
     const message = text.replace(/\[(.*?)\]/g, "");
 
     let expression = prevExpression;
-    if (emotions.includes(tag as any)) {
+    const systemTag = userInputToSystem(tag);
+
+    if (emotions.includes(systemTag as any)) {
       expression = tag;
       prevExpression = tag;
     }
