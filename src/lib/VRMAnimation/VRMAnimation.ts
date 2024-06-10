@@ -117,9 +117,6 @@ export class VRMAnimation {
         tracks.push(track);
       }
     }
-
-    console.log(tracks);
-
     return tracks;
   }
 

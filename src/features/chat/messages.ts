@@ -23,7 +23,7 @@ export type Talk = {
 
 //Name of all the expression in the vrm 
 export const emotionNames: string[] = [];
-// console.log(emotionNames);
+console.log("All emotion names, ",emotionNames);
 
 const emotions = 
 ["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
@@ -69,6 +69,7 @@ export const textsToScreenplay = (
     const systemTag = userInputToSystem(tag);
 
     if (emotions.includes(systemTag as any)) {
+      console.log("expression detect here :",systemTag);
       expression = systemTag;
       prevExpression = systemTag;
     }
