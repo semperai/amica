@@ -65,7 +65,7 @@ export class AmicaLife {
       while (this.isIdleLoopRunning) {
         // Random chance for doing nothing (25% chance)
         if (Math.random() <= 0.25) {
-          console.log("Doing nothing this cycle");
+          console.log("Handling idle event:","Doing nothing this cycle");
           await this.wait();
           continue;
         }
@@ -75,7 +75,7 @@ export class AmicaLife {
           await this.handleIdleEvent(idleEvent);
           this.mainEvents.enqueue(idleEvent);
         } else {
-          console.log("No idle events in queue");
+          console.log("Handling idle event:","No idle events in queue");
         }
         // Wait for an interval time before processing the next event
         await this.wait();

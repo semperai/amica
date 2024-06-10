@@ -130,6 +130,7 @@ export class Chat {
 
   public handlePoked() {
     if (!this.isAwake() && config("amica_life_enabled") === "true") {
+      console.log("Handling idle event:", "I just poked you!");
       this.receiveMessageFromUser("I just poked you!",true);
     }
   }
@@ -197,7 +198,7 @@ export class Chat {
           this.isAwake() ? this.updateAwake() : null;
         }
       } while (this.speakJobs.size() > 0);
-      config("amica_life_enabled") === "true" && !this.isAwake() ? this.amicaLife.startIdleLoop() : null;
+      config("amica_life_enabled") === "true" && !this.isAwake() ? this.amicaLife.startIdleLoop() : this.amicaLife.stopIdleLoop();
       await wait(50);
     }
   }
@@ -312,7 +313,7 @@ export class Chat {
       ...this.messageList!,
       { role: "user", content: amicaLife ? message : this.currentUserMessage},
     ];
-    console.debug('messages', messages);
+    // console.debug('messages', messages);
 
     await this.makeAndHandleStream(messages);
   }
