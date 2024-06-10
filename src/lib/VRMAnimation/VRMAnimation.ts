@@ -118,6 +118,8 @@ export class VRMAnimation {
       }
     }
 
+    console.log(tracks);
+
     return tracks;
   }
 
