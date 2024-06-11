@@ -53,6 +53,10 @@ export class ExpressionController {
   }
 
   public playEmotion(preset: VRMExpressionPresetName | string) {
+    if (this._currentEmotion == preset) {
+      return;
+    }
+
     if (this._currentEmotion != "neutral") {
       this._expressionManager?.setValue(this._currentEmotion, 0);
     }
@@ -66,7 +70,7 @@ export class ExpressionController {
     const t = this._autoBlink?.setEnable(false) || 0;
     this._currentEmotion = preset;
     setTimeout(() => {
-      this._expressionManager?.setValue(preset, 1);
+      this._currentEmotion in VRMExpressionPresetName ? this._expressionManager?.setValue(preset, 1) : this._expressionManager?.setValue(preset, 0.5);
     }, t * 1000);
   }
 
