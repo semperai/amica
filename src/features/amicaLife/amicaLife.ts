@@ -43,6 +43,12 @@ export class AmicaLife {
     });
   }
 
+  public updatedIdleTime() {
+    if (this.callCount > 1) {
+      this.updateIdleTime();
+    }
+  }
+
   public async startIdleLoop() {
     if (this.isIdleLoopRunning) {
       return;
@@ -54,9 +60,6 @@ export class AmicaLife {
     }
 
     this.callCount++; 
-    if (this.callCount > 1) {
-      this.updateIdleTime();
-    }
 
     this.isIdleLoopRunning = true;
     console.log("Starting idle loop");
@@ -88,8 +91,15 @@ export class AmicaLife {
     });
   }
 
-  public stopIdleLoop() {
+  public async stopIdleLoop() {
+    // if receiving message from user and idle loop is unavailable
+    if (this.isIdleLoopRunning === false) {
+      return ;
+    }
+
     this.isIdleLoopRunning = false;
+    this.updatedIdleTime();
+    await this.chat?.interrupt();
   }
 
   public async handleIdleEvent(event: AmicaLifeEvents) {

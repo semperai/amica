@@ -198,7 +198,7 @@ export class Chat {
           this.isAwake() ? this.updateAwake() : null;
         }
       } while (this.speakJobs.size() > 0);
-      config("amica_life_enabled") === "true" && !this.isAwake() ? this.amicaLife.startIdleLoop() : this.amicaLife.stopIdleLoop();
+      config("amica_life_enabled") === "true" && !this.isAwake() ? this.amicaLife.startIdleLoop() : null;
       await wait(50);
     }
   }
@@ -303,7 +303,7 @@ export class Chat {
 
     if (!amicaLife || config("amica_life_enabled") === 'false') {
       this.updateAwake();
-      this.amicaLife.stopIdleLoop();
+      await this.amicaLife.stopIdleLoop();
       this.bubbleMessage("user",message);
     } 
 
