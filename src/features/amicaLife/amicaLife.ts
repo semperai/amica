@@ -1,6 +1,7 @@
 import { Queue } from "typescript-collections";
 import { Chat } from "@/features/chat/chat";
 import { config, updateConfig } from "@/utils/config";
+import { basename } from "@/components/settings/common";
 import { wait } from "@/utils/wait";
 import { animationList } from "@/paths";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
@@ -8,9 +9,9 @@ import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 
 const idleEvents = [
   "I am ignoring you!",
-  "Tell me a joke!",
+  "Say something funny!",
   "Speak to me about a topic you are interested in.",
-  "VRMA",
+  // "VRMA",
 ] as const;
 
 export type IdleEvents = (typeof idleEvents)[number];
@@ -148,48 +149,61 @@ export class AmicaLife {
     this.pauseFlag = false;
   }
 
-  public async handleIdleEvent(event: AmicaLifeEvents) {
-    if (event.events === "VRMA") {
-      let viewer = this.chat?.viewer;
+  // handleIdleEvent with trigger random vrma animation
 
-      // Select a random animation from the list
-      const randomAnimation =
-        animationList[Math.floor(Math.random() * animationList.length)];
-  
-      // Extract the name of the animation
-      const randomAnimationName = randomAnimation.split('/').pop()?.split('.')[0];
-      console.log("Handling idle event (animation):", randomAnimationName);
-  
-      try {
-        // Load the animation based on its type
-        const animation =
-          randomAnimation.includes("vrma")
-            ? await loadVRMAnimation(randomAnimation)
-            : await loadMixamoAnimation(randomAnimation, viewer?.model!.vrm);
-  
-        // Load and play the animation
-        // @ts-ignore
-        viewer.model!.loadAnimation(animation);
-        requestAnimationFrame(() => {
-          viewer?.resetCamera();
-        });
-      } catch (error) {
-        console.error("Error loading animation:", error);
-      }
-  
-    } else {
-      console.log("Handling idle event:", event.events);
-      try {
-        await this.chat?.receiveMessageFromUser?.(event.events, true);
-      } catch (error) {
-        console.error(
-          "Error occurred while trying to use the chat instance:",
-          error,
-        );
-      }
+  // public async handleIdleEvent(event: AmicaLifeEvents) {
+  //   if (event.events === "VRMA") {
+  //     let viewer = this.chat?.viewer;
+
+  //     // Select a random animation from the list
+  //     const randomAnimation =
+  //       animationList[Math.floor(Math.random() * animationList.length)];
+
+  //     // Extract the name of the animation
+  //     const randomAnimationName = basename(randomAnimation);
+  //     console.log("Handling idle event (animation):", randomAnimationName);
+
+  //     try {
+  //       // Load the animation based on its type
+  //       const animation =
+  //         randomAnimation.includes("vrma")
+  //           ? await loadVRMAnimation(randomAnimation)
+  //           : await loadMixamoAnimation(randomAnimation, viewer?.model!.vrm);
+
+  //       // Load and play the animation
+  //       // @ts-ignore
+  //       viewer.model!.loadAnimation(animation);
+  //       requestAnimationFrame(() => {
+  //         viewer?.resetCamera();
+  //       });
+  //     } catch (error) {
+  //       console.error("Error loading animation:", error);
+  //     }
+
+  //   } else {
+  //     console.log("Handling idle event:", event.events);
+  //     try {
+  //       await this.chat?.receiveMessageFromUser?.(event.events, true);
+  //     } catch (error) {
+  //       console.error(
+  //         "Error occurred while trying to use the chat instance:",
+  //         error,
+  //       );
+  //     }
+  //   }
+  // }
+
+  public async handleIdleEvent(event: AmicaLifeEvents) {
+    console.log("Handling idle event:", event.events);
+    try {
+      await this.chat?.receiveMessageFromUser?.(event.events, true);
+    } catch (error) {
+      console.error(
+        "Error occurred while trying to use the chat instance:",
+        error,
+      );
     }
   }
-  
 
   public async waitInterval() {
     const [minMs, maxMs] = [
