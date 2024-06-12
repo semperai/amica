@@ -5,6 +5,8 @@ import { updateConfig } from "@/utils/config";
 import { RangeInput } from '@/components/rangeInput';
 import { SwitchBox } from "@/components/switchBox"
 import { NumberInput } from '../numberInput';
+import { useContext, useEffect } from 'react';
+import { ChatContext } from '@/features/chat/chatContext';
 
 
 export function AmicaLifePage({
@@ -29,6 +31,12 @@ export function AmicaLifePage({
     setSettingsUpdated: (updated: boolean) => void;
 }) {
     const { t } = useTranslation();
+    const { chat: bot } = useContext(ChatContext);
+
+    //If settings page is on will pause amica life
+    useEffect(() => {
+        amicaLifeEnabled ? bot.triggerAmicaLife(true) : bot.triggerAmicaLife(false);
+    }, [bot,amicaLifeEnabled]);
     
     return (
         <BasicPage

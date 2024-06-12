@@ -114,6 +114,7 @@ export class Chat {
     this.processTtsJobs();
     this.processSpeakJobs();
 
+    this.amicaLife.startIdleLoop();
     this.updateAwake();
     this.initialized = true;
   }
@@ -126,6 +127,16 @@ export class Chat {
     this.setAssistantMessage!(this.currentAssistantMessage);
     this.setUserMessage!(this.currentAssistantMessage);
     this.currentStreamIdx++;
+  }
+
+  public triggerAmicaLife(flag: boolean) {
+    flag === true ? this.amicaLife.startIdleLoop() : this.amicaLife.stopIdleLoop();
+  }
+
+  public pauseAmicaLife(flag: boolean) {
+    if (config("amica_life_enabled") === "true") {
+      flag === true ? this.amicaLife.pause() : this.amicaLife.resume();
+    }
   }
 
   public handlePoked() {
@@ -198,7 +209,7 @@ export class Chat {
           this.isAwake() ? this.updateAwake() : null;
         }
       } while (this.speakJobs.size() > 0);
-      config("amica_life_enabled") === "true" && !this.isAwake() ? this.amicaLife.startIdleLoop() : null;
+      config("amica_life_enabled") === "true" ? !this.isAwake() && this.amicaLife.startIdleLoop() : null;
       await wait(50);
     }
   }
@@ -302,8 +313,8 @@ export class Chat {
     console.debug('wait complete');
 
     if (!amicaLife || config("amica_life_enabled") === 'false') {
+      await this.amicaLife.pause();
       this.updateAwake();
-      await this.amicaLife.stopIdleLoop();
       this.bubbleMessage("user",message);
     } 
 

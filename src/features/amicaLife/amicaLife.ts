@@ -1,6 +1,7 @@
 import { Queue } from "typescript-collections";
 import { Chat } from "@/features/chat/chat";
 import { config, updateConfig } from "@/utils/config";
+import { wait } from "@/utils/wait";
 
 const idleEvents = [
   "I am ignoring you!",
@@ -17,24 +18,17 @@ type AmicaLifeEvents = {
 export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
   private isIdleLoopRunning: boolean;
+  private pauseFlag: boolean;
   private callCount: number; 
-  private readonly maxIdleTime: number = 3600;
-  private isFirstCall: boolean;
   public chat: Chat | null;
 
   constructor(chat: Chat) {
     this.mainEvents = new Queue<AmicaLifeEvents>();
     this.isIdleLoopRunning = false;
-    this.isFirstCall = true;
-    this.callCount = 0; 
+    this.pauseFlag = false;
+    this.callCount = 0;
     this.chat = chat;
     this.initializeDefaultEvents();
-  }
-
-  private updateIdleTime() {
-    const idleTimeSec = Math.min(parseInt(config("time_before_idle_sec")) * 1.5, 3600);
-    updateConfig("time_before_idle_sec",idleTimeSec.toString());
-    console.log(`Updated time before idle to ${idleTimeSec} seconds`);
   }
 
   private initializeDefaultEvents() {
@@ -43,45 +37,53 @@ export class AmicaLife {
     });
   }
 
+  //update time before idle increase by 1.5 times
   public updatedIdleTime() {
-    if (this.callCount > 1) {
-      this.updateIdleTime();
+    this.callCount++;
+
+    if (this.callCount % 3 === 0 ) {
+      const idleTimeSec = Math.min(parseInt(config("time_before_idle_sec")) * 1.5, 3600);
+      updateConfig("time_before_idle_sec",idleTimeSec.toString());
+      console.log(`Updated time before idle to ${idleTimeSec} seconds`);
     }
   }
 
   public async startIdleLoop() {
     if (this.isIdleLoopRunning) {
+      if (this.pauseFlag === true) {
+        this.resume();
+      }
       return;
-    }
-
-    if (this.isFirstCall) {
-      this.isFirstCall = false;
-      return;
-    }
-
-    this.callCount++; 
+    } 
 
     this.isIdleLoopRunning = true;
     console.log("Starting idle loop");
 
+    // First, iteration does nothing  
+    await wait(parseInt(config("time_before_idle_sec")) * 1000);
+
     const processIdleEvents = async () => {
       while (this.isIdleLoopRunning) {
+        // Check for pause
+        await this.checkPause();
+
         // Random chance for doing nothing (25% chance)
         if (Math.random() <= 0.25) {
           console.log("Handling idle event:","Doing nothing this cycle");
-          await this.wait();
+          await this.waitInterval();
           continue;
         }
 
         const idleEvent = this.mainEvents.dequeue();
         if (idleEvent) {
+          this.callCount++;
           await this.handleIdleEvent(idleEvent);
           this.mainEvents.enqueue(idleEvent);
         } else {
           console.log("Handling idle event:","No idle events in queue");
         }
         // Wait for an interval time before processing the next event
-        await this.wait();
+        await this.waitInterval();
       }
     };
 
@@ -92,14 +94,35 @@ export class AmicaLife {
   }
 
   public async stopIdleLoop() {
-    // if receiving message from user and idle loop is unavailable
     if (this.isIdleLoopRunning === false) {
       return ;
     }
 
     this.isIdleLoopRunning = false;
-    this.updatedIdleTime();
+  }
+
+  public async pause() {
+    let prevFlag = this.pauseFlag;
+    // if receiving message from user and idle loop is unavailable
+    if (config("amica_life_enabled") === "false") {
+      return ;
+    }
+
+    // Updated time before idle every curve when its get ignored
+    if (prevFlag == false) {
+      this.updatedIdleTime(); 
+    }
+
     await this.chat?.interrupt();
+    this.pauseFlag = true;
+  }
+
+  public resume() {
+    if (config("amica_life_enabled") === "false") {
+      return ;
+    }
+
+    this.pauseFlag = false;
   }
 
   public async handleIdleEvent(event: AmicaLifeEvents) {
@@ -114,7 +137,7 @@ export class AmicaLife {
     }
   }
 
-  public async wait() {
+  public async waitInterval() {
     const [minMs, maxMs] = [
       parseInt(config("min_time_interval_sec")),
       parseInt(config("max_time_interval_sec")),
@@ -122,5 +145,20 @@ export class AmicaLife {
     const interval =
       Math.floor(Math.random() * (maxMs - minMs + 1) + minMs) * 1000;
     return new Promise((resolve) => setTimeout(resolve, interval));
+  }
+
+  private async checkPause() {
+    if (this.pauseFlag) {
+      console.log("Idle loop paused");
+      await new Promise<void>((resolve) => {
+        const checkPause = setInterval(() => {
+          if (!this.pauseFlag) {
+            clearInterval(checkPause);
+            resolve();
+          }
+        }, 50);
+      });
+      console.log("Idle loop resumed");
+    }
   }
 }
