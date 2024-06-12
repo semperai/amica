@@ -149,33 +149,7 @@ export class AmicaLife {
 
   public async handleIdleEvent(event: AmicaLifeEvents) {
     if (event.events === "VRMA") {
-      let viewer = this.chat?.viewer;
-
-      // Select a random animation from the list
-      const randomAnimation =
-        animationList[Math.floor(Math.random() * animationList.length)];
-
-      // Extract the name of the animation
-      const randomAnimationName = basename(randomAnimation);
-      console.log("Handling idle event (animation):", randomAnimationName);
-
-      try {
-        // Load the animation based on its type
-        const animation =
-          randomAnimation.includes("vrma")
-            ? await loadVRMAnimation(randomAnimation)
-            : await loadMixamoAnimation(randomAnimation, viewer?.model!.vrm);
-
-        // Load and play the animation
-        // @ts-ignore
-        viewer.model!.loadAnimation(animation);
-        requestAnimationFrame(() => {
-          viewer?.resetCamera();
-        });
-      } catch (error) {
-        console.error("Error loading animation:", error);
-      }
-
+      this.handleAnimationEvent();
     } else {
       console.log("Handling idle event:", event.events);
       try {
@@ -186,6 +160,27 @@ export class AmicaLife {
           error,
         );
       }
+    }
+  }
+
+  public async handleAnimationEvent() {
+    // Select a random animation from the list
+    const randomAnimation =
+      animationList[Math.floor(Math.random() * animationList.length)];
+    console.log("Handling idle event (animation):", basename(randomAnimation));
+
+    try {
+      let viewer = this.chat?.viewer;
+
+      const animation = randomAnimation.includes("vrma")
+        ? await loadVRMAnimation(randomAnimation)
+        : await loadMixamoAnimation(randomAnimation, viewer?.model!.vrm);
+
+      // Load and play the animation
+      // @ts-ignore
+      viewer.model!.playAnimation(animation);
+    } catch (error) {
+      console.error("Error loading animation:", error);
     }
   }
 

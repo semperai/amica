@@ -89,6 +89,22 @@ export class Model {
     action.play();
   }
 
+  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip): Promise<void> {
+    const { vrm, mixer } = this;
+    if (vrm == null || mixer == null) {
+      throw new Error("You have to load VRM first");
+    }
+  
+    const clip = animation instanceof THREE.AnimationClip
+      ? animation
+      : animation.createAnimationClip(vrm);
+
+    // mixer.stopAllAction();
+    const action = mixer.clipAction(clip);
+    action.repetitions = 1;
+    action.play();
+  }
+
   /**
    * 音声を再生し、リップシンクを行う
    */
