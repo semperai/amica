@@ -45,20 +45,6 @@ export class AmicaLife {
     this.startIdleLoop();
   }
 
-  //update time before idle increase by 1.25 times
-  public updatedIdleTime() {
-    this.callCount++;
-
-    if (this.callCount % 3 === 0) {
-      const idleTimeSec = Math.min(
-        parseInt(config("time_before_idle_sec")) * 1.25,
-        240,
-      );
-      updateConfig("time_before_idle_sec", idleTimeSec.toString());
-      console.log(`Updated time before idle to ${idleTimeSec} seconds`);
-    }
-  }
-
   public async startIdleLoop() {
     if (this.isIdleLoopRunning) {
       if (this.pauseFlag === true && this.isSettingOff) {
@@ -110,6 +96,20 @@ export class AmicaLife {
     }
 
     this.isIdleLoopRunning = false;
+  }
+
+  //update time before idle increase by 1.25 times
+  public updatedIdleTime() {
+    this.callCount++;
+
+    if (this.callCount % 3 === 0) {
+      const idleTimeSec = Math.min(
+        parseInt(config("time_before_idle_sec")) * 1.25,
+        240,
+      );
+      updateConfig("time_before_idle_sec", idleTimeSec.toString());
+      console.log(`Updated time before idle to ${idleTimeSec} seconds`);
+    }
   }
 
   // function to pause/resume the loop when setting page is open/close
