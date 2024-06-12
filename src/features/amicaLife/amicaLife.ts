@@ -42,8 +42,6 @@ export class AmicaLife {
     idleEvents.forEach((event) => {
       this.mainEvents.enqueue({ events: event });
     });
-
-    this.startIdleLoop();
   }
 
   public async startIdleLoop() {

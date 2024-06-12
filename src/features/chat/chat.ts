@@ -114,6 +114,7 @@ export class Chat {
     this.processTtsJobs();
     this.processSpeakJobs();
 
+    this.amicaLife.startIdleLoop();
     this.updateAwake();
     this.initialized = true;
   }
