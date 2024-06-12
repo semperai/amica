@@ -114,7 +114,6 @@ export class Chat {
     this.processTtsJobs();
     this.processSpeakJobs();
 
-    this.amicaLife.startIdleLoop();
     this.updateAwake();
     this.initialized = true;
   }
@@ -129,13 +128,15 @@ export class Chat {
     this.currentStreamIdx++;
   }
 
+  // start/stop amica life depends on enable/disable button
   public triggerAmicaLife(flag: boolean) {
     flag === true ? this.amicaLife.startIdleLoop() : this.amicaLife.stopIdleLoop();
   }
 
+  // function to pause/resume the loop when setting page is open/close
   public pauseAmicaLife(flag: boolean) {
     if (config("amica_life_enabled") === "true") {
-      flag === true ? this.amicaLife.pause() : this.amicaLife.resume();
+      this.amicaLife.checkSettingOff(!flag);
     }
   }
 
