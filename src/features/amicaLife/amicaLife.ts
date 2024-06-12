@@ -11,7 +11,7 @@ const idleEvents = [
   "I am ignoring you!",
   "Say something funny!",
   "Speak to me about a topic you are interested in.",
-  // "VRMA",
+  "VRMA",
 ] as const;
 
 export type IdleEvents = (typeof idleEvents)[number];
@@ -97,7 +97,7 @@ export class AmicaLife {
     this.isIdleLoopRunning = false;
   }
 
-  //update time before idle increase by 1.25 times
+  // Update time before idle increase by 1.25 times
   public updatedIdleTime() {
     this.callCount++;
 
@@ -147,59 +147,45 @@ export class AmicaLife {
     this.pauseFlag = false;
   }
 
-  // handleIdleEvent with trigger random vrma animation
-
-  // public async handleIdleEvent(event: AmicaLifeEvents) {
-  //   if (event.events === "VRMA") {
-  //     let viewer = this.chat?.viewer;
-
-  //     // Select a random animation from the list
-  //     const randomAnimation =
-  //       animationList[Math.floor(Math.random() * animationList.length)];
-
-  //     // Extract the name of the animation
-  //     const randomAnimationName = basename(randomAnimation);
-  //     console.log("Handling idle event (animation):", randomAnimationName);
-
-  //     try {
-  //       // Load the animation based on its type
-  //       const animation =
-  //         randomAnimation.includes("vrma")
-  //           ? await loadVRMAnimation(randomAnimation)
-  //           : await loadMixamoAnimation(randomAnimation, viewer?.model!.vrm);
-
-  //       // Load and play the animation
-  //       // @ts-ignore
-  //       viewer.model!.loadAnimation(animation);
-  //       requestAnimationFrame(() => {
-  //         viewer?.resetCamera();
-  //       });
-  //     } catch (error) {
-  //       console.error("Error loading animation:", error);
-  //     }
-
-  //   } else {
-  //     console.log("Handling idle event:", event.events);
-  //     try {
-  //       await this.chat?.receiveMessageFromUser?.(event.events, true);
-  //     } catch (error) {
-  //       console.error(
-  //         "Error occurred while trying to use the chat instance:",
-  //         error,
-  //       );
-  //     }
-  //   }
-  // }
-
   public async handleIdleEvent(event: AmicaLifeEvents) {
-    console.log("Handling idle event:", event.events);
-    try {
-      await this.chat?.receiveMessageFromUser?.(event.events, true);
-    } catch (error) {
-      console.error(
-        "Error occurred while trying to use the chat instance:",
-        error,
-      );
+    if (event.events === "VRMA") {
+      let viewer = this.chat?.viewer;
+
+      // Select a random animation from the list
+      const randomAnimation =
+        animationList[Math.floor(Math.random() * animationList.length)];
+
+      // Extract the name of the animation
+      const randomAnimationName = basename(randomAnimation);
+      console.log("Handling idle event (animation):", randomAnimationName);
+
+      try {
+        // Load the animation based on its type
+        const animation =
+          randomAnimation.includes("vrma")
+            ? await loadVRMAnimation(randomAnimation)
+            : await loadMixamoAnimation(randomAnimation, viewer?.model!.vrm);
+
+        // Load and play the animation
+        // @ts-ignore
+        viewer.model!.loadAnimation(animation);
+        requestAnimationFrame(() => {
+          viewer?.resetCamera();
+        });
+      } catch (error) {
+        console.error("Error loading animation:", error);
+      }
+
+    } else {
+      console.log("Handling idle event:", event.events);
+      try {
+        await this.chat?.receiveMessageFromUser?.(event.events, true);
+      } catch (error) {
+        console.error(
+          "Error occurred while trying to use the chat instance:",
+          error,
+        );
+      }
     }
   }
 
