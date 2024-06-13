@@ -100,14 +100,12 @@ export class AmicaLife {
   public updatedIdleTime() {
     this.callCount++;
 
-    if (this.callCount % 3 === 0) {
-      const idleTimeSec = Math.min(
-        parseInt(config("time_before_idle_sec")) * 1.25,
-        240,
-      );
-      updateConfig("time_before_idle_sec", idleTimeSec.toString());
-      console.log(`Updated time before idle to ${idleTimeSec} seconds`);
-    }
+    const idleTimeSec = Math.min(
+      parseInt(config("time_before_idle_sec")) * 1.25,
+      240,
+    );
+    updateConfig("time_before_idle_sec", idleTimeSec.toString());
+    console.log(`Updated time before idle to ${idleTimeSec} seconds`);
   }
 
   // function to pause/resume the loop when setting page is open/close
@@ -130,7 +128,7 @@ export class AmicaLife {
     }
 
     // Updated time before idle every curve when its get ignored
-    if (prevFlag == false) {
+    if (prevFlag === false && this.isSettingOff) {
       this.updatedIdleTime();
     }
 
@@ -172,9 +170,9 @@ export class AmicaLife {
       let viewer = this.chat?.viewer;
 
       if (viewer) {
-        const animation = await loadVRMAnimation(randomAnimation)
+        const animation = await loadVRMAnimation(randomAnimation);
         if (!animation) {
-          console.error('loading animation failed');
+          console.error("loading animation failed");
           return;
         }
 
