@@ -5,7 +5,6 @@ import { basename } from "@/components/settings/common";
 import { wait } from "@/utils/wait";
 import { animationList } from "@/paths";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
-import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 
 const idleEvents = [
   "I am ignoring you!",
@@ -172,13 +171,16 @@ export class AmicaLife {
     try {
       let viewer = this.chat?.viewer;
 
-      const animation = randomAnimation.includes("vrma")
-        ? await loadVRMAnimation(randomAnimation)
-        : await loadMixamoAnimation(randomAnimation, viewer?.model!.vrm);
+      if (viewer) {
+        const animation = await loadVRMAnimation(randomAnimation)
+        if (!animation) {
+          console.error('loading animation failed');
+          return;
+        }
 
-      // Load and play the animation
-      // @ts-ignore
-      viewer.model!.playAnimation(animation);
+        // @ts-ignore
+        viewer.model!.playAnimation(animation);
+      }
     } catch (error) {
       console.error("Error loading animation:", error);
     }
