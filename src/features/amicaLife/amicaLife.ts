@@ -1,29 +1,14 @@
 import { Queue } from "typescript-collections";
 import { Chat } from "@/features/chat/chat";
 import { config, updateConfig } from "@/utils/config";
-import { basename } from "@/components/settings/common";
 import { wait } from "@/utils/wait";
-import { animationList } from "@/paths";
-import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
-
-const idleEvents = [
-  "I am ignoring you!",
-  "Say something funny!",
-  "Speak to me about a topic you are interested in.",
-  "VRMA",
-] as const;
-
-export type IdleEvents = (typeof idleEvents)[number];
-
-type AmicaLifeEvents = {
-  events: IdleEvents;
-};
+import { AmicaLifeEvents, idleEvents, handleIdleEvent } from "@/features/amicaLife/eventHandler";
 
 export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
   private isSettingOff: boolean;
   private isIdleLoopRunning: boolean;
-  private pauseFlag: boolean;
+  private isPause: boolean;
   private callCount: number;
   public chat: Chat | null;
 
@@ -31,7 +16,7 @@ export class AmicaLife {
     this.mainEvents = new Queue<AmicaLifeEvents>();
     this.isSettingOff = false;
     this.isIdleLoopRunning = false;
-    this.pauseFlag = false;
+    this.isPause = false;
     this.callCount = 0;
     this.chat = chat;
     this.initialize();
@@ -45,7 +30,7 @@ export class AmicaLife {
 
   public async startIdleLoop() {
     if (this.isIdleLoopRunning) {
-      if (this.pauseFlag === true && this.isSettingOff) {
+      if (this.isPause === true && this.isSettingOff) {
         this.resume();
       }
       return;
@@ -72,7 +57,7 @@ export class AmicaLife {
         const idleEvent = this.mainEvents.dequeue();
         if (idleEvent) {
           this.callCount++;
-          await this.handleIdleEvent(idleEvent);
+          await handleIdleEvent(idleEvent,this.chat);
           this.mainEvents.enqueue(idleEvent);
         } else {
           console.log("Handling idle event:", "No idle events in queue");
@@ -94,6 +79,31 @@ export class AmicaLife {
     }
 
     this.isIdleLoopRunning = false;
+    console.log("Stopping idle loop");
+  }
+
+  public async pause() {
+    let prevFlag = this.isPause;
+    // if receiving message from user and idle loop is unavailable
+    if (config("amica_life_enabled") === "false") {
+      return;
+    }
+
+    // Updated time before idle every curve when its get ignored
+    if (prevFlag === false && this.isSettingOff) {
+      this.updatedIdleTime();
+    }
+
+    await this.chat?.interrupt();
+    this.isPause = true;
+  }
+
+  public resume() {
+    if (config("amica_life_enabled") === "false" || this.chat?.isAwake()) {
+      return;
+    }
+
+    this.isPause = false;
   }
 
   // Update time before idle increase by 1.25 times
@@ -108,6 +118,16 @@ export class AmicaLife {
     console.log(`Updated time before idle to ${idleTimeSec} seconds`);
   }
 
+  public async waitInterval() {
+    const [minMs, maxMs] = [
+      parseInt(config("min_time_interval_sec")),
+      parseInt(config("max_time_interval_sec")),
+    ];
+    const interval =
+      Math.floor(Math.random() * (maxMs - minMs + 1) + minMs) * 1000;
+    return new Promise((resolve) => setTimeout(resolve, interval));
+  }
+
   // function to pause/resume the loop when setting page is open/close
   public checkSettingOff(off: boolean) {
     if (off) {
@@ -120,86 +140,12 @@ export class AmicaLife {
     }
   }
 
-  public async pause() {
-    let prevFlag = this.pauseFlag;
-    // if receiving message from user and idle loop is unavailable
-    if (config("amica_life_enabled") === "false") {
-      return;
-    }
-
-    // Updated time before idle every curve when its get ignored
-    if (prevFlag === false && this.isSettingOff) {
-      this.updatedIdleTime();
-    }
-
-    await this.chat?.interrupt();
-    this.pauseFlag = true;
-  }
-
-  public resume() {
-    if (config("amica_life_enabled") === "false" || this.chat?.isAwake()) {
-      return;
-    }
-
-    this.pauseFlag = false;
-  }
-
-  public async handleIdleEvent(event: AmicaLifeEvents) {
-    if (event.events === "VRMA") {
-      this.handleAnimationEvent();
-    } else {
-      console.log("Handling idle event:", event.events);
-      try {
-        await this.chat?.receiveMessageFromUser?.(event.events, true);
-      } catch (error) {
-        console.error(
-          "Error occurred while trying to use the chat instance:",
-          error,
-        );
-      }
-    }
-  }
-
-  public async handleAnimationEvent() {
-    // Select a random animation from the list
-    const randomAnimation =
-      animationList[Math.floor(Math.random() * animationList.length)];
-    console.log("Handling idle event (animation):", basename(randomAnimation));
-
-    try {
-      let viewer = this.chat?.viewer;
-
-      if (viewer) {
-        const animation = await loadVRMAnimation(randomAnimation);
-        if (!animation) {
-          console.error("loading animation failed");
-          return;
-        }
-
-        // @ts-ignore
-        viewer.model!.playAnimation(animation);
-      }
-    } catch (error) {
-      console.error("Error loading animation:", error);
-    }
-  }
-
-  public async waitInterval() {
-    const [minMs, maxMs] = [
-      parseInt(config("min_time_interval_sec")),
-      parseInt(config("max_time_interval_sec")),
-    ];
-    const interval =
-      Math.floor(Math.random() * (maxMs - minMs + 1) + minMs) * 1000;
-    return new Promise((resolve) => setTimeout(resolve, interval));
-  }
-
   private async checkPause() {
-    if (this.pauseFlag) {
+    if (this.isPause) {
       console.log("Idle loop paused");
       await new Promise<void>((resolve) => {
         const checkPause = setInterval(() => {
-          if (!this.pauseFlag) {
+          if (!this.isPause) {
             clearInterval(checkPause);
             resolve();
           }
