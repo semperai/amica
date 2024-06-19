@@ -52,6 +52,7 @@ const defaults = {
   amica_life_enabled: process.env.NEXT_PUBLIC_AMICA_LIFE_ENABLED ?? 'true',
   min_time_interval_sec: '7',
   max_time_interval_sec: '12',
+  time_to_sleep_sec: '120',
   name: process.env.NEXT_PUBLIC_NAME ?? 'Amica',
   system_prompt: process.env.NEXT_PUBLIC_SYSTEM_PROMPT ?? `You will behave as a friendly human named Amica and engage in conversation with the user. There are five types of emotions: 'neutral' which indicates normality, 'happy' which indicates joy, 'angry' which indicates anger, 'sad' which indicates sadness, and 'relaxed' which indicates calmness.
 The format of each message is as follows:

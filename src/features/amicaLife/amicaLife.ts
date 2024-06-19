@@ -6,6 +6,7 @@ import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "
 
 export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
+  public triggerMessage: boolean;
   private isSettingOff: boolean;
   private isIdleLoopRunning: boolean;
   private isPause: boolean;
@@ -15,6 +16,7 @@ export class AmicaLife {
 
   constructor(chat: Chat) {
     this.mainEvents = new Queue<AmicaLifeEvents>();
+    this.triggerMessage = false;
     this.isSettingOff = false;
     this.isIdleLoopRunning = false;
     this.isPause = false;
@@ -35,6 +37,11 @@ export class AmicaLife {
       if (this.isPause === true && this.isSettingOff && !this.isSleep) {
         this.resume();
       }
+      return;
+    }
+
+    // User must start the conversation with amica first to activate amica life
+    if(!this.triggerMessage){
       return;
     }
 
@@ -85,6 +92,7 @@ export class AmicaLife {
     }
 
     this.isIdleLoopRunning = false;
+    this.triggerMessage = false;
     console.log("Stopping idle loop");
   }
 
@@ -96,7 +104,7 @@ export class AmicaLife {
     }
 
     // Updated time before idle every curve when its get ignored
-    if (prevFlag === false && this.isSettingOff) {
+    if (prevFlag === false && this.isSettingOff && this.triggerMessage) {
       this.updatedIdleTime();
     }
 
@@ -157,7 +165,7 @@ export class AmicaLife {
       const idleTime = chat.idleTime();
 
       // If character being idle morethan 120 sec or 2 min, play handle sleep event
-      if (idleTime > 120) {
+      if (idleTime > parseInt(config("time_to_sleep_sec"))) {
         this.isSleep = true;
         await handleSleepEvent(chat);
         this.pause();

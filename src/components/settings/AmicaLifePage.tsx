@@ -14,20 +14,24 @@ export function AmicaLifePage({
     timeBeforeIdle,
     minTimeInterval,
     maxTimeInterval,
+    timeToSleep,
     setAmicaLifeEnabled,
     setTimeBeforeIdle,
     setMinTimeInterval,
     setMaxTimeInterval,
+    setTimeToSleep,
     setSettingsUpdated,
 }: {
     amicaLifeEnabled: boolean;
     timeBeforeIdle: number;
     minTimeInterval: number;
     maxTimeInterval: number;
+    timeToSleep: number;
     setAmicaLifeEnabled: (amicaLifeEnabled: boolean) => void;
     setTimeBeforeIdle: (timeBeforeIdle: number) => void;
     setMinTimeInterval: (minTimeInterval: number) => void;
     setMaxTimeInterval: (maxTimeInterval: number) => void;
+    setTimeToSleep: (timeToSleep: number) => void;
     setSettingsUpdated: (updated: boolean) => void;
 }) {
     const { t } = useTranslation();
@@ -73,6 +77,22 @@ export function AmicaLifePage({
                                 />
                             </FormRow>
                         </li>
+            
+                        <li className="py-4">
+                            <FormRow label={`${t("Set time before bot go to sleep")}(${t("sec")})`}>
+                                <NumberInput
+                                    value={timeToSleep}
+                                    min={0}
+                                    max={60 * 60}
+                                    onChange={(event: React.ChangeEvent<any>) => {
+                                        setTimeToSleep(event.target.value);
+                                        updateConfig("time_to_sleep_sec", event.target.value);
+                                        setSettingsUpdated(true);
+                                    }}
+                                />
+                            </FormRow>
+                        </li>
+
                         <li className="py-4">
                             <FormRow label={`${t("Set min max interval range")}(${t("sec")})`}>
                                 <RangeInput

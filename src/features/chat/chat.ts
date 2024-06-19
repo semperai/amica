@@ -322,6 +322,7 @@ export class Chat {
     if (!amicaLife || config("amica_life_enabled") === 'false') {
       await this.amicaLife.pause();
       this.amicaLife.isSleep = false;
+      this.amicaLife.triggerMessage = true;
       this.updateAwake();
       this.bubbleMessage("user",message);
     } 

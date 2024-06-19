@@ -118,8 +118,8 @@ export class Model {
     action.play();
   }
 
-  public async playEmotion(screenplay: Screenplay) {
-    this.emoteController?.playEmotion(screenplay.expression);
+  public async playEmotion(expression: string) {
+    this.emoteController?.playEmotion(expression);
   }
 
   /**
