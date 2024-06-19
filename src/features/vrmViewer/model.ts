@@ -6,7 +6,9 @@ import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlug
 import { LipSync } from "@/features/lipSync/lipSync";
 import { EmoteController } from "@/features/emoteController/emoteController";
 import { Screenplay } from "@/features/chat/messages";
+import { Viewer } from "@/features/vrmViewer/viewer";
 import { config } from "@/utils/config";
+
 
 /**
  * 3Dキャラクターを管理するクラス
@@ -89,7 +91,7 @@ export class Model {
     action.play();
   }
 
-  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip): Promise<void> {
+  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, viewer: Viewer): Promise<void> {
     const { vrm, mixer } = this;
     if (vrm == null || mixer == null) {
       throw new Error("You have to load VRM first");
@@ -102,7 +104,22 @@ export class Model {
     // mixer.stopAllAction();
     const action = mixer.clipAction(clip);
     action.repetitions = 1;
+
+    // Add event listener for the 'finished' event on the mixer
+    mixer.addEventListener('finished', (event) => {
+      if (event.action === action) {
+        requestAnimationFrame(() => {
+          viewer.resetCamera()
+        });
+      }
+    });
+
+
     action.play();
+  }
+
+  public async playEmotion(screenplay: Screenplay) {
+    this.emoteController?.playEmotion(screenplay.expression);
   }
 
   /**

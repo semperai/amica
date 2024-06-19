@@ -21,7 +21,7 @@ import { config } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
-import { isCharacterIdle } from "@/utils/isIdle";
+import { isCharacterIdle, characterIdleTime } from "@/utils/isIdle";
 
 type Speak = {
   audioBuffer: ArrayBuffer|null;
@@ -147,6 +147,10 @@ export class Chat {
       console.log("Handling idle event:", "I just poked you!");
       this.receiveMessageFromUser("I just poked you!",true);
     }
+  }
+
+  public idleTime(): number {
+    return characterIdleTime(this.lastAwake);
   }
 
   public isAwake() {
@@ -317,6 +321,7 @@ export class Chat {
 
     if (!amicaLife || config("amica_life_enabled") === 'false') {
       await this.amicaLife.pause();
+      this.amicaLife.isSleep = false;
       this.updateAwake();
       this.bubbleMessage("user",message);
     } 

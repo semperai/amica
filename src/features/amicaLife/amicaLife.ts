@@ -2,13 +2,14 @@ import { Queue } from "typescript-collections";
 import { Chat } from "@/features/chat/chat";
 import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
-import { AmicaLifeEvents, idleEvents, handleIdleEvent } from "@/features/amicaLife/eventHandler";
+import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
 
 export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
   private isSettingOff: boolean;
   private isIdleLoopRunning: boolean;
   private isPause: boolean;
+  public isSleep: boolean;
   private callCount: number;
   public chat: Chat | null;
 
@@ -17,6 +18,7 @@ export class AmicaLife {
     this.isSettingOff = false;
     this.isIdleLoopRunning = false;
     this.isPause = false;
+    this.isSleep = false;
     this.callCount = 0;
     this.chat = chat;
     this.initialize();
@@ -30,7 +32,7 @@ export class AmicaLife {
 
   public async startIdleLoop() {
     if (this.isIdleLoopRunning) {
-      if (this.isPause === true && this.isSettingOff) {
+      if (this.isPause === true && this.isSettingOff && !this.isSleep) {
         this.resume();
       }
       return;
@@ -44,6 +46,10 @@ export class AmicaLife {
 
     const processIdleEvents = async () => {
       while (this.isIdleLoopRunning) {
+
+        // Check for sleep event
+        await this.checkSleep();
+
         // Check for pause
         await this.checkPause();
 
@@ -139,6 +145,26 @@ export class AmicaLife {
       this.pause();
     }
   }
+
+  private async checkSleep() {
+    if (!this.isSleep) {
+      const chat = this.chat;
+      if (!chat) {
+        console.error("Chat instance is not available");
+        return ;
+      }
+
+      const idleTime = chat.idleTime();
+
+      // If character being idle morethan 120 sec or 2 min, play handle sleep event
+      if (idleTime > 120) {
+        this.isSleep = true;
+        await handleSleepEvent(chat);
+        this.pause();
+      }
+    }
+  }
+
 
   private async checkPause() {
     if (this.isPause) {

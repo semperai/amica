@@ -31,7 +31,11 @@ async function handleVRMAnimationEvent(chat: Chat) {
         throw new Error("Loading animation failed");
       }
       // @ts-ignore
-      viewer.model!.playAnimation(animation);
+      await viewer.model!.playAnimation(animation, viewer);
+      requestAnimationFrame(() => {
+        viewer.resetCamera()
+      });
+
     }
   } catch (error) {
     console.error("Error loading animation:", error);
@@ -47,6 +51,23 @@ async function handleTextEvent(event: IdleEvents, chat: Chat) {
     await chat.receiveMessageFromUser?.(event, true);
   } catch (error) {
     console.error("Error occurred while sending a message through chat instance:", error);
+  }
+}
+
+// Handles sleep event.
+
+export async function handleSleepEvent(chat: Chat) {
+  console.log("Handling idle event :", "Sleep");
+
+  try {
+    const viewer = chat.viewer;
+    if (viewer) {
+      // @ts-ignore
+      await viewer.model!.playEmotion("sleep");
+
+    }
+  } catch (error) {
+    console.error("Error playing emotion sleep:", error);
   }
 }
 
