@@ -54,6 +54,7 @@ export class ExpressionController {
 
   public playEmotion(preset: VRMExpressionPresetName | string) {
     const normalizedPreset = `${preset.charAt(0).toUpperCase()}${preset.slice(1)}`;
+    
     if (this._currentEmotion == preset) {
       return;
     }
