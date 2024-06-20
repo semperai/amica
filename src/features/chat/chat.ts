@@ -10,16 +10,18 @@ import { getWindowAiChatResponseStream } from './windowAiChat';
 import { getOllamaChatResponseStream, getOllamaVisionChatResponse } from './ollamaChat';
 import { getKoboldAiChatResponseStream } from './koboldAiChat';
 
-import { piper} from "@/features/piper/piper";
+import { piper } from "@/features/piper/piper";
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { localXTTSTTS} from "@/features/localXTTS/localXTTS";
+import { AmicaLife } from '@/features/amicaLife/amicaLife';
 import { config } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
+import { isCharacterIdle, characterIdleTime } from "@/utils/isIdle";
 
 type Speak = {
   audioBuffer: ArrayBuffer|null;
@@ -52,6 +54,8 @@ export class Chat {
   public reader: ReadableStreamDefaultReader<Uint8Array>|null;
   public readers: ReadableStreamDefaultReader<Uint8Array>[];
 
+  private amicaLife: AmicaLife;
+
   // process these immediately as they come in and add to audioToPlay
   public ttsJobs: Queue<TTSJob>;
 
@@ -76,6 +80,7 @@ export class Chat {
     this.streams = [];
     this.readers = [];
 
+    this.amicaLife = new AmicaLife(this);
     this.ttsJobs = new Queue<TTSJob>();
     this.speakJobs = new Queue<Speak>();
 
@@ -109,6 +114,7 @@ export class Chat {
     this.processTtsJobs();
     this.processSpeakJobs();
 
+    this.amicaLife.startIdleLoop();
     this.updateAwake();
     this.initialized = true;
   }
@@ -123,10 +129,32 @@ export class Chat {
     this.currentStreamIdx++;
   }
 
+  // start/stop amica life depends on enable/disable button
+  public triggerAmicaLife(flag: boolean) {
+    flag === true ? this.amicaLife.startIdleLoop() : this.amicaLife.stopIdleLoop();
+  }
+
+  // function to pause/resume the loop when setting page is open/close
+  public pauseAmicaLife(flag: boolean) {
+    if (config("amica_life_enabled") === "true") {
+      this.amicaLife.checkSettingOff(!flag);
+    }
+  }
+
+  // function handle when amica got poked in amica life event
+  public handlePoked() {
+    if (!this.isAwake() && config("amica_life_enabled") === "true") {
+      console.log("Handling idle event:", "I just poked you!");
+      this.receiveMessageFromUser("I just poked you!",true);
+    }
+  }
+
+  public idleTime(): number {
+    return characterIdleTime(this.lastAwake);
+  }
+
   public isAwake() {
-    let sinceLastAwakeSec = ((new Date()).getTime() - this.lastAwake) / 1000;
-    let timeBeforeIdleSec = parseInt(config("wake_word_time_before_idle_sec"));
-    return sinceLastAwakeSec  < timeBeforeIdleSec;
+    return !isCharacterIdle(this.lastAwake);
   }
 
   public updateAwake() {
@@ -173,7 +201,6 @@ export class Chat {
         }
         console.debug('processing speak');
 
-
         if((window as any).chatvrm_latency_tracker) {
           if((window as any).chatvrm_latency_tracker.active) {
             const ms = +(new Date)-(window as any).chatvrm_latency_tracker.start;
@@ -182,12 +209,14 @@ export class Chat {
           };
         }
 
-        this.bubbleMessage('assistant', speak.screenplay.talk.message);
+        this.bubbleMessage("assistant",speak.screenplay.talk.message);
+
         if (speak.audioBuffer) {
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);
-          this.updateAwake();
+          this.isAwake() ? this.updateAwake() : null;
         }
       } while (this.speakJobs.size() > 0);
+      config("amica_life_enabled") === "true" ? !this.isAwake() && this.amicaLife.startIdleLoop() : null;
       await wait(50);
     }
   }
@@ -218,9 +247,19 @@ export class Chat {
     }
 
     if (role === 'assistant') {
-      this.currentAssistantMessage += text;
-      this.setUserMessage!("");
-      this.setAssistantMessage!(this.currentAssistantMessage);
+      if (this.currentAssistantMessage != '' && !this.isAwake() && config("amica_life_enabled") === 'true') {
+        this.messageList!.push({
+          role: "assistant",
+          content: this.currentAssistantMessage,
+        });
+
+        this.currentAssistantMessage = text;
+        this.setAssistantMessage!(this.currentAssistantMessage);
+      } else {
+        this.currentAssistantMessage += text;
+        this.setUserMessage!("");
+        this.setAssistantMessage!(this.currentAssistantMessage);
+      }
 
       if (this.currentUserMessage !== '') {
         this.messageList!.push({
@@ -264,31 +303,37 @@ export class Chat {
   }
 
   // this happens either from text or from voice / whisper completion
-  public async receiveMessageFromUser(message: string) {
-    console.log('receiveMessageFromUser', message)
+  public async receiveMessageFromUser(message: string, amicaLife: boolean) {
+    !amicaLife ? console.log('receiveMessageFromUser', message) : null ;
     if (message === null || message === "") {
       return;
     }
-    if (config("wake_word_enabled")) {
+    if (config("wake_word_enabled") === 'true') {
       this.updateAwake();
     }
 
     console.time('performance_interrupting');
     console.debug('interrupting...');
-    await this.interrupt();
+    await this.interrupt(); 
     console.timeEnd('performance_interrupting');
     await wait(0);
     console.debug('wait complete');
 
-    this.bubbleMessage!('user', message);
+    if (!amicaLife || config("amica_life_enabled") === 'false') {
+      await this.amicaLife.pause();
+      this.amicaLife.isSleep = false;
+      this.amicaLife.triggerMessage = true;
+      this.updateAwake();
+      this.bubbleMessage("user",message);
+    } 
 
     // make new stream
     const messages: Message[] = [
       { role: "system", content: config("system_prompt") },
       ...this.messageList!,
-      { role: "user", content: this.currentUserMessage},
+      { role: "user", content: amicaLife ? message : this.currentUserMessage},
     ];
-    console.debug('messages', messages);
+    // console.debug('messages', messages);
 
     await this.makeAndHandleStream(messages);
   }
@@ -391,6 +436,7 @@ export class Chat {
         if (proc.shouldBreak) {
           break;
         }
+        
       }
     } catch (e: any) {
       const errMsg = e.toString();

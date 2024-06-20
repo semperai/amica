@@ -22,7 +22,7 @@ export const ChatLog = ({
 
   const handleResumeButtonClick = (num: number, newMessage: string) => {
     bot.setMessageList(messages.slice(0, num));
-    bot.receiveMessageFromUser(newMessage);
+    bot.receiveMessageFromUser(newMessage,false);
   };
 
   const txtFileInputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +56,7 @@ export const ChatLog = ({
             bot.setMessageList(parsedChat.slice(0, parsedChat.length - 1));
 
             if (lastMessage.role === "user") {
-              bot.receiveMessageFromUser(lastMessage.content);
+              bot.receiveMessageFromUser(lastMessage.content,false);
             } else {
               bot.bubbleMessage(lastMessage.role, lastMessage.content);
             }

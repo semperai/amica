@@ -19,7 +19,8 @@ import {
   EyeDropperIcon,
   EyeIcon,
   SwatchIcon,
-  MoonIcon
+  MoonIcon,
+  LifebuoyIcon,
 } from '@heroicons/react/24/outline';
 
 export function basicPage(
@@ -150,6 +151,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'ollama_settings':     return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'koboldai_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'amica_life':          return <LifebuoyIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'name':                return <IdentificationIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
@@ -196,6 +198,7 @@ function getLabelFromPage(page: string): string {
     case 'llamacpp_settings':   return t('LLama.cpp');
     case 'ollama_settings':     return t('Ollama');
     case 'koboldai_settings':   return t('KoboldAI');
+    case 'amica_life':          return t('Amica Life');
     case 'name'         :       return t('Name');
     case 'system_prompt':       return t('System Prompt');
 

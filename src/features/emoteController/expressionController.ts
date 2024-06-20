@@ -53,6 +53,12 @@ export class ExpressionController {
   }
 
   public playEmotion(preset: VRMExpressionPresetName | string) {
+    const normalizedPreset = `${preset.charAt(0).toUpperCase()}${preset.slice(1)}`;
+    
+    if (this._currentEmotion == preset) {
+      return;
+    }
+
     if (this._currentEmotion != "neutral") {
       this._expressionManager?.setValue(this._currentEmotion, 0);
     }
@@ -63,10 +69,12 @@ export class ExpressionController {
       return;
     }
 
+    const value = (normalizedPreset in VRMExpressionPresetName) ? (normalizedPreset === "Surprised" ? 0.5 : 1) : 0.5;
+
     const t = this._autoBlink?.setEnable(false) || 0;
     this._currentEmotion = preset;
     setTimeout(() => {
-      this._expressionManager?.setValue(preset, 1);
+      this._expressionManager?.setValue(preset, value);
     }, t * 1000);
   }
 
