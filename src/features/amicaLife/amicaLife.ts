@@ -2,7 +2,6 @@ import { Queue } from "typescript-collections";
 import { Chat } from "@/features/chat/chat";
 import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
-import { idleTextPrompts } from "@/paths";
 import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent, IdleEvents } from "@/features/amicaLife/eventHandler";
 
 export class AmicaLife {
@@ -28,7 +27,15 @@ export class AmicaLife {
   }
 
   private async initialize() {
-    idleTextPrompts.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+    const basedPrompt = {
+      "idleTextPrompt": [
+        "*I am ignoring you*",
+        "Say something funny",
+        "Speak to me about topic your are interested in"
+      ]
+    }
+    
+    basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
 
     idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
   }
