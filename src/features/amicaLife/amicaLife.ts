@@ -2,7 +2,8 @@ import { Queue } from "typescript-collections";
 import { Chat } from "@/features/chat/chat";
 import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
-import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
+import { idleTextPrompts } from "@/paths";
+import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent, IdleEvents } from "@/features/amicaLife/eventHandler";
 
 export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
@@ -26,10 +27,24 @@ export class AmicaLife {
     this.initialize();
   }
 
-  private initialize() {
-    idleEvents.forEach((event) => {
-      this.mainEvents.enqueue({ events: event });
-    });
+  private async initialize() {
+    idleTextPrompts.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+
+    idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+  }
+
+  public async loadIdleTextPrompt(prompts: string []) {
+    if (prompts.length > 0) {
+      this.mainEvents.clear();
+      
+      const expandedPrompts = await this.chat?.expandIdleTextPrompts(prompts);
+      console.log(expandedPrompts);
+      if (expandedPrompts) {
+        expandedPrompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+  
+        prompts.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+      }
+    }
   }
 
   public async startIdleLoop() {

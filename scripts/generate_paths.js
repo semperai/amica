@@ -6,6 +6,7 @@ const ROOT = path.join(__dirname, './../public');
 
 const bgImages = fg.globSync(ROOT+"/bg/**/bg-*.jpg", {dot: true}).map((p) => p.split(ROOT)[1]);
 const vrmList = fg.globSync(ROOT+"/vrm/**/*.vrm", {dot: true}).map((p) => p.split(ROOT)[1]);
+const idleTextPrompts = fg.globSync(ROOT+"/idleTextPrompts/**/*.json", {dot: true}).map((p) => p.split(ROOT)[1]);
 const speechT5SpeakerEmbeddingsList = fg.globSync(ROOT+"/speecht5_speaker_embeddings/**/*.bin", {dot: true}).map((p) => p.split(ROOT)[1]);
 const animationList = [].concat(
   fg.globSync(ROOT+"/animations/**/*.vrma", {dot: true}).map((p) => p.split(ROOT)[1]),
@@ -17,5 +18,6 @@ str += `export const bgImages = ${JSON.stringify(bgImages)};\n`;
 str += `export const vrmList = ${JSON.stringify(vrmList)};\n`;
 str += `export const speechT5SpeakerEmbeddingsList = ${JSON.stringify(speechT5SpeakerEmbeddingsList)};\n`;
 str += `export const animationList = ${JSON.stringify(animationList)};\n`;
+str += `export const idleTextPrompts = ${JSON.stringify(idleTextPrompts)};\n`;
 
 fs.writeFileSync(path.join(__dirname, './../src/paths.ts'), str);

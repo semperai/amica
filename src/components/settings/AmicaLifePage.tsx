@@ -1,12 +1,15 @@
 import { useTranslation } from 'react-i18next';
 
-import { BasicPage, FormRow } from './common';
+import { basename, BasicPage, FormRow } from './common';
 import { updateConfig } from "@/utils/config";
 import { RangeInput } from '@/components/rangeInput';
 import { SwitchBox } from "@/components/switchBox"
 import { NumberInput } from '../numberInput';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/features/chat/chatContext';
+import { idleTextPrompts } from '@/paths';
+import { TextInput } from '../textInput';
+import { IconButton } from '../iconButton';
 
 
 export function AmicaLifePage({
@@ -15,11 +18,13 @@ export function AmicaLifePage({
     minTimeInterval,
     maxTimeInterval,
     timeToSleep,
+    idleTextPrompt,
     setAmicaLifeEnabled,
     setTimeBeforeIdle,
     setMinTimeInterval,
     setMaxTimeInterval,
     setTimeToSleep,
+    setIdleTextPrompt,
     setSettingsUpdated,
 }: {
     amicaLifeEnabled: boolean;
@@ -27,25 +32,56 @@ export function AmicaLifePage({
     minTimeInterval: number;
     maxTimeInterval: number;
     timeToSleep: number;
+    idleTextPrompt: string;
     setAmicaLifeEnabled: (amicaLifeEnabled: boolean) => void;
     setTimeBeforeIdle: (timeBeforeIdle: number) => void;
     setMinTimeInterval: (minTimeInterval: number) => void;
     setMaxTimeInterval: (maxTimeInterval: number) => void;
     setTimeToSleep: (timeToSleep: number) => void;
+    setIdleTextPrompt: (idleTextPrompt: string) => void;
     setSettingsUpdated: (updated: boolean) => void;
 }) {
     const { t } = useTranslation();
     const { chat: bot } = useContext(ChatContext);
+    const [uploadedFileContent, setUploadedFileContent] = useState<string | null>(null);
 
     //If settings page is on will pause amica life
     useEffect(() => {
         amicaLifeEnabled ? bot.triggerAmicaLife(true) : bot.triggerAmicaLife(false);
-    }, [bot,amicaLifeEnabled]);
-    
+    }, [bot, amicaLifeEnabled]);
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const content = reader.result?.toString();
+                if (content) {
+                    setUploadedFileContent(content);
+                }
+            };
+            reader.readAsText(file);
+
+            const fileName = file.name;
+            setIdleTextPrompt(fileName);
+            updateConfig("idle_text_prompt", fileName);
+            setSettingsUpdated(true);
+        }
+    };
+
+    useEffect(() => {
+        if (uploadedFileContent) {
+            const parsedContent = JSON.parse(uploadedFileContent);
+            if (parsedContent.idleTextPrompt) {
+                bot.loadIdleTextPrompt(parsedContent.idleTextPrompt);   
+            }
+        }
+    }, [uploadedFileContent, bot, idleTextPrompt]);
+
     return (
         <BasicPage
-          title={`${t("Amica Life")} ${t("Settings")}`}
-          description={`${t("Configure")} ${t("Amica Life")}`}
+            title={`${t("Amica Life")} ${t("Settings")}`}
+            description={`${t("Configure")} ${t("Amica Life")}`}
         >
             <ul role="list" className="divide-y divide-gray-100 max-w-xs">
                 <li className="py-4">
@@ -61,8 +97,35 @@ export function AmicaLifePage({
                         />
                     </FormRow>
                 </li>
-                { amicaLifeEnabled && (
+                {amicaLifeEnabled && (
                     <>
+
+                        <li className="py-4">
+                            <FormRow label={t("Idle text prompt")}>
+                                <div className="flex items-center space-x-4">
+                                    <button
+                                        type="button"
+                                        className="block h-9 w-auto rounded-md border-0 py-1.5 px-4 bg-secondary hover:bg-secondary-hover active:bg-secondary-active text-sm text-white ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
+                                        onClick={() => document.getElementById('fileInput')!.click()}
+                                    >
+                                        {t("Load")}
+                                    </button>
+                                    <TextInput 
+                                        value={idleTextPrompt}                                        
+                                    />
+                                    <input
+                                        type="file"
+                                        accept="application/json"
+                                        id="fileInput"
+                                        className="hidden"
+                                        onChange={handleFileUpload}
+                                    />
+                                </div>
+                            </FormRow>
+                        </li>
+
+
+
                         <li className="py-4">
                             <FormRow label={`${t("Set time before bot go idle")}(${t("sec")})`}>
                                 <NumberInput
@@ -77,7 +140,7 @@ export function AmicaLifePage({
                                 />
                             </FormRow>
                         </li>
-            
+
                         <li className="py-4">
                             <FormRow label={`${t("Set time before bot go to sleep")}(${t("sec")})`}>
                                 <NumberInput
@@ -111,9 +174,10 @@ export function AmicaLifePage({
                                 />
                             </FormRow>
                         </li>
+
                     </>
                 )}
             </ul>
         </BasicPage>
-  );
+    );
 }

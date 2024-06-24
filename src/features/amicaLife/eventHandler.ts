@@ -65,7 +65,7 @@ export async function handleSleepEvent(chat: Chat) {
       // @ts-ignore
       await viewer.model!.playEmotion("Sleep");
     }
-    
+
   } catch (error) {
     console.error("Error playing emotion sleep:", error);
   }
