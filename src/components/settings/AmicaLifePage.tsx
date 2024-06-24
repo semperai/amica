@@ -7,7 +7,6 @@ import { SwitchBox } from "@/components/switchBox"
 import { NumberInput } from '../numberInput';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ChatContext } from '@/features/chat/chatContext';
-import { idleTextPrompts } from '@/paths';
 import { TextInput } from '../textInput';
 import { IconButton } from '../iconButton';
 
@@ -55,36 +54,28 @@ export function AmicaLifePage({
         jsonFileInputRef.current?.click();
     }, []);
     const handleChangeJsonFile = useCallback(
-        (event: React.ChangeEvent<HTMLInputElement>) =>{
-        const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const content = reader.result?.toString();
-                if (content) {
-                    setUploadedFileContent(content);
-                }
-            };
-            reader.readAsText(file);
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            const file = event.target.files?.[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const content = reader.result?.toString();
+                    if (content) {
+                        const parsedContent = JSON.parse(content);
+                        if (parsedContent.idleTextPrompt) {
+                            bot.loadIdleTextPrompt(parsedContent.idleTextPrompt);
+                        }
+                    }
+                };
+                reader.readAsText(file);
 
-            const fileName = file.name;
-            setIdleTextPrompt(fileName);
-            updateConfig("idle_text_prompt", fileName);
-            setSettingsUpdated(true);
-        }
-    },[setIdleTextPrompt, setSettingsUpdated]
-    );
-
-    
-
-    useEffect(() => {
-        if (uploadedFileContent) {
-            const parsedContent = JSON.parse(uploadedFileContent);
-            if (parsedContent.idleTextPrompt) {
-                bot.loadIdleTextPrompt(parsedContent.idleTextPrompt);   
+                const fileName = file.name;
+                setIdleTextPrompt(fileName);
+                updateConfig("idle_text_prompt", fileName);
+                setSettingsUpdated(true);
             }
-        }
-    }, [uploadedFileContent, bot, idleTextPrompt]);
+        }, [bot, idleTextPrompt]
+    );
 
     return (
         <BasicPage
@@ -111,15 +102,15 @@ export function AmicaLifePage({
                         <li className="py-4">
                             <FormRow label={t("Idle text prompt")}>
                                 <div className="flex items-center space-x-4">
-                                    <button
-                                        type="button"
+                                    <IconButton
+                                        iconName="24/UploadAlt"
+                                        label={t("Load")}
+                                        isProcessing={false}
                                         className="block h-9 w-auto rounded-md border-0 py-1.5 px-4 bg-secondary hover:bg-secondary-hover active:bg-secondary-active text-sm text-white ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
                                         onClick={handleClickOpenJsonFile}
-                                    >
-                                        {t("Load")}
-                                    </button>
-                                    <TextInput 
-                                        value={idleTextPrompt}                                        
+                                    ></IconButton>
+                                    <TextInput
+                                        value={idleTextPrompt}
                                     />
                                     <input
                                         type="file"
