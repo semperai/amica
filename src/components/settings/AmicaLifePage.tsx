@@ -5,7 +5,7 @@ import { updateConfig } from "@/utils/config";
 import { RangeInput } from '@/components/rangeInput';
 import { SwitchBox } from "@/components/switchBox"
 import { NumberInput } from '../numberInput';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ChatContext } from '@/features/chat/chatContext';
 import { idleTextPrompts } from '@/paths';
 import { TextInput } from '../textInput';
@@ -50,7 +50,12 @@ export function AmicaLifePage({
         amicaLifeEnabled ? bot.triggerAmicaLife(true) : bot.triggerAmicaLife(false);
     }, [bot, amicaLifeEnabled]);
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const jsonFileInputRef = useRef<HTMLInputElement>(null);
+    const handleClickOpenJsonFile = useCallback(() => {
+        jsonFileInputRef.current?.click();
+    }, []);
+    const handleChangeJsonFile = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) =>{
         const file = event.target.files?.[0];
         if (file) {
             const reader = new FileReader();
@@ -67,7 +72,10 @@ export function AmicaLifePage({
             updateConfig("idle_text_prompt", fileName);
             setSettingsUpdated(true);
         }
-    };
+    },[setIdleTextPrompt, setSettingsUpdated]
+    );
+
+    
 
     useEffect(() => {
         if (uploadedFileContent) {
@@ -106,7 +114,7 @@ export function AmicaLifePage({
                                     <button
                                         type="button"
                                         className="block h-9 w-auto rounded-md border-0 py-1.5 px-4 bg-secondary hover:bg-secondary-hover active:bg-secondary-active text-sm text-white ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
-                                        onClick={() => document.getElementById('fileInput')!.click()}
+                                        onClick={handleClickOpenJsonFile}
                                     >
                                         {t("Load")}
                                     </button>
@@ -118,7 +126,8 @@ export function AmicaLifePage({
                                         accept="application/json"
                                         id="fileInput"
                                         className="hidden"
-                                        onChange={handleFileUpload}
+                                        ref={jsonFileInputRef}
+                                        onChange={handleChangeJsonFile}
                                     />
                                 </div>
                             </FormRow>
