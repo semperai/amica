@@ -64,6 +64,9 @@ export function AmicaLifePage({
                         const parsedContent = JSON.parse(content);
                         if (parsedContent.idleTextPrompt) {
                             bot.loadIdleTextPrompt(parsedContent.idleTextPrompt);
+                            console.log("idleTextPrompt", parsedContent.idleTextPrompt);
+                        } else {
+                            console.error("Wrong json format");
                         }
                     }
                 };

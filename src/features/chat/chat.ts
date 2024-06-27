@@ -137,7 +137,6 @@ export class Chat {
   // start/stop amica life depends on enable/disable button
   public triggerAmicaLife(flag: boolean) {
     flag === true ? this.amicaLife.startIdleLoop() : this.amicaLife.stopIdleLoop();
-    console.log("trigger amica life",flag);
   }
 
   // function to pause/resume the loop when setting page is open/close
@@ -570,21 +569,21 @@ export class Chat {
     }
   }
 
-  public async expandIdleTextPrompts(idleTextPrompts: string[]): Promise<string[] | any> {
-    const llmPrompt = idleTextPrompts.reduce((promptStr, prompt, index) => 
-      promptStr + `${index + 1}. ${prompt}\n`, 
-      "I have a list of idle text prompts. Please expand each prompt into a more detailed and engaging sentence. Here is the list of prompts:\n\n"
-    ) + "\nExpand each prompt as follows:\n\n" + 
-    idleTextPrompts.map((prompt, index) => `${index + 1}. ${prompt}: [expanded version]`).join("\n") + 
-    "\nPlease provide only the expanded versions for each prompt, in the same order as listed above.";
+  public async askLLM(prompts: Message[]): Promise<string[] | any> {
 
-    const messages: Message[] = [
-      { role: "system", content: "Expand the following prompts into more detailed and engaging sentences." },
-      { role: "user", content: llmPrompt }
-    ];
+    // Replace the convo log
+    prompts.forEach(prompt => {
+      if (prompt.role === "user" && prompt.content.includes("[convo log]")) {
+        const convoLog = this.messageList.map(message => {
+          return `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`;
+        }).join("\n");
+
+        prompt.content = prompt.content.replace("[convo log]", convoLog);
+      }
+    });
 
     try {
-      this.streams.push(await this.getChatResponseStream(messages));
+      this.streams.push(await this.getChatResponseStream(prompts));
     } catch(e: any) {
       const errMsg = e.toString();
       console.error(errMsg);

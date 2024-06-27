@@ -25,7 +25,7 @@ export type Talk = {
 export const emotionNames: string[] = [];
 console.log("All emotion names, ",emotionNames);
 
-const emotions = 
+export const emotions = 
 ["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
 "Shy", "Jealous", "Bored", "Serious", "Suspicious", "Victory", 
 "Sleep", "Love"] as const;

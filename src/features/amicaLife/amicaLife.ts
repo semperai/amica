@@ -43,14 +43,9 @@ export class AmicaLife {
   public async loadIdleTextPrompt(prompts: string []) {
     if (prompts.length > 0) {
       this.mainEvents.clear();
-      
-      const expandedPrompts = await this.chat?.expandIdleTextPrompts(prompts);
-      console.log(expandedPrompts);
-      if (expandedPrompts) {
-        expandedPrompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+      prompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
   
-        prompts.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
-      }
+      idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
     }
   }
 

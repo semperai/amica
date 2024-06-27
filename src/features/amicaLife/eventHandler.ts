@@ -2,12 +2,12 @@ import { basename } from "@/components/settings/common";
 import { animationList } from "@/paths";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { Chat } from "@/features/chat/chat";
+import { Message } from "@/features/chat/messages";
+import { emotions } from "@/features/chat/messages";
 
 export const idleEvents = [
-  "I am ignoring you!",
-  "Say something funny!",
-  "Speak to me about a topic you are interested in.",
   "VRMA",
+  "Subconcious",
 ] as const;
 
 export type IdleEvents = (typeof idleEvents)[number];
@@ -15,6 +15,12 @@ export type IdleEvents = (typeof idleEvents)[number];
 export type AmicaLifeEvents = {
   events: IdleEvents;
 };
+
+// Define a constant for max subconcious storage tokens
+const MAX_STORAGE_TOKENS = 3000;
+
+// Placeholder for storing compressed subconcious prompts
+let storedPrompts: string[] = [];
 
 // Handles the VRM animation event.
 
@@ -71,6 +77,56 @@ export async function handleSleepEvent(chat: Chat) {
   }
 }
 
+// Handles subconcious event.
+
+export async function handleSubconsciousEvent(chat: Chat) {
+  console.log("Handling idle event:", "Subconscious");
+
+  try {
+    // Step 1: Simulate subconscious self mental diary
+    const subconciousWordSalad = await chat.askLLM([
+      { role: "system", content: "Simulate subconscious self mental diary: " },
+      { role: "user", content: "[convo log]" }
+    ]);
+
+    // Step 2: Describe the emotion you feel about the subconscious diary
+    const decipherEmotion = await chat.askLLM([
+      { role: "system", content: "Describe the emotion you feel about: " },
+      { role: "user", content: subconciousWordSalad }
+    ]);
+
+    // Step 3: Decide on one of the emotion tags best suited for the described emotion
+    const emotionDecided = await chat.askLLM([
+      { role: "system", content: `Decide on one of the emotion tags best suited for the following prompt from this emotion list ${emotions.map(emotion => `[${emotion}]`).join(", ")}:` },
+      { role: "user", content: decipherEmotion }
+    ]);
+
+    try {
+      await chat.receiveMessageFromUser?.(emotionDecided, true);
+    } catch (error) {
+      console.error("Error occurred while sending a message through chat instance:", error);
+    }
+
+    // Step 4: Compress the subconscious diary entry to 240 characters
+    const compressSubconcious = await chat.askLLM([
+      { role: "system", content: "Compress this prompt to 240 characters:" },
+      { role: "user", content: subconciousWordSalad }
+    ]);
+
+    console.log("Subconscious process complete:", compressSubconcious);
+    
+    storedPrompts.push(compressSubconcious);
+    const totalStorageTokens = storedPrompts.reduce((totalTokens, prompt) => totalTokens + prompt.length, 0);
+    while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+      storedPrompts.shift(); 
+    }
+    console.log("Stored subconcious prompts:", storedPrompts);
+
+  } catch (error) {
+    console.error("Error handling subconscious event:", error);
+  }
+}
+
 
 // Main handler for idle events.
 
@@ -83,6 +139,9 @@ export async function handleIdleEvent(event: AmicaLifeEvents, chat: Chat | null)
   switch (event.events) {
     case "VRMA":
       await handleVRMAnimationEvent(chat);
+      break;
+    case "Subconcious":
+      await handleSubconsciousEvent(chat);
       break;
     default:
       await handleTextEvent(event.events, chat);
