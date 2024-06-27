@@ -569,21 +569,23 @@ export class Chat {
     }
   }
 
-  public async askLLM(prompts: Message[]): Promise<string[] | any> {
-
+  public async askLLM(systemPrompt: string, userPrompt: string): Promise<string[] | any> {
     // Replace the convo log
-    prompts.forEach(prompt => {
-      if (prompt.role === "user" && prompt.content.includes("[convo log]")) {
-        const convoLog = this.messageList.map(message => {
-          return `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`;
-        }).join("\n");
+    if (userPrompt === "[convo log]"){
+      const convoLog = this.messageList.map(message => {
+        return `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`;
+      }).join("\n");
 
-        prompt.content = prompt.content.replace("[convo log]", convoLog);
-      }
-    });
+      userPrompt = convoLog;
+    }
+
+    const messages: Message[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt},
+    ];
 
     try {
-      this.streams.push(await this.getChatResponseStream(prompts));
+      this.streams.push(await this.getChatResponseStream(messages));
     } catch(e: any) {
       const errMsg = e.toString();
       console.error(errMsg);
@@ -645,12 +647,6 @@ export class Chat {
       }
     }
 
-    const processedPrompts = receivedMessage.split('\n')
-      .map(line => line.trim())
-      .filter(line => /^\d+\.\s/.test(line))
-      .map(prompt => prompt.replace(/^\d+\.\s/, '').trim());
-
-
-    return processedPrompts; 
+    return receivedMessage; 
   }
 }

@@ -2,7 +2,6 @@ import { basename } from "@/components/settings/common";
 import { animationList } from "@/paths";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { Chat } from "@/features/chat/chat";
-import { Message } from "@/features/chat/messages";
 import { emotions } from "@/features/chat/messages";
 
 export const idleEvents = [
@@ -84,22 +83,16 @@ export async function handleSubconsciousEvent(chat: Chat) {
 
   try {
     // Step 1: Simulate subconscious self mental diary
-    const subconciousWordSalad = await chat.askLLM([
-      { role: "system", content: "Simulate subconscious self mental diary: " },
-      { role: "user", content: "[convo log]" }
-    ]);
+    const subconciousWordSalad = await chat.askLLM("Simulate subconscious self mental diary: ","[convo log]");
 
     // Step 2: Describe the emotion you feel about the subconscious diary
-    const decipherEmotion = await chat.askLLM([
-      { role: "system", content: "Describe the emotion you feel about: " },
-      { role: "user", content: subconciousWordSalad }
-    ]);
+    const decipherEmotion = await chat.askLLM("Describe the emotion you feel about: ", subconciousWordSalad);
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
-    const emotionDecided = await chat.askLLM([
-      { role: "system", content: `Decide on one of the emotion tags best suited for the following prompt from this emotion list ${emotions.map(emotion => `[${emotion}]`).join(", ")}:` },
-      { role: "user", content: decipherEmotion }
-    ]);
+    const emotionDecided = await chat.askLLM(
+      `Decide on one of the emotion tags best suited for the following prompt from this emotion list ${emotions.map(emotion => `[${emotion}]`).join(", ")}:`,
+      decipherEmotion
+  );
 
     try {
       await chat.receiveMessageFromUser?.(emotionDecided, true);
@@ -108,10 +101,7 @@ export async function handleSubconsciousEvent(chat: Chat) {
     }
 
     // Step 4: Compress the subconscious diary entry to 240 characters
-    const compressSubconcious = await chat.askLLM([
-      { role: "system", content: "Compress this prompt to 240 characters:" },
-      { role: "user", content: subconciousWordSalad }
-    ]);
+    const compressSubconcious = await chat.askLLM("Compress this prompt to 240 characters:", subconciousWordSalad);
 
     console.log("Subconscious process complete:", compressSubconcious);
     
