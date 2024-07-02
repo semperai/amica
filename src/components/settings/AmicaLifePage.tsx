@@ -42,7 +42,6 @@ export function AmicaLifePage({
 }) {
     const { t } = useTranslation();
     const { chat: bot } = useContext(ChatContext);
-    const [uploadedFileContent, setUploadedFileContent] = useState<string | null>(null);
 
     //If settings page is on will pause amica life
     useEffect(() => {

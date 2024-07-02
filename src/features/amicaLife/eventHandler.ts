@@ -85,12 +85,14 @@ export async function handleSubconsciousEvent(chat: Chat) {
       "Simulate subconscious self mental diary: ",
       "[convo log]",
     );
+    console.log("Result from step 1: ",subconciousWordSalad);
 
     // Step 2: Describe the emotion you feel about the subconscious diary
     const decipherEmotion = await chat.askLLM(
       "Describe the emotion you feel about: ",
       subconciousWordSalad,
     );
+    console.log("Result from step 2: ",decipherEmotion);
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
     const emotionDecided = await chat.askLLM(
@@ -99,14 +101,14 @@ export async function handleSubconsciousEvent(chat: Chat) {
         .join(", ")}:`,
       decipherEmotion,
     );
+    console.log("Result from step 3: ",emotionDecided);
 
     // Step 4: Compress the subconscious diary entry to 240 characters
     const compressSubconcious = await chat.askLLM(
       "Compress this prompt to 240 characters:",
       subconciousWordSalad,
     );
-
-    console.log("Subconscious process complete:", compressSubconcious);
+    console.log("Result from step 4: ", compressSubconcious);
 
     storedPrompts.push(compressSubconcious);
     const totalStorageTokens = storedPrompts.reduce(
