@@ -5,9 +5,11 @@ import { config } from "@/utils/config";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import isTauri from "@/utils/isTauri";
 import { invoke } from "@tauri-apps/api/tauri";
+import { ChatContext } from "@/features/chat/chatContext";
 
 
 export default function VrmViewer() {
+  const { chat: bot } = useContext(ChatContext);
   const { viewer } = useContext(ViewerContext);
   const { getCurrentVrm, vrmList, vrmListAddFile, isLoadingVrmList } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
@@ -72,6 +74,14 @@ export default function VrmViewer() {
             vrmListAddFile(file, viewer);
           }
         });
+
+    //     canvas.addEventListener("click", (event) => {
+    //       viewer.onMouseClick(event);
+    //       const intersectionDetected = viewer.onMouseClick(event);
+    //       if (intersectionDetected) {
+    //           bot.handlePoked();
+    // }
+    //     });
       }
     },
     [vrmList.findIndex(value => value.hashEquals(getCurrentVrm()?.getHash() || "")) < 0, viewer]

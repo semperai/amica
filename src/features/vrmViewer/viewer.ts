@@ -20,6 +20,9 @@ export class Viewer {
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
 
+  private _raycaster?: THREE.Raycaster;
+  private _mouse?: THREE.Vector2;
+
   private sendScreenshotToCallback: boolean;
   private screenshotCallback: BlobCallback | undefined;
 
@@ -116,6 +119,10 @@ export class Viewer {
 
     this._cameraControls.update();
 
+    // raycaster and mouse
+    this._raycaster = new THREE.Raycaster();
+    this._mouse = new THREE.Vector2();
+
     window.addEventListener("resize", () => {
       this.resize();
     });
@@ -180,6 +187,27 @@ export class Viewer {
       }
     }
   };
+
+  public onMouseClick(event: MouseEvent): boolean {
+    if (!this._renderer || !this._camera || !this.model?.vrm) return false;
+
+    const rect = this._renderer.domElement.getBoundingClientRect();
+
+    // calculate mouse position in normalized device coordinates
+    this._mouse!.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this._mouse!.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // update the picking ray with the camera and mouse position
+    this._raycaster!.setFromCamera(this._mouse!, this._camera);
+
+    // calculate objects intersecting the picking ray
+    const intersects = this._raycaster!.intersectObject(this.model.vrm.scene, true);
+
+    if (intersects.length > 0) {
+      return true;
+    }
+    return false;
+  }
 
   public getScreenshotBlob = (callback: BlobCallback) => {
     this.screenshotCallback = callback;

@@ -1,4 +1,9 @@
 {
+  "Amica Life": "Amica Leben",
+  "Set min max interval range": "Stellen Sie den minimalen und maximalen Intervallbereich ein",
+  "Set time before bot go to sleep": "Stellen Sie die Zeit ein, bevor der Bot in den Ruhezustand geht",
+  "Min": "Minimal",
+  "Max": "Maximal",
   "add_to_homescreen": "Fügen Sie Amica zum Homescreen hinzu",
   "add_to_homescreen_desc": "Amica kann für schnelleres Laden und weniger Unordnung auf der Benutzeroberfläche lokal installiert werden.",
   "Accept": "Akzeptieren",
