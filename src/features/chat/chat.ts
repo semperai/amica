@@ -129,6 +129,11 @@ export class Chat {
     this.currentStreamIdx++;
   }
 
+  // function to import idle text prompt from user 
+  public loadIdleTextPrompt(prompts: string []) {
+      this.amicaLife.loadIdleTextPrompt(prompts);
+  }
+
   // start/stop amica life depends on enable/disable button
   public triggerAmicaLife(flag: boolean) {
     flag === true ? this.amicaLife.startIdleLoop() : this.amicaLife.stopIdleLoop();
@@ -142,12 +147,13 @@ export class Chat {
   }
 
   // function handle when amica got poked in amica life event
-  public handlePoked() {
-    if (!this.isAwake() && config("amica_life_enabled") === "true") {
-      console.log("Handling idle event:", "I just poked you!");
-      this.receiveMessageFromUser("I just poked you!",true);
-    }
-  }
+  
+  // public handlePoked() {
+  //   if (!this.isAwake() && config("amica_life_enabled") === "true") {
+  //     console.log("Handling idle event:", "I just poked you!");
+  //     this.receiveMessageFromUser("I just poked you!",true);
+  //   }
+  // }
 
   public idleTime(): number {
     return characterIdleTime(this.lastAwake);
@@ -356,7 +362,7 @@ export class Chat {
       return errMsg;
     }
 
-    await this.handleChatResponseStream();
+    return await this.handleChatResponseStream();
   }
 
   public async handleChatResponseStream() {
@@ -562,5 +568,86 @@ export class Chat {
       console.error("getVisionResponse", e.toString());
       this.alert?.error("Failed to get vision response", e.toString());
     }
+  }
+
+  public async askLLM(systemPrompt: string, userPrompt: string): Promise<string[] | any> {
+    // Replace the convo log
+    if (userPrompt === "[convo log]"){
+      const convoLog = this.messageList.map(message => {
+        return `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`;
+      }).join("\n");
+
+      userPrompt = convoLog;
+    }
+
+    const messages: Message[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt},
+    ];
+
+    try {
+      this.streams.push(await this.getChatResponseStream(messages));
+    } catch(e: any) {
+      const errMsg = e.toString();
+      console.error(errMsg);
+      this.alert?.error("Failed to get chat response", errMsg);
+      return errMsg;
+    }
+
+    if (this.streams[this.streams.length-1] == null) {
+      const errMsg = "Error: Null stream encountered." as any;
+      console.error(errMsg);
+      this.alert?.error("Null stream encountered", errMsg);
+      return errMsg;
+    }
+
+    if (this.streams.length === 0) {
+      console.log('no stream!');
+      return;
+    }
+
+    this.currentStreamIdx++;
+    const streamIdx = this.currentStreamIdx;
+    this.setChatProcessing!(true);
+
+    console.time('chat stream processing');
+    let reader = this.streams[this.streams.length - 1].getReader();
+    this.readers.push(reader);
+    let receivedMessage = "";
+
+    let firstTokenEncountered = false;
+    console.time('performance_time_to_first_token');
+    console.time('performance_time_to_first_sentence');
+
+    try {
+      while (true) {
+        if (this.currentStreamIdx !== streamIdx) {
+          console.log('wrong stream idx');
+          break;
+        }
+        const { done, value } = await reader.read();
+        if (! firstTokenEncountered) {
+          console.timeEnd('performance_time_to_first_token');
+          firstTokenEncountered = true;
+        }
+        if (done) break;
+
+        receivedMessage += value;
+        receivedMessage = receivedMessage.trimStart();
+      }
+    } catch (e: any) {
+      const errMsg = e.toString();
+      console.error(errMsg);
+    } finally {
+      if (! reader.closed) {
+        reader.releaseLock();
+      }
+      console.timeEnd('chat stream processing');
+      if (streamIdx === this.currentStreamIdx) {
+        this.setChatProcessing!(false);
+      }
+    }
+
+    return receivedMessage; 
   }
 }
