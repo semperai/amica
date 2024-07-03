@@ -1,8 +1,11 @@
-import { basename } from "@/components/settings/common";
 import { animationList } from "@/paths";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
+
 import { Chat } from "@/features/chat/chat";
 import { emotions } from "@/features/chat/messages";
+
+import { basename } from "@/components/settings/common";
+import { askLLM } from "@/utils/askLlm";
 
 export const idleEvents = ["VRMA", "Subconcious"] as const;
 
@@ -79,32 +82,41 @@ export async function handleSleepEvent(chat: Chat) {
 export async function handleSubconsciousEvent(chat: Chat) {
   console.log("Handling idle event:", "Subconscious");
 
+  const convo = chat.getConvo();
+  const convoLog = convo
+    .map((message) => {
+      return `${message.role === "user" ? "User" : "Assistant"}: ${
+        message.content
+      }`;
+    })
+    .join("\n");
+
   try {
     // Step 1: Simulate subconscious self mental diary
-    const subconciousWordSalad = await chat.askLLM(
+    const subconciousWordSalad = await askLLM(
       "Simulate subconscious self mental diary: ",
-      "[convo log]",
+      `${convoLog}`,
     );
-    console.log("Result from step 1: ",subconciousWordSalad);
+    console.log("Result from step 1: ", subconciousWordSalad);
 
     // Step 2: Describe the emotion you feel about the subconscious diary
-    const decipherEmotion = await chat.askLLM(
+    const decipherEmotion = await askLLM(
       "Describe the emotion you feel about: ",
       subconciousWordSalad,
     );
-    console.log("Result from step 2: ",decipherEmotion);
+    console.log("Result from step 2: ", decipherEmotion);
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
-    const emotionDecided = await chat.askLLM(
+    const emotionDecided = await askLLM(
       `Decide on one of the emotion tags best suited for the following prompt from this emotion list ${emotions
         .map((emotion) => `[${emotion}]`)
         .join(", ")}:`,
       decipherEmotion,
     );
-    console.log("Result from step 3: ",emotionDecided);
+    console.log("Result from step 3: ", emotionDecided);
 
     // Step 4: Compress the subconscious diary entry to 240 characters
-    const compressSubconcious = await chat.askLLM(
+    const compressSubconcious = await askLLM(
       "Compress this prompt to 240 characters:",
       subconciousWordSalad,
     );

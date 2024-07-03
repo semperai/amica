@@ -45,7 +45,7 @@ export function AmicaLifePage({
 
     //If settings page is on will pause amica life
     useEffect(() => {
-        amicaLifeEnabled ? bot.triggerAmicaLife(true) : bot.triggerAmicaLife(false);
+        amicaLifeEnabled ? bot.startAmicaLife(true) : bot.startAmicaLife(false);
     }, [bot, amicaLifeEnabled]);
 
     const jsonFileInputRef = useRef<HTMLInputElement>(null);

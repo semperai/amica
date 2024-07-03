@@ -1,8 +1,11 @@
 import { Queue } from "typescript-collections";
-import { Chat } from "@/features/chat/chat";
+
 import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
-import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent, IdleEvents } from "@/features/amicaLife/eventHandler";
+
+import { Chat } from "@/features/chat/chat";
+import { AmicaLifeEvents, IdleEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
+
 
 export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
