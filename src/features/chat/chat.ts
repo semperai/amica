@@ -16,12 +16,15 @@ import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { localXTTSTTS} from "@/features/localXTTS/localXTTS";
+
 import { AmicaLife } from '@/features/amicaLife/amicaLife';
+
 import { config } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
 import { isCharacterIdle, characterIdleTime } from "@/utils/isIdle";
+
 
 type Speak = {
   audioBuffer: ArrayBuffer|null;
@@ -315,7 +318,6 @@ export class Chat {
 
   // this happens either from text or from voice / whisper completion
   public async receiveMessageFromUser(message: string, amicaLife: boolean) {
-    !amicaLife ? console.log('receiveMessageFromUser', message) : null ;
     if (message === null || message === "") {
       return;
     }
@@ -331,6 +333,11 @@ export class Chat {
     console.debug('wait complete');
 
     if (!amicaLife || config("amica_life_enabled") === 'false') {
+      console.log('receiveMessageFromUser', message);
+      if (message.toLowerCase().includes('news')) {
+        console.log("News detected");
+        this.amicaLife.mainEvents.enqueue({events: "News"});
+      }
       await this.amicaLife.pause();
       this.amicaLife.isSleep = false;
       this.amicaLife.triggerMessage = true;

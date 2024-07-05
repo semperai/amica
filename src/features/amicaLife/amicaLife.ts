@@ -4,7 +4,7 @@ import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
 
 import { Chat } from "@/features/chat/chat";
-import { AmicaLifeEvents, IdleEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
+import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
 
 
 export class AmicaLife {
@@ -38,17 +38,17 @@ export class AmicaLife {
       ]
     }
     
-    basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+    basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
 
-    idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+    idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
   }
 
   public async loadIdleTextPrompt(prompts: string []) {
     if (prompts.length > 0) {
       this.mainEvents.clear();
-      prompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+      prompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt }));
   
-      idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+      idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
     }
   }
 
