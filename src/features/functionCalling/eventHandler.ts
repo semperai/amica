@@ -3,7 +3,9 @@ import { askLLM } from "@/utils/askLlm";
 
 async function fetcher(url: string, event: string): Promise<Response> {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: "GET",
+        });
         if (!response.ok) {
           throw new Error(`Failed to fetch ${event}: ${response.statusText}`);
         }

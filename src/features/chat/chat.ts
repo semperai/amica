@@ -335,7 +335,7 @@ export class Chat {
     if (!amicaLife || config("amica_life_enabled") === 'false') {
       console.log('receiveMessageFromUser', message);
       if (message.toLowerCase().includes('news')) {
-        console.log("News detected");
+        console.log("Added news event to amica life");
         this.amicaLife.mainEvents.enqueue({events: "News"});
       }
       await this.amicaLife.pause();
