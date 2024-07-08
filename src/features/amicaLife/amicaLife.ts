@@ -31,18 +31,11 @@ export class AmicaLife {
 
   private async initialize() {
     const basedPrompt = {
-      ""idleTextPrompt": [
+      "idleTextPrompt": [
         "*I am ignoring you*",
-        "**sighs** It's so quiet here.",
-        "Tell me something interesting about yourself.",
-        "**looks around** What do you usually do for fun?",
-        "I could use a good distraction right now.",
-        "What's the most fascinating thing you know?",
-        "**smiles** Any witty remarks up your sleeve?",
-        "If you could talk about anything, what would it be?",
-        "Got any clever insights to share?",
-        "**leans in** Any fun stories to tell?"
-    ]
+        "Say something funny",
+        "Speak to me about topic your are interested in"
+      ]
     }
     
     basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
