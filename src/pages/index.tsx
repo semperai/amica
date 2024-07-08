@@ -76,7 +76,6 @@ export default function Home() {
   // otherwise issues from usage of localStorage and window will occur
   const [showContent, setShowContent] = useState(false);
 
-
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
@@ -86,6 +85,10 @@ export default function Home() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
+  //If settings page is on will pause amica life
+  useEffect(() => {
+    showSettings ? bot.pauseAmicaLife(true) : bot.pauseAmicaLife(false);
+  }, [bot,showSettings]);
 
   useEffect(() => {
     if (muted === null) {

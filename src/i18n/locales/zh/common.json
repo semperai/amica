@@ -1,4 +1,10 @@
 {
+  "Amica Life": "阿米卡生活",
+  "Set min max interval range": "设置最小最大间隔范围",
+  "Set time before bot go to sleep": "設定機器人睡覺前的時間",
+  "Min": "最小",
+  "Max": "最大",
+  "Idle text prompt": "空閒文字提示",
   "add_to_homescreen": "添加到应用",
   "add_to_homescreen_desc": "Amica 可以在本地安装，以加快加载速度并减少 UI 混乱。",
   "Accept": "接受",
@@ -6,6 +12,7 @@
   "Close": "关闭",
   "Restart": "Restart",
   "Save": "節省",
+  "Load": "載入",
   "Load Chat": "載入聊天",
   "YOU": "YOU",
   "Welcome to Amica": "Amica欢迎你的光临",
