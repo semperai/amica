@@ -103,7 +103,7 @@ export class Model {
 
     // mixer.stopAllAction();
     const action = mixer.clipAction(clip);
-    action.repetitions = 1;
+    action.loop = THREE.LoopOnce;
 
     // Add event listener for the 'finished' event on the mixer
     mixer.addEventListener('finished', (event) => {

@@ -50,9 +50,10 @@ const defaults = {
   coqui_apikey: process.env.NEXT_PUBLIC_COQUI_APIKEY ?? "",
   coqui_voice_id: process.env.NEXT_PUBLIC_COQUI_VOICEID ?? "71c6c3eb-98ca-4a05-8d6b-f8c2b5f9f3a3",
   amica_life_enabled: process.env.NEXT_PUBLIC_AMICA_LIFE_ENABLED ?? 'true',
-  min_time_interval_sec: '7',
-  max_time_interval_sec: '12',
-  time_to_sleep_sec: '120',
+  min_time_interval_sec: '15',
+  max_time_interval_sec: '20',
+  time_to_sleep_sec: '160',
+  idle_text_prompt: 'No file selected',
   name: process.env.NEXT_PUBLIC_NAME ?? 'Amica',
   system_prompt: process.env.NEXT_PUBLIC_SYSTEM_PROMPT ?? `You will behave as a friendly human named Amica and engage in conversation with the user. There are five types of emotions: 'neutral' which indicates normality, 'happy' which indicates joy, 'angry' which indicates anger, 'sad' which indicates sadness, and 'relaxed' which indicates calmness.
 The format of each message is as follows:

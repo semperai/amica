@@ -134,6 +134,7 @@ export const Settings = ({
   const [minTimeInterval,setMinTimeInterval] = useState<number>(parseInt(config("min_time_interval_sec")));
   const [maxTimeInterval, setMaxTimeInterval] = useState<number>(parseInt(config("max_time_interval_sec")));
   const [timeToSleep, setTimeToSleep] = useState<number>(parseInt(config("time_to_sleep_sec")));
+  const [idleTextPrompt, setIdleTextPrompt] = useState(config("idle_text_prompt"));
 
   const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
@@ -232,7 +233,7 @@ export const Settings = ({
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
-    amicaLifeEnabled,timeBeforeIdle,minTimeInterval,maxTimeInterval,timeToSleep,
+    amicaLifeEnabled, timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
     name,
     systemPrompt,
     sttWakeWordEnabled, sttWakeWord,
@@ -248,7 +249,7 @@ export const Settings = ({
     switch(page) {
     case 'main_menu':
       return <MenuPage
-        keys={["appearance", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
+        keys={["appearance",  "amica_life", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
         menuClick={handleMenuClick} />;
 
     case 'appearance':
@@ -258,7 +259,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "amica_life" ,"name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'tts':
@@ -524,11 +525,13 @@ export const Settings = ({
         minTimeInterval={minTimeInterval}
         maxTimeInterval={maxTimeInterval}
         timeToSleep={timeToSleep}
+        idleTextPrompt={idleTextPrompt}
         setAmicaLifeEnabled={setAmicaLifeEnabled}
         setTimeBeforeIdle={setTimeBeforeIdle}
         setMinTimeInterval={setMinTimeInterval}
         setMaxTimeInterval={setMaxTimeInterval}
         setTimeToSleep={setTimeToSleep}
+        setIdleTextPrompt={setIdleTextPrompt}
         setSettingsUpdated={setSettingsUpdated}
         />
 

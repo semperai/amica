@@ -75,13 +75,13 @@ export default function VrmViewer() {
           }
         });
 
-        canvas.addEventListener("click", (event) => {
-          viewer.onMouseClick(event);
-          const intersectionDetected = viewer.onMouseClick(event);
-          if (intersectionDetected) {
-              bot.handlePoked();
-    }
-        });
+    //     canvas.addEventListener("click", (event) => {
+    //       viewer.onMouseClick(event);
+    //       const intersectionDetected = viewer.onMouseClick(event);
+    //       if (intersectionDetected) {
+    //           bot.handlePoked();
+    // }
+    //     });
       }
     },
     [vrmList.findIndex(value => value.hashEquals(getCurrentVrm()?.getHash() || "")) < 0, viewer]
