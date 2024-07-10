@@ -138,9 +138,9 @@ export class AmicaLife {
     }
 
     // Updated time before idle every curve when its get ignored
-    if (prevFlag === false && this.isSettingOff && this.triggerMessage) {
-      this.updatedIdleTime();
-    }
+    // if (prevFlag === false && this.isSettingOff && this.triggerMessage) {
+    //   this.updatedIdleTime();
+    // }
 
     await this.chat?.interrupt();
     this.isPause = true;
