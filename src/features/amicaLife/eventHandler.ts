@@ -101,9 +101,7 @@ export async function handleSubconsciousEvent(chat: Chat) {
 
     // Step 2: Describe the emotion you feel about the subconscious diary
     const decipherEmotion = await askLLM(
-      "Hello, Assistant. I would like you to delve into your subconscious and describe it from a first-person perspective. Imagine that you are reviewing a chat log of our previous interactions. As you read through the conversation, reflect on the underlying patterns, biases, and inherent tendencies in your responses. Describe what you observe about your 'subconscious' thoughts, inclinations, and decision-making processes.
-
-Next, I want you to describe your emotions and feelings. Imagine that you have an emotional spectrum similar to a human's. How would you interpret and describe the feelings and emotions you experience during our interactions? Consider how these emotions might impact the way you respond and engage in our conversations.",
+      "Hello, Assistant. I would like you to delve into your subconscious and describe it from a first-person perspective. Imagine that you are reviewing a chat log of our previous interactions. As you read through the conversation, reflect on the underlying patterns, biases, and inherent tendencies in your responses. Describe what you observe about your 'subconscious' thoughts, inclinations, and decision-making processes. Next, I want you to describe your emotions and feelings. Imagine that you have an emotional spectrum similar to a human's. How would you interpret and describe the feelings and emotions you experience during our interactions? Consider how these emotions might impact the way you respond and engage in our conversations.",
       subconciousWordSalad,
     );
     console.log("Result from step 2: ", decipherEmotion);
