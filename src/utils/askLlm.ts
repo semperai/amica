@@ -81,7 +81,6 @@ export async function askLLM(
 
   let firstTokenEncountered = false;
   console.time("performance_time_to_first_token");
-  console.time("performance_time_to_first_sentence");
 
   try {
     while (true) {

@@ -331,6 +331,9 @@ export class Chat {
     console.debug('wait complete');
 
     if (!amicaLife || config("amica_life_enabled") === 'false') {
+      if (!/\[.*?\]/.test(message)) {
+        message = `[neutral] ${message}`;
+      }
       await this.amicaLife.pause();
       this.amicaLife.isSleep = false;
       this.amicaLife.triggerMessage = true;

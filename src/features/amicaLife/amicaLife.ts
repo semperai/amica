@@ -4,7 +4,7 @@ import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
 
 import { Chat } from "@/features/chat/chat";
-import { AmicaLifeEvents, IdleEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
+import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
 
 
 export class AmicaLife {
@@ -30,26 +30,33 @@ export class AmicaLife {
   }
 
   private async initialize() {
-    const basedPrompt = {
-      "idleTextPrompt": [
-        "*I am ignoring you*",
-        "Say something funny",
-        "Speak to me about topic your are interested in"
-      ]
-    }
+    // const basedPrompt = {
+    //   "idleTextPrompt": [
+    //     "*I am ignoring you*",
+    //     "Say something funny",
+    //     "Speak to me about topic your are interested in"
+    //   ]
+    // }
     
-    basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+    // basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
 
-    idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+    idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
   }
 
   public async loadIdleTextPrompt(prompts: string []) {
     if (prompts.length > 0) {
       this.mainEvents.clear();
-      prompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+      prompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt }));
   
-      idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+      idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
     }
+  }
+
+  public insertAtFront(event: AmicaLifeEvents) {
+    const newQueue = new Queue<AmicaLifeEvents>();
+    newQueue.enqueue(event);
+    this.mainEvents.forEach(e => newQueue.enqueue(e));
+    this.mainEvents = newQueue;
   }
 
   public async startIdleLoop() {
@@ -148,7 +155,7 @@ export class AmicaLife {
       parseInt(config("time_before_idle_sec")) * 1.25,
       240,
     );
-    updateConfig("time_before_idle_sec", idleTimeSec.toString());
+    // updateConfig("time_before_idle_sec", idleTimeSec.toString());
     console.log(`Updated time before idle to ${idleTimeSec} seconds`);
   }
 
@@ -187,7 +194,7 @@ export class AmicaLife {
       // If character being idle morethan 120 sec or 2 min, play handle sleep event
       if (idleTime > parseInt(config("time_to_sleep_sec"))) {
         this.isSleep = true;
-        await handleSleepEvent(chat);
+        this.insertAtFront({events: "Sleep"});
         this.pause();
       }
     }

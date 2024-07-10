@@ -7,12 +7,12 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
-export const idleEvents = ["VRMA", "Subconcious"] as const;
+export const idleEvents = [/*"VRMA",*/ "Subconcious"] as const;
 
-export type IdleEvents = (typeof idleEvents)[number];
+// export type IdleEvents = (typeof idleEvents)[number];
 
 export type AmicaLifeEvents = {
-  events: IdleEvents;
+  events: string;
 };
 
 // Define a constant for max subconcious storage tokens
@@ -49,7 +49,7 @@ async function handleVRMAnimationEvent(chat: Chat) {
 
 // Handles text-based idle events.
 
-async function handleTextEvent(event: IdleEvents, chat: Chat) {
+async function handleTextEvent(event: string, chat: Chat) {
   console.log("Handling idle event (text):", event);
   try {
     await chat.receiveMessageFromUser?.(event, true);
@@ -162,6 +162,9 @@ export async function handleIdleEvent(
       break;
     case "Subconcious":
       await handleSubconsciousEvent(chat);
+      break;
+    case "Sleep":
+      await handleSleepEvent(chat);
       break;
     default:
       await handleTextEvent(event.events, chat);
