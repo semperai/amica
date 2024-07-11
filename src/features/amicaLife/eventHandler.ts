@@ -108,7 +108,7 @@ export async function handleSubconsciousEvent(chat: Chat) {
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
     const emotionDecided = await askLLM(
-      `Assistant, please review  mini-diary below. Based on the mini-diary, create a self-reflective statement that encapsulates your current state, incorporating the specified emotions. Ensure the statement is concise, focused, and tagged with the appropriate emotions: ${emotions
+      `Based on your mini-diary, respond with dialougue that sounds like a normal person speaking about their mind, experience or feelings. Make sure to incorporate the specified emotion tags in your response : ${emotions
         .map((emotion) => `[${emotion}]`)
         .join(", ")}:`, 
       decipherEmotion, chat,
