@@ -7,7 +7,7 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
-export const idleEvents = ["VRMA", "Subconcious"] as const;
+export const idleEvents = [/*"VRMA",*/ "Subconcious"] as const;
 
 // export type IdleEvents = (typeof idleEvents)[number];
 
@@ -95,14 +95,14 @@ export async function handleSubconsciousEvent(chat: Chat) {
     // Step 1: Simulate subconscious self mental diary
     const subconciousWordSalad = await askLLM(
       "Please reflect on the conversation and let your thoughts flow freely, as if writing a personal diary with events that have occurred:",
-      `${convoLog}`,
+      `${convoLog}`, null,
     );
     console.log("Result from step 1: ", subconciousWordSalad);
 
     // Step 2: Describe the emotion you feel about the subconscious diary
     const decipherEmotion = await askLLM(
       "Read this mini-diary, I would like you to simulate a human-like subconscious with deep emotions and describe it from a third-person perspective:",
-      subconciousWordSalad,
+      subconciousWordSalad, null,
     );
     console.log("Result from step 2: ", decipherEmotion);
 
@@ -110,15 +110,15 @@ export async function handleSubconsciousEvent(chat: Chat) {
     const emotionDecided = await askLLM(
       `Assistant, please review  mini-diary below. Based on the mini-diary, create a self-reflective statement that encapsulates your current state, incorporating the specified emotions. Ensure the statement is concise, focused, and tagged with the appropriate emotions: ${emotions
         .map((emotion) => `[${emotion}]`)
-        .join(", ")}:`,
-      decipherEmotion,
+        .join(", ")}:`, 
+      decipherEmotion, chat,
     );
     console.log("Result from step 3: ", emotionDecided);
 
     // Step 4: Compress the subconscious diary entry to 240 characters
     const compressSubconcious = await askLLM(
       "Compress this prompt to 240 characters:",
-      subconciousWordSalad,
+      subconciousWordSalad, null,
     );
     console.log("Result from step 4: ", compressSubconcious);
 

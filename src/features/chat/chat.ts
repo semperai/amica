@@ -70,7 +70,7 @@ export class Chat {
 
   private messageList: Message[];
 
-  private currentStreamIdx: number;
+  public currentStreamIdx: number;
 
   constructor() {
     this.initialized = false;
