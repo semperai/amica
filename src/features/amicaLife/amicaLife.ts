@@ -45,7 +45,7 @@ export class AmicaLife {
     ]
     }
     
-    basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
+    // basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
 
     idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
   }

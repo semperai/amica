@@ -7,7 +7,7 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
-export const idleEvents = ["VRMA", "Subconcious"] as const;
+export const idleEvents = [/*"VRMA",*/ "Subconcious"] as const;
 
 // export type IdleEvents = (typeof idleEvents)[number];
 
@@ -132,14 +132,14 @@ export async function handleSubconsciousEvent(chat: Chat) {
     }
     console.log("Stored subconcious prompts:", storedPrompts);
 
-    try {
-      await chat.receiveMessageFromUser?.(emotionDecided, true);
-    } catch (error) {
-      console.error(
-        "Error occurred while sending a message through chat instance:",
-        error,
-      );
-    }
+    // try {
+    //   // await chat.receiveMessageFromUser?.(emotionDecided, true);
+    // } catch (error) {
+    //   console.error(
+    //     "Error occurred while sending a message through chat instance:",
+    //     error,
+    //   );
+    // }
   } catch (error) {
     console.error("Error handling subconscious event:", error);
   }
