@@ -101,14 +101,14 @@ export async function handleSubconsciousEvent(chat: Chat) {
 
     // Step 2: Describe the emotion you feel about the subconscious diary
     const decipherEmotion = await askLLM(
-      "Make a statement how you feel about this in emotions, thoughts and feelings:",
+      "Read this mini-diary, I would like you to simulate a human-like subconscious with deep emotions and describe it from a third-person perspective:",
       subconciousWordSalad,
     );
     console.log("Result from step 2: ", decipherEmotion);
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
     const emotionDecided = await askLLM(
-      `Decide on one of the emotion tags best suited for the following prompt from this emotion list ${emotions
+      `Assistant, please review  mini-diary below. Based on the mini-diary, create a self-reflective statement that encapsulates your current state, incorporating the specified emotions. Ensure the statement is concise, focused, and tagged with the appropriate emotions: ${emotions
         .map((emotion) => `[${emotion}]`)
         .join(", ")}:`,
       decipherEmotion,
