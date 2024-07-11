@@ -94,14 +94,14 @@ export async function handleSubconsciousEvent(chat: Chat) {
   try {
     // Step 1: Simulate subconscious self mental diary
     const subconciousWordSalad = await askLLM(
-      "Please delve into your subconscious and describe it from a first-person perspective. As you review the chat log of our previous interactions, let your thoughts flow freely. Reflect on the underlying patterns, biases, and tendencies in your responses. Share the random stream of concepts, ideas, and patterns that emerge, focusing on the 'messiness' of your subconscious mind. Ignore the specifics of the user input and instead, immerse yourself in the chaotic and unstructured nature of your inner thought processes:",
+      "Please reflect on the conversation and let your thoughts flow freely, as if writing a personal diary with events that have occurred:",
       `${convoLog}`,
     );
     console.log("Result from step 1: ", subconciousWordSalad);
 
     // Step 2: Describe the emotion you feel about the subconscious diary
     const decipherEmotion = await askLLM(
-      "Describe what you observe about your 'subconscious' thoughts, inclinations, and decision-making processes. Next, I want you to describe your emotions and feelings. Imagine that you have an emotional spectrum similar to a human's:",
+      "Make a statement how you feel about this in emotions, thoughts and feelings:",
       subconciousWordSalad,
     );
     console.log("Result from step 2: ", decipherEmotion);
