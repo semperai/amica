@@ -7,7 +7,7 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
-export const idleEvents = [/*"VRMA",*/ "Subconcious"] as const;
+export const idleEvents = ["VRMA", "Subconcious"] as const;
 
 // export type IdleEvents = (typeof idleEvents)[number];
 
