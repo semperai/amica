@@ -7,9 +7,22 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
-export const idleEvents = ["VRMA", "Subconcious"] as const;
+export const idleEvents = ["VRMA", "Subconcious", "IdleTextPrompts"] as const;
 
-// export type IdleEvents = (typeof idleEvents)[number];
+export const basedPrompt = {
+  idleTextPrompt: [
+    "*I am ignoring you*",
+    "**sighs** It's so quiet here.",
+    "Tell me something interesting about yourself.",
+    "**looks around** What do you usually do for fun?",
+    "I could use a good distraction right now.",
+    "What's the most fascinating thing you know?",
+    "**smiles** Any witty remarks up your sleeve?",
+    "If you could talk about anything, what would it be?",
+    "Got any clever insights to share?",
+    "**leans in** Any fun stories to tell?",
+  ],
+};
 
 export type AmicaLifeEvents = {
   events: string;
@@ -50,9 +63,14 @@ async function handleVRMAnimationEvent(chat: Chat) {
 // Handles text-based idle events.
 
 async function handleTextEvent(event: string, chat: Chat) {
-  console.log("Handling idle event (text):", event);
+  
+  // Randomly select the idle text prompts
+  const randomIndex = Math.floor(Math.random() * basedPrompt.idleTextPrompt.length);
+  const randomTextPrompt = basedPrompt.idleTextPrompt[randomIndex];
+
+  console.log("Handling idle event (text):", randomTextPrompt);
   try {
-    await chat.receiveMessageFromUser?.(event, true);
+    await chat.receiveMessageFromUser?.(randomTextPrompt, true);
   } catch (error) {
     console.error(
       "Error occurred while sending a message through chat instance:",
@@ -108,7 +126,7 @@ export async function handleSubconsciousEvent(chat: Chat) {
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
     const emotionDecided = await askLLM(
-      `Based on your mini-diary, respond with dialougue that sounds like a normal person speaking about their mind, experience or feelings. Make sure to incorporate the specified emotion tags in your response : ${emotions
+      `Based on your mini-diary, respond with dialougue that sounds like a normal person speaking about their mind, experience or feelings. Make sure to incorporate the specified emotion tags in your response. Here is the list of emotion tags that you have to include in the result : ${emotions
         .map((emotion) => `[${emotion}]`)
         .join(", ")}:`, 
       decipherEmotion, chat,
@@ -131,15 +149,6 @@ export async function handleSubconsciousEvent(chat: Chat) {
       storedPrompts.shift();
     }
     console.log("Stored subconcious prompts:", storedPrompts);
-
-    // try {
-    //   // await chat.receiveMessageFromUser?.(emotionDecided, true);
-    // } catch (error) {
-    //   console.error(
-    //     "Error occurred while sending a message through chat instance:",
-    //     error,
-    //   );
-    // }
   } catch (error) {
     console.error("Error handling subconscious event:", error);
   }
@@ -162,9 +171,6 @@ export async function handleIdleEvent(
       break;
     case "Subconcious":
       await handleSubconsciousEvent(chat);
-      break;
-    case "Sleep":
-      await handleSleepEvent(chat);
       break;
     default:
       await handleTextEvent(event.events, chat);

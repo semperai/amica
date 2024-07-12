@@ -315,7 +315,7 @@ export class Chat {
 
   // this happens either from text or from voice / whisper completion
   public async receiveMessageFromUser(message: string, amicaLife: boolean) {
-    !amicaLife ? console.log('receiveMessageFromUser', message) : null ;
+    !amicaLife ? console.log('Received message from user: ', message) : null ;
     if (message === null || message === "") {
       return;
     }
