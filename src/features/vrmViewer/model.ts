@@ -21,6 +21,8 @@ export class Model {
   private _lookAtTargetParent: THREE.Object3D;
   private _lipSync?: LipSync;
 
+  public _idleAction?: THREE.AnimationAction;
+
   constructor(lookAtTargetParent: THREE.Object3D) {
     this._lookAtTargetParent = lookAtTargetParent;
     this._lipSync = new LipSync(new AudioContext());
@@ -86,9 +88,9 @@ export class Model {
       ? animation
       : animation.createAnimationClip(vrm);
     mixer.stopAllAction()
-    const action = mixer.clipAction(clip);
+    this._idleAction = mixer.clipAction(clip);
     // console.log('action', action);
-    action.play();
+    this._idleAction.play();
   }
 
   public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, viewer: Viewer): Promise<void> {
@@ -101,21 +103,30 @@ export class Model {
       ? animation
       : animation.createAnimationClip(vrm);
 
-    // mixer.stopAllAction();
-    const action = mixer.clipAction(clip);
-    action.loop = THREE.LoopOnce;
+    const VRMAaction = mixer.clipAction(clip);
+    VRMAaction.setEffectiveWeight(1);
+    VRMAaction.setEffectiveTimeScale(1);
+    VRMAaction.play();
+    VRMAaction.time = 0;
+    this._idleAction?.crossFadeTo(VRMAaction,1,true);
+    requestAnimationFrame(() => viewer.resetCameraLerp());
 
     // Add event listener for the 'finished' event on the mixer
-    mixer.addEventListener('finished', (event) => {
-      if (event.action === action) {
-        requestAnimationFrame(() => {
-          viewer.resetCamera()
-        });
+		const onLoopFinished = (event: any) => {
+      if (event.action === VRMAaction) {
+        mixer.removeEventListener('loop', onLoopFinished);
+        if (this._idleAction) {
+          this._idleAction.enabled = true;
+          this._idleAction.setEffectiveWeight(1);
+          this._idleAction.setEffectiveTimeScale(1);
+          this._idleAction.time = 0;
+          VRMAaction.crossFadeTo(this._idleAction, 1, true);
+        }
+        
       }
-    });
-
-
-    action.play();
+    };
+  
+    mixer.addEventListener('loop', onLoopFinished);
   }
 
   public async playEmotion(expression: string) {

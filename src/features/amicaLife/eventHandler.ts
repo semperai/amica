@@ -52,7 +52,7 @@ async function handleVRMAnimationEvent(chat: Chat) {
       // @ts-ignore
       await viewer.model!.playAnimation(animation, viewer);
       requestAnimationFrame(() => {
-        viewer.resetCamera();
+        viewer.resetCameraLerp();
       });
     }
   } catch (error) {
