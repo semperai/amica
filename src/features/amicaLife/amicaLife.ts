@@ -35,6 +35,7 @@ export class AmicaLife {
   }
 
   private async initialize() {
+
     idleEvents.forEach((prompt) => this.mainEvents.enqueue({ events: prompt }));
   }
 

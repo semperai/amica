@@ -7,6 +7,8 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
+import { functionCalling } from "@/features/functionCalling/functionCalling"
+
 export const idleEvents = ["VRMA", "Subconcious", "IdleTextPrompts"] as const;
 
 export const basedPrompt = {
@@ -154,6 +156,26 @@ export async function handleSubconsciousEvent(chat: Chat) {
   }
 }
 
+// Handles news event
+
+export async function handleNewsEvent(chat: Chat){
+  console.log("Handling idle event :", "News");
+
+  try {
+    const news = await functionCalling("news");
+    if (!news) {
+      throw new Error("Loading news failed");
+    }
+    await chat.receiveMessageFromUser?.(news, true);
+  } catch (error) {
+    console.error(
+      "Error occurred while sending a message through chat instance:",
+      error,
+    );
+  }
+
+}
+
 // Main handler for idle events.
 
 export async function handleIdleEvent(
@@ -171,6 +193,9 @@ export async function handleIdleEvent(
       break;
     case "Subconcious":
       await handleSubconsciousEvent(chat);
+      break;
+    case "News":
+      await handleNewsEvent(chat);
       break;
     default:
       await handleTextEvent(event.events, chat);
