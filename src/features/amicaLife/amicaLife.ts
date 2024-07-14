@@ -35,7 +35,6 @@ export class AmicaLife {
   }
 
   private async initialize() {
-
     idleEvents.forEach((prompt) => this.mainEvents.enqueue({ events: prompt }));
   }
 
@@ -47,6 +46,17 @@ export class AmicaLife {
       );
       this.initialize();
     }
+  }
+
+  public insertFront(event: AmicaLifeEvents) {
+    const newQueue = new Queue<AmicaLifeEvents>();
+    newQueue.enqueue(event);
+
+    while (!this.mainEvents.isEmpty()) {
+      newQueue.enqueue(this.mainEvents.dequeue()!);
+    }
+
+    this.mainEvents = newQueue;
   }
 
   public async startIdleLoop() {

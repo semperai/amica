@@ -337,11 +337,11 @@ export class Chat {
       
       if (!/\[.*?\]/.test(message)) {
         message = `[neutral] ${message}`;
-
+      }
       
       if (message.toLowerCase().includes('news')) {
         console.log("Added news event to amica life");
-        this.amicaLife.mainEvents.enqueue({events: "News"});
+        this.amicaLife.insertFront({events: "News"});
       }
         
       await this.amicaLife.pause();
