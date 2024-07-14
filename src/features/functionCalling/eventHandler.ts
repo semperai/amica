@@ -32,7 +32,7 @@ export async function handleNews(prompt: string): Promise<string> {
 
     const result = await expandPrompt(prompt, { context_str: fullNews });
 
-    console.log("News function calling result: ", result);
+    console.log("News function calling result: ", fullNews);
     return result;
 
   } catch (error) {
