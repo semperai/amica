@@ -170,6 +170,22 @@ export class Viewer {
     }
   }
 
+  public resetCameraLerp() {
+    const headNode = this.model?.vrm?.humanoid.getNormalizedBoneNode("head");
+
+    if (headNode) {
+      const headWPos = headNode.getWorldPosition(new THREE.Vector3());
+      const newPosition = new THREE.Vector3(
+        this._camera?.position.x,
+        headWPos.y,
+        this._camera?.position.z
+      );
+      this._camera?.position.lerpVectors(this._camera?.position,newPosition,0.8);
+      // this._cameraControls?.target.lerpVectors(this._cameraControls?.target,headWPos,0.5);
+      // this._cameraControls?.update();
+    }
+  }
+
   public update = () => {
     requestAnimationFrame(this.update);
     const delta = this._clock.getDelta();

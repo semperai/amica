@@ -73,7 +73,7 @@ export class Chat {
 
   private messageList: Message[];
 
-  private currentStreamIdx: number;
+  public currentStreamIdx: number;
 
   constructor() {
     this.initialized = false;
@@ -334,10 +334,16 @@ export class Chat {
 
     if (!amicaLife || config("amica_life_enabled") === 'false') {
       console.log('receiveMessageFromUser', message);
+      
+      if (!/\[.*?\]/.test(message)) {
+        message = `[neutral] ${message}`;
+
+      
       if (message.toLowerCase().includes('news')) {
         console.log("Added news event to amica life");
         this.amicaLife.mainEvents.enqueue({events: "News"});
       }
+        
       await this.amicaLife.pause();
       this.amicaLife.isSleep = false;
       this.amicaLife.triggerMessage = true;

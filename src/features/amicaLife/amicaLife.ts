@@ -4,8 +4,13 @@ import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
 
 import { Chat } from "@/features/chat/chat";
-import { AmicaLifeEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
-
+import {
+  AmicaLifeEvents,
+  idleEvents,
+  handleIdleEvent,
+  handleSleepEvent,
+  basedPrompt,
+} from "@/features/amicaLife/eventHandler";
 
 export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
@@ -30,25 +35,17 @@ export class AmicaLife {
   }
 
   private async initialize() {
-    const basedPrompt = {
-      "idleTextPrompt": [
-        "*I am ignoring you*",
-        "Say something funny",
-        "Speak to me about topic your are interested in"
-      ]
-    }
-    
-    basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
 
-    idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
+    idleEvents.forEach((prompt) => this.mainEvents.enqueue({ events: prompt }));
   }
 
-  public async loadIdleTextPrompt(prompts: string []) {
+  public async loadIdleTextPrompt(prompts: string[]) {
     if (prompts.length > 0) {
       this.mainEvents.clear();
-      prompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt }));
-  
-      idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt }));
+      prompts.forEach((prompt: string) =>
+        basedPrompt.idleTextPrompt.push(prompt)
+      );
+      this.initialize();
     }
   }
 
@@ -61,7 +58,7 @@ export class AmicaLife {
     }
 
     // User must start the conversation with amica first to activate amica life
-    if(!this.triggerMessage){
+    if (!this.triggerMessage) {
       return;
     }
 
@@ -73,28 +70,38 @@ export class AmicaLife {
 
     const processIdleEvents = async () => {
       while (this.isIdleLoopRunning) {
-
-        // Check for sleep event
-        await this.checkSleep();
-
+        
         // Check for pause
         await this.checkPause();
 
-        // Random chance for doing nothing (25% chance)
-        if (Math.random() <= 0.25) {
-          console.log("Handling idle event:", "Doing nothing this cycle");
-          await this.waitInterval();
-          continue;
+        // If current stream doesn't finish its jobs continue
+        if (this.chat !== null) {
+          if ( this.chat?.speakJobs.size() < 1 && this.chat?.ttsJobs.size() < 1) {
+
+            // Check for sleep event
+            await this.checkSleep();
+
+            // Check for pause
+            await this.checkPause();
+
+            // Random chance for doing nothing (25% chance)
+            if (Math.random() <= 0.25) {
+              console.log("Handling idle event:", "Doing nothing this cycle");
+              await this.waitInterval();
+              continue;
+            }
+
+            const idleEvent = this.mainEvents.dequeue();
+            if (idleEvent) {
+              this.callCount++;
+              await handleIdleEvent(idleEvent, this.chat);
+              this.mainEvents.enqueue(idleEvent);
+            } else {
+              console.log("Handling idle event:", "No idle events in queue");
+            }
+          }
         }
 
-        const idleEvent = this.mainEvents.dequeue();
-        if (idleEvent) {
-          this.callCount++;
-          await handleIdleEvent(idleEvent,this.chat);
-          this.mainEvents.enqueue(idleEvent);
-        } else {
-          console.log("Handling idle event:", "No idle events in queue");
-        }
         // Wait for an interval time before processing the next event
         await this.waitInterval();
       }
@@ -124,9 +131,9 @@ export class AmicaLife {
     }
 
     // Updated time before idle every curve when its get ignored
-    if (prevFlag === false && this.isSettingOff && this.triggerMessage) {
-      this.updatedIdleTime();
-    }
+    // if (prevFlag === false && this.isSettingOff && this.triggerMessage) {
+    //   this.updatedIdleTime();
+    // }
 
     await this.chat?.interrupt();
     this.isPause = true;
@@ -148,7 +155,7 @@ export class AmicaLife {
       parseInt(config("time_before_idle_sec")) * 1.25,
       240,
     );
-    updateConfig("time_before_idle_sec", idleTimeSec.toString());
+    // updateConfig("time_before_idle_sec", idleTimeSec.toString());
     console.log(`Updated time before idle to ${idleTimeSec} seconds`);
   }
 
@@ -162,11 +169,11 @@ export class AmicaLife {
     return new Promise((resolve) => setTimeout(resolve, interval));
   }
 
-  // function to pause/resume the loop when setting page is open/close
+  // Function to pause/resume the loop when setting page is open/close
   public checkSettingOff(off: boolean) {
     if (off) {
       this.isSettingOff = true;
-      this.chat?.updateAwake(); // update awake when user exit the setting page
+      this.chat?.updateAwake(); // Update awake when user exit the setting page
       this.resume();
     } else {
       this.isSettingOff = false;
@@ -179,33 +186,34 @@ export class AmicaLife {
       const chat = this.chat;
       if (!chat) {
         console.error("Chat instance is not available");
-        return ;
+        return;
       }
 
       const idleTime = chat.idleTime();
 
       // If character being idle morethan 120 sec or 2 min, play handle sleep event
-      if (idleTime > parseInt(config("time_to_sleep_sec"))) {
-        this.isSleep = true;
-        await handleSleepEvent(chat);
-        this.pause();
+      if (!this.mainEvents.contains({ events: "Sleep" })) {
+        if (idleTime > parseInt(config("time_to_sleep_sec"))) {
+          this.isSleep = true;
+          await handleSleepEvent(this.chat!);
+          this.pause();
+        }
       }
     }
   }
 
-
   private async checkPause() {
+    // Check pause
     if (this.isPause) {
       console.log("Idle loop paused");
       await new Promise<void>((resolve) => {
         const checkPause = setInterval(() => {
           if (!this.isPause) {
             clearInterval(checkPause);
-            resolve();
+            resolve(console.log("Idle loop resumed"));
           }
         }, 50);
       });
-      console.log("Idle loop resumed");
     }
   }
 }

@@ -1,5 +1,5 @@
-import { Message } from "@/features/chat/messages";
-import { config } from "@/utils/config";
+import { Message, Screenplay } from "@/features/chat/messages";
+import { Chat } from "@/features/chat/chat";
 
 import { getEchoChatResponseStream } from "@/features/chat/echoChat";
 import { getOpenAiChatResponseStream } from "@/features/chat/openAiChat";
@@ -8,15 +8,21 @@ import { getWindowAiChatResponseStream } from "@/features/chat/windowAiChat";
 import { getOllamaChatResponseStream } from "@/features/chat/ollamaChat";
 import { getKoboldAiChatResponseStream } from "@/features/chat/koboldAiChat";
 
-// Function to ask llm without its speaking
+import { config } from "@/utils/config";
+import { processResponse } from "@/utils/processResponse";
+
+// Function to ask llm with custom system prompt, if doesn't want it to speak provide the chat in params as null.
 export async function askLLM(
   systemPrompt: string,
   userPrompt: string,
+  chat: Chat | null,
 ): Promise<string> {
   let streams = [];
-  let currentStreamIdx = 0;
   let readers = [];
+  let currentStreamIdx = 0
   let setChatProcessing = (_processing: boolean) => {};
+
+  chat === null ? currentStreamIdx = 0 : null;
 
   const alert = {
     error: (title: string, message: string) => {
@@ -72,16 +78,23 @@ export async function askLLM(
   }
 
   currentStreamIdx++;
+  chat !== null ? currentStreamIdx = chat.currentStreamIdx : null;
   setChatProcessing(true);
 
   console.time("Subconcious subroutine stream processing");
   const reader = stream.getReader();
   readers.push(reader);
   let receivedMessage = "";
+  let sentences = new Array<string>();
+  let aiTextLog = "";
+  let tag = "";
+  let rolePlay = "";
+  let result = "";
 
   let firstTokenEncountered = false;
-  console.time("performance_time_to_first_token");
-  console.time("performance_time_to_first_sentence");
+  let firstSentenceEncountered = false;
+  console.time('performance_time_to_first_token');
+  chat !== null ? console.time('performance_time_to_first_sentence') : null ;
 
   try {
     while (true) {
@@ -98,6 +111,47 @@ export async function askLLM(
 
       receivedMessage += value;
       receivedMessage = receivedMessage.trimStart();
+      
+
+      if (chat !== null) {
+        const proc = processResponse({
+          sentences,
+          aiTextLog,
+          receivedMessage,
+          tag,
+          rolePlay,
+          callback: (aiTalks: Screenplay[]): boolean => {
+            // Generate & play audio for each sentence, display responses
+            console.debug('enqueue tts', aiTalks);
+            console.debug('streamIdx', currentStreamIdx, 'currentStreamIdx', chat.currentStreamIdx)
+            if (currentStreamIdx !== chat.currentStreamIdx) {
+              console.log('wrong stream idx');
+              return true; // should break
+            }
+            chat.ttsJobs.enqueue({
+              screenplay: aiTalks[0],
+              streamIdx: currentStreamIdx,
+            });
+  
+            if (! firstSentenceEncountered) {
+              console.timeEnd('performance_time_to_first_sentence');
+              firstSentenceEncountered = true;
+            }
+  
+            return false; // normal processing
+          }
+        });
+  
+        sentences = proc.sentences;
+        aiTextLog = proc.aiTextLog;
+        receivedMessage = proc.receivedMessage;
+        tag = proc.tag;
+        rolePlay = proc.rolePlay;
+        if (proc.shouldBreak) {
+          break;
+        }  
+      }
+      
     }
   } catch (e: any) {
     const errMsg = e.toString();
@@ -111,8 +165,8 @@ export async function askLLM(
       setChatProcessing(false);
     }
   }
-
-  return receivedMessage;
+  chat !== null ? result = aiTextLog : result = receivedMessage;
+  return result;
 }
 
 export default askLLM;
