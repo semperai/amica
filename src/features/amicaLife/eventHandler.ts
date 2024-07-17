@@ -7,9 +7,15 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
-import { functionCalling } from "@/features/functionCalling/functionCalling"
+import { AmicaLife } from "./amicaLife";
+import { Viewer } from "../vrmViewer/viewer";
 
-export const idleEvents = ["VRMA", "Subconcious", "IdleTextPrompts"] as const;
+export const idleEvents = [
+  "VRMA",
+  "Subconcious",
+  "IdleTextPrompts",
+  "Sleep",
+] as const;
 
 export const basedPrompt = {
   idleTextPrompt: [
@@ -38,14 +44,13 @@ let storedPrompts: string[] = [];
 
 // Handles the VRM animation event.
 
-async function handleVRMAnimationEvent(chat: Chat) {
+async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
   // Select a random animation from the list
   const randomAnimation =
     animationList[Math.floor(Math.random() * animationList.length)];
   console.log("Handling idle event (animation):", basename(randomAnimation));
 
   try {
-    const viewer = chat.viewer;
     if (viewer) {
       const animation = await loadVRMAnimation(randomAnimation);
       if (!animation) {
@@ -56,6 +61,8 @@ async function handleVRMAnimationEvent(chat: Chat) {
       requestAnimationFrame(() => {
         viewer.resetCameraLerp();
       });
+      amicaLife.eventProcessing = false;
+      console.timeEnd("processing_event VRMA");
     }
   } catch (error) {
     console.error("Error loading animation:", error);
@@ -64,15 +71,18 @@ async function handleVRMAnimationEvent(chat: Chat) {
 
 // Handles text-based idle events.
 
-async function handleTextEvent(event: string, chat: Chat) {
-  
+async function handleTextEvent(chat: Chat, amicaLife: AmicaLife) {
   // Randomly select the idle text prompts
-  const randomIndex = Math.floor(Math.random() * basedPrompt.idleTextPrompt.length);
+  const randomIndex = Math.floor(
+    Math.random() * basedPrompt.idleTextPrompt.length,
+  );
   const randomTextPrompt = basedPrompt.idleTextPrompt[randomIndex];
 
   console.log("Handling idle event (text):", randomTextPrompt);
   try {
     await chat.receiveMessageFromUser?.(randomTextPrompt, true);
+    amicaLife.eventProcessing = false;
+    console.timeEnd(`processing_event IdleTextPrompts`);
   } catch (error) {
     console.error(
       "Error occurred while sending a message through chat instance:",
@@ -83,15 +93,18 @@ async function handleTextEvent(event: string, chat: Chat) {
 
 // Handles sleep event.
 
-export async function handleSleepEvent(chat: Chat) {
+export async function handleSleepEvent(chat: Chat, amicaLife: AmicaLife) {
   console.log("Handling idle event :", "Sleep");
-
+  amicaLife.pause();
+  amicaLife.isSleep = true;
   try {
     const viewer = chat.viewer;
     if (viewer) {
       // @ts-ignore
       await viewer.model!.playEmotion("Sleep");
     }
+    amicaLife.eventProcessing = false;
+    console.timeEnd("processing_event Sleep");
   } catch (error) {
     console.error("Error playing emotion sleep:", error);
   }
@@ -99,10 +112,13 @@ export async function handleSleepEvent(chat: Chat) {
 
 // Handles subconcious event.
 
-export async function handleSubconsciousEvent(chat: Chat) {
+export async function handleSubconsciousEvent(
+  chat: Chat,
+  amicaLife: AmicaLife,
+) {
   console.log("Handling idle event:", "Subconscious");
 
-  const convo = chat.getConvo();
+  const convo = chat.messageList;
   const convoLog = convo
     .map((message) => {
       return `${message.role === "user" ? "User" : "Assistant"}: ${
@@ -115,30 +131,37 @@ export async function handleSubconsciousEvent(chat: Chat) {
     // Step 1: Simulate subconscious self mental diary
     const subconciousWordSalad = await askLLM(
       "Please reflect on the conversation and let your thoughts flow freely, as if writing a personal diary with events that have occurred:",
-      `${convoLog}`, null,
+      `${convoLog}`,
+      null,
     );
     console.log("Result from step 1: ", subconciousWordSalad);
 
     // Step 2: Describe the emotion you feel about the subconscious diary
+    const secondStepPrompt = subconciousWordSalad.startsWith("Error:") ? convoLog : subconciousWordSalad;
     const decipherEmotion = await askLLM(
       "Read this mini-diary, I would like you to simulate a human-like subconscious with deep emotions and describe it from a third-person perspective:",
-      subconciousWordSalad, null,
+      secondStepPrompt,
+      null,
     );
     console.log("Result from step 2: ", decipherEmotion);
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
+    const thirdStepPrompt = decipherEmotion.startsWith("Error:") ? convoLog : decipherEmotion;
     const emotionDecided = await askLLM(
       `Based on your mini-diary, respond with dialougue that sounds like a normal person speaking about their mind, experience or feelings. Make sure to incorporate the specified emotion tags in your response. Here is the list of emotion tags that you have to include in the result : ${emotions
         .map((emotion) => `[${emotion}]`)
-        .join(", ")}:`, 
-      decipherEmotion, chat,
+        .join(", ")}:`,
+      thirdStepPrompt,
+      chat,
     );
     console.log("Result from step 3: ", emotionDecided);
 
     // Step 4: Compress the subconscious diary entry to 240 characters
+    const fourthStepPrompt = subconciousWordSalad.startsWith("Error:") ? convoLog : subconciousWordSalad;
     const compressSubconcious = await askLLM(
       "Compress this prompt to 240 characters:",
-      subconciousWordSalad, null,
+      fourthStepPrompt,
+      null,
     );
     console.log("Result from step 4: ", compressSubconcious);
 
@@ -151,36 +174,21 @@ export async function handleSubconsciousEvent(chat: Chat) {
       storedPrompts.shift();
     }
     console.log("Stored subconcious prompts:", storedPrompts);
+
+    amicaLife.eventProcessing = false;
+    console.timeEnd(`processing_event Subconcious`);
   } catch (error) {
     console.error("Error handling subconscious event:", error);
   }
-}
-
-// Handles news event
-
-export async function handleNewsEvent(chat: Chat){
-  console.log("Handling idle event :", "News");
-
-  try {
-    const news = await functionCalling("news");
-    if (!news) {
-      throw new Error("Loading news failed");
-    }
-    await chat.receiveMessageFromUser?.(news, true);
-  } catch (error) {
-    console.error(
-      "Error occurred while sending a message through chat instance:",
-      error,
-    );
-  }
-
 }
 
 // Main handler for idle events.
 
 export async function handleIdleEvent(
   event: AmicaLifeEvents,
-  chat: Chat | null,
+  amicaLife: AmicaLife,
+  chat: Chat,
+  viewer: Viewer,
 ) {
   if (!chat) {
     console.error("Chat instance is not available");
@@ -189,16 +197,16 @@ export async function handleIdleEvent(
 
   switch (event.events) {
     case "VRMA":
-      await handleVRMAnimationEvent(chat);
+      await handleVRMAnimationEvent(viewer, amicaLife);
       break;
     case "Subconcious":
-      await handleSubconsciousEvent(chat);
+      await handleSubconsciousEvent(chat, amicaLife);
       break;
-    case "News":
-      await handleNewsEvent(chat);
+    case "Sleep":
+      await handleSleepEvent(chat, amicaLife);
       break;
     default:
-      await handleTextEvent(event.events, chat);
+      await handleTextEvent(chat, amicaLife);
       break;
   }
 }

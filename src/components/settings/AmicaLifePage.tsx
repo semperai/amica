@@ -9,6 +9,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ChatContext } from '@/features/chat/chatContext';
 import { TextInput } from '../textInput';
 import { IconButton } from '../iconButton';
+import { AmicaLifeContext } from '@/features/amicaLife/amicaLifeContext';
 
 
 export function AmicaLifePage({
@@ -42,11 +43,11 @@ export function AmicaLifePage({
 }) {
     const { t } = useTranslation();
     const { chat: bot } = useContext(ChatContext);
+    const { amicaLife } = useContext(AmicaLifeContext);
 
-    //If settings page is on will pause amica life
     useEffect(() => {
-        amicaLifeEnabled ? bot.startAmicaLife(true) : bot.startAmicaLife(false);
-    }, [bot, amicaLifeEnabled]);
+        amicaLife.processingIdle();
+      }, [amicaLifeEnabled, amicaLife]);
 
     const jsonFileInputRef = useRef<HTMLInputElement>(null);
     const handleClickOpenJsonFile = useCallback(() => {
@@ -62,7 +63,7 @@ export function AmicaLifePage({
                     if (content) {
                         const parsedContent = JSON.parse(content);
                         if (parsedContent.idleTextPrompt) {
-                            bot.loadIdleTextPrompt(parsedContent.idleTextPrompt);
+                            amicaLife.loadIdleTextPrompt(parsedContent.idleTextPrompt);
                             console.log("idleTextPrompt", parsedContent.idleTextPrompt);
                         } else {
                             console.error("Wrong json format");

@@ -40,6 +40,7 @@ type TTSJob = {
 export class Chat {
   public initialized: boolean;
 
+  public amicaLife?: AmicaLife;
   public viewer?: Viewer;
   public alert?: Alert;
 
@@ -49,15 +50,12 @@ export class Chat {
   public setShownMessage?: (role: Role) => void;
   public setChatProcessing?: (processing: boolean) => void;
 
-
   // the message from the user that is currently being processed
   // it can be reset
   public stream: ReadableStream<Uint8Array>|null;
   public streams: ReadableStream<Uint8Array>[];
   public reader: ReadableStreamDefaultReader<Uint8Array>|null;
   public readers: ReadableStreamDefaultReader<Uint8Array>[];
-
-  private amicaLife: AmicaLife;
 
   // process these immediately as they come in and add to audioToPlay
   public ttsJobs: Queue<TTSJob>;
@@ -71,7 +69,7 @@ export class Chat {
 
   private lastAwake: number;
 
-  private messageList: Message[];
+  public messageList: Message[];
 
   public currentStreamIdx: number;
 
@@ -83,7 +81,6 @@ export class Chat {
     this.streams = [];
     this.readers = [];
 
-    this.amicaLife = new AmicaLife(this);
     this.ttsJobs = new Queue<TTSJob>();
     this.speakJobs = new Queue<Speak>();
 
@@ -97,6 +94,7 @@ export class Chat {
   }
 
   public initialize(
+    amicaLife: AmicaLife,
     viewer: Viewer,
     alert: Alert,
     setChatLog: (messageLog: Message[]) => void,
@@ -105,6 +103,7 @@ export class Chat {
     setShownMessage: (role: Role) => void,
     setChatProcessing: (processing: boolean) => void,
   ) {
+    this.amicaLife = amicaLife;
     this.viewer = viewer;
     this.alert = alert;
     this.setChatLog = setChatLog;
@@ -117,7 +116,6 @@ export class Chat {
     this.processTtsJobs();
     this.processSpeakJobs();
 
-    this.amicaLife.startIdleLoop();
     this.updateAwake();
     this.initialized = true;
   }
@@ -131,37 +129,6 @@ export class Chat {
     this.setUserMessage!(this.currentAssistantMessage);
     this.currentStreamIdx++;
   }
-
-  // Get conversation list between user and assistant
-  public getConvo(): Message[] {
-    return this.messageList;
-  }
-
-  // function to import idle text prompt from user 
-  public loadIdleTextPrompt(prompts: string []) {
-      this.amicaLife.loadIdleTextPrompt(prompts);
-  }
-
-  // start/stop amica life depends on enable/disable button
-  public startAmicaLife(flag: boolean) {
-    flag === true ? this.amicaLife.startIdleLoop() : this.amicaLife.stopIdleLoop();
-  }
-
-  // function to pause/resume the loop when setting page is open/close
-  public pauseAmicaLife(flag: boolean) {
-    if (config("amica_life_enabled") === "true") {
-      this.amicaLife.checkSettingOff(!flag);
-    }
-  }
-
-  // function handle when amica got poked in amica life event
-  
-  // public handlePoked() {
-  //   if (!this.isAwake() && config("amica_life_enabled") === "true") {
-  //     console.log("Handling idle event:", "I just poked you!");
-  //     this.receiveMessageFromUser("I just poked you!",true);
-  //   }
-  // }
 
   public idleTime(): number {
     return characterIdleTime(this.lastAwake);
@@ -230,7 +197,6 @@ export class Chat {
           this.isAwake() ? this.updateAwake() : null;
         }
       } while (this.speakJobs.size() > 0);
-      config("amica_life_enabled") === "true" ? !this.isAwake() && this.amicaLife.startIdleLoop() : null;
       await wait(50);
     }
   }
@@ -332,23 +298,17 @@ export class Chat {
     await wait(0);
     console.debug('wait complete');
 
-    if (!amicaLife || config("amica_life_enabled") === 'false') {
+    if (!amicaLife) {
       console.log('receiveMessageFromUser', message);
+
+      this.amicaLife?.receiveMessageFromUser(message);
       
+      this.updateAwake();
+      this.bubbleMessage("user",message);
+
       if (!/\[.*?\]/.test(message)) {
         message = `[neutral] ${message}`;
       }
-      
-      if (message.toLowerCase().includes('news')) {
-        console.log("Added news event to amica life");
-        this.amicaLife.insertFront({events: "News"});
-      }
-        
-      await this.amicaLife.pause();
-      this.amicaLife.isSleep = false;
-      this.amicaLife.triggerMessage = true;
-      this.updateAwake();
-      this.bubbleMessage("user",message);
     } 
 
     // make new stream

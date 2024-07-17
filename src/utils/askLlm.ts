@@ -58,7 +58,7 @@ export async function askLLM(
   try {
     streams.push(await getChatResponseStream(messages));
   } catch (e: any) {
-    const errMsg = e.toString();
+    const errMsg = `Error: ${e.toString()}`;
     console.error(errMsg);
     alert.error("Failed to get subconcious subroutine response", errMsg);
     return errMsg;
@@ -74,7 +74,7 @@ export async function askLLM(
 
   if (streams.length === 0) {
     console.log("No stream!");
-    return "";
+    return "Error: No stream";
   }
 
   currentStreamIdx++;
