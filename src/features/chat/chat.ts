@@ -130,6 +130,15 @@ export class Chat {
     this.currentStreamIdx++;
   }
 
+  // function handle when amica got poked in amica life event
+  
+  // public handlePoked() {
+  //   if (!this.isAwake() && config("amica_life_enabled") === "true") {
+  //     console.log("Handling idle event:", "I just poked you!");
+  //     this.receiveMessageFromUser("I just poked you!",true);
+  //   }
+  // }
+
   public idleTime(): number {
     return characterIdleTime(this.lastAwake);
   }

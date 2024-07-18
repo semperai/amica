@@ -114,6 +114,7 @@ export function AmicaLifePage({
                                     ></IconButton>
                                     <TextInput
                                         value={idleTextPrompt}
+                                        readOnly={true}
                                     />
                                     <input
                                         type="file"

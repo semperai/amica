@@ -25,7 +25,8 @@ export class AmicaLife {
   public isSleep: boolean;
   private isSettingOff: boolean;
   private isPause: boolean;
-  private isIdleLoopRunning?: boolean;
+  private isProcessingEventRunning?: boolean;
+  private isProcessingIdleRunning?: boolean;
 
   constructor() {
     this.initialized = false;
@@ -37,7 +38,8 @@ export class AmicaLife {
     this.isSleep = false;
     this.isPause = false;
     this.isSettingOff = false;
-    this.isIdleLoopRunning = false;
+    this.isProcessingEventRunning = false;
+    this.isProcessingIdleRunning = false;
   }
 
   public initialize(viewer: Viewer, chat: Chat) {
@@ -82,6 +84,11 @@ export class AmicaLife {
 
   // Function to check message from user
   public receiveMessageFromUser(message: string) {
+    if (message.toLowerCase().includes('news')) {
+      console.log("Added news event to amica life");
+      this.insertFront({events: "News"});
+    }
+
     this.pause();
     this.isSleep = false;
     this.triggerMessage = true;
@@ -98,7 +105,10 @@ export class AmicaLife {
 
 
   public async processingIdle() {
-    if (this.isIdleLoopRunning) { return; }
+
+    // Preventing duplicate processingIdle loop
+    if (this.isProcessingIdleRunning) { return; }
+    this.isProcessingIdleRunning = true;
 
     console.log("Starting idle loop");
     while (config("amica_life_enabled") === "true") {
@@ -110,14 +120,15 @@ export class AmicaLife {
       await wait(50);
     }
 
-    this.isIdleLoopRunning = false;
+    this.isProcessingIdleRunning = false;;
+    this.isProcessingEventRunning = false;
     this.triggerMessage = false;
     console.log("Stopping idle loop");
   }
 
   public async processingEvent() {
-    // Preventing duplicate loop and resuming 
-    if (this.isIdleLoopRunning) {
+    // Preventing duplicate processing event loop
+    if (this.isProcessingEventRunning) {
       // Check for resume
       if (!await this.checkResume()) { return; }
     }
@@ -127,9 +138,9 @@ export class AmicaLife {
       return;
     }
 
-    this.isIdleLoopRunning = true;
+    this.isProcessingEventRunning = true;
 
-    while (this.isIdleLoopRunning) {
+    while (this.isProcessingEventRunning) {
       // Check for pause and sleep
       await this.checkSleep();
       await this.checkPause();

@@ -7,8 +7,10 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
+import { functionCalling } from "@/features/functionCalling/functionCalling";
 import { AmicaLife } from "./amicaLife";
 import { Viewer } from "../vrmViewer/viewer";
+import { config } from "@/utils/config";
 
 export const idleEvents = [
   "VRMA",
@@ -182,6 +184,27 @@ export async function handleSubconsciousEvent(
   }
 }
 
+// Handles news event
+
+export async function handleNewsEvent(chat: Chat, amicaLife: AmicaLife) {
+  console.log("Handling idle event :", "News");
+
+  try {
+    const news = await functionCalling("news");
+    if (!news) {
+      throw new Error("Loading news failed");
+    }
+    await chat.receiveMessageFromUser?.(news, true);
+    amicaLife.eventProcessing = false;
+    console.timeEnd("processing_event News");
+  } catch (error) {
+    console.error(
+      "Error occurred while sending a message through chat instance:",
+      error,
+    );
+  }
+}
+
 // Main handler for idle events.
 
 export async function handleIdleEvent(
@@ -201,6 +224,9 @@ export async function handleIdleEvent(
       break;
     case "Subconcious":
       await handleSubconsciousEvent(chat, amicaLife);
+      break;
+    case "News":
+      await handleNewsEvent(chat, amicaLife);
       break;
     case "Sleep":
       await handleSleepEvent(chat, amicaLife);
