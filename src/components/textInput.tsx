@@ -1,11 +1,13 @@
 type Props = {
   value: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-};
+  readOnly?: boolean;
+}
 
 export const TextInput = ({
   value,
   onChange,
+  readOnly,
   ...rest
 }: Props) => {
   return (
@@ -14,6 +16,7 @@ export const TextInput = ({
       type="text"
       value={value}
       onChange={onChange}
+      readOnly={readOnly}
       {...rest}
     />
   );

@@ -136,9 +136,6 @@ export class AmicaLife {
     this.isProcessingEventRunning = true;
 
     while (this.isProcessingEventRunning) {
-      // Check for pause and sleep
-      await this.checkSleep();
-      await this.checkPause();
 
       // Wait for current event to finish before processing next event
       if (
