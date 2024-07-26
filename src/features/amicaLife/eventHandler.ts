@@ -14,7 +14,6 @@ export const idleEvents = [
   "VRMA",
   "Subconcious",
   "IdleTextPrompts",
-  "Sleep",
 ] as const;
 
 export const basedPrompt = {
@@ -57,12 +56,17 @@ async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
         throw new Error("Loading animation failed");
       }
       // @ts-ignore
-      await viewer.model!.playAnimation(animation, viewer);
+      const duration = await viewer.model!.playAnimation(animation, viewer);
       requestAnimationFrame(() => {
         viewer.resetCameraLerp();
       });
-      amicaLife.eventProcessing = false;
-      console.timeEnd("processing_event VRMA");
+
+      // Set timeout for the duration of the animation
+      setTimeout(() => {
+        amicaLife.eventProcessing = false;
+        console.timeEnd("processing_event VRMA");
+      }, duration * 1000);
+
     }
   } catch (error) {
     console.error("Error loading animation:", error);

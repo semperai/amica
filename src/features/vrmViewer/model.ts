@@ -93,7 +93,7 @@ export class Model {
     this._idleAction.play();
   }
 
-  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, viewer: Viewer): Promise<void> {
+  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, viewer: Viewer): Promise<number> {
     const { vrm, mixer } = this;
     if (vrm == null || mixer == null) {
       throw new Error("You have to load VRM first");
@@ -127,6 +127,8 @@ export class Model {
     };
   
     mixer.addEventListener('loop', onLoopFinished);
+
+    return clip.duration;
   }
 
   public async playEmotion(expression: string) {
