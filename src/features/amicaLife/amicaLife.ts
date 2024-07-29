@@ -2,6 +2,7 @@ import { Queue } from "typescript-collections";
 
 import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
+import { characterIdleTime, pauseIdleTimer, resumeIdleTimer } from "@/utils/isIdle";
 
 import { Chat } from "@/features/chat/chat";
 import {
@@ -11,6 +12,7 @@ import {
   basedPrompt,
 } from "@/features/amicaLife/eventHandler";
 import { Viewer } from "../vrmViewer/viewer";
+
 
 export class AmicaLife {
   public initialized: boolean;
@@ -180,6 +182,8 @@ export class AmicaLife {
         !this.eventProcessing 
       ) {
 
+        resumeIdleTimer();
+
         // Check for pause and sleep
         await this.checkSleep();
         await this.checkPause();
@@ -198,10 +202,11 @@ export class AmicaLife {
           this.eventProcessing = true;
           await handleIdleEvent(idleEvent, this, this.chat!, this.viewer!);
           this.mainEvents.enqueue(idleEvent);
+          pauseIdleTimer();
         } else {
           console.log("Handling idle event:", "No idle events in queue");
         }
-      }
+      } 
 
       await this.waitInterval();
     }

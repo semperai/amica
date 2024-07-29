@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { VRM, VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { VRMAnimation } from "@/lib/VRMAnimation/VRMAnimation";
 import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlugin/VRMLookAtSmootherLoaderPlugin";
 import { LipSync } from "@/features/lipSync/lipSync";
@@ -8,7 +8,6 @@ import { EmoteController } from "@/features/emoteController/emoteController";
 import { Screenplay } from "@/features/chat/messages";
 import { Viewer } from "@/features/vrmViewer/viewer";
 import { config } from "@/utils/config";
-
 
 /**
  * 3Dキャラクターを管理するクラス
@@ -35,26 +34,24 @@ export class Model {
     const helperRoot = new THREE.Group();
     helperRoot.renderOrder = 10000;
 
-    loader.register(
-      (parser) => {
-        const options: any = {
-          lookAtPlugin: new VRMLookAtSmootherLoaderPlugin(parser),
-        };
+    loader.register((parser) => {
+      const options: any = {
+        lookAtPlugin: new VRMLookAtSmootherLoaderPlugin(parser),
+      };
 
-        if (config("debug_gfx") === 'true') {
-          options.helperRoot = helperRoot;
-        }
-
-        return new VRMLoaderPlugin(parser, options)
+      if (config("debug_gfx") === "true") {
+        options.helperRoot = helperRoot;
       }
-    );
+
+      return new VRMLoaderPlugin(parser, options);
+    });
 
     const gltf = await loader.loadAsync(url);
 
     const vrm = (this.vrm = gltf.userData.vrm);
     vrm.scene.name = "VRMRoot";
 
-    if (config("debug_gfx") === 'true') {
+    if (config("debug_gfx") === "true") {
       vrm.scene.add(helperRoot);
     }
 
@@ -78,43 +75,50 @@ export class Model {
    *
    * https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm_animation-1.0/README.ja.md
    */
-  public async loadAnimation(animation: VRMAnimation|THREE.AnimationClip): Promise<void> {
+  public async loadAnimation(
+    animation: VRMAnimation | THREE.AnimationClip,
+  ): Promise<void> {
     const { vrm, mixer } = this;
     if (vrm == null || mixer == null) {
       throw new Error("You have to load VRM first");
     }
 
-    const clip = animation instanceof THREE.AnimationClip
-      ? animation
-      : animation.createAnimationClip(vrm);
-    mixer.stopAllAction()
+    const clip =
+      animation instanceof THREE.AnimationClip
+        ? animation
+        : animation.createAnimationClip(vrm);
+    mixer.stopAllAction();
     this._idleAction = mixer.clipAction(clip);
     // console.log('action', action);
     this._idleAction.play();
   }
 
-  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, viewer: Viewer): Promise<number> {
+  public async playAnimation(
+    animation: VRMAnimation | THREE.AnimationClip,
+    viewer: Viewer,
+  ): Promise<number> {
     const { vrm, mixer } = this;
     if (vrm == null || mixer == null) {
       throw new Error("You have to load VRM first");
     }
-  
-    const clip = animation instanceof THREE.AnimationClip
-      ? animation
-      : animation.createAnimationClip(vrm);
+
+    const clip =
+      animation instanceof THREE.AnimationClip
+        ? animation
+        : animation.createAnimationClip(vrm);
 
     const VRMAaction = mixer.clipAction(clip);
     VRMAaction.setEffectiveWeight(1);
     VRMAaction.setEffectiveTimeScale(1);
     VRMAaction.play();
     VRMAaction.time = 0;
-    this._idleAction?.crossFadeTo(VRMAaction,1,true);
-    requestAnimationFrame(() => viewer.resetCameraLerp());
+    this._idleAction?.crossFadeTo(VRMAaction, 1, true);
+    // requestAnimationFrame(() => viewer.resetCameraLerp());
 
     // Add event listener for the 'finished' event on the mixer
-		const onLoopFinished = (event: any) => {
+    const onLoopFinished = (event: any) => {
       if (event.action === VRMAaction) {
-        mixer.removeEventListener('loop', onLoopFinished);
+        mixer.removeEventListener("loop", onLoopFinished);
         if (this._idleAction) {
           this._idleAction.enabled = true;
           this._idleAction.setEffectiveWeight(1);
@@ -122,11 +126,10 @@ export class Model {
           this._idleAction.time = 0;
           VRMAaction.crossFadeTo(this._idleAction, 1, true);
         }
-        
       }
     };
-  
-    mixer.addEventListener('loop', onLoopFinished);
+
+    mixer.addEventListener("loop", onLoopFinished);
 
     return clip.duration;
   }

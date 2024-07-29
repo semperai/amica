@@ -132,7 +132,7 @@ export const ChatLog = ({
               <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
                 <Chat
                   role={msg.role}
-                  message={msg.content}
+                  message={msg.content.replace(/\[(.*?)\]/g, "")}
                   num={i}
                   onClickResumeButton={handleResumeButtonClick}
                 />

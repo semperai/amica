@@ -23,7 +23,7 @@ import { config } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
-import { isCharacterIdle, characterIdleTime } from "@/utils/isIdle";
+import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
 
 
 type Speak = {
@@ -140,6 +140,7 @@ export class Chat {
 
   public updateAwake() {
     this.lastAwake = (new Date()).getTime();
+    resetIdleTimer();
   }
 
   public async processTtsJobs() {
@@ -190,7 +191,7 @@ export class Chat {
           };
         }
 
-        this.bubbleMessage("assistant",speak.screenplay.talk.message);
+        this.bubbleMessage("assistant",speak.screenplay.text);
 
         if (speak.audioBuffer) {
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);
@@ -202,6 +203,8 @@ export class Chat {
   }
 
   public bubbleMessage(role: Role, text: string) {
+    // TODO: currentUser & Assistant message should be contain the message with emotion in it
+
     if (role === 'user') {
       // add space if there is already a partial message
       if (this.currentUserMessage !== '') {
@@ -302,13 +305,13 @@ export class Chat {
       console.log('receiveMessageFromUser', message);
 
       this.amicaLife?.receiveMessageFromUser(message);
-      
-      this.updateAwake();
-      this.bubbleMessage("user",message);
 
       if (!/\[.*?\]/.test(message)) {
         message = `[neutral] ${message}`;
       }
+
+      this.updateAwake();
+      this.bubbleMessage("user",message);
     } 
 
     // make new stream
