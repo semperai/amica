@@ -183,7 +183,6 @@ export class AmicaLife {
       ) {
 
         resumeIdleTimer();
-        console.log("idleTime resume", this.chat?.idleTime());
 
         // Check for pause and sleep
         await this.checkSleep();
