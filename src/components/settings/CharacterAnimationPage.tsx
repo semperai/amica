@@ -44,7 +44,6 @@ export function CharacterAnimationPage({
                 // @ts-ignore
                 viewer.model!.loadAnimation(animation);
                 requestAnimationFrame(() => {
-                  console.log("lerp1")
                   viewer.resetCamera()
                 });
               }}
