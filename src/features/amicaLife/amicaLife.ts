@@ -183,6 +183,7 @@ export class AmicaLife {
       ) {
 
         resumeIdleTimer();
+        console.log("idleTime resume", this.chat?.idleTime());
 
         // Check for pause and sleep
         await this.checkSleep();
@@ -202,11 +203,12 @@ export class AmicaLife {
           this.eventProcessing = true;
           await handleIdleEvent(idleEvent, this, this.chat!, this.viewer!);
           this.mainEvents.enqueue(idleEvent);
-          pauseIdleTimer();
         } else {
           console.log("Handling idle event:", "No idle events in queue");
-        }
-      } 
+        } 
+      } else if ( this.chat!.speakJobs.size() > 0 || this.chat!.ttsJobs.size() > 0 ) {
+        pauseIdleTimer();
+      }
 
       await this.waitInterval();
     }
