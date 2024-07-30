@@ -20,7 +20,7 @@ export class Model {
   private _lookAtTargetParent: THREE.Object3D;
   private _lipSync?: LipSync;
 
-  public _idleAction?: THREE.AnimationAction;
+  public _currentAction?: THREE.AnimationAction;
 
   constructor(lookAtTargetParent: THREE.Object3D) {
     this._lookAtTargetParent = lookAtTargetParent;
@@ -88,15 +88,74 @@ export class Model {
         ? animation
         : animation.createAnimationClip(vrm);
     mixer.stopAllAction();
-    this._idleAction = mixer.clipAction(clip);
-    // console.log('action', action);
-    this._idleAction.play();
+    this._currentAction = mixer.clipAction(clip);
+    this._currentAction.play();
   }
 
-  public async playAnimation(
-    animation: VRMAnimation | THREE.AnimationClip,
-    viewer: Viewer,
-  ): Promise<number> {
+  private async fadeToAction( destAction: THREE.AnimationAction, duration: number) {
+    let previousAction = this._currentAction;
+    this._currentAction = destAction;
+
+    if (previousAction !== this._currentAction) {
+      previousAction?.fadeOut(duration);
+    }
+
+    this._currentAction
+					.reset()
+					.setEffectiveTimeScale( 1 )
+					.setEffectiveWeight( 1 )
+					.fadeIn( 0.5 )
+					.play();
+  }
+
+  private async modifyAnimationPosition(clip: THREE.AnimationClip) {
+    const { vrm } = this;
+    if (vrm == null) {
+      throw new Error("You have to load VRM first");
+    }
+
+    // Find the hips bone
+    const hipsBone = vrm.humanoid.getNormalizedBoneNode("hips");
+
+    if (!hipsBone) {
+      throw new Error("Bone not found in VRM model");
+    }
+
+    // Use the current hips bone position as the start position
+    const currentHipsPosition = hipsBone!.getWorldPosition(new THREE.Vector3());
+
+    // Extract the start position from the animation clip
+    let clipStartPositionHips: THREE.Vector3 | null = null;
+    
+    for (const track of clip.tracks) {
+      if (track.name.endsWith(".position") && track.name.includes("Hips")) {
+        const values = (track as THREE.VectorKeyframeTrack).values;
+        clipStartPositionHips = new THREE.Vector3(values[0], values[1], values[2]);
+        break;
+      }
+    }
+
+    if (clipStartPositionHips) {
+      // Calculate the offset
+      const offsetHips = currentHipsPosition.clone().sub(clipStartPositionHips);
+
+      // Apply the offset to all keyframes
+      for (const track of clip.tracks) {
+        if (track.name.endsWith(".position") && track.name.includes("Hips")) {
+          const values = (track as THREE.VectorKeyframeTrack).values;
+          for (let i = 0; i < values.length; i += 3) {
+            values[i] -= offsetHips.x;
+            values[i + 1] -= offsetHips.y;
+            values[i + 2] -= offsetHips.z;
+          }
+        }
+      }
+    } else {
+      console.warn("Could not determine start position from animation clip.");
+    }
+  }
+
+  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, modify: boolean): Promise<number> {
     const { vrm, mixer } = this;
     if (vrm == null || mixer == null) {
       throw new Error("You have to load VRM first");
@@ -107,30 +166,23 @@ export class Model {
         ? animation
         : animation.createAnimationClip(vrm);
 
+    // modify the initial position of the VRMA animation to be sync with idle animation
+    if (modify) {
+      this.modifyAnimationPosition(clip);
+    }
+    
+    const idleAction = this._currentAction!;
     const VRMAaction = mixer.clipAction(clip);
-    VRMAaction.setEffectiveWeight(1);
-    VRMAaction.setEffectiveTimeScale(1);
-    VRMAaction.play();
-    VRMAaction.time = 0;
-    this._idleAction?.crossFadeTo(VRMAaction, 1, true);
-    // requestAnimationFrame(() => viewer.resetCameraLerp());
+    VRMAaction.clampWhenFinished = true;
+    VRMAaction.loop = THREE.LoopOnce;
+    this.fadeToAction(VRMAaction,1);
 
-    // Add event listener for the 'finished' event on the mixer
-    const onLoopFinished = (event: any) => {
-      if (event.action === VRMAaction) {
-        mixer.removeEventListener("loop", onLoopFinished);
-        if (this._idleAction) {
-          this._idleAction.enabled = true;
-          this._idleAction.setEffectiveWeight(1);
-          this._idleAction.setEffectiveTimeScale(1);
-          this._idleAction.time = 0;
-          VRMAaction.crossFadeTo(this._idleAction, 1, true);
-        }
-      }
-    };
+    const restoreState = () => {
+      mixer.removeEventListener( 'finished', restoreState );
+      this.fadeToAction(idleAction,1);
+    }
 
-    mixer.addEventListener("loop", onLoopFinished);
-
+    mixer.addEventListener("finished", restoreState);
     return clip.duration;
   }
 

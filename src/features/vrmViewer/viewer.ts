@@ -171,19 +171,15 @@ export class Viewer {
   }
 
   public resetCameraLerp() {
-    const headNode = this.model?.vrm?.humanoid.getNormalizedBoneNode("head");
-
-    if (headNode) {
-      const headWPos = headNode.getWorldPosition(new THREE.Vector3());
-      const newPosition = new THREE.Vector3(
-        this._camera?.position.x,
-        headWPos.y,
-        this._camera?.position.z
-      );
-      this._camera?.position.lerpVectors(this._camera?.position,newPosition,1);
-      // this._cameraControls?.target.lerpVectors(this._cameraControls?.target,headWPos,0.5);
-      // this._cameraControls?.update();
-    }
+    // y = 1.3 is from initial setup position of camera
+    const newPosition = new THREE.Vector3(
+      this._camera?.position.x,
+      1.3,
+      this._camera?.position.z
+    );
+    this._camera?.position.lerpVectors(this._camera?.position,newPosition,0);
+    // this._cameraControls?.target.lerpVectors(this._cameraControls?.target,headWPos,0.5);
+    // this._cameraControls?.update();
   }
 
   public update = () => {

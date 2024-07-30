@@ -46,8 +46,15 @@ let storedPrompts: string[] = [];
 async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
   // Select a random animation from the list
   const randomAnimation =
-    animationList[Math.floor(Math.random() * animationList.length)];
+  animationList[Math.floor(Math.random() * animationList.length)];
   console.log("Handling idle event (animation):", basename(randomAnimation));
+
+  // Boolean to check if the animation should reinitialized its initial position to sync with idle action or not
+  const modify =
+    basename(randomAnimation) === "greeting.vrma" ||
+    basename(randomAnimation) === "idle_loop.vrma"
+      ? false
+      : true;
 
   try {
     if (viewer) {
@@ -56,17 +63,14 @@ async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
         throw new Error("Loading animation failed");
       }
       // @ts-ignore
-      const duration = await viewer.model!.playAnimation(animation, viewer);
-      requestAnimationFrame(() => {
-        viewer.resetCameraLerp();
-      });
+      const duration = await viewer.model!.playAnimation(animation, modify);
+      requestAnimationFrame(() => { viewer.resetCameraLerp(); });
 
       // Set timeout for the duration of the animation
       setTimeout(() => {
         amicaLife.eventProcessing = false;
         console.timeEnd("processing_event VRMA");
       }, duration * 1000);
-
     }
   } catch (error) {
     console.error("Error loading animation:", error);
@@ -141,7 +145,9 @@ export async function handleSubconsciousEvent(
     console.log("Result from step 1: ", subconciousWordSalad);
 
     // Step 2: Describe the emotion you feel about the subconscious diary
-    const secondStepPrompt = subconciousWordSalad.startsWith("Error:") ? convoLog : subconciousWordSalad;
+    const secondStepPrompt = subconciousWordSalad.startsWith("Error:")
+      ? convoLog
+      : subconciousWordSalad;
     const decipherEmotion = await askLLM(
       "Read this mini-diary, I would like you to simulate a human-like subconscious with deep emotions and describe it from a third-person perspective:",
       secondStepPrompt,
@@ -150,7 +156,9 @@ export async function handleSubconsciousEvent(
     console.log("Result from step 2: ", decipherEmotion);
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
-    const thirdStepPrompt = decipherEmotion.startsWith("Error:") ? convoLog : decipherEmotion;
+    const thirdStepPrompt = decipherEmotion.startsWith("Error:")
+      ? convoLog
+      : decipherEmotion;
     const emotionDecided = await askLLM(
       `Based on your mini-diary, respond with dialougue that sounds like a normal person speaking about their mind, experience or feelings. Make sure to incorporate the specified emotion tags in your response. Here is the list of emotion tags that you have to include in the result : ${emotions
         .map((emotion) => `[${emotion}]`)
@@ -161,7 +169,9 @@ export async function handleSubconsciousEvent(
     console.log("Result from step 3: ", emotionDecided);
 
     // Step 4: Compress the subconscious diary entry to 240 characters
-    const fourthStepPrompt = subconciousWordSalad.startsWith("Error:") ? convoLog : subconciousWordSalad;
+    const fourthStepPrompt = subconciousWordSalad.startsWith("Error:")
+      ? convoLog
+      : subconciousWordSalad;
     const compressSubconcious = await askLLM(
       "Compress this prompt to 240 characters:",
       fourthStepPrompt,
