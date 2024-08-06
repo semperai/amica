@@ -170,6 +170,18 @@ export class Viewer {
     }
   }
 
+  public resetCameraLerp() {
+    // y = 1.3 is from initial setup position of camera
+    const newPosition = new THREE.Vector3(
+      this._camera?.position.x,
+      1.3,
+      this._camera?.position.z
+    );
+    this._camera?.position.lerpVectors(this._camera?.position,newPosition,0);
+    // this._cameraControls?.target.lerpVectors(this._cameraControls?.target,headWPos,0.5);
+    // this._cameraControls?.update();
+  }
+
   public update = () => {
     requestAnimationFrame(this.update);
     const delta = this._clock.getDelta();

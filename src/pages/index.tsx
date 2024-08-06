@@ -45,6 +45,7 @@ import { config, updateConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
 import { VrmStoreProvider } from "@/features/vrmStore/vrmStoreContext";
+import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -65,6 +66,7 @@ export default function Home() {
   const { viewer } = useContext(ViewerContext);
   const { alert } = useContext(AlertContext);
   const { chat: bot } = useContext(ChatContext);
+  const { amicaLife: amicaLife } = useContext(AmicaLifeContext);
 
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
@@ -85,10 +87,9 @@ export default function Home() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
-  //If settings page is on will pause amica life
   useEffect(() => {
-    showSettings ? bot.pauseAmicaLife(true) : bot.pauseAmicaLife(false);
-  }, [bot,showSettings]);
+    amicaLife.checkSettingOff(!showSettings);
+  }, [showSettings, amicaLife]);
 
   useEffect(() => {
     if (muted === null) {
@@ -109,6 +110,7 @@ export default function Home() {
 
   useEffect(() => {
     bot.initialize(
+      amicaLife,
       viewer,
       alert,
       setChatLog,
@@ -124,6 +126,13 @@ export default function Home() {
       updateConfig("tts_backend", "openai_tts");
     }
   }, [bot, viewer]);
+
+  useEffect(() => {
+    amicaLife.initialize(
+      viewer,
+      bot,
+    );
+  }, [amicaLife, bot, viewer]);
 
   // this exists to prevent build errors with ssr
   useEffect(() => setShowContent(true), []);

@@ -5,6 +5,9 @@ export const UserText = ({ message }: { message: string }) => {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Replace all of the emotion tag in message with ""
+  message = message.replace(/\[(.*?)\]/g, "");
+
   useEffect(() => {
     scrollRef.current?.scrollIntoView({
       behavior: "smooth",

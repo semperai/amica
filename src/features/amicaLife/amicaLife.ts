@@ -2,89 +2,190 @@ import { Queue } from "typescript-collections";
 
 import { config, updateConfig } from "@/utils/config";
 import { wait } from "@/utils/wait";
+import { characterIdleTime, pauseIdleTimer, resumeIdleTimer } from "@/utils/isIdle";
 
 import { Chat } from "@/features/chat/chat";
-import { AmicaLifeEvents, IdleEvents, idleEvents, handleIdleEvent, handleSleepEvent } from "@/features/amicaLife/eventHandler";
+import {
+  AmicaLifeEvents,
+  idleEvents,
+  handleIdleEvent,
+  basedPrompt,
+} from "@/features/amicaLife/eventHandler";
+import { Viewer } from "../vrmViewer/viewer";
 
 
 export class AmicaLife {
-  public mainEvents: Queue<AmicaLifeEvents>;
-  public triggerMessage: boolean;
-  private isSettingOff: boolean;
-  private isIdleLoopRunning: boolean;
-  private isPause: boolean;
-  public isSleep: boolean;
-  private callCount: number;
-  public chat: Chat | null;
+  public initialized: boolean;
 
-  constructor(chat: Chat) {
+  public mainEvents: Queue<AmicaLifeEvents>;
+  public viewer?: Viewer;
+  public chat?: Chat;
+
+  private triggerMessage: boolean;
+  public eventProcessing?: boolean;
+
+  public isSleep: boolean;
+  private isSettingOff: boolean;
+  private isPause: boolean;
+  private isProcessingEventRunning?: boolean;
+  private isProcessingIdleRunning?: boolean;
+
+  constructor() {
+    this.initialized = false;
+
     this.mainEvents = new Queue<AmicaLifeEvents>();
     this.triggerMessage = false;
-    this.isSettingOff = false;
-    this.isIdleLoopRunning = false;
-    this.isPause = false;
+    this.eventProcessing = false;
+
     this.isSleep = false;
-    this.callCount = 0;
+    this.isPause = false;
+    this.isSettingOff = false;
+    this.isProcessingEventRunning = false;
+    this.isProcessingIdleRunning = false;
+  }
+
+  public initialize(viewer: Viewer, chat: Chat) {
+    this.viewer = viewer;
     this.chat = chat;
-    this.initialize();
+
+    this.loadIdleTextPrompt(null);
+
+    // This loop will run depending on Amica Life Enabled/Disabled config
+    this.processingIdle();
+
+    this.initialized = true;
   }
 
-  private async initialize() {
-    const basedPrompt = {
-      "idleTextPrompt": [
-        "*I am ignoring you*",
-        "**sighs** It's so quiet here.",
-        "Tell me something interesting about yourself.",
-        "**looks around** What do you usually do for fun?",
-        "I could use a good distraction right now.",
-        "What's the most fascinating thing you know?",
-        "**smiles** Any witty remarks up your sleeve?",
-        "If you could talk about anything, what would it be?",
-        "Got any clever insights to share?",
-        "**leans in** Any fun stories to tell?"
-    ]
-    }
-    
-    basedPrompt.idleTextPrompt.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+  // These are function to coonfigure mainEvents queue
 
-    idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
-  }
-
-  public async loadIdleTextPrompt(prompts: string []) {
-    if (prompts.length > 0) {
-      this.mainEvents.clear();
-      prompts.forEach((prompt: string) => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
-  
-      idleEvents.forEach(prompt => this.mainEvents.enqueue({ events: prompt as IdleEvents }));
+  // Function for loaded idle text prompt
+  public async loadIdleTextPrompt(prompts: string[] | null) {
+    if (prompts === null) {
+      idleEvents.forEach((prompt) =>
+        this.mainEvents.enqueue({ events: prompt }),
+      );
+    } else {
+      if (prompts.length > 0) {
+        this.mainEvents.clear();
+        prompts.forEach((prompt: string) =>
+          basedPrompt.idleTextPrompt.push(prompt),
+        );
+      }
     }
   }
 
-  public async startIdleLoop() {
-    if (this.isIdleLoopRunning) {
-      if (this.isPause === true && this.isSettingOff && !this.isSleep) {
-        this.resume();
+  // Function to insert event to the front of the mainEvents Queue
+  public insertFront(event: AmicaLifeEvents) {
+    const newQueue = new Queue<AmicaLifeEvents>();
+    newQueue.enqueue(event);
+
+    while (!this.mainEvents.isEmpty()) {
+      newQueue.enqueue(this.mainEvents.dequeue()!);
+    }
+
+    this.mainEvents = newQueue;
+  }
+
+  // Function to remove a specific event from the mainEvents queue
+  public removeEvent(eventName: string) {
+    const newQueue = new Queue<AmicaLifeEvents>();
+    let found = false;
+
+    while (!this.mainEvents.isEmpty()) {
+      const event = this.mainEvents.dequeue();
+      if (event && event.events !== eventName) {
+        newQueue.enqueue(event);
+      } else {
+        found = true;
+      }
+    }
+
+    this.mainEvents = newQueue;
+  }
+
+  // Function to check if a specific event exists in the mainEvents queue
+  public containsEvent(eventName: string): boolean {
+    let contains = false;
+
+    this.mainEvents.forEach((event) => {
+      if (event.events === eventName) {
+        contains = true;
+      }
+    });
+
+    return contains;
+  }
+
+  // These are function to handle idle event
+
+  // Function to check message from user
+  public receiveMessageFromUser(message: string) {
+    this.pause();
+    this.removeEvent("Sleep");
+    this.isSleep = false;
+    this.triggerMessage = true;
+  }
+
+  // Function handle when amica got poked in amica life event
+
+  // public handlePoked() {
+  //   if (!this.chat?.isAwake() && config("amica_life_enabled") === "true") {
+  //     console.log("Handling idle event:", "I just poked you!");
+  //     this.chat?.receiveMessageFromUser("I just poked you!",true);
+  //   }
+  // }
+
+  public async processingIdle() {
+    // Preventing duplicate processingIdle loop
+    if (this.isProcessingIdleRunning) {
+      return;
+    }
+    this.isProcessingIdleRunning = true;
+
+    console.log("Starting idle loop");
+    while (config("amica_life_enabled") === "true") {
+      // Check if amica is in idle state trigger processingEvent loop
+      if (!this.chat?.isAwake()) {
+        this.processingEvent();
+      }
+      await wait(50);
+    }
+
+    this.isProcessingIdleRunning = false;
+    this.isProcessingEventRunning = false;
+    this.triggerMessage = false;
+    console.log("Stopping idle loop");
+  }
+
+  public async processingEvent() {
+    // Preventing duplicate processing event loop
+    if (this.isProcessingEventRunning) {
+      // Check for resume
+      if (!(await this.checkResume())) {
+        return;
       }
       return;
     }
 
     // User must start the conversation with amica first to activate amica life
-    if(!this.triggerMessage){
+    if (!this.triggerMessage) {
       return;
     }
 
-    this.isIdleLoopRunning = true;
-    console.log("Starting idle loop");
+    this.isProcessingEventRunning = true;
 
-    // First, iteration does nothing
-    await wait(parseInt(config("time_before_idle_sec")) * 1000);
+    while (this.isProcessingEventRunning) {
+      // Wait for current event to finish before processing next event
+      if (
+        this.chat!.speakJobs.size() < 1 &&
+        this.chat!.ttsJobs.size() < 1 &&
+        !this.eventProcessing 
+      ) {
 
-    const processIdleEvents = async () => {
-      while (this.isIdleLoopRunning) {
+        resumeIdleTimer();
 
-        // Check for sleep event
+        // Check for pause and sleep
         await this.checkSleep();
-
-        // Check for pause
         await this.checkPause();
 
         // Random chance for doing nothing (25% chance)
@@ -94,68 +195,97 @@ export class AmicaLife {
           continue;
         }
 
+        // Main event handling
         const idleEvent = this.mainEvents.dequeue();
         if (idleEvent) {
-          this.callCount++;
-          await handleIdleEvent(idleEvent,this.chat);
+          console.time(`processing_event ${idleEvent.events}`);
+          this.eventProcessing = true;
+          await handleIdleEvent(idleEvent, this, this.chat!, this.viewer!);
           this.mainEvents.enqueue(idleEvent);
         } else {
           console.log("Handling idle event:", "No idle events in queue");
-        }
-        // Wait for an interval time before processing the next event
-        await this.waitInterval();
+        } 
+      } else if ( this.chat!.speakJobs.size() > 0 || this.chat!.ttsJobs.size() > 0 ) {
+        pauseIdleTimer();
       }
-    };
 
-    processIdleEvents().catch((e) => {
-      console.error("Idle loop encountered an error:", e);
-      this.isIdleLoopRunning = false;
-    });
-  }
-
-  public async stopIdleLoop() {
-    if (this.isIdleLoopRunning === false) {
-      return;
+      await this.waitInterval();
     }
-
-    this.isIdleLoopRunning = false;
-    this.triggerMessage = false;
-    console.log("Stopping idle loop");
+    this.isProcessingEventRunning = false;
   }
 
   public async pause() {
-    let prevFlag = this.isPause;
-    // if receiving message from user and idle loop is unavailable
-    if (config("amica_life_enabled") === "false") {
-      return;
-    }
-
-    // Updated time before idle every curve when its get ignored
-    if (prevFlag === false && this.isSettingOff && this.triggerMessage) {
-      this.updatedIdleTime();
-    }
-
     await this.chat?.interrupt();
     this.isPause = true;
   }
 
   public resume() {
-    if (config("amica_life_enabled") === "false" || this.chat?.isAwake()) {
-      return;
-    }
-
     this.isPause = false;
   }
 
+  // Function to check for sleep event if idleTime > time_to_sleep add Sleep event to the front of amica queue
+  private async checkSleep() {
+    if (!this.isSleep) {
+      const chat = this.chat;
+      if (!chat) {
+        console.error("Chat instance is not available");
+        return;
+      }
+      const idleTime = chat.idleTime();
+      // If character being idle morethan 120 sec or 2 min, play handle sleep event
+      if (!this.containsEvent("Sleep")) {
+        if (idleTime > parseInt(config("time_to_sleep_sec"))) {
+          this.insertFront({ events: "Sleep" });
+        }
+      }
+    }
+  }
+
+  // Function to pause the processingEvent loop is pauseFlag is true/false
+  private async checkPause() {
+    if (this.isPause) {
+      console.log("Idle loop paused");
+      await new Promise<void>((resolve) => {
+        const checkPause = setInterval(() => {
+          if (!this.isPause) {
+            clearInterval(checkPause);
+            resolve(console.log("Idle loop resumed"));
+          }
+        }, 50);
+      });
+    }
+  }
+
+  // Function to resume the processingEvent loop from pause
+  private async checkResume(): Promise<boolean> {
+    if (this.isPause === true && !this.isSleep && this.isSettingOff) {
+      this.resume();
+      return true;
+    }
+    return false;
+  }
+
+  // Function to pause/resume the loop when setting page is open/close
+  public checkSettingOff(off: boolean) {
+    if (off) {
+      this.isSettingOff = true;
+      this.chat?.updateAwake(); // Update awake when user exit the setting page
+      this.resume();
+    } else {
+      this.isSettingOff = false;
+      this.pause();
+    }
+  }
+
+  // These is amica life utils
+
   // Update time before idle increase by 1.25 times
   public updatedIdleTime() {
-    this.callCount++;
-
     const idleTimeSec = Math.min(
       parseInt(config("time_before_idle_sec")) * 1.25,
       240,
     );
-    updateConfig("time_before_idle_sec", idleTimeSec.toString());
+    // updateConfig("time_before_idle_sec", idleTimeSec.toString());
     console.log(`Updated time before idle to ${idleTimeSec} seconds`);
   }
 
@@ -167,52 +297,5 @@ export class AmicaLife {
     const interval =
       Math.floor(Math.random() * (maxMs - minMs + 1) + minMs) * 1000;
     return new Promise((resolve) => setTimeout(resolve, interval));
-  }
-
-  // function to pause/resume the loop when setting page is open/close
-  public checkSettingOff(off: boolean) {
-    if (off) {
-      this.isSettingOff = true;
-      this.chat?.updateAwake(); // update awake when user exit the setting page
-      this.resume();
-    } else {
-      this.isSettingOff = false;
-      this.pause();
-    }
-  }
-
-  private async checkSleep() {
-    if (!this.isSleep) {
-      const chat = this.chat;
-      if (!chat) {
-        console.error("Chat instance is not available");
-        return ;
-      }
-
-      const idleTime = chat.idleTime();
-
-      // If character being idle morethan 120 sec or 2 min, play handle sleep event
-      if (idleTime > parseInt(config("time_to_sleep_sec"))) {
-        this.isSleep = true;
-        await handleSleepEvent(chat);
-        this.pause();
-      }
-    }
-  }
-
-
-  private async checkPause() {
-    if (this.isPause) {
-      console.log("Idle loop paused");
-      await new Promise<void>((resolve) => {
-        const checkPause = setInterval(() => {
-          if (!this.isPause) {
-            clearInterval(checkPause);
-            resolve();
-          }
-        }, 50);
-      });
-      console.log("Idle loop resumed");
-    }
   }
 }
