@@ -49,6 +49,7 @@ type EmotionType = (typeof emotions)[number];
 export type Screenplay = {
   expression: EmotionType;
   talk: Talk;
+  text: string;
 };
 
 export const textsToScreenplay = (
@@ -80,6 +81,7 @@ export const textsToScreenplay = (
         style: emotionToTalkStyle(expression as EmotionType),
         message: message,
       },
+      text: text,
     });
   }
 
