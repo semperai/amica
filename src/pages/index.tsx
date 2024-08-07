@@ -46,6 +46,9 @@ import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
 import { VrmStoreProvider } from "@/features/vrmStore/vrmStoreContext";
 import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
+import { ChatModeText } from "@/components/chatModeText";
+
+import { VerticalSwitchBox } from "@/components/switchBox"
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -81,6 +84,7 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
+  const [showChatMode, setShowChatMode] = useState(false);
 
   // null indicates havent loaded config yet
   const [muted, setMuted] = useState<boolean|null>(null);
@@ -160,7 +164,7 @@ export default function Home() {
       { showDebug && <DebugPane onClickClose={() => setShowDebug(false) }/> }
 
       <VrmStoreProvider>
-        <VrmViewer />
+        <VrmViewer chatMode={showChatMode}/>
         {showSettings && (
           <Settings
             onClickClose={() => setShowSettings(false)}
@@ -306,13 +310,24 @@ export default function Home() {
               <span className="text-white hidden">Debug</span>
             </div>
 
-          </div>
-        </div>
+            <div className="flex flex-row items-center space-x-2">
+              <VerticalSwitchBox
+                  value={showChatMode}
+                  label={""}
+                  onChange={(value: boolean) => {setShowChatMode(value)}}
+                />
+            </div>
+            
       </div>
+          </div>
+          
+        </div>
+        
+      
 
       {showChatLog && <ChatLog messages={chatLog} />}
 
-      {! showChatLog && (
+      {! showChatLog && ! showChatMode && (
         <>
           { shownMessage === 'assistant' && (
             <AssistantText message={assistantMessage} />
@@ -322,6 +337,8 @@ export default function Home() {
           )}
         </>
       )}
+
+      {!showChatLog && showChatMode && <ChatModeText messages={chatLog}/>}
 
       <AddToHomescreen />
 

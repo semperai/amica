@@ -74,3 +74,72 @@ export const SwitchBox = ({
   );
 };
 
+export const VerticalSwitchBox = ({
+  value,
+  label,
+  onChange,
+  ...rest
+}: Props) => {
+  const [enabled, setEnabled] = useState(value);
+
+  const handleChange = (checked: boolean) => {
+    setEnabled(checked);
+    onChange(checked);
+  };
+
+  return (
+    <Switch.Group as="div" className="flex flex-col items-center space-y-3">
+      <Switch
+        checked={enabled}
+        onChange={handleChange}
+        className={clsx(
+          enabled ? 'bg-gray-400' : 'bg-gray-200',
+          'relative inline-flex h-8 w-4 items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2'
+        )}
+        {...rest}
+      >
+        <span className="sr-only">{label}</span>
+        <span
+          className={clsx(
+            enabled ? '-translate-y-2' : 'translate-y-2',
+            'inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out'
+          )}
+        >
+          <span
+            className={clsx(
+              enabled ? 'opacity-0' : 'opacity-100',
+              'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity duration-200'
+            )}
+            aria-hidden="true"
+          >
+            {/* Off Icon */}
+            <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 12 12">
+              <path
+                d="M4 8l2-2m0 0l2-2M6 6L4 4m2 2l2 2"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span
+            className={clsx(
+              enabled ? 'opacity-100' : 'opacity-0',
+              'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity duration-200'
+            )}
+            aria-hidden="true"
+          >
+            {/* On Icon */}
+            <svg className="h-3 w-3 text-gray-600" fill="currentColor" viewBox="0 0 12 12">
+              <path d="M3.707 5.293a1 1 0 00-1.414 1.414l1.414-1.414zM5 8l-.707.707a1 1 0 001.414 0L5 8zm4.707-3.293a1 1 0 00-1.414-1.414l1.414 1.414zm-7.414 2l2 2 1.414-1.414-2-2-1.414 1.414zm3.414 2l4-4-1.414-1.414-4 4 1.414 1.414z" />
+            </svg>
+          </span>
+        </span>
+      </Switch>
+      <Switch.Label as="span" className="text-sm font-medium text-gray-900">
+        {label}
+      </Switch.Label>
+    </Switch.Group>
+  );
+};

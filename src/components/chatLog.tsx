@@ -165,10 +165,10 @@ function Chat({
   onClickResumeButton: (num: number, message: string) => void;
 }) {
   const { t } = useTranslation();
-  const [textAreaValue, setTextAreaValue] = useState(message);
+  // const [textAreaValue, setTextAreaValue] = useState(message);
 
   const onClickButton = () => {
-    const newMessage = textAreaValue
+    const newMessage = message
     onClickResumeButton(num, newMessage);
   };
 
@@ -203,11 +203,11 @@ function Chat({
       <div className="px-4 py-2 bg-white/80 backdrop-blur-lg rounded-b-lg shadow-sm">
         <div className='typography-16 font-M_PLUS_2 font-bold text-gray-800'>
           {role === "assistant" ? (
-            <div>{textAreaValue}</div>
+            <div>{message}</div>
           ) : (
             <FlexTextarea
-              value={textAreaValue}
-              onChange={setTextAreaValue}
+              value={message}
+              // onChange={setTextAreaValue}
             />
           )}
         </div>

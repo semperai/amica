@@ -152,6 +152,29 @@ export class Viewer {
     this._camera.updateProjectionMatrix();
   }
 
+  public resizeChatMode(on: boolean){
+    if (!this._renderer) return;
+
+    const parentElement = this._renderer.domElement.parentElement;
+    if (!parentElement) return;
+
+    this._renderer.setPixelRatio(window.devicePixelRatio);
+
+    let width = parentElement.clientWidth;
+    let height = parentElement.clientHeight;
+    if (on) {width = width/2; height = height/2; }
+
+    this._renderer.setSize(
+      width,
+      height
+    );
+
+    if (!this._camera) return;
+    this._camera.aspect =
+      parentElement.clientWidth / parentElement.clientHeight;
+    this._camera.updateProjectionMatrix();
+  }
+
   /**
    * VRMのheadノードを参照してカメラ位置を調整する
    */
