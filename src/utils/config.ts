@@ -8,7 +8,7 @@ const defaults = {
   show_introduction: 'true',
   show_add_to_homescreen: 'true',
   bg_color: process.env.NEXT_PUBLIC_BG_COLOR ?? '',
-  bg_url: process.env.NEXT_PUBLIC_BG_URL ?? '/bg/bg-landscape1.jpg',
+  bg_url: process.env.NEXT_PUBLIC_BG_URL ?? '/bg/bg-room2.jpg',
   vrm_url: process.env.NEXT_PUBLIC_VRM_HASH ?? '/vrm/AvatarSample_A.vrm',
   vrm_hash: '',
   vrm_save_type: 'web',
