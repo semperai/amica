@@ -17,7 +17,7 @@ export function BackgroundVideoPage({
   const { t } = useTranslation();
   const [videoChanged, setVideoChanged] = useState(false);
 
-  const description = <>{t('bg_youtube_desc', `Select a background video. Copy this from youtube embed, it will look something like <code>kDCXBwzSI-4</code>`)}</>;
+  const description = <>{t('bg_youtube_desc', `Select a background video. Copy this from the YouTube video ID from the URL, it will look something like kDCXBwzSI`)}</>;
 
   return (
     <BasicPage
