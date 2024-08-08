@@ -83,14 +83,14 @@ export function AmicaLifePage({
     return (
         <BasicPage
             title={`${t("Amica Life")} ${t("Settings")}`}
-            description={`${t("Configure")} ${t("Amica Life")}`}
+            description={`${t("Enables")} ${t("Semi-autonomous mode, includes animations, sleep, function calling, subconcious subroutine and self-prompting. (Experimental)")}`}
         >
             <ul role="list" className="divide-y divide-gray-100 max-w-xs">
                 <li className="py-4">
                     <FormRow label={`${t("Use")} ${t("Amica Life")}`}>
                         <SwitchBox
                             value={amicaLifeEnabled}
-                            label={`${t("Amica Life")} ${t("Enabled")}`}
+                            label={`${t("Amica Life")} ${t("Enabled")} ${t("(Disable to improve performance)")}`}
                             onChange={(value: boolean) => {
                                 setAmicaLifeEnabled(value);
                                 updateConfig("amica_life_enabled", value.toString());
@@ -103,7 +103,7 @@ export function AmicaLifePage({
                     <>
 
                         <li className="py-4">
-                            <FormRow label={t("Idle text prompt")}>
+                            <FormRow label={t("Idle self prompts (leave empty to use default)")}>
                                 <div className="flex items-center space-x-4">
                                     <IconButton
                                         iconName="24/UploadAlt"
@@ -131,7 +131,7 @@ export function AmicaLifePage({
 
 
                         <li className="py-4">
-                            <FormRow label={`${t("Set time before bot go idle")}(${t("sec")})`}>
+                            <FormRow label={`${t("Idle time before Amica life activates")}(${t("sec")})`}>
                                 <NumberInput
                                     value={timeBeforeIdle}
                                     min={0}
