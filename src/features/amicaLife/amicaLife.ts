@@ -10,6 +10,7 @@ import {
   idleEvents,
   handleIdleEvent,
   basedPrompt,
+  storedPrompts,
 } from "@/features/amicaLife/eventHandler";
 import { Viewer } from "../vrmViewer/viewer";
 
@@ -297,5 +298,9 @@ export class AmicaLife {
     const interval =
       Math.floor(Math.random() * (maxMs - minMs + 1) + minMs) * 1000;
     return new Promise((resolve) => setTimeout(resolve, interval));
+  }
+
+  public logCompressed() {
+    console.log("Stored subconcious prompts: ",storedPrompts)
   }
 }

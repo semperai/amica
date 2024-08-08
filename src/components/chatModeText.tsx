@@ -10,13 +10,6 @@ export const ChatModeText = ({ messages }: { messages: Message[] }) => {
 
     useEffect(() => {
         chatScrollRef.current?.scrollIntoView({
-            behavior: "auto",
-            block: "center",
-        });
-    }, []);
-
-    useEffect(() => {
-        chatScrollRef.current?.scrollIntoView({
             behavior: "smooth",
             block: "center",
         });
@@ -58,12 +51,12 @@ function Chat({
     const scrollRef = useRef<HTMLDivElement>(null);
     const [unlimited, setUnlimited] = useState(false);
 
-    useEffect(() => {
-        scrollRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-        });
-    });
+    // useEffect(() => {
+    //     scrollRef.current?.scrollIntoView({
+    //         behavior: "smooth",
+    //         block: "center",
+    //     });
+    // });
 
     return (
         <div className={clsx(
@@ -98,7 +91,7 @@ function Chat({
                     {role === "assistant" && (
                         <div className={clsx(
                             "px-8 py-4 overflow-y-auto",
-                            unlimited ? 'max-h-[calc(75vh)]' : 'max-h-32',
+                            unlimited ? 'max-h-32' : 'max-h-[calc(75vh)]',
                         )}>
                             <div className="min-h-8 max-h-full typography-16 font-bold text-gray-600">
                                 {message.replace(/\[([a-zA-Z]*?)\]/g, "")}

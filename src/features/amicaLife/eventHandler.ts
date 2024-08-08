@@ -38,8 +38,14 @@ export type AmicaLifeEvents = {
 // Define a constant for max subconcious storage tokens
 const MAX_STORAGE_TOKENS = 3000;
 
-// Placeholder for storing compressed subconcious prompts
-let storedPrompts: string[] = [];
+// Define the interface for a timestamped prompt
+interface TimestampedPrompt {
+  prompt: string;
+  timestamp: string;
+}
+
+// Placeholder for storing compressed subconscious prompts
+export let storedPrompts: TimestampedPrompt[] = [];
 
 // Handles the VRM animation event.
 
@@ -179,13 +185,20 @@ export async function handleSubconsciousEvent(
     );
     console.log("Result from step 4: ", compressSubconcious);
 
-    storedPrompts.push(compressSubconcious);
-    const totalStorageTokens = storedPrompts.reduce(
-      (totalTokens, prompt) => totalTokens + prompt.length,
+    // Add timestamp to the compressed subconscious
+    const timestampedPrompt: TimestampedPrompt = {
+      prompt: compressSubconcious,
+      timestamp: new Date().toISOString(),
+    };
+
+    storedPrompts.push(timestampedPrompt);
+    let totalStorageTokens = storedPrompts.reduce(
+      (totalTokens, prompt) => totalTokens + prompt.prompt.length,
       0,
     );
     while (totalStorageTokens > MAX_STORAGE_TOKENS) {
-      storedPrompts.shift();
+      const removed = storedPrompts.shift();
+      totalStorageTokens -= removed!.prompt.length;
     }
     console.log("Stored subconcious prompts:", storedPrompts);
 

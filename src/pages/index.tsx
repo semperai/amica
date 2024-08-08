@@ -22,6 +22,7 @@ import {
   VideoCameraSlashIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
+import { IconBrain } from '@tabler/icons-react';
 
 import { AssistantText } from "@/components/assistantText";
 import { AddToHomescreen } from "@/components/addToHomescreen";
@@ -302,12 +303,18 @@ export default function Home() {
             </div>
 
             <div className="flex flex-row items-center space-x-2">
-              <CodeBracketSquareIcon
+              <IconBrain
+                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                aria-hidden="true"
+                stroke={2}
+                onClick={() => amicaLife.logCompressed()}
+              />
+              {/* <CodeBracketSquareIcon
                 className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                 aria-hidden="true"
                 onClick={() => setShowDebug(true)}
               />
-              <span className="text-white hidden">Debug</span>
+              <span className="text-white hidden">Debug</span> */}
             </div>
 
             <div className="flex flex-row items-center space-x-2">
@@ -325,7 +332,7 @@ export default function Home() {
         
       
 
-      {showChatLog && <ChatLog messages={chatLog} />}
+      {showChatLog && !showChatMode && <ChatLog messages={chatLog} />}
 
       {! showChatLog && ! showChatMode && (
         <>
