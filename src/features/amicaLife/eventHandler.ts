@@ -7,8 +7,10 @@ import { emotions } from "@/features/chat/messages";
 import { basename } from "@/components/settings/common";
 import { askLLM } from "@/utils/askLlm";
 
+import { functionCalling } from "@/features/functionCalling/functionCalling";
 import { AmicaLife } from "./amicaLife";
 import { Viewer } from "../vrmViewer/viewer";
+import { config } from "@/utils/config";
 
 export const idleEvents = [
   "VRMA",
@@ -41,13 +43,19 @@ const MAX_STORAGE_TOKENS = 3000;
 // Placeholder for storing compressed subconcious prompts
 let storedPrompts: string[] = [];
 
+let previousAnimation = "";
+
 // Handles the VRM animation event.
 
 async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
-  // Select a random animation from the list
-  const randomAnimation =
-  animationList[Math.floor(Math.random() * animationList.length)];
-  console.log("Handling idle event (animation):", basename(randomAnimation));
+  let randomAnimation;
+  do {
+    randomAnimation = animationList[Math.floor(Math.random() * animationList.length)];
+  } while (basename(randomAnimation) === previousAnimation);
+
+  // Store the current animation as the previous one for the next call
+  previousAnimation = basename(randomAnimation);
+  console.log("Handling idle event (animation):", previousAnimation);
 
   // Boolean to check if the animation should reinitialized its initial position to sync with idle action or not
   const modify =
@@ -196,6 +204,27 @@ export async function handleSubconsciousEvent(
   }
 }
 
+// Handles news event
+
+export async function handleNewsEvent(chat: Chat, amicaLife: AmicaLife) {
+  console.log("Handling idle event :", "News");
+
+  try {
+    const news = await functionCalling("news");
+    if (!news) {
+      throw new Error("Loading news failed");
+    }
+    await chat.receiveMessageFromUser?.(news, true);
+    amicaLife.eventProcessing = false;
+    console.timeEnd("processing_event News");
+  } catch (error) {
+    console.error(
+      "Error occurred while sending a message through chat instance:",
+      error,
+    );
+  }
+}
+
 // Main handler for idle events.
 
 export async function handleIdleEvent(
@@ -215,6 +244,9 @@ export async function handleIdleEvent(
       break;
     case "Subconcious":
       await handleSubconsciousEvent(chat, amicaLife);
+      break;
+    case "News":
+      await handleNewsEvent(chat, amicaLife);
       break;
     case "Sleep":
       await handleSleepEvent(chat, amicaLife);

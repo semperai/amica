@@ -120,6 +120,11 @@ export class AmicaLife {
 
   // Function to check message from user
   public receiveMessageFromUser(message: string) {
+    if (message.toLowerCase().includes('news')) {
+      console.log("Added news event to amica life");
+      this.insertFront({events: "News"});
+    }
+
     this.pause();
     this.removeEvent("Sleep");
     this.isSleep = false;
@@ -137,9 +142,8 @@ export class AmicaLife {
 
   public async processingIdle() {
     // Preventing duplicate processingIdle loop
-    if (this.isProcessingIdleRunning) {
-      return;
-    }
+    if (this.isProcessingIdleRunning) { return; }
+
     this.isProcessingIdleRunning = true;
 
     console.log("Starting idle loop");
