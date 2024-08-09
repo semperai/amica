@@ -43,13 +43,19 @@ const MAX_STORAGE_TOKENS = 3000;
 // Placeholder for storing compressed subconcious prompts
 let storedPrompts: string[] = [];
 
+let previousAnimation = "";
+
 // Handles the VRM animation event.
 
 async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
-  // Select a random animation from the list
-  const randomAnimation =
-  animationList[Math.floor(Math.random() * animationList.length)];
-  console.log("Handling idle event (animation):", basename(randomAnimation));
+  let randomAnimation;
+  do {
+    randomAnimation = animationList[Math.floor(Math.random() * animationList.length)];
+  } while (basename(randomAnimation) === previousAnimation);
+
+  // Store the current animation as the previous one for the next call
+  previousAnimation = basename(randomAnimation);
+  console.log("Handling idle event (animation):", previousAnimation);
 
   // Boolean to check if the animation should reinitialized its initial position to sync with idle action or not
   const modify =
