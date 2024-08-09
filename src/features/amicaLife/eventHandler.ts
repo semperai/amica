@@ -11,9 +11,9 @@ import { AmicaLife } from "./amicaLife";
 import { Viewer } from "../vrmViewer/viewer";
 
 export const idleEvents = [
-  "VRMA",
+  // "VRMA",
   "Subconcious",
-  "IdleTextPrompts",
+  // "IdleTextPrompts",
 ] as const;
 
 export const basedPrompt = {
