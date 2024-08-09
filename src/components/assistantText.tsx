@@ -48,3 +48,4 @@ export const AssistantText = ({ message }: { message: string }) => {
     </div>
   );
 };
+
