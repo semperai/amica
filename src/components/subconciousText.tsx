@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { config } from "@/utils/config";
+import { useEffect, useRef } from "react";
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
 import { useTranslation } from "react-i18next";
 import { IconBrain } from '@tabler/icons-react';

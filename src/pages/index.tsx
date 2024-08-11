@@ -117,6 +117,32 @@ export default function Home() {
     setMuted(config('tts_muted') === 'true')
   }
 
+  const toggleState = (
+    setFunc: React.Dispatch<React.SetStateAction<boolean>>, 
+    deps: React.Dispatch<React.SetStateAction<boolean>>[],
+  ) => {
+    setFunc(prev => {
+      if (!prev) {
+        deps.forEach(dep => dep(false));
+      } 
+      return !prev;
+    });
+  };
+  
+  const toggleChatLog = () => {
+    toggleState(setShowChatLog, [setShowSubconciousText, setShowChatMode]);
+  };
+  
+  const toggleSubconciousText = () => {
+    if (subconciousLogs.length !== 0) {
+      toggleState(setShowSubconciousText, [setShowChatLog, setShowChatMode]);
+    }
+  };
+  
+  const toggleChatMode = () => {
+    toggleState(setShowChatMode, [setShowChatLog, setShowSubconciousText]);
+  };
+
   useEffect(() => {
     bot.initialize(
       amicaLife,
@@ -197,13 +223,13 @@ export default function Home() {
                 <ChatBubbleLeftIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
-                  onClick={() => setShowChatLog(false)}
+                  onClick={toggleChatLog}
                 />
               ) : (
                 <ChatBubbleLeftRightIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
-                  onClick={() => setShowChatLog(true)}
+                  onClick={toggleChatLog}
                 />
               )}
             </div>
@@ -313,14 +339,14 @@ export default function Home() {
                   className="h-7 w-7 text-white opacity-100 hover:opacity-50 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   stroke={2}
-                  onClick={() => setShowSubconciousText(false)}
+                  onClick={toggleSubconciousText}
                 />
               ) : (
                 <IconBrain
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   stroke={2}
-                  onClick={() => setShowSubconciousText(true)}
+                  onClick={toggleSubconciousText}
                 />
               )}
             </div>
@@ -338,7 +364,7 @@ export default function Home() {
               <VerticalSwitchBox
                   value={showChatMode}
                   label={""}
-                  onChange={(value: boolean) => {setShowChatMode(value)}}
+                  onChange={toggleChatMode}
                 />
             </div>
             
@@ -346,7 +372,7 @@ export default function Home() {
         </div>    
       </div>
 
-      {showChatLog && !showChatMode && !showSubconciousText && <ChatLog messages={chatLog} />}
+      {showChatLog && <ChatLog messages={chatLog} />}
 
       {/* Normal chat text */}
       {!showSubconciousText && ! showChatLog && ! showChatMode && (
@@ -361,10 +387,10 @@ export default function Home() {
       )}
 
       {/* Chat mode text */}
-      {showChatMode && !showSubconciousText && !showChatLog && <ChatModeText messages={chatLog}/>}
+      {showChatMode && <ChatModeText messages={chatLog}/>}
 
       {/* Subconcious stored prompt text */}
-      {showSubconciousText && !showChatMode && !showChatLog && <SubconciousText messages={subconciousLogs}/>}
+      {showSubconciousText && <SubconciousText messages={subconciousLogs}/>}
 
       <AddToHomescreen />
 

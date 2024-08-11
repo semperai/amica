@@ -1,8 +1,8 @@
 import { Queue } from "typescript-collections";
 
-import { config, updateConfig } from "@/utils/config";
+import { config } from "@/utils/config";
 import { wait } from "@/utils/wait";
-import { characterIdleTime, pauseIdleTimer, resumeIdleTimer } from "@/utils/isIdle";
+import { pauseIdleTimer, resumeIdleTimer } from "@/utils/isIdle";
 
 import { Chat } from "@/features/chat/chat";
 import {
@@ -10,7 +10,6 @@ import {
   idleEvents,
   handleIdleEvent,
   basedPrompt,
-  storedPrompts,
   TimestampedPrompt,
 } from "@/features/amicaLife/eventHandler";
 import { Viewer } from "../vrmViewer/viewer";

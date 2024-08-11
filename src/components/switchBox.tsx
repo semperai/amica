@@ -1,5 +1,4 @@
-import { KnownIconType } from "@charcoal-ui/icons";
-import { useState, ButtonHTMLAttributes } from "react";
+import { useState , useEffect } from "react";
 import { Switch } from '@headlessui/react'
 import { clsx } from "clsx";
 
@@ -74,13 +73,24 @@ export const SwitchBox = ({
   );
 };
 
+interface VerticalProps {
+  value: boolean;
+  label: string;
+  onChange: (checked: boolean) => void;
+  [key: string]: any; // Additional props
+}
+
 export const VerticalSwitchBox = ({
   value,
   label,
   onChange,
   ...rest
-}: Props) => {
+}: VerticalProps) => {
   const [enabled, setEnabled] = useState(value);
+
+  useEffect(() => {
+    setEnabled(value);
+  }, [value]);
 
   const handleChange = (checked: boolean) => {
     setEnabled(checked);
@@ -142,4 +152,4 @@ export const VerticalSwitchBox = ({
       </Switch.Label>
     </Switch.Group>
   );
-};
+}
