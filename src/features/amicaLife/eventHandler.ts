@@ -51,8 +51,6 @@ export let storedPrompts: TimestampedPrompt[] = [];
 
 let previousAnimation = "";
 
-let previousAnimation = "";
-
 // Handles the VRM animation event.
 
 async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
