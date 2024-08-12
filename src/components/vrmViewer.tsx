@@ -6,15 +6,22 @@ import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import isTauri from "@/utils/isTauri";
 import { invoke } from "@tauri-apps/api/tauri";
 import { ChatContext } from "@/features/chat/chatContext";
+import clsx from "clsx";
 
 
-export default function VrmViewer() {
+export default function VrmViewer({chatMode}:{chatMode: boolean}) {
   const { chat: bot } = useContext(ChatContext);
   const { viewer } = useContext(ViewerContext);
   const { getCurrentVrm, vrmList, vrmListAddFile, isLoadingVrmList } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const isVrmLocal = 'local' == config("vrm_save_type");
+
+  
+  viewer.resizeChatMode(chatMode); 
+  window.addEventListener("resize", () => {
+    viewer.resizeChatMode(chatMode);
+  });
 
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
@@ -88,7 +95,10 @@ export default function VrmViewer() {
   );
 
   return (
-    <div className={"fixed top-0 left-0 w-full h-full z-1"}>
+    <div className={clsx(
+      "fixed top-0 left-0 w-full h-full z-1",
+      chatMode ? "top-[50%] left-[65%]" : "top-0 left-0",
+    )}>
       <canvas ref={canvasRef} className={"h-full w-full"}></canvas>
       {isLoading && (
         <div className={"absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"}>

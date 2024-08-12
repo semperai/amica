@@ -25,6 +25,7 @@
     "@pixiv/three-vrm": "^2.0.7",
     "@ricky0123/vad-react": "^0.0.17",
     "@supabase/supabase-js": "^2.39.0",
+    "@tabler/icons-react": "^3.11.0",
     "@tailwindcss/forms": "^0.5.6",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@xenova/transformers": "^2.7.0",

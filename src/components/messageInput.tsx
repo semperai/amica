@@ -12,6 +12,7 @@ import { openaiWhisper  } from "@/features/openaiWhisper/openaiWhisper";
 import { whispercpp  } from "@/features/whispercpp/whispercpp";
 import { config } from "@/utils/config";
 import { WaveFile } from "wavefile";
+import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
 
 export default function MessageInput({
   userMessage,
@@ -32,12 +33,18 @@ export default function MessageInput({
   const [whisperCppOutput, setWhisperCppOutput] = useState<any | null>(null);
   const { chat: bot } = useContext(ChatContext);
   const { alert } = useContext(AlertContext);
+  const { amicaLife } = useContext(AmicaLifeContext);
 
   const vad = useMicVAD({
     startOnLoad: false,
     onSpeechStart: () => {
       console.debug('vad', 'on_speech_start');
       console.time('performance_speech');
+      // Pause amicaLife and update bot's awake status when speaking
+      if (config("amica_life_enabled") === "true") {
+        amicaLife.pause();
+        bot.updateAwake();
+      }
     },
     onSpeechEnd: (audio: Float32Array) => {
       console.debug('vad', 'on_speech_end');
@@ -138,6 +145,16 @@ export default function MessageInput({
     console.timeEnd('performance_transcribe');
   }
 
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    onChangeUserMessage(event); 
+  
+    // Pause amicaLife and update bot's awake status when typing
+    if (config("amica_life_enabled") === "true") {
+      amicaLife.pause();
+      bot.updateAwake();
+    }
+  }
+
   // for whisper_browser
   useEffect(() => {
     if (transcriber.output && ! transcriber.isBusy) {
@@ -189,7 +206,7 @@ export default function MessageInput({
             type="text"
             ref={inputRef}
             placeholder="Write message here..."
-            onChange={onChangeUserMessage}
+            onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 if (userMessage === "") {

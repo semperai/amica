@@ -1,8 +1,8 @@
 import { Queue } from "typescript-collections";
 
-import { config, updateConfig } from "@/utils/config";
+import { config } from "@/utils/config";
 import { wait } from "@/utils/wait";
-import { characterIdleTime, pauseIdleTimer, resumeIdleTimer } from "@/utils/isIdle";
+import { pauseIdleTimer, resumeIdleTimer } from "@/utils/isIdle";
 
 import { Chat } from "@/features/chat/chat";
 import {
@@ -10,6 +10,7 @@ import {
   idleEvents,
   handleIdleEvent,
   basedPrompt,
+  TimestampedPrompt,
 } from "@/features/amicaLife/eventHandler";
 import { Viewer } from "../vrmViewer/viewer";
 
@@ -20,6 +21,8 @@ export class AmicaLife {
   public mainEvents: Queue<AmicaLifeEvents>;
   public viewer?: Viewer;
   public chat?: Chat;
+
+  public setSubconciousLogs?: (subconciousLogs: TimestampedPrompt[]) => void;
 
   private triggerMessage: boolean;
   public eventProcessing?: boolean;
@@ -44,9 +47,11 @@ export class AmicaLife {
     this.isProcessingIdleRunning = false;
   }
 
-  public initialize(viewer: Viewer, chat: Chat) {
+  public initialize(viewer: Viewer, chat: Chat, setSubconciousLogs: (subconciousLogs: TimestampedPrompt[]) => void) {
     this.viewer = viewer;
     this.chat = chat;
+
+    this.setSubconciousLogs = setSubconciousLogs
 
     this.loadIdleTextPrompt(null);
 
@@ -302,4 +307,5 @@ export class AmicaLife {
       Math.floor(Math.random() * (maxMs - minMs + 1) + minMs) * 1000;
     return new Promise((resolve) => setTimeout(resolve, interval));
   }
+  
 }
