@@ -131,8 +131,7 @@ export class AmicaLife {
     }
 
     this.pause();
-    this.removeEvent("Sleep");
-    this.isSleep = false;
+    this.wakeFromSleep();
     this.triggerMessage = true;
   }
 
@@ -210,7 +209,7 @@ export class AmicaLife {
           console.time(`processing_event ${idleEvent.events}`);
           this.eventProcessing = true;
           await handleIdleEvent(idleEvent, this, this.chat!, this.viewer!);
-          this.mainEvents.enqueue(idleEvent);
+          !(idleEvent.events === 'Sleep') ? this.mainEvents.enqueue(idleEvent) : null;
         } else {
           console.log("Handling idle event:", "No idle events in queue");
         } 
@@ -278,6 +277,7 @@ export class AmicaLife {
   public checkSettingOff(off: boolean) {
     if (off) {
       this.isSettingOff = true;
+      this.wakeFromSleep();
       this.chat?.updateAwake(); // Update awake when user exit the setting page
       this.resume();
     } else {
@@ -306,6 +306,11 @@ export class AmicaLife {
     const interval =
       Math.floor(Math.random() * (maxMs - minMs + 1) + minMs) * 1000;
     return new Promise((resolve) => setTimeout(resolve, interval));
+  }
+
+  public wakeFromSleep() {
+    this.isSleep = false;
+    this.viewer?.model?.playEmotion("Neutral");
   }
   
 }
