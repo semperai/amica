@@ -16,8 +16,10 @@ const DynamicMessageInput = dynamic(() =>
  */
 export const MessageInputContainer = ({
   isChatProcessing,
+  isChatSpeaking,
 }: {
   isChatProcessing: boolean;
+  isChatSpeaking: boolean;
 }) => {
   const [userMessage, setUserMessage] = useState("");
 
@@ -32,6 +34,7 @@ export const MessageInputContainer = ({
       userMessage={userMessage}
       setUserMessage={setUserMessage}
       isChatProcessing={isChatProcessing}
+      isChatSpeaking={isChatSpeaking}
       onChangeUserMessage={(e) => setUserMessage(e.target.value)}
     />
   );

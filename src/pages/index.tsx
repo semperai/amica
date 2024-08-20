@@ -74,6 +74,7 @@ export default function Home() {
   const { chat: bot } = useContext(ChatContext);
   const { amicaLife: amicaLife } = useContext(AmicaLifeContext);
 
+  const [chatSpeaking, setChatSpeaking] = useState(false);
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
@@ -153,6 +154,7 @@ export default function Home() {
       setAssistantMessage,
       setShownMessage,
       setChatProcessing,
+      setChatSpeaking,
     );
 
     // TODO remove in future
@@ -204,7 +206,7 @@ export default function Home() {
         )}
       </VrmStoreProvider>
       
-      <MessageInputContainer isChatProcessing={chatProcessing} />
+      <MessageInputContainer isChatProcessing={chatProcessing} isChatSpeaking={chatSpeaking}/>
 
       {/* main menu */}
       <div className="absolute z-10 m-2">

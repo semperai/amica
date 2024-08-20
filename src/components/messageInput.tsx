@@ -18,11 +18,13 @@ export default function MessageInput({
   userMessage,
   setUserMessage,
   isChatProcessing,
+  isChatSpeaking,
   onChangeUserMessage,
 }: {
   userMessage: string;
   setUserMessage: (message: string) => void;
   isChatProcessing: boolean;
+  isChatSpeaking: boolean;
   onChangeUserMessage: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
@@ -154,6 +156,15 @@ export default function MessageInput({
       bot.updateAwake();
     }
   }
+
+  // Preventing Feedback Loops in Text-to-Speech Systems with Simultaneous Microphone Input.
+  useEffect(() => {
+    if (isChatSpeaking || bot.processSpeakJobs.length > 0 || bot.processTtsJobs.length > 0 || isChatProcessing) {
+      vad.pause();
+    } else if (!isChatSpeaking && !vad.listening) {
+      vad.start(); // This will re-enable VAD if it's not listening
+    }
+  }, [isChatSpeaking,bot]);
 
   // for whisper_browser
   useEffect(() => {
