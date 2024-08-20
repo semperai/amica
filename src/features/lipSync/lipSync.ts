@@ -42,7 +42,6 @@ export class LipSync {
     bufferSource.start();
     if (onEnded) {
       bufferSource.addEventListener("ended", onEnded);
-      return false;
     }
   }
 
