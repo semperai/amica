@@ -157,14 +157,18 @@ export default function MessageInput({
     }
   }
 
+  // Keep track of the previous state of VAD
+  const wasListeningRef = useRef(false);
+
   // Preventing Feedback Loops in Text-to-Speech Systems with Simultaneous Microphone Input.
   useEffect(() => {
     if (isChatSpeaking || bot.processSpeakJobs.length > 0 || bot.processTtsJobs.length > 0 || isChatProcessing) {
+      wasListeningRef.current = vad.listening;
       vad.pause();
-    } else if (!isChatSpeaking && !vad.listening) {
+    } else if (!isChatSpeaking && !vad.listening && wasListeningRef.current) {
       vad.start(); // This will re-enable VAD if it's not listening
     }
-  }, [isChatSpeaking,bot]);
+  }, [isChatSpeaking, bot]);
 
   // for whisper_browser
   useEffect(() => {
