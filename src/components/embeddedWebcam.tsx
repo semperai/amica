@@ -51,6 +51,7 @@ export function EmbeddedWebcam({
         await bot.getVisionResponse(fixedImageData);
         setCameraDisabled(false);
         setImageData("");
+        setWebcamEnabled(false);
       }
     };
 
