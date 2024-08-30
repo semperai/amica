@@ -122,13 +122,19 @@ export default function MessageInput({
     const text = wakeWordEnabled && textStartsWithWakeWord ? cleanFromWakeWord(cleanText, config("wake_word")) : cleanText;
 
     if (wakeWordEnabled) {
+      // Text start with wake word
       if (textStartsWithWakeWord) {
         // Pause amicaLife and update bot's awake status when speaking
         if (config("amica_life_enabled") === "true") {
           amicaLife.pause();
         }
         bot.updateAwake();
-      } 
+      // Case text doesn't start with wake word and not receive trigger message in amica life
+      } else {
+        if (config("amica_life_enabled") === "true" && amicaLife.triggerMessage !== true && !bot.isAwake()) {
+          bot.updateAwake();
+        }
+      }
     } else {
       // If wake word off, update bot's awake when speaking
       if (config("amica_life_enabled") === "true") {

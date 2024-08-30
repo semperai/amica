@@ -24,7 +24,7 @@ export class AmicaLife {
 
   public setSubconciousLogs?: (subconciousLogs: TimestampedPrompt[]) => void;
 
-  private triggerMessage: boolean;
+  public triggerMessage: boolean;
   public eventProcessing?: boolean;
 
   public isSleep: boolean;
@@ -130,8 +130,10 @@ export class AmicaLife {
       this.insertFront({events: "News"});
     }
 
+    // Re-enqueue subconcious event after get the user input (1 Subconcious events per idle cycle)
+    (!this.containsEvent("Subconcious")) ? this.mainEvents.enqueue({ events: "Subconcious" }) : null;
+
     this.pause();
-    this.removeEvent("Sleep");
     this.isSleep = false;
     this.triggerMessage = true;
   }
@@ -210,7 +212,7 @@ export class AmicaLife {
           console.time(`processing_event ${idleEvent.events}`);
           this.eventProcessing = true;
           await handleIdleEvent(idleEvent, this, this.chat!, this.viewer!);
-          this.mainEvents.enqueue(idleEvent);
+          !(idleEvent.events === 'Subconcious' || idleEvent.events === 'Sleep') ? this.mainEvents.enqueue(idleEvent) : null;
         } else {
           console.log("Handling idle event:", "No idle events in queue");
         } 
@@ -278,6 +280,7 @@ export class AmicaLife {
   public checkSettingOff(off: boolean) {
     if (off) {
       this.isSettingOff = true;
+      this.isSleep = false;
       this.chat?.updateAwake(); // Update awake when user exit the setting page
       this.resume();
     } else {
