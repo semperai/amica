@@ -2,7 +2,7 @@ const defaults = {
   autosend_from_mic: 'true',
   wake_word_enabled: 'false',
   wake_word: 'Hello',
-  time_before_idle_sec: '2',
+  time_before_idle_sec: '20',
   debug_gfx: 'false',
   language: 'en',
   show_introduction: 'true',
