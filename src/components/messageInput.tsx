@@ -40,11 +40,6 @@ export default function MessageInput({
     onSpeechStart: () => {
       console.debug('vad', 'on_speech_start');
       console.time('performance_speech');
-      // Pause amicaLife and update bot's awake status when speaking
-      if (config("amica_life_enabled") === "true") {
-        amicaLife.pause();
-        bot.updateAwake();
-      }
     },
     onSpeechEnd: (audio: Float32Array) => {
       console.debug('vad', 'on_speech_end');
@@ -126,9 +121,28 @@ export default function MessageInput({
     const textStartsWithWakeWord = wakeWordEnabled && cleanFromPunctuation(cleanText).startsWith(cleanFromPunctuation(config("wake_word")));
     const text = wakeWordEnabled && textStartsWithWakeWord ? cleanFromWakeWord(cleanText, config("wake_word")) : cleanText;
 
-    if (textStartsWithWakeWord) {
-      bot.updateAwake();
+    if (wakeWordEnabled) {
+      // Text start with wake word
+      if (textStartsWithWakeWord) {
+        // Pause amicaLife and update bot's awake status when speaking
+        if (config("amica_life_enabled") === "true") {
+          amicaLife.pause();
+        }
+        bot.updateAwake();
+      // Case text doesn't start with wake word and not receive trigger message in amica life
+      } else {
+        if (config("amica_life_enabled") === "true" && amicaLife.triggerMessage !== true && !bot.isAwake()) {
+          bot.updateAwake();
+        }
+      }
+    } else {
+      // If wake word off, update bot's awake when speaking
+      if (config("amica_life_enabled") === "true") {
+        amicaLife.pause();
+        bot.updateAwake();
+      }
     }
+
 
     if (text === "") {
       return;
@@ -136,9 +150,9 @@ export default function MessageInput({
 
 
     if (config("autosend_from_mic") === 'true') {
-        if (!wakeWordEnabled || bot.isAwake()) {
+      if (!wakeWordEnabled || bot.isAwake()) {
         bot.receiveMessageFromUser(text,false);
-      }
+      } 
     } else {
       setUserMessage(text);
     }

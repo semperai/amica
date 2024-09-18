@@ -24,7 +24,7 @@ export class AmicaLife {
 
   public setSubconciousLogs?: (subconciousLogs: TimestampedPrompt[]) => void;
 
-  private triggerMessage: boolean;
+  public triggerMessage: boolean;
   public eventProcessing?: boolean;
 
   public isSleep: boolean;
