@@ -23,6 +23,7 @@ export class AmicaLife {
   public chat?: Chat;
 
   public setSubconciousLogs?: (subconciousLogs: TimestampedPrompt[]) => void;
+  public isChatSpeaking?: boolean;
 
   public triggerMessage: boolean;
   public eventProcessing?: boolean;
@@ -47,11 +48,12 @@ export class AmicaLife {
     this.isProcessingIdleRunning = false;
   }
 
-  public initialize(viewer: Viewer, chat: Chat, setSubconciousLogs: (subconciousLogs: TimestampedPrompt[]) => void) {
+  public initialize(viewer: Viewer, chat: Chat, setSubconciousLogs: (subconciousLogs: TimestampedPrompt[]) => void, isChatSpeaking: boolean) {
     this.viewer = viewer;
     this.chat = chat;
 
     this.setSubconciousLogs = setSubconciousLogs
+    this.isChatSpeaking = isChatSpeaking
 
     this.loadIdleTextPrompt(null);
 
@@ -190,6 +192,7 @@ export class AmicaLife {
       if (
         this.chat!.speakJobs.size() < 1 &&
         this.chat!.ttsJobs.size() < 1 &&
+        !this.isChatSpeaking &&
         !this.eventProcessing 
       ) {
 
@@ -216,7 +219,7 @@ export class AmicaLife {
         } else {
           console.log("Handling idle event:", "No idle events in queue");
         } 
-      } else if ( this.chat!.speakJobs.size() > 0 || this.chat!.ttsJobs.size() > 0 ) {
+      } else if ( this.chat!.speakJobs.size() > 0 || this.chat!.ttsJobs.size() > 0 || this.isChatSpeaking) {
         pauseIdleTimer();
       }
 
