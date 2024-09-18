@@ -7,6 +7,8 @@ Navigate to [Coqui](https://coqui.ai/) and click on the **Get Started** button.
 
 > Coqui.ai has been discontinued, but enthusiasts can still set up Coqui locally by following the instructions below.
 
+> Coqui Local Branch has not yet been merged.
+
 ## Setting Up Coqui Locally
 
 ### Method 1: Manual Setup 

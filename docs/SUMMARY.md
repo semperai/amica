@@ -6,6 +6,8 @@
 
 * [How Amica Works](./overview/how-amica-works.md)
 * [Core Concepts](./overview/core-concepts.md)
+* [Amica Life](./overview/amica-life.md)
+* [Other Features](./overview/other-features.md)
 * [Use Cases](./overview/use-cases.md)
 * [Amica vs Other Tools](./overview/amica-vs-other-tools.md)
 
@@ -15,20 +17,40 @@
 * [Installing Amica](./getting-started/installation.md)
 * [Next Steps](./getting-started/next-steps.md)
 
-## 🌱 Guides
+## 🗣️ Connecting LLMs (Your Core AI Chatbot Model)
 
 * [Using LM Studio](./guides/using-lm-studio.md)
 * [Using LLaMA.cpp](./guides/using-llamacpp.md)
 * [Using Ollama](./guides/using-ollama.md)
-* [Using Window.ai](./guides/using-windowai.md)
 * [Using KoboldCpp](./guides/using-koboldcpp.md)
-* [Using whisper.cpp](./guides/using-whispercpp.md)
 * [Using OpenAI](./guides/using-openai.md)
-* [Using ElevenLabs](./guides/using-elevenlabs.md)
-* [Using Coqui](./guides/using-coqui.md)
-* [Using LLaVA](./guides/using-llava.md)
-* [Using SpeechT5](./guides/using-speecht5.md)
 * [Using Oobabooga](./guides/using-oobabooga.md)
+
+## 🔊 Connecting Speech Options (TTS)
+
+* [Using SpeechT5](./guides/using-speecht5.md)
+* [Using ElevenLabs](./guides/using-elevenlabs.md)
+* [Using Coqui Local](./guides/using-coqui.md)
+* [Using Piper ](./guides/using-piper.md)
+* [Using Alltalk TTS](./guides/using-alltalk.md)
+
+
+## 👂 Connecting Microphone Options (STT)
+
+* [Using whisper.cpp](./guides/using-whispercpp.md)
+
+## 👁️ Connecting Multi-Modal Modules
+
+* [Using LLaVA](./guides/using-llava.md)
+
+## 🔧 Other Guides
+
+* [Using Window.ai](./guides/using-windowai.md)
+
+## 🧩 Plugin System 
+
+* [Plugins Intro](./plugin-system/plugin-intro.md)
+
 
 ## 🌻 Tutorials
 
