@@ -47,14 +47,14 @@ We will use llama.cpp for local LLM. However, you can see how to do this with ot
 ```bash
 git clone https://github.com/ggerganov/llama.cpp
 cd llama.cpp
-make server -j 4
+make llama-server -j 4
 
 # download https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/blob/main/openhermes-2.5-mistral-7b.Q5_K_M.gguf
 # save this file into llama.cpp/models folder
 
 # when the download is complete you can start the server and load the model
 # you can save this command in a file called start_server.sh
-./server -t 4 -c 4096 -ngl 35 -b 512 --mlock -m models/openhermes-2-mistral-7b.Q5_K_M.gguf
+./llama-server -t 4 -c 4096 -ngl 35 -b 512 --mlock -m models/openhermes-2-mistral-7b.Q5_K_M.gguf
 ```
 
 Now go to [http://127.0.0.1:8080](http://127.0.0.1:8080) in browser and test it works.
