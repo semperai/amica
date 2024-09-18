@@ -1,6 +1,6 @@
 ---
 title: Other Features
-order: 3
+order: 4
 ---
 
 Here are some other cool small features Amica comes with:

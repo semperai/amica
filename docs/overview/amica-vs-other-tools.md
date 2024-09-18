@@ -1,6 +1,6 @@
 ---
 title: Amica vs Other Tools
-order: 5
+order: 6
 ---
 
 The landscape of 3D AI avatar software has seen a notable expansion in recent years, and within this dynamic environment, Amica has emerged as a standout solution.

@@ -1,11 +1,13 @@
 ---
-title: Amica Life (Early Alpha)
+title: Amica Life 
 order: 3
 ---
 
 ## Amica Life Features
 
 Amica Life is designed to operate in a semi-autonomous mode, incorporating animations, sleep functionality, function calling, a subconscious subroutine, and self-prompting features to create a seamless virtual assistant experience.
+
+> Amica Life is in early alpha, and many features are in early stages
 
 ### Key Features of Amica Life
 
