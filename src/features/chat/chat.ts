@@ -299,9 +299,6 @@ export class Chat {
     if (message === null || message === "") {
       return;
     }
-    if (config("wake_word_enabled") === 'true') {
-      this.updateAwake();
-    }
 
     console.time('performance_interrupting');
     console.debug('interrupting...');
