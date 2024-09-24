@@ -22,7 +22,7 @@ Navigate to [TheBloke/openchat_3.5-GGUF](https://huggingface.co/TheBloke/opencha
 ## Step 3 - Build the server
 
 ```bash
-make server
+make llama-server
 ```
 
 ## Step 4 - Run the server
@@ -30,7 +30,7 @@ make server
 Read the [llama.cpp](https://github.com/ggerganov/llama.cpp/blob/master/README.md) documentation for more information on the server options. Or run `./server --help`.
 
 ```bash
-./server -t 4 -c 4096 -ngl 35 -b 512 --mlock -m models/openchat_3.5.Q5_K_M.gguf
+./llama-server -t 4 -c 4096 -ngl 35 -b 512 --mlock -m models/openchat_3.5.Q5_K_M.gguf
 ```
 
 ## Step 5 - Enable the server in the client

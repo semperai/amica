@@ -17,6 +17,8 @@ Amica is a web-based application, so there is no need to install anything. Simpl
 
 However, you may want to self-host Amica. If so, you can find the source code on [GitHub](https://github.com/semperai/amica).
 
+Read the [Local Setup](../getting-started/installation.md) guide if you are interested in getting everything running locally quickly.
+
 ### Step 2 - Modify the Avatar
 
 Amica comes with a default avatar. You can modify this avatar by clicking on "Settings" button in the top left corner of the screen.
