@@ -33,7 +33,7 @@ export function CharacterModelPage({
   return (
     <BasicPage
       title={t("Character Model")}
-      description={t("character_desc", "Select the Character to play")}
+      description={t("character_desc", "Select the Character to play, currently only default Amica has full range of emotions. Load your own VRMs here.")}
       >
         <div className="rounded-lg shadow-lg bg-white flex flex-wrap justify-center space-x-4 space-y-4 p-4">
           { vrmList.map((vrm) =>

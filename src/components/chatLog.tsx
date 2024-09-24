@@ -22,7 +22,7 @@ export const ChatLog = ({
 
   const handleResumeButtonClick = (num: number, newMessage: string) => {
     bot.setMessageList(messages.slice(0, num));
-    bot.receiveMessageFromUser(newMessage);
+    bot.receiveMessageFromUser(newMessage,false);
   };
 
   const txtFileInputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +56,7 @@ export const ChatLog = ({
             bot.setMessageList(parsedChat.slice(0, parsedChat.length - 1));
 
             if (lastMessage.role === "user") {
-              bot.receiveMessageFromUser(lastMessage.content);
+              bot.receiveMessageFromUser(lastMessage.content,false);
             } else {
               bot.bubbleMessage(lastMessage.role, lastMessage.content);
             }
@@ -132,7 +132,7 @@ export const ChatLog = ({
               <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
                 <Chat
                   role={msg.role}
-                  message={msg.content}
+                  message={msg.content.replace(/\[(.*?)\]/g, "")}
                   num={i}
                   onClickResumeButton={handleResumeButtonClick}
                 />
@@ -165,10 +165,10 @@ function Chat({
   onClickResumeButton: (num: number, message: string) => void;
 }) {
   const { t } = useTranslation();
-  const [textAreaValue, setTextAreaValue] = useState(message);
+  // const [textAreaValue, setTextAreaValue] = useState(message);
 
   const onClickButton = () => {
-    const newMessage = textAreaValue
+    const newMessage = message
     onClickResumeButton(num, newMessage);
   };
 
@@ -203,11 +203,11 @@ function Chat({
       <div className="px-4 py-2 bg-white/80 backdrop-blur-lg rounded-b-lg shadow-sm">
         <div className='typography-16 font-M_PLUS_2 font-bold text-gray-800'>
           {role === "assistant" ? (
-            <div>{textAreaValue}</div>
+            <div>{message}</div>
           ) : (
             <FlexTextarea
-              value={textAreaValue}
-              onChange={setTextAreaValue}
+              value={message}
+              // onChange={setTextAreaValue}
             />
           )}
         </div>

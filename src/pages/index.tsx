@@ -22,8 +22,10 @@ import {
   VideoCameraSlashIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
+import { IconBrain } from '@tabler/icons-react';
 
 import { AssistantText } from "@/components/assistantText";
+import { SubconciousText } from "@/components/subconciousText";
 import { AddToHomescreen } from "@/components/addToHomescreen";
 import { Alert } from "@/components/alert";
 import { UserText } from "@/components/userText";
@@ -45,6 +47,11 @@ import { config, updateConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
 import { VrmStoreProvider } from "@/features/vrmStore/vrmStoreContext";
+import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
+import { ChatModeText } from "@/components/chatModeText";
+
+import { VerticalSwitchBox } from "@/components/switchBox"
+import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -65,27 +72,33 @@ export default function Home() {
   const { viewer } = useContext(ViewerContext);
   const { alert } = useContext(AlertContext);
   const { chat: bot } = useContext(ChatContext);
+  const { amicaLife: amicaLife } = useContext(AmicaLifeContext);
 
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
   const [userMessage, setUserMessage] = useState("");
   const [shownMessage, setShownMessage] = useState<Role>("system");
+  const [subconciousLogs, setSubconciousLogs] = useState<TimestampedPrompt[]>([]);
 
   // showContent exists to allow ssr
   // otherwise issues from usage of localStorage and window will occur
   const [showContent, setShowContent] = useState(false);
 
-
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
+  const [showChatMode, setShowChatMode] = useState(false);
+  const [showSubconciousText, setShowSubconciousText] = useState(false);
 
   // null indicates havent loaded config yet
   const [muted, setMuted] = useState<boolean|null>(null);
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
+  useEffect(() => {
+    amicaLife.checkSettingOff(!showSettings);
+  }, [showSettings, amicaLife]);
 
   useEffect(() => {
     if (muted === null) {
@@ -104,8 +117,35 @@ export default function Home() {
     setMuted(config('tts_muted') === 'true')
   }
 
+  const toggleState = (
+    setFunc: React.Dispatch<React.SetStateAction<boolean>>, 
+    deps: React.Dispatch<React.SetStateAction<boolean>>[],
+  ) => {
+    setFunc(prev => {
+      if (!prev) {
+        deps.forEach(dep => dep(false));
+      } 
+      return !prev;
+    });
+  };
+  
+  const toggleChatLog = () => {
+    toggleState(setShowChatLog, [setShowSubconciousText, setShowChatMode]);
+  };
+  
+  const toggleSubconciousText = () => {
+    if (subconciousLogs.length !== 0) {
+      toggleState(setShowSubconciousText, [setShowChatLog, setShowChatMode]);
+    }
+  };
+  
+  const toggleChatMode = () => {
+    toggleState(setShowChatMode, [setShowChatLog, setShowSubconciousText]);
+  };
+
   useEffect(() => {
     bot.initialize(
+      amicaLife,
       viewer,
       alert,
       setChatLog,
@@ -121,6 +161,14 @@ export default function Home() {
       updateConfig("tts_backend", "openai_tts");
     }
   }, [bot, viewer]);
+
+  useEffect(() => {
+    amicaLife.initialize(
+      viewer,
+      bot,
+      setSubconciousLogs,
+    );
+  }, [amicaLife, bot, viewer]);
 
   // this exists to prevent build errors with ssr
   useEffect(() => setShowContent(true), []);
@@ -148,7 +196,7 @@ export default function Home() {
       { showDebug && <DebugPane onClickClose={() => setShowDebug(false) }/> }
 
       <VrmStoreProvider>
-        <VrmViewer />
+        <VrmViewer chatMode={showChatMode}/>
         {showSettings && (
           <Settings
             onClickClose={() => setShowSettings(false)}
@@ -175,13 +223,13 @@ export default function Home() {
                 <ChatBubbleLeftIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
-                  onClick={() => setShowChatLog(false)}
+                  onClick={toggleChatLog}
                 />
               ) : (
                 <ChatBubbleLeftRightIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
-                  onClick={() => setShowChatLog(true)}
+                  onClick={toggleChatLog}
                 />
               )}
             </div>
@@ -286,21 +334,48 @@ export default function Home() {
             </div>
 
             <div className="flex flex-row items-center space-x-2">
-              <CodeBracketSquareIcon
-                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                aria-hidden="true"
-                onClick={() => setShowDebug(true)}
-              />
-              <span className="text-white hidden">Debug</span>
+              { showSubconciousText ? (
+                <IconBrain
+                  className="h-7 w-7 text-white opacity-100 hover:opacity-50 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  stroke={2}
+                  onClick={toggleSubconciousText}
+                />
+              ) : (
+                <IconBrain
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  stroke={2}
+                  onClick={toggleSubconciousText}
+                />
+              )}
             </div>
 
+            {/*<div className="flex flex-row items-center space-x-2">
+                <CodeBracketSquareIcon
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setShowDebug(true)}
+                />
+                <span className="text-white hidden">Debug</span> 
+            </div>*/}
+
+            <div className="flex flex-row items-center space-x-2">
+              <VerticalSwitchBox
+                  value={showChatMode}
+                  label={""}
+                  onChange={toggleChatMode}
+                />
+            </div>
+            
           </div>
-        </div>
+        </div>    
       </div>
 
       {showChatLog && <ChatLog messages={chatLog} />}
 
-      {! showChatLog && (
+      {/* Normal chat text */}
+      {!showSubconciousText && ! showChatLog && ! showChatMode && (
         <>
           { shownMessage === 'assistant' && (
             <AssistantText message={assistantMessage} />
@@ -310,6 +385,12 @@ export default function Home() {
           )}
         </>
       )}
+
+      {/* Chat mode text */}
+      {showChatMode && <ChatModeText messages={chatLog}/>}
+
+      {/* Subconcious stored prompt text */}
+      {showSubconciousText && <SubconciousText messages={subconciousLogs}/>}
 
       <AddToHomescreen />
 

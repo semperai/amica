@@ -1,5 +1,3 @@
-import { VRMExpressionPresetName } from "@pixiv/three-vrm";
-
 export type Role = "assistant" | "system" | "user";
 
 // ChatGPT API
@@ -23,8 +21,27 @@ export type Talk = {
   message: string;
 };
 
-const emotions = ["neutral", "happy", "angry", "sad", "relaxed"] as const;
-type EmotionType = (typeof emotions)[number] & VRMExpressionPresetName;
+//Name of all the expression in the vrm 
+export const emotionNames: string[] = [];
+console.log("All emotion names, ",emotionNames);
+
+export const emotions = 
+["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
+"Shy", "Jealous", "Bored", "Serious", "Suspicious", "Victory", 
+"Sleep", "Love"] as const;
+
+// Convert user input to system format e.g. ["suspicious"] -> ["Sus"], ["sleep"] -> ["Sleep"]
+const userInputToSystem = (input: string) => {
+  const mapping: { [key: string]: string } = {
+    ...Object.fromEntries(emotions
+      .filter(e => e[0] === e[0].toUpperCase())
+      .map(e => [e.toLowerCase(), e]))
+  };
+
+  return mapping[input.toLowerCase()] || input;
+};
+
+type EmotionType = (typeof emotions)[number];
 
 /**
  * A set that includes utterances, voice emotions, and model emotional expressions.
@@ -32,6 +49,7 @@ type EmotionType = (typeof emotions)[number] & VRMExpressionPresetName;
 export type Screenplay = {
   expression: EmotionType;
   talk: Talk;
+  text: string;
 };
 
 export const textsToScreenplay = (
@@ -49,9 +67,12 @@ export const textsToScreenplay = (
     const message = text.replace(/\[(.*?)\]/g, "");
 
     let expression = prevExpression;
-    if (emotions.includes(tag as any)) {
-      expression = tag;
-      prevExpression = tag;
+    const systemTag = userInputToSystem(tag);
+
+    if (emotions.includes(systemTag as any)) {
+      console.log("expression detect here :",systemTag);
+      expression = systemTag;
+      prevExpression = systemTag;
     }
 
     screenplays.push({
@@ -60,6 +81,7 @@ export const textsToScreenplay = (
         style: emotionToTalkStyle(expression as EmotionType),
         message: message,
       },
+      text: text,
     });
   }
 
