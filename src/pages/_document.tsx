@@ -4,8 +4,8 @@ import { Html, Head, Main, NextScript } from "next/document";
 import Script from 'next/script'
 
 export default function Document() {
-  const title = "Amica";
-  const description = "Converse with AI powered 3D characters with voice synthesis and speech recognition.";
+  const title = "Amica - Where Empathy Meets AI";
+  const description = "Amica is your personal 3D companion that can communicate via natural voice chat and vision, with an emotion engine that allows Amica to express feelings, complete tasks and engage on her own.";
   const imageUrl = "https://amica.arbius.ai/ogp.png";
 
   return (
