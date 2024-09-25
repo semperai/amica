@@ -2,8 +2,7 @@ import * as THREE from "three";
 import { Model } from "./model";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
-import { buildUrl } from "@/utils/buildUrl";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { config } from "@/utils/config";
 
 /**
@@ -21,8 +20,16 @@ export class Viewer {
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
 
+  private _raycaster?: THREE.Raycaster;
+  private _mouse?: THREE.Vector2;
+
+  private sendScreenshotToCallback: boolean;
+  private screenshotCallback: BlobCallback | undefined;
+
   constructor() {
     this.isReady = false;
+    this.sendScreenshotToCallback = false;
+    this.screenshotCallback = undefined;
 
     // scene
     const scene = new THREE.Scene();
@@ -112,6 +119,10 @@ export class Viewer {
 
     this._cameraControls.update();
 
+    // raycaster and mouse
+    this._raycaster = new THREE.Raycaster();
+    this._mouse = new THREE.Vector2();
+
     window.addEventListener("resize", () => {
       this.resize();
     });
@@ -141,6 +152,29 @@ export class Viewer {
     this._camera.updateProjectionMatrix();
   }
 
+  public resizeChatMode(on: boolean){
+    if (!this._renderer) return;
+
+    const parentElement = this._renderer.domElement.parentElement;
+    if (!parentElement) return;
+
+    this._renderer.setPixelRatio(window.devicePixelRatio);
+
+    let width = parentElement.clientWidth;
+    let height = parentElement.clientHeight;
+    if (on) {width = width/2; height = height/2; }
+
+    this._renderer.setSize(
+      width,
+      height
+    );
+
+    if (!this._camera) return;
+    this._camera.aspect =
+      parentElement.clientWidth / parentElement.clientHeight;
+    this._camera.updateProjectionMatrix();
+  }
+
   /**
    * VRMのheadノードを参照してカメラ位置を調整する
    */
@@ -159,6 +193,18 @@ export class Viewer {
     }
   }
 
+  public resetCameraLerp() {
+    // y = 1.3 is from initial setup position of camera
+    const newPosition = new THREE.Vector3(
+      this._camera?.position.x,
+      1.3,
+      this._camera?.position.z
+    );
+    this._camera?.position.lerpVectors(this._camera?.position,newPosition,0);
+    // this._cameraControls?.target.lerpVectors(this._cameraControls?.target,headWPos,0.5);
+    // this._cameraControls?.update();
+  }
+
   public update = () => {
     requestAnimationFrame(this.update);
     const delta = this._clock.getDelta();
@@ -169,6 +215,37 @@ export class Viewer {
 
     if (this._renderer && this._camera) {
       this._renderer.render(this._scene, this._camera);
+      if (this.sendScreenshotToCallback && this.screenshotCallback) {
+        this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
+        this.sendScreenshotToCallback = false;
+
+      }
     }
+  };
+
+  public onMouseClick(event: MouseEvent): boolean {
+    if (!this._renderer || !this._camera || !this.model?.vrm) return false;
+
+    const rect = this._renderer.domElement.getBoundingClientRect();
+
+    // calculate mouse position in normalized device coordinates
+    this._mouse!.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this._mouse!.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // update the picking ray with the camera and mouse position
+    this._raycaster!.setFromCamera(this._mouse!, this._camera);
+
+    // calculate objects intersecting the picking ray
+    const intersects = this._raycaster!.intersectObject(this.model.vrm.scene, true);
+
+    if (intersects.length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  public getScreenshotBlob = (callback: BlobCallback) => {
+    this.screenshotCallback = callback;
+    this.sendScreenshotToCallback = true;
   };
 }

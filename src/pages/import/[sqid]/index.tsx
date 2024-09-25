@@ -1,16 +1,16 @@
 import { useContext, useEffect, useState } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { updateConfig, defaultConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
-import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import VrmDemo from "@/components/vrmDemo";
 import { supabase } from '@/utils/supabase';
+import { vrmDataProvider } from '@/features/vrmStore/vrmDataProvider';
+import { BlobToBase64 } from '@/utils/blobDataUtils';
 
 export default function Import() {
   const { t } = useTranslation();
-  const { viewer } = useContext(ViewerContext);
   const router = useRouter()
 
   const [description, setDescription] = useState('');
@@ -20,6 +20,7 @@ export default function Import() {
   const [bgUrl, setBgUrl] = useState('');
   const [youtubeVideoId, setYoutubeVideoId] = useState('');
   const [vrmUrl, setVrmUrl] = useState('');
+  const [thumbData, setThumbData] = useState('');
   const [animationUrl, setAnimationUrl] = useState('');
   const [voiceUrl, setVoiceUrl] = useState('');
 
@@ -111,6 +112,8 @@ export default function Import() {
 
     if (vrmUrl) {
       updateConfig('vrm_url', vrmUrl as string);
+      updateConfig('vrm_save_type', 'web');
+      vrmDataProvider.addItem(vrmUrl, 'web', "", vrmUrl, thumbData);
     } else {
       updateConfig('vrm_url', defaultConfig('vrm_url'));
     }
@@ -161,6 +164,10 @@ export default function Import() {
             { loaded && (
               <VrmDemo
                 vrmUrl={vrmUrl}
+                onScreenShot={async (blob: Blob | null) => {
+                  if (blob)
+                    return BlobToBase64(blob).then(data => setThumbData(data));
+                }}
                 onLoaded={() => setVrmLoaded(true)}
               />
             )}
@@ -170,7 +177,8 @@ export default function Import() {
               <>
                 <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
                   <button
-                    onClick={() => {
+                    onClick={async () => {
+                      await 
                       overrideConfig();
                       window.location.href = '/';
                       setButtonDisabled(true);

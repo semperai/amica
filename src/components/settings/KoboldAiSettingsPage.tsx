@@ -10,12 +10,16 @@ export function KoboldAiSettingsPage({
   setKoboldAiUrl,
   koboldAiUseExtra,
   setKoboldAiUseExtra,
+  koboldAiStopSequence,
+  setKoboldAiStopSequence,
   setSettingsUpdated,
 }: {
   koboldAiUrl: string;
   setKoboldAiUrl: (url: string) => void;
   koboldAiUseExtra: boolean;
   setKoboldAiUseExtra: (value: boolean) => void;
+  koboldAiStopSequence: string;
+  setKoboldAiStopSequence: (value: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
   const { t } = useTranslation();
@@ -38,6 +42,18 @@ export function KoboldAiSettingsPage({
               onChange={(event: React.ChangeEvent<any>) => {
                 setKoboldAiUrl(event.target.value);
                 updateConfig("koboldai_url", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            />
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label={t("STOP SEQUENCE")}>
+            <TextInput
+              value={koboldAiStopSequence}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setKoboldAiStopSequence(event.target.value);
+                updateConfig("koboldai_stop_sequence", event.target.value);
                 setSettingsUpdated(true);
               }}
             />

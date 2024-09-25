@@ -60,6 +60,8 @@ import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
 import { NamePage } from './settings/NamePage';
 import { SystemPromptPage } from './settings/SystemPromptPage';
+import { AmicaLifePage } from "./settings/AmicaLifePage";
+import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 
 export const Settings = ({
   onClickClose,
@@ -67,6 +69,7 @@ export const Settings = ({
   onClickClose: () => void;
 }) => {
   const { viewer } = useContext(ViewerContext);
+  const { vrmList, vrmListAddFile } = useVrmStoreContext();
   useKeyboardShortcut("Escape", onClickClose);
 
   const [page, setPage] = useState('main_menu');
@@ -79,10 +82,12 @@ export const Settings = ({
   const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
   const [llamaCppUrl, setLlamaCppUrl] = useState(config("llamacpp_url"));
+  const [llamaCppStopSequence, setLlamaCppStopSequence] = useState(config("llamacpp_stop_sequence"));
   const [ollamaUrl, setOllamaUrl] = useState(config("ollama_url"));
   const [ollamaModel, setOllamaModel] = useState(config("ollama_model"));
   const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
   const [koboldAiUseExtra, setKoboldAiUseExtra] = useState<boolean>(config("koboldai_use_extra") === 'true' ? true : false);
+  const [koboldAiStopSequence, setKoboldAiStopSequence] = useState(config("koboldai_stop_sequence"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -109,22 +114,29 @@ export const Settings = ({
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
   const [bgColor, setBgColor] = useState(config("bg_color"));
   const [vrmUrl, setVrmUrl] = useState(config("vrm_url"));
+  const [vrmHash, setVrmHash] = useState(config("vrm_hash"));
+  const [vrmSaveType, setVrmSaveType] = useState(config('vrm_save_type'));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
 
   const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
   const [sttWakeWordEnabled, setSTTWakeWordEnabled] = useState<boolean>(config("wake_word_enabled") === 'true' ? true : false);
   const [sttWakeWord, setSTTWakeWord] = useState(config("wake_word"));
-  const [sttWakeWordIdleTime, setSTTWakeWordIdleTime] = useState<number>(parseInt(config("wake_word_time_before_idle_sec")));
   
   const [whisperOpenAIUrl, setWhisperOpenAIUrl] = useState(config("openai_whisper_url"));
   const [whisperOpenAIApiKey, setWhisperOpenAIApiKey] = useState(config("openai_whisper_apikey"));
   const [whisperOpenAIModel, setWhisperOpenAIModel] = useState(config("openai_whisper_model"));
   const [whisperCppUrl, setWhisperCppUrl] = useState(config("whispercpp_url"));
 
+  const [amicaLifeEnabled,setAmicaLifeEnabled] = useState<boolean>(config("amica_life_enabled") === 'true' ? true : false);
+  const [timeBeforeIdle, setTimeBeforeIdle] = useState<number>(parseInt(config("time_before_idle_sec")));
+  const [minTimeInterval,setMinTimeInterval] = useState<number>(parseInt(config("min_time_interval_sec")));
+  const [maxTimeInterval, setMaxTimeInterval] = useState<number>(parseInt(config("max_time_interval_sec")));
+  const [timeToSleep, setTimeToSleep] = useState<number>(parseInt(config("time_to_sleep_sec")));
+  const [idleTextPrompt, setIdleTextPrompt] = useState(config("idle_text_prompt"));
+
   const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
-
 
   const vrmFileInputRef = useRef<HTMLInputElement>(null);
   const handleClickOpenVrmFile = useCallback(() => {
@@ -147,9 +159,7 @@ export const Settings = ({
       const file_type = file.name.split(".").pop();
 
       if (file_type === "vrm") {
-        const blob = new Blob([file], { type: "application/octet-stream" });
-        const url = window.URL.createObjectURL(blob);
-        viewer.loadVrm(url);
+        vrmListAddFile(file, viewer);
       }
 
       event.target.value = "";
@@ -204,9 +214,9 @@ export const Settings = ({
   }, [
     chatbotBackend,
     openAIApiKey, openAIUrl, openAIModel,
-    llamaCppUrl,
+    llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
-    koboldAiUrl, koboldAiUseExtra,
+    koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -218,13 +228,14 @@ export const Settings = ({
     visionOllamaUrl, visionOllamaModel,
     visionSystemPrompt,
     bgColor,
-    bgUrl, vrmUrl, youtubeVideoID, animationUrl,
+    bgUrl, vrmHash, vrmUrl, youtubeVideoID, animationUrl,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
+    amicaLifeEnabled, timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
     name,
     systemPrompt,
-    sttWakeWordEnabled, sttWakeWord, sttWakeWordIdleTime
+    sttWakeWordEnabled, sttWakeWord,
   ]);
 
 
@@ -237,7 +248,7 @@ export const Settings = ({
     switch(page) {
     case 'main_menu':
       return <MenuPage
-        keys={["appearance", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
+        keys={["appearance",  "amica_life", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
         menuClick={handleMenuClick} />;
 
     case 'appearance':
@@ -296,8 +307,13 @@ export const Settings = ({
     case 'character_model':
       return <CharacterModelPage
         viewer={viewer}
+        vrmHash={vrmHash}
         vrmUrl={vrmUrl}
+        vrmSaveType={vrmSaveType}
+        vrmList={vrmList}
+        setVrmHash={setVrmHash}
         setVrmUrl={setVrmUrl}
+        setVrmSaveType={setVrmSaveType}
         setSettingsUpdated={setSettingsUpdated}
         handleClickOpenVrmFile={handleClickOpenVrmFile}
         />
@@ -335,6 +351,8 @@ export const Settings = ({
       return <LlamaCppSettingsPage
         llamaCppUrl={llamaCppUrl}
         setLlamaCppUrl={setLlamaCppUrl}
+        llamaCppStopSequence={llamaCppStopSequence}
+        setLlamaCppStopSequence={setLlamaCppStopSequence}
         setSettingsUpdated={setSettingsUpdated}
         />
 
@@ -353,6 +371,8 @@ export const Settings = ({
         setKoboldAiUrl={setKoboldAiUrl}
         koboldAiUseExtra={koboldAiUseExtra}
         setKoboldAiUseExtra={setKoboldAiUseExtra}
+        koboldAiStopSequence={koboldAiStopSequence}
+        setKoboldAiStopSequence={setKoboldAiStopSequence}
         setSettingsUpdated={setSettingsUpdated}
         />
 
@@ -425,10 +445,10 @@ export const Settings = ({
       return <STTWakeWordSettingsPage
         sttWakeWordEnabled={sttWakeWordEnabled}
         sttWakeWord={sttWakeWord}
-        sttWakeWordIdleTime={sttWakeWordIdleTime}
+        timeBeforeIdle={timeBeforeIdle}
         setSTTWakeWordEnabled={setSTTWakeWordEnabled}
         setSTTWakeWord={setSTTWakeWord}
-        setSTTWakeWordIdleTime={setSTTWakeWordIdleTime}
+        setTimeBeforeIdle={setTimeBeforeIdle}
         setSettingsUpdated={setSettingsUpdated}
         />
 
@@ -494,6 +514,23 @@ export const Settings = ({
       return <NamePage
         name={name}
         setName={setName}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'amica_life':
+      return <AmicaLifePage
+        amicaLifeEnabled={amicaLifeEnabled}
+        timeBeforeIdle={timeBeforeIdle}
+        minTimeInterval={minTimeInterval}
+        maxTimeInterval={maxTimeInterval}
+        timeToSleep={timeToSleep}
+        idleTextPrompt={idleTextPrompt}
+        setAmicaLifeEnabled={setAmicaLifeEnabled}
+        setTimeBeforeIdle={setTimeBeforeIdle}
+        setMinTimeInterval={setMinTimeInterval}
+        setMaxTimeInterval={setMaxTimeInterval}
+        setTimeToSleep={setTimeToSleep}
+        setIdleTextPrompt={setIdleTextPrompt}
         setSettingsUpdated={setSettingsUpdated}
         />
 

@@ -1,10 +1,10 @@
 import { createHash } from 'crypto';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useContext, useState, useEffect, useRef } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import { config, updateConfig } from '@/utils/config';
-import { supabase } from '@/utils/supabase';
 import { isTauri } from '@/utils/isTauri';
 import { FilePond, registerPlugin } from 'react-filepond';
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
@@ -17,6 +17,8 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
+import { vrmDataProvider } from "@/features/vrmStore/vrmDataProvider";
+import { IconButton } from '@/components/iconButton';
 
 registerPlugin(
   FilePondPluginImagePreview,
@@ -65,6 +67,8 @@ export default function Share() {
   const [bgUrl, setBgUrl] = useState('');
   const [youtubeVideoId, setYoutubeVideoId] = useState('');
   const [vrmUrl, setVrmUrl] = useState('');
+  const [vrmHash, setVrmHash] = useState('');
+  const [vrmSaveType, setVrmSaveType] = useState('');
   const [animationUrl, setAnimationUrl] = useState('');
   const [voiceUrl, setVoiceUrl] = useState('');
 
@@ -74,21 +78,54 @@ export default function Share() {
   const [voiceFiles, setVoiceFiles] = useState([]);
 
   const [vrmLoaded, setVrmLoaded] = useState(false);
+  const [vrmLoadedFromIndexedDb, setVrmLoadedFromIndexedDb] = useState(false);
+  const [vrmLoadingFromIndexedDb, setVrmLoadingFromIndexedDb] = useState(false);
+  const [showUploadLocalVrmMessage, setShowUploadLocalVrmMessage] = useState(false);
+
 
   const [sqid, setSqid] = useState('');
+
+  const vrmUploadFilePond = useRef<FilePond | null>(null);
+
+  const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+  async function uploadVrmFromIndexedDb() {
+    const blob = await vrmDataProvider.getItemAsBlob(vrmHash);
+    if (vrmUploadFilePond.current && blob) {
+      vrmUploadFilePond.current.addFile(blob).then(() => { setVrmLoadingFromIndexedDb(true); });
+    } else {
+      console.log("FilePond not loaded, retry in 0.5 sec");
+      delay(500).then(uploadVrmFromIndexedDb);
+    }
+  }
 
   useEffect(() => {
     setName(config('name'));
     setSystemPrompt(config('system_prompt'));
     setVisionSystemPrompt(config('vision_system_prompt'));
-    if (! config('bg_url').startsWith('data')) {
+    if (!config('bg_url').startsWith('data')) {
       setBgUrl(config('bg_url'));
     }
     setYoutubeVideoId(config('youtube_videoid'));
     setVrmUrl(config('vrm_url'));
+    setVrmHash(config('vrm_hash'));
+    setVrmSaveType(config('vrm_save_type'));
     setAnimationUrl(config('animation_url'));
     setVoiceUrl(config('voice_url'));
   }, []);
+
+  useEffect(() => {
+    if (vrmLoadedFromIndexedDb) {
+      vrmDataProvider.addItemUrl(vrmHash, vrmUrl);
+      updateConfig('vrm_url', vrmUrl);
+      updateConfig('vrm_save_type', 'web');
+      setVrmSaveType('web');
+    }
+  }, [vrmLoadedFromIndexedDb]);
+
+  useEffect(() => {
+    setShowUploadLocalVrmMessage(vrmSaveType == 'local' && !vrmLoadedFromIndexedDb && !vrmLoadingFromIndexedDb);
+  }, [vrmSaveType, vrmLoadedFromIndexedDb, vrmLoadingFromIndexedDb]);
 
   const [isRegistering, setIsRegistering] = useState(false);
   function registerCharacter() {
@@ -124,6 +161,12 @@ export default function Share() {
     register();
   }
 
+  const router = useRouter();
+
+  const handleCloseIcon = () => {
+    router.push('/');
+  };
+
   useEffect(() => {
     document.body.style.backgroundImage = `url(/liquid-metaballs.jpg)`;
     document.body.style.backgroundSize = `cover`;
@@ -132,9 +175,10 @@ export default function Share() {
   }, []);
 
   return (
-    <div className="p-4 md:p-20">
+    
+    <div className="p-10 md:p-20">
       <style jsx global>
-      {`
+        {`
         body {
           background-image: url('/liquid-metaballs.jpg');
           background-size: cover;
@@ -143,16 +187,17 @@ export default function Share() {
         }
       `}
       </style>
-
+      <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20">
+        <div className="p-2 bg-white">
+            <IconButton
+              iconName="24/Close"
+              isProcessing={false}
+              className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
+              onClick={handleCloseIcon}/>
+        </div>
+      </div>
       <div className="col-span-3 max-w-md rounded-xl mt-4">
         <h1 className="text-lg">{t("Character Creator")}</h1>
-        { isTauri() && (
-          <p className="text-sm mt-2">
-            {t("Wrong place?")}
-            {' '}
-            <Link href="/" className="text-cyan-600 hover:text-cyan-700">{t('Go home')}</Link>
-          </p>
-        ) }
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -166,7 +211,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={description}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 placeholder={t("Provide a description of the character")}
                 onChange={(e) => {
                   setDescription(e.target.value);
@@ -184,7 +229,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={name}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setName(e.target.value);
                 }}
@@ -201,7 +246,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={systemPrompt}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setSystemPrompt(e.target.value);
                 }}
@@ -218,7 +263,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={visionSystemPrompt}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setVisionSystemPrompt(e.target.value);
                 }}
@@ -235,7 +280,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={bgUrl}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setBgUrl(e.target.value);
                 }}
@@ -272,7 +317,7 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
-                disabled={!! sqid}
+                disabled={!!sqid}
               />
             </div>
           </div>
@@ -287,7 +332,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={youtubeVideoId}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setYoutubeVideoId(e.target.value);
                 }}
@@ -298,7 +343,27 @@ export default function Share() {
             </div>
           </div>
 
-          <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
+          {showUploadLocalVrmMessage && (
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
+              <label className="block text-sm font-medium leading-6 text-gray-900">
+                {t("Upload VRM")}
+              </label>
+              <div className="mt-2 text-sm leading-6 text-gray-900">
+                <p>{t("VRM upload message")}</p>
+                <p>{t("VRM local share message")}</p>
+                <div className="sm:col-span-3 max-w-md rounded-xl mt-2">
+                  <button
+                    onClick={uploadVrmFromIndexedDb}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-fuchsia-500 disabled:cursor-not-allowed"
+                  >
+                    {t("Upload Vrm")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className={"sm:col-span-3 max-w-md rounded-xl mt-4" + (!showUploadLocalVrmMessage ? "" : " hidden")}>
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("VRM Url")}
             </label>
@@ -308,7 +373,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={vrmUrl}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setVrmUrl(e.target.value);
                   updateVrmAvatar(viewer, e.target.value);
@@ -316,6 +381,7 @@ export default function Share() {
                 }}
               />
               <FilePond
+                ref={vrmUploadFilePond}
                 files={vrmFiles}
                 // this is done to remove type error
                 // filepond is not typed properly
@@ -351,12 +417,16 @@ export default function Share() {
                     const url = `${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}/${hashValue}`;
                     setVrmUrl(url);
                     updateVrmAvatar(viewer, url);
+                    if (vrmSaveType == 'local') {
+                      setVrmLoadingFromIndexedDb(false);
+                      setVrmLoadedFromIndexedDb(true);
+                    }
                     setVrmLoaded(false);
                   }
 
                   handleFile(file.file as File);
                 }}
-                disabled={!! sqid}
+                disabled={!!sqid}
               />
 
               <div className="sm:col-span-3 max-w-md rounded-xl mt-4 bg-gray-100">
@@ -368,7 +438,7 @@ export default function Share() {
                       (async () => {
                         try {
                           const animation = await loadVRMAnimation("/animations/idle_loop.vrma");
-                          if (! animation) {
+                          if (!animation) {
                             console.error('loading animation failed');
                             return;
                           }
@@ -452,7 +522,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={voiceUrl}
-                readOnly={!! sqid}
+                readOnly={!!sqid}
                 onChange={(e) => {
                   setVoiceUrl(e.target.value);
                 }}
@@ -489,17 +559,17 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
-                disabled={!! sqid}
+                disabled={!!sqid}
               />
             </div>
           </div>
 
-          {! sqid && (
+          {!sqid && (
             <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
               <button
                 onClick={registerCharacter}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-fuchsia-500 disabled:cursor-not-allowed"
-                disabled={!vrmLoaded || isRegistering}
+                disabled={!vrmLoaded || showUploadLocalVrmMessage || vrmLoadingFromIndexedDb || isRegistering}
               >
                 {t("Save Character")}
               </button>
