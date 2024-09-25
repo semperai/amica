@@ -17,7 +17,7 @@ export function SystemPromptPage({
   return (
     <BasicPage
       title={t("System Prompt") + " " + t("Settings")}
-      description={t("System_Prompt_desc", "Configure the system prompt. This is the prompt that is used to generate the chatbot response.")}
+      description={t("System_Prompt_desc", "Configure the system prompt. Alter the prompt to change your character's personality. You can share your character's personality using the share button!")}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">

@@ -12,6 +12,7 @@ import { openaiWhisper  } from "@/features/openaiWhisper/openaiWhisper";
 import { whispercpp  } from "@/features/whispercpp/whispercpp";
 import { config } from "@/utils/config";
 import { WaveFile } from "wavefile";
+import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
 
 export default function MessageInput({
   userMessage,
@@ -32,6 +33,7 @@ export default function MessageInput({
   const [whisperCppOutput, setWhisperCppOutput] = useState<any | null>(null);
   const { chat: bot } = useContext(ChatContext);
   const { alert } = useContext(AlertContext);
+  const { amicaLife } = useContext(AmicaLifeContext);
 
   const vad = useMicVAD({
     startOnLoad: false,
@@ -119,9 +121,28 @@ export default function MessageInput({
     const textStartsWithWakeWord = wakeWordEnabled && cleanFromPunctuation(cleanText).startsWith(cleanFromPunctuation(config("wake_word")));
     const text = wakeWordEnabled && textStartsWithWakeWord ? cleanFromWakeWord(cleanText, config("wake_word")) : cleanText;
 
-    if (textStartsWithWakeWord) {
-      bot.updateAwake();
+    if (wakeWordEnabled) {
+      // Text start with wake word
+      if (textStartsWithWakeWord) {
+        // Pause amicaLife and update bot's awake status when speaking
+        if (config("amica_life_enabled") === "true") {
+          amicaLife.pause();
+        }
+        bot.updateAwake();
+      // Case text doesn't start with wake word and not receive trigger message in amica life
+      } else {
+        if (config("amica_life_enabled") === "true" && amicaLife.triggerMessage !== true && !bot.isAwake()) {
+          bot.updateAwake();
+        }
+      }
+    } else {
+      // If wake word off, update bot's awake when speaking
+      if (config("amica_life_enabled") === "true") {
+        amicaLife.pause();
+        bot.updateAwake();
+      }
     }
+
 
     if (text === "") {
       return;
@@ -129,13 +150,23 @@ export default function MessageInput({
 
 
     if (config("autosend_from_mic") === 'true') {
-        if (!wakeWordEnabled || bot.isAwake()) {
-        bot.receiveMessageFromUser(text);
-      }
+      if (!wakeWordEnabled || bot.isAwake()) {
+        bot.receiveMessageFromUser(text,false);
+      } 
     } else {
       setUserMessage(text);
     }
     console.timeEnd('performance_transcribe');
+  }
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    onChangeUserMessage(event); 
+  
+    // Pause amicaLife and update bot's awake status when typing
+    if (config("amica_life_enabled") === "true") {
+      amicaLife.pause();
+      bot.updateAwake();
+    }
   }
 
   // for whisper_browser
@@ -163,7 +194,7 @@ export default function MessageInput({
   }, [whisperCppOutput]);
 
   function clickedSendButton() {
-    bot.receiveMessageFromUser(userMessage);
+    bot.receiveMessageFromUser(userMessage,false);
     // only if we are using non-VAD mode should we focus on the input
     if (! vad.listening) {
       inputRef.current?.focus();
@@ -189,7 +220,7 @@ export default function MessageInput({
             type="text"
             ref={inputRef}
             placeholder="Write message here..."
-            onChange={onChangeUserMessage}
+            onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 if (userMessage === "") {

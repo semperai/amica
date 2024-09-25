@@ -16,12 +16,14 @@ async function getExtra(messages: Message[]) {
     "Content-Type": "application/json",
   };
   const prompt = buildPrompt(messages);
+  const stop_sequence: string[] = [`${config("name")}:`, ...`${config("koboldai_stop_sequence")}`.split("||")];
 
   const res = await fetch(`${config("koboldai_url")}/api/extra/generate/stream`, {
     headers: headers,
     method: "POST",
     body: JSON.stringify({
       prompt,
+      stop_sequence
     }),
   });
 
@@ -82,12 +84,14 @@ async function getNormal(messages: Message[]) {
   };
 
   const prompt = buildPrompt(messages);
+  const stop_sequence: string[] = [`${config("name")}:`, ...`${config("koboldai_stop_sequence")}`.split("||")];
 
   const res = await fetch(`${config("koboldai_url")}/api/v1/generate`, {
     headers: headers,
     method: "POST",
     body: JSON.stringify({
       prompt,
+      stop_sequence
     }),
   });
 

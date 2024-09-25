@@ -20,8 +20,10 @@ import {
   EyeIcon,
   SwatchIcon,
   MoonIcon,
-  CogIcon,
+  SunIcon,
 } from '@heroicons/react/24/outline';
+
+import logo from '/public/logo.png';
 
 export function basicPage(
   title: string,
@@ -133,6 +135,7 @@ export type PageProps = {
 export function getIconFromPage(page: string): JSX.Element {
   switch(page) {
     case 'appearance':          return <FaceSmileIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'amica_life':          return <SunIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatbot':             return <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'tts':                 return <MusicalNoteIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'stt':                 return <PencilIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -180,6 +183,7 @@ function getLabelFromPage(page: string): string {
 
   switch(page) {
     case 'appearance':          return t('Appearance');
+    case 'amica_life':          return t('Amica Life');
     case 'chatbot':             return t('ChatBot');
     case 'tts':                 return t('Text-to-Speech');
     case 'stt':                 return t('Speech-to-text');

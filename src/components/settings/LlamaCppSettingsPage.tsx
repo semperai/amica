@@ -7,10 +7,14 @@ import { config, updateConfig } from "@/utils/config";
 export function LlamaCppSettingsPage({
   llamaCppUrl,
   setLlamaCppUrl,
+  llamaCppStopSequence,
+  setLlamaCppStopSequence,
   setSettingsUpdated,
 }: {
   llamaCppUrl: string;
   setLlamaCppUrl: (url: string) => void;
+  llamaCppStopSequence: string;
+  setLlamaCppStopSequence: (value: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
   const { t } = useTranslation();
@@ -35,6 +39,18 @@ export function LlamaCppSettingsPage({
               onChange={(event: React.ChangeEvent<any>) => {
                 setLlamaCppUrl(event.target.value);
                 updateConfig("llamacpp_url", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            />
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label={t("STOP SEQUENCE")}>
+            <TextInput
+              value={llamaCppStopSequence}
+              onChange={(event: React.ChangeEvent<any>) => {
+                setLlamaCppStopSequence(event.target.value);
+                updateConfig("llamacpp_stop_sequence", event.target.value);
                 setSettingsUpdated(true);
               }}
             />

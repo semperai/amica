@@ -20,6 +20,9 @@ export class Viewer {
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
 
+  private _raycaster?: THREE.Raycaster;
+  private _mouse?: THREE.Vector2;
+
   private sendScreenshotToCallback: boolean;
   private screenshotCallback: BlobCallback | undefined;
 
@@ -116,6 +119,10 @@ export class Viewer {
 
     this._cameraControls.update();
 
+    // raycaster and mouse
+    this._raycaster = new THREE.Raycaster();
+    this._mouse = new THREE.Vector2();
+
     window.addEventListener("resize", () => {
       this.resize();
     });
@@ -145,6 +152,29 @@ export class Viewer {
     this._camera.updateProjectionMatrix();
   }
 
+  public resizeChatMode(on: boolean){
+    if (!this._renderer) return;
+
+    const parentElement = this._renderer.domElement.parentElement;
+    if (!parentElement) return;
+
+    this._renderer.setPixelRatio(window.devicePixelRatio);
+
+    let width = parentElement.clientWidth;
+    let height = parentElement.clientHeight;
+    if (on) {width = width/2; height = height/2; }
+
+    this._renderer.setSize(
+      width,
+      height
+    );
+
+    if (!this._camera) return;
+    this._camera.aspect =
+      parentElement.clientWidth / parentElement.clientHeight;
+    this._camera.updateProjectionMatrix();
+  }
+
   /**
    * VRMのheadノードを参照してカメラ位置を調整する
    */
@@ -161,6 +191,18 @@ export class Viewer {
       this._cameraControls?.target.set(headWPos.x, headWPos.y, headWPos.z);
       this._cameraControls?.update();
     }
+  }
+
+  public resetCameraLerp() {
+    // y = 1.3 is from initial setup position of camera
+    const newPosition = new THREE.Vector3(
+      this._camera?.position.x,
+      1.3,
+      this._camera?.position.z
+    );
+    this._camera?.position.lerpVectors(this._camera?.position,newPosition,0);
+    // this._cameraControls?.target.lerpVectors(this._cameraControls?.target,headWPos,0.5);
+    // this._cameraControls?.update();
   }
 
   public update = () => {
@@ -180,6 +222,27 @@ export class Viewer {
       }
     }
   };
+
+  public onMouseClick(event: MouseEvent): boolean {
+    if (!this._renderer || !this._camera || !this.model?.vrm) return false;
+
+    const rect = this._renderer.domElement.getBoundingClientRect();
+
+    // calculate mouse position in normalized device coordinates
+    this._mouse!.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this._mouse!.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // update the picking ray with the camera and mouse position
+    this._raycaster!.setFromCamera(this._mouse!, this._camera);
+
+    // calculate objects intersecting the picking ray
+    const intersects = this._raycaster!.intersectObject(this.model.vrm.scene, true);
+
+    if (intersects.length > 0) {
+      return true;
+    }
+    return false;
+  }
 
   public getScreenshotBlob = (callback: BlobCallback) => {
     this.screenshotCallback = callback;

@@ -7,6 +7,9 @@ export const AssistantText = ({ message }: { message: string }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [unlimited, setUnlimited] = useState(false)
 
+  // Replace all of the emotion tag in message with ""
+  message = message.replace(/\[(.*?)\]/g, "");
+
   useEffect(() => {
     scrollRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -45,3 +48,4 @@ export const AssistantText = ({ message }: { message: string }) => {
     </div>
   );
 };
+
