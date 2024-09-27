@@ -13,6 +13,7 @@ import { config } from "@/utils/config";
 export class Viewer {
   public isReady: boolean;
   public model?: Model;
+  public xrMode: boolean = false;
 
   private _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
@@ -48,6 +49,10 @@ export class Viewer {
     this._clock.start();
   }
 
+  public async setXRMode(mode: boolean) {
+    this.xrMode = mode;
+  }
+
   public loadVrm(url: string) {
     if (this.model?.vrm) {
       this.unloadVRM();
@@ -70,7 +75,7 @@ export class Viewer {
         : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
       if (animation) this.model.loadAnimation(animation);
 
-      // HACK: アニメーションの原点がずれているので再生後にカメラ位置を調整する
+      // HACK: Adjust the camera position after playback because the origin of the animation is offset
       requestAnimationFrame(() => {
         this.resetCamera();
       });
@@ -100,6 +105,7 @@ export class Viewer {
     this._renderer.outputEncoding = THREE.sRGBEncoding;
     this._renderer.setSize(width, height);
     this._renderer.setPixelRatio(window.devicePixelRatio);
+    this._renderer.xr.enabled = true;
 
     // camera
     this._camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
@@ -128,7 +134,9 @@ export class Viewer {
     });
 
     this.isReady = true;
-    this.update();
+    this._renderer.setAnimationLoop(() => {
+      this.update();
+    });
   }
 
   /**
@@ -205,8 +213,7 @@ export class Viewer {
     // this._cameraControls?.update();
   }
 
-  public update = () => {
-    requestAnimationFrame(this.update);
+  public update = (time?: DOMHighResTimeStamp, frame?: XRFrame) => {
     const delta = this._clock.getDelta();
     // update vrm components
     if (this.model) {

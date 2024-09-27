@@ -14,6 +14,7 @@ import {
   ChatBubbleLeftRightIcon,
   CloudArrowDownIcon,
   CodeBracketSquareIcon,
+  CubeTransparentIcon,
   LanguageIcon,
   ShareIcon,
   SpeakerWaveIcon,
@@ -142,6 +143,33 @@ export default function Home() {
   const toggleChatMode = () => {
     toggleState(setShowChatMode, [setShowChatLog, setShowSubconciousText]);
   };
+
+  const requestAR = async () => {
+    console.log('Requesting AR');
+
+    if (! window.navigator.xr) {
+      console.error("WebXR not supported");
+      return;
+    }
+    if (! await window.navigator.xr.isSessionSupported('immersive-ar')) {
+      console.error("Session not supported");
+      return;
+    }
+
+    if (! viewer.isReady) {
+      console.error("Viewer not ready");
+      return;
+    }
+
+    try {
+      const session = await window.navigator.xr.requestSession('immersive-ar');
+
+      viewer.setXRMode(true);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
 
   useEffect(() => {
     bot.initialize(
@@ -349,6 +377,15 @@ export default function Home() {
                   onClick={toggleSubconciousText}
                 />
               )}
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              <CubeTransparentIcon
+                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                aria-hidden="true"
+                onClick={() => requestAR()}
+              />
+              <span className="text-white hidden">Augmented Reality</span>
             </div>
 
             <div className="flex flex-row items-center space-x-2">
