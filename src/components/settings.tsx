@@ -43,10 +43,9 @@ import { KoboldAiSettingsPage } from './settings/KoboldAiSettingsPage';
 import { TTSBackendPage } from './settings/TTSBackendPage';
 import { ElevenLabsSettingsPage } from './settings/ElevenLabsSettingsPage';
 import { SpeechT5SettingsPage } from './settings/SpeechT5SettingsPage';
-import { CoquiSettingsPage } from './settings/CoquiSettingsPage';
 import { OpenAITTSSettingsPage } from './settings/OpenAITTSSettingsPage';
-
 import { PiperSettingsPage } from './settings/PiperSettingsPage';
+import { CoquiLocalSettingsPage } from './settings/CoquiLocalSettingsPage';
 
 import { STTBackendPage } from './settings/STTBackendPage';
 import { STTWakeWordSettingsPage } from './settings/STTWakeWordSettingsPage';
@@ -96,15 +95,15 @@ export const Settings = ({
 
   const [speechT5SpeakerEmbeddingsUrl, setSpeechT5SpeakerEmbeddingsUrl] = useState(config("speecht5_speaker_embedding_url"));
 
-  const [coquiApiKey, setCoquiApiKey] = useState(config("coqui_apikey"));
-  const [coquiVoiceId, setCoquiVoiceId] = useState(config("coqui_voice_id"));
-
   const [openAITTSApiKey, setOpenAITTSApiKey] = useState(config("openai_tts_apikey"));
   const [openAITTSUrl, setOpenAITTSUrl] = useState(config("openai_tts_url"));
   const [openAITTSModel, setOpenAITTSModel] = useState(config("openai_tts_model"));
   const [openAITTSVoice, setOpenAITTSVoice] = useState(config("openai_tts_voice"));
 
   const [piperUrl, setPiperUrl] = useState(config("piper_url"));
+
+  const [coquiLocalUrl, setCoquiLocalUrl] = useState(config("coquiLocal_url"));
+  const [coquiLocalVoiceId, setCoquiLocalVoiceId] = useState(config("coquiLocal_voiceid"));
 
   const [visionBackend, setVisionBackend] = useState(config("vision_backend"));
   const [visionLlamaCppUrl, setVisionLlamaCppUrl] = useState(config("vision_llamacpp_url"));
@@ -221,9 +220,9 @@ export const Settings = ({
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
-    coquiApiKey, coquiVoiceId,
     openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
     piperUrl,
+    coquiLocalUrl,coquiLocalVoiceId,
     visionBackend,
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
@@ -264,7 +263,7 @@ export const Settings = ({
 
     case 'tts':
       return <MenuPage
-        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coqui_settings", "openai_tts_settings", "piper_settings"]}
+        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "openai_tts_settings", "piper_settings", "coquiLocal_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'stt':
@@ -403,15 +402,6 @@ export const Settings = ({
         setSettingsUpdated={setSettingsUpdated}
         />
 
-    case 'coqui_settings':
-      return <CoquiSettingsPage
-        coquiApiKey={coquiApiKey}
-        setCoquiApiKey={setCoquiApiKey}
-        coquiVoiceId={coquiVoiceId}
-        setCoquiVoiceId={setCoquiVoiceId}
-        setSettingsUpdated={setSettingsUpdated}
-        />
-
     case 'openai_tts_settings':
       return <OpenAITTSSettingsPage
         openAITTSApiKey={openAITTSApiKey}
@@ -429,6 +419,15 @@ export const Settings = ({
       return <PiperSettingsPage
         piperUrl={piperUrl}
         setPiperUrl={setPiperUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+    
+    case 'coquiLocal_settings':
+      return <CoquiLocalSettingsPage
+        coquiLocalUrl={coquiLocalUrl}
+        coquiLocalVoiceId={coquiLocalVoiceId}
+        setCoquiLocalVoiceId={setCoquiLocalVoiceId}
+        setCoquiLocalUrl={setCoquiLocalUrl}
         setSettingsUpdated={setSettingsUpdated}
         />
 

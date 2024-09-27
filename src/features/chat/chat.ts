@@ -10,9 +10,9 @@ import { getWindowAiChatResponseStream } from './windowAiChat';
 import { getOllamaChatResponseStream, getOllamaVisionChatResponse } from './ollamaChat';
 import { getKoboldAiChatResponseStream } from './koboldAiChat';
 
-import { piper } from "@/features/piper/piper";
+import { coquiLocal} from "@/features/coquiLocal/coquiLocal";
+import { piper} from "@/features/piper/piper";
 import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
-import { coqui } from "@/features/coqui/coqui";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { localXTTSTTS} from "@/features/localXTTS/localXTTS";
@@ -476,11 +476,6 @@ export class Chat {
           const voice = await speecht5(talk.message, speakerEmbeddingUrl);
           return voice.audio;
         }
-        case 'coqui': {
-          const voiceId = config('coqui_voice_id');
-          const voice = await coqui(talk.message, voiceId, talk.style);
-          return voice.audio;
-        }
         case 'openai_tts': {
           const voice = await openaiTTS(talk.message);
           return voice.audio;
@@ -490,6 +485,10 @@ export class Chat {
         }
         case 'piper': {
           const voice = await piper(talk.message);
+          return voice.audio;
+        }
+        case 'coquiLocal': {
+          const voice = await coquiLocal(talk.message);
           return voice.audio;
         }
       }
