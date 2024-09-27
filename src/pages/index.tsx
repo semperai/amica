@@ -351,14 +351,14 @@ export default function Home() {
               )}
             </div>
 
-            {/*<div className="flex flex-row items-center space-x-2">
+            <div className="flex flex-row items-center space-x-2">
                 <CodeBracketSquareIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   onClick={() => setShowDebug(true)}
                 />
                 <span className="text-white hidden">Debug</span> 
-            </div>*/}
+            </div>
 
             <div className="flex flex-row items-center space-x-2">
               <VerticalSwitchBox
