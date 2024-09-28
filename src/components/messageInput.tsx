@@ -6,6 +6,7 @@ import { useMicVAD } from "@ricky0123/vad-react"
 import { IconButton } from "./iconButton";
 import { useTranscriber } from "@/hooks/useTranscriber";
 import { cleanTranscript, cleanFromPunctuation, cleanFromWakeWord } from "@/utils/stringProcessing";
+import { hasOnScreenKeyboard } from "@/utils/hasOnScreenKeyboard";
 import { AlertContext } from "@/features/alert/alertContext";
 import { ChatContext } from "@/features/chat/chatContext";
 import { openaiWhisper  } from "@/features/openaiWhisper/openaiWhisper";
@@ -197,7 +198,9 @@ export default function MessageInput({
     bot.receiveMessageFromUser(userMessage,false);
     // only if we are using non-VAD mode should we focus on the input
     if (! vad.listening) {
-      inputRef.current?.focus();
+      if (! hasOnScreenKeyboard()) {
+        inputRef.current?.focus();
+      }
     }
     setUserMessage("");
   }
@@ -223,6 +226,10 @@ export default function MessageInput({
             onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
+                if (hasOnScreenKeyboard()) {
+                  inputRef.current?.blur();
+                }
+
                 if (userMessage === "") {
                   return false;
                 }
