@@ -50,24 +50,36 @@ export class Viewer {
   }
 
   public async onSessionStarted(session: XRSession) {
-    if (this._renderer) {
-      this._renderer.xr.setReferenceSpaceType('local');
-      await this._renderer.xr.setSession(session);
-      this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
+    if (! this._renderer) {
+      return;
     }
+
+    // hide canvas element
+    const canvas = this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
+    canvas!.style.display = "none";
+
+    this._renderer.xr.setReferenceSpaceType('local');
+    await this._renderer.xr.setSession(session);
+    this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
+
     this.currentSession = session;
     this.currentSession.addEventListener('end', this.onSessionEnded);
   }
 
   public onSessionEnded(/*event*/) {
-    if (this.currentSession) {
-      this.currentSession.removeEventListener('end', this.onSessionEnded);
-      this.currentSession = null;
-      this.model?.vrm?.scene.position.set(0, 0, 0);
-      requestAnimationFrame(() => {
-        this.resetCamera();
-      });
+    if (! this.currentSession) {
+      return;
     }
+
+    const canvas = this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
+    canvas!.style.display = "inline";
+
+    this.currentSession.removeEventListener('end', this.onSessionEnded);
+    this.currentSession = null;
+    this.model?.vrm?.scene.position.set(0, 0, 0);
+    requestAnimationFrame(() => {
+      this.resetCamera();
+    });
   }
 
   public loadVrm(url: string) {
