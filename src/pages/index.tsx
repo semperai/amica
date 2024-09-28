@@ -176,7 +176,7 @@ export default function Home() {
 
     if (viewer.currentSession) {
       try {
-        viewer.currentSession.end();
+        await viewer.currentSession.end();
       } catch (err) {
         // some times session already ended not due to user interaction
         console.warn(err);
