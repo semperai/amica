@@ -110,6 +110,7 @@ export default function Home() {
     } else {
       document.body.style.backgroundImage = `url(${config("bg_url")})`;
     }
+
   }, []);
 
   function toggleTTSMute() {

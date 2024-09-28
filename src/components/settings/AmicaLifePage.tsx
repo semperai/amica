@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { basename, BasicPage, FormRow } from './common';
-import { updateConfig } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 import { RangeInput } from '@/components/rangeInput';
 import { SwitchBox } from "@/components/switchBox"
 import { NumberInput } from '../numberInput';
@@ -91,6 +91,7 @@ export function AmicaLifePage({
                         <SwitchBox
                             value={amicaLifeEnabled}
                             label={`${t("Amica Life")} ${t("Enabled")} ${t("(Disable to improve performance)")}`}
+                            disabled={config("chatbot_backend") === "echo"}
                             onChange={(value: boolean) => {
                                 setAmicaLifeEnabled(value);
                                 updateConfig("amica_life_enabled", value.toString());
