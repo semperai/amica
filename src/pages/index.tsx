@@ -97,6 +97,8 @@ export default function Home() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
+  const [isARSupported, setIsARSupported] = useState(false);
+
   useEffect(() => {
     amicaLife.checkSettingOff(!showSettings);
   }, [showSettings, amicaLife]);
@@ -110,6 +112,12 @@ export default function Home() {
       document.body.style.backgroundColor = config("bg_color");
     } else {
       document.body.style.backgroundImage = `url(${config("bg_url")})`;
+    }
+
+    if (window.navigator.xr && window.navigator.xr.isSessionSupported) {
+      window.navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+        setIsARSupported(supported);
+      });
     }
   }, []);
 
@@ -410,11 +418,18 @@ export default function Home() {
             </div>
 
             <div className="flex flex-row items-center space-x-2">
-              <CubeTransparentIcon
-                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                aria-hidden="true"
+              <button
+                disabled={!isARSupported}
                 onClick={() => toggleAR()}
-              />
+              >
+                <CubeTransparentIcon
+                  className={clsx(
+                    'h-7 w-7 text-white opacity-50',
+                    isARSupported ? 'hover:opacity-100 active:opacity-100 hover:cursor-pointer' : 'cursor-not-allowed opacity-20'
+                  )}
+                  aria-hidden="true"
+                />
+              </button>
               <span className="text-white hidden">Augmented Reality</span>
             </div>
 
