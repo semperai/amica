@@ -14,6 +14,8 @@ export class Viewer {
   public isReady: boolean;
   public model?: Model;
   public currentSession: XRSession | null = null;
+  public cachedCameraPosition: THREE.Vector3 | null = null;
+  public cachedCameraRotation: THREE.Euler | null = null;
 
   private _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
@@ -58,6 +60,9 @@ export class Viewer {
     const canvas = this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
     canvas!.style.display = "none";
 
+    this.cachedCameraPosition = this._camera?.position.clone() as THREE.Vector3;
+    this.cachedCameraRotation = this._camera?.rotation.clone() as THREE.Euler;
+
     this._renderer.xr.setReferenceSpaceType('local');
     await this._renderer.xr.setSession(session);
     this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
@@ -70,6 +75,10 @@ export class Viewer {
     if (! this.currentSession) {
       return;
     }
+
+    // reset camera
+    this._camera?.position.copy(this.cachedCameraPosition as THREE.Vector3);
+    this._camera?.rotation.copy(this.cachedCameraRotation as THREE.Euler);
 
     const canvas = this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
     canvas!.style.display = "inline";
