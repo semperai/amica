@@ -53,11 +53,7 @@ export class Viewer {
     if (this._renderer) {
       this._renderer.xr.setReferenceSpaceType('local');
       await this._renderer.xr.setSession(session);
-      // this.model?.vrm?.scene.scale.set(0.5, 0.5, 0.5);
       this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
-      // requestAnimationFrame(() => {
-      //   this.resetCamera();
-      // });
     }
     this.currentSession = session;
     this.currentSession.addEventListener('end', this.onSessionEnded);
@@ -67,6 +63,10 @@ export class Viewer {
     if (this.currentSession) {
       this.currentSession.removeEventListener('end', this.onSessionEnded);
       this.currentSession = null;
+      this.model?.vrm?.scene.position.set(0, 0, 0);
+      requestAnimationFrame(() => {
+        this.resetCamera();
+      });
     }
   }
 

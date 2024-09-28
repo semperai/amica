@@ -144,8 +144,8 @@ export default function Home() {
     toggleState(setShowChatMode, [setShowChatLog, setShowSubconciousText]);
   };
 
-  const requestAR = async () => {
-    console.log('Requesting AR');
+  const toggleAR = async () => {
+    console.log('Toggle AR');
 
     if (! window.navigator.xr) {
       console.error("WebXR not supported");
@@ -161,19 +161,32 @@ export default function Home() {
       return;
     }
 
+    const sessionInit = {
+      optionalFeatures: ['dom-overlay'],
+      domOverlay: { root: document.body },
+    };
+
+    if (viewer.currentSession) {
+      viewer.currentSession.end();
+      viewer.onSessionEnded();
+      // @ts-ignore
+      if (window.navigator.xr.offerSession !== undefined) {
+        // @ts-ignore
+        const session = await navigator.xr?.offerSession('immersive-ar', sessionInit);
+        viewer.onSessionStarted(session);
+      }
+      return;
+    }
+
     // @ts-ignore
     if (window.navigator.xr.offerSession !== undefined ) {
       // @ts-ignore
-      const session = await navigator.xr?.offerSession('immersive-ar', {
-        // optionalFeatures: ['dom-overlay'],
-      });
+      const session = await navigator.xr?.offerSession('immersive-ar', sessionInit);
       viewer.onSessionStarted(session);
     }
 
     try {
-      const session = await window.navigator.xr.requestSession('immersive-ar', {
-        // optionalFeatures: ['dom-overlay'],
-      });
+      const session = await window.navigator.xr.requestSession('immersive-ar', sessionInit);
 
       viewer.onSessionStarted(session);
     } catch (err) {
@@ -395,7 +408,7 @@ export default function Home() {
               <CubeTransparentIcon
                 className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                 aria-hidden="true"
-                onClick={() => requestAR()}
+                onClick={() => toggleAR()}
               />
               <span className="text-white hidden">Augmented Reality</span>
             </div>
