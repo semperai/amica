@@ -161,13 +161,25 @@ export default function Home() {
       return;
     }
 
-    try {
-      const session = await window.navigator.xr.requestSession('immersive-ar');
+    // @ts-ignore
+    if (window.navigator.xr.offerSession !== undefined ) {
+      // @ts-ignore
+      const session = await navigator.xr?.offerSession('immersive-ar', {
+        // optionalFeatures: ['dom-overlay'],
+      });
+      viewer.onSessionStarted(session);
+    }
 
-      viewer.setXRMode(true);
+    try {
+      const session = await window.navigator.xr.requestSession('immersive-ar', {
+        // optionalFeatures: ['dom-overlay'],
+      });
+
+      viewer.onSessionStarted(session);
     } catch (err) {
       console.error(err);
     }
+
   }
 
 

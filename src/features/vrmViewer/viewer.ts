@@ -13,7 +13,7 @@ import { config } from "@/utils/config";
 export class Viewer {
   public isReady: boolean;
   public model?: Model;
-  public xrMode: boolean = false;
+  public currentSession: XRSession | null = null;
 
   private _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
@@ -49,8 +49,25 @@ export class Viewer {
     this._clock.start();
   }
 
-  public async setXRMode(mode: boolean) {
-    this.xrMode = mode;
+  public async onSessionStarted(session: XRSession) {
+    if (this._renderer) {
+      this._renderer.xr.setReferenceSpaceType('local');
+      await this._renderer.xr.setSession(session);
+      // this.model?.vrm?.scene.scale.set(0.5, 0.5, 0.5);
+      this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
+      // requestAnimationFrame(() => {
+      //   this.resetCamera();
+      // });
+    }
+    this.currentSession = session;
+    this.currentSession.addEventListener('end', this.onSessionEnded);
+  }
+
+  public onSessionEnded(/*event*/) {
+    if (this.currentSession) {
+      this.currentSession.removeEventListener('end', this.onSessionEnded);
+      this.currentSession = null;
+    }
   }
 
   public loadVrm(url: string) {
