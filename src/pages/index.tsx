@@ -167,7 +167,12 @@ export default function Home() {
     };
 
     if (viewer.currentSession) {
-      viewer.currentSession.end();
+      try {
+        viewer.currentSession.end();
+      } catch (err) {
+        // some times session already ended not due to user interaction
+        console.warn(err);
+      }
       viewer.onSessionEnded();
       // @ts-ignore
       if (window.navigator.xr.offerSession !== undefined) {
