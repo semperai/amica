@@ -51,6 +51,14 @@ export class Model {
     const vrm = (this.vrm = gltf.userData.vrm);
     vrm.scene.name = "VRMRoot";
 
+    VRMUtils.removeUnnecessaryVertices(gltf.scene);
+    VRMUtils.removeUnnecessaryJoints(gltf.scene);
+
+    // Disable frustum culling
+    vrm.scene.traverse((obj: THREE.Object3D) => {
+      obj.frustumCulled = false;
+    });
+
     if (config("debug_gfx") === "true") {
       vrm.scene.add(helperRoot);
     }

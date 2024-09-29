@@ -106,11 +106,6 @@ export class Viewer {
     return this.model.loadVRM(url).then(async () => {
       if (!this.model?.vrm) return;
 
-      // Disable frustum culling
-      this.model.vrm.scene.traverse((obj) => {
-        obj.frustumCulled = false;
-      });
-
       this._scene.add(this.model.vrm.scene);
 
       const animation = config("animation_url").indexOf("vrma") > 0
