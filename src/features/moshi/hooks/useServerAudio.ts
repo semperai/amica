@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSocketContext } from "@/features/moshi/hooks/SocketContext";
 import { decodeMessage } from "@/features/moshi/protocol/encoder";
 import { useMediaContext } from "@/features/moshi/hooks/MediaContext";
-import { DecoderWorker } from "@/features/moshi/decoder/decoderWorker";
+import { DecoderWorker } from "@/workers/decoderWorker";
 
 export type AudioStats = {
   playedAudioDuration: number;

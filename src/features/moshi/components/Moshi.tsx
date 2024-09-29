@@ -5,11 +5,10 @@ import { getMimeType, getExtension } from "@/utils/getMimeType";
 import { SocketContext } from "@/features/moshi/hooks/SocketContext";
 import { MediaContext } from "@/features/moshi/hooks/MediaContext";
 
-import { ServerAudio } from "@/features/moshi/ServerAudio/ServerAudio";
-import { UserAudio } from "@/features/moshi/UserAudio/UserAudio";
-import { ServerAudioStats } from "@/features/moshi/ServerAudio/ServerAudioStats";
-import { TextDisplay } from "@/features/moshi/TextDisplay/TextDisplay";
-import { ModelParams } from "@/features/moshi/ModelParams/ModelParams";
+import { ServerAudio } from "@/features/moshi/components/ServerAudio";
+import { UserAudio } from "@/features/moshi/components/UserAudio";
+import { ServerAudioStats } from "@/features/moshi/components/ServerAudioStats";
+import { TextDisplay } from "@/features/moshi/components/TextDisplay";
 
 import { useSocket } from "@/features/moshi/hooks/useSocket";
 import { ModelParamsValues, useModelParams } from "@/features/moshi/hooks/useModelParams";
@@ -69,7 +68,7 @@ const buildURL = ({
 };
 
 
-export const Conversation:FC<ConversationProps> = ({
+export const Moshi:FC<ConversationProps> = ({
   workerAddr,
   workerAuthId,
   audioContext,
@@ -106,8 +105,6 @@ export const Conversation:FC<ConversationProps> = ({
   const textSeed = useMemo(() => Math.round(1000000 * Math.random()), []);
   const audioSeed = useMemo(() => Math.round(1000000 * Math.random()), []);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const logoRef = useRef<HTMLImageElement>(null);
-  const [isLogoLoaded, setIsLogoLoaded] = useState(false);
 
   const WSURL = buildURL({
     workerAddr,
@@ -154,38 +151,6 @@ export const Conversation:FC<ConversationProps> = ({
       stop();
     };
   }, [start, workerAuthId]);
-
-  useEffect(() => {
-
-    if(!canvasRef) {
-      console.log("No canvas ref");
-      return;
-    }
-    if(!logoRef) {
-      console.log("No logo ref");
-      return;
-    }
-    if(!isLogoLoaded) {
-      console.log("Logo not loaded");
-      return;
-    }
-    if(!canvasRef.current) {
-      console.log("No canvas");
-      return;
-    }
-    if(!logoRef.current) {
-      console.log("No logo");
-      return;
-    }
-
-    const ctx = canvasRef.current.getContext("2d");
-    if(ctx) {
-      ctx.drawImage(logoRef.current, 20, 250 , 320, 98);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "white";
-      ctx.strokeRect(5, 5, 370, 370);
-    }
-  }, [canvasRef, logoRef, isLogoLoaded]);
 
   const startRecording = useCallback(() => {
     if(isRecording.current) {
@@ -315,14 +280,6 @@ export const Conversation:FC<ConversationProps> = ({
             <ServerAudioStats getAudioStats={getAudioStats} />
           </div>
         </div>
-        <div className="max-w-96 md:max-w-screen-lg p-4 m-auto text-center">
-          {!workerAuthId && <ModelParams {...modelParams} isConnected={isConnected} /> }
-        </div>
-        <canvas height={380} width={380} className="hidden" ref={canvasRef} />
-        <img src={canvasLogo} ref={logoRef} className="hidden" onLoad={() => {
-          console.log("Logo loaded");
-          setIsLogoLoaded(true);
-        }} />
       </div>
       </MediaContext.Provider>
     </SocketContext.Provider>

@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import Recorder from "opus-recorder";
-import encoderPath from "opus-recorder/dist/encoderWorker.min.js?url";
+// TODO this import fails
+// import encoderPath from "opus-recorder/dist/encoderWorker.min.js";
 import { useMediaContext } from "@/features/moshi/hooks/MediaContext";
 
 export enum UserMediaStatuses {
@@ -65,7 +66,8 @@ export const useUserAudio = ({
       // the frameSize and maxFramesPerPage seems to have any.
       const recorderOptions = {
         mediaTrackConstraints: constraints,
-        encoderPath,
+        // TODO this is not correct...
+        "encoderPath": "../../../../workers/encoderWorker.min.js",
         bufferLength: Math.round(960 * audioContext.current.sampleRate / 24000),
         encoderFrameSize: 20,
         encoderSampleRate: 24000,
