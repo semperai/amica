@@ -13,9 +13,6 @@ import { config } from "@/utils/config";
 export class Viewer {
   public isReady: boolean;
   public model?: Model;
-  public currentSession: XRSession | null = null;
-  public cachedCameraPosition: THREE.Vector3 | null = null;
-  public cachedCameraRotation: THREE.Euler | null = null;
 
   private _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
@@ -28,6 +25,14 @@ export class Viewer {
 
   private sendScreenshotToCallback: boolean;
   private screenshotCallback: BlobCallback | undefined;
+
+  // XR
+  private currentSession: XRSession | null = null;
+  private cachedCameraPosition: THREE.Vector3 | null = null;
+  private cachedCameraRotation: THREE.Euler | null = null;
+  private controller: any | null = null;
+  private reticle: THREE.Mesh | null = null;
+
 
   constructor() {
     this.isReady = false;
@@ -167,6 +172,26 @@ export class Viewer {
     this._raycaster = new THREE.Raycaster();
     this._mouse = new THREE.Vector2();
 
+    // check if controller is available
+    try {
+      this.controller = this._renderer.xr.getController(0);
+      this.controller.addEventListener("select", (event: any) => {
+        this.onSelect(event);
+      });
+      this._scene.add(this.controller);
+
+      this.reticle = new THREE.Mesh(
+        new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+        new THREE.MeshBasicMaterial()
+      );
+      this.reticle.matrixAutoUpdate = false;
+      this.reticle.visible = false;
+      this._scene.add(this.reticle);
+      console.log('controller', this.controller);
+    } catch (e) {
+      console.log("No controller available");
+    }
+
     window.addEventListener("resize", () => {
       this.resize();
     });
@@ -175,6 +200,18 @@ export class Viewer {
     this._renderer.setAnimationLoop(() => {
       this.update();
     });
+  }
+
+  public onSelect(event: any) {
+    if (this.currentSession && this.reticle && this.reticle.visible) {
+      // reticle.matrix.decompose(this.reticle.position, this.reticle.quaternion, this.reticle.scale);
+    
+      this.model?.vrm?.scene?.position?.set(
+        this.reticle.position.x,
+        this.reticle.position.y,
+        this.reticle.position.z
+      );
+    }
   }
 
   /**
