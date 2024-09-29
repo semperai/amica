@@ -27,7 +27,7 @@ export class Viewer {
   private screenshotCallback: BlobCallback | undefined;
 
   // XR
-  private currentSession: XRSession | null = null;
+  public currentSession: XRSession | null = null;
   private cachedCameraPosition: THREE.Vector3 | null = null;
   private cachedCameraRotation: THREE.Euler | null = null;
   private controller: any | null = null;
@@ -140,7 +140,6 @@ export class Viewer {
       alpha: true,
       antialias: true,
     });
-    this._renderer.outputEncoding = THREE.sRGBEncoding;
     this._renderer.setSize(width, height);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._renderer.xr.enabled = true;
