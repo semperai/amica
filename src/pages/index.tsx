@@ -19,6 +19,8 @@ import {
   ShareIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
+  Squares2X2Icon,
+  SquaresPlusIcon,
   VideoCameraIcon,
   VideoCameraSlashIcon,
   WrenchScrewdriverIcon,
@@ -52,7 +54,6 @@ import { VrmStoreProvider } from "@/features/vrmStore/vrmStoreContext";
 import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
 import { ChatModeText } from "@/components/chatModeText";
 
-import { VerticalSwitchBox } from "@/components/switchBox"
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
 
 const montserrat = Montserrat({
@@ -435,13 +436,20 @@ export default function Home() {
             </div>
 
             <div className="flex flex-row items-center space-x-2">
-              <VerticalSwitchBox
-                  value={showChatMode}
-                  label={""}
-                  onChange={toggleChatMode}
+              {showChatMode ? (
+                <Squares2X2Icon
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={toggleChatMode}
                 />
+              ) : (
+                <SquaresPlusIcon
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={toggleChatMode}
+                />
+              )}
             </div>
-            
           </div>
         </div>    
       </div>
