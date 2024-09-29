@@ -317,47 +317,6 @@ export default function Home() {
               />
             )}
 
-            {/* 28px hack to force size */}
-            <div className="flex flex-row items-center space-x-2 w-[28px] h-[28px]">
-              <Menu as="div">
-                <div>
-                  <Menu.Button>
-                    <LanguageIcon
-                      className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                      aria-hidden="true"
-                    />
-                  </Menu.Button>
-                </div>
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items className="absolute left-10 -mt-8 z-10 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div className="py-0">
-
-                      {Object.keys(langs).map((lng) => (
-                        <Menu.Item key={lng}>
-                          <button
-                            className={clsx(
-                              currLang === lng && 'bg-cyan-400 text-white',
-                              'group flex w-full items-center px-2 py-2 text-sm'
-                            )}
-                            onClick={() => i18n.changeLanguage(lng)}>
-                            {langs[lng].nativeName}
-                          </button>
-                        </Menu.Item>
-                      ))}
-                    </div>
-                  </Menu.Items>
-                </Transition>
-              </Menu>
-            </div>
-
             <MenuButton
               icon={ShareIcon}
               href="/share"

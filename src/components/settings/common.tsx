@@ -4,6 +4,7 @@ import {
   AdjustmentsHorizontalIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   IdentificationIcon,
+  LanguageIcon,
   UsersIcon,
   RocketLaunchIcon,
   FaceSmileIcon,
@@ -137,6 +138,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'appearance':          return <FaceSmileIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'amica_life':          return <SunIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatbot':             return <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'language':            return <LanguageIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'tts':                 return <MusicalNoteIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'stt':                 return <PencilIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'vision':              return <EyeIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -184,6 +186,7 @@ function getLabelFromPage(page: string): string {
     case 'appearance':          return t('Appearance');
     case 'amica_life':          return t('Amica Life');
     case 'chatbot':             return t('ChatBot');
+    case 'language':            return t('Language');
     case 'tts':                 return t('Text-to-Speech');
     case 'stt':                 return t('Speech-to-text');
     case 'vision':              return t('Vision');

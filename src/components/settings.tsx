@@ -25,6 +25,7 @@ import { config, updateConfig } from "@/utils/config";
 import { Link } from "./settings/common";
 
 import { MenuPage } from './settings/MenuPage';
+import { LanguagePage } from './settings/LanguagePage';
 import { ResetSettingsPage } from './settings/ResetSettingsPage';
 import { CommunityPage } from './settings/CommunityPage';
 
@@ -249,7 +250,7 @@ export const Settings = ({
     switch(page) {
     case 'main_menu':
       return <MenuPage
-        keys={["appearance",  "amica_life", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
+        keys={["appearance", "amica_life", "chatbot", "language", "tts", "stt", "vision", "reset_settings", "community"]}
         menuClick={handleMenuClick} />;
 
     case 'appearance':
@@ -261,6 +262,9 @@ export const Settings = ({
       return <MenuPage
         keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
         menuClick={handleMenuClick} />;
+
+    case 'language':
+      return <LanguagePage />;
 
     case 'tts':
       return <MenuPage
