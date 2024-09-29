@@ -416,8 +416,8 @@ export default function Home() {
               >
                 <CubeTransparentIcon
                   className={clsx(
-                    'h-7 w-7 text-white opacity-50',
-                    isARSupported ? 'hover:opacity-100 active:opacity-100 hover:cursor-pointer' : 'cursor-not-allowed opacity-20'
+                    'h-7 w-7 text-white',
+                    isARSupported ? 'hover:opacity-100 opacity-50 active:opacity-100 hover:cursor-pointer' : 'cursor-not-allowed opacity-20'
                   )}
                   aria-hidden="true"
                 />
