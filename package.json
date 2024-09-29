@@ -47,7 +47,10 @@
     "three": "^0.154.0",
     "typescript-collections": "^1.3.3",
     "wavefile": "^11.0.0",
-    "window.ai": "^0.2.4"
+    "window.ai": "^0.2.4",
+    "webm-duration-fix": "^1.0.4",
+    "opus-recorder": "^8.0.5",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@gltf-transform/core": "^2.4.6",
