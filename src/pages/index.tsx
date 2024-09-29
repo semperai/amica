@@ -27,6 +27,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { IconBrain } from '@tabler/icons-react';
 
+import { MenuButton } from "@/components/menuButton";
 import { AssistantText } from "@/components/assistantText";
 import { SubconciousText } from "@/components/subconciousText";
 import { AddToHomescreen } from "@/components/addToHomescreen";
@@ -61,7 +62,6 @@ const montserrat = Montserrat({
   display: "swap",
   subsets: ["latin"],
 });
-
 
 export default function Home() {
   const { t, i18n } = useTranslation();
@@ -138,7 +138,7 @@ export default function Home() {
     toggleState(setShowChatLog, [setShowSubconciousText, setShowChatMode]);
   };
   
-  const toggleSubconciousText = () => {
+  const toggleShowSubconciousText = () => {
     if (subconciousLogs.length !== 0) {
       toggleState(setShowSubconciousText, [setShowChatLog, setShowChatMode]);
     }
@@ -269,64 +269,53 @@ export default function Home() {
       <div className="absolute z-10 m-2">
         <div className="grid grid-flow-col gap-[8px] place-content-end mt-2 bg-slate-800/40 rounded-md backdrop-blur-md shadow-sm">
           <div className='flex flex-col justify-center items-center p-1 space-y-3'>
-            <div className="flex flex-row items-center space-x-2">
-              <WrenchScrewdriverIcon
-                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                aria-hidden="true"
-                onClick={() => setShowSettings(true)}
+            <MenuButton
+              icon={WrenchScrewdriverIcon}
+              onClick={() => setShowSettings(true)}
+              label="show settings"
+            />
+
+            {showChatLog ? (
+              <MenuButton
+                icon={ChatBubbleLeftIcon}
+                onClick={toggleChatLog}
+                label="hide chat log"
               />
-            </div>
+            ) : (
+              <MenuButton
+                icon={ChatBubbleLeftRightIcon}
+                onClick={toggleChatLog}
+                label="show chat log"
+              />
+            )}
 
-            <div className="flex flex-row items-center space-x-2">
-              {showChatLog ? (
-                <ChatBubbleLeftIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  onClick={toggleChatLog}
-                />
-              ) : (
-                <ChatBubbleLeftRightIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  onClick={toggleChatLog}
-                />
-              )}
-            </div>
+            { muted ? (
+              <MenuButton
+                icon={SpeakerXMarkIcon}
+                onClick={toggleTTSMute}
+                label="unmute"
+              />
+            ) : (
+              <MenuButton
+                icon={SpeakerWaveIcon}
+                onClick={toggleTTSMute}
+                label="mute"
+              />
+            )}
 
-            <div className="flex flex-row items-center space-x-2">
-              { muted ? (
-                <SpeakerXMarkIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  onClick={toggleTTSMute}
-                />
-              ) : (
-                <SpeakerWaveIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  onClick={toggleTTSMute}
-                />
-              )}
-              <span className="text-white hidden">Mute / Unmute</span>
-            </div>
-
-
-            <div className="flex flex-row items-center space-x-2">
-              { webcamEnabled ? (
-                <VideoCameraIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  onClick={() => setWebcamEnabled(false)}
-                />
-              ) : (
-                <VideoCameraSlashIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  onClick={() => setWebcamEnabled(true)}
-                />
-              )}
-              <span className="text-white hidden">Webcam</span>
-            </div>
+            { webcamEnabled ? (
+              <MenuButton
+                icon={VideoCameraIcon}
+                onClick={() => setWebcamEnabled(false)}
+                label="disable webcam"
+              />
+            ) : (
+              <MenuButton
+                icon={VideoCameraSlashIcon}
+                onClick={() => setWebcamEnabled(true)}
+                label="enable webcam"
+              />
+            )}
 
             {/* 28px hack to force size */}
             <div className="flex flex-row items-center space-x-2 w-[28px] h-[28px]">
@@ -369,87 +358,58 @@ export default function Home() {
               </Menu>
             </div>
 
-            <div className="flex flex-row items-center space-x-2">
-              <Link
-                href="/share"
-                target={isTauri() ? '' : '_blank'}
-              >
-                <ShareIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                />
-              </Link>
-              <span className="text-white hidden">Share</span>
-            </div>
+            <MenuButton
+              icon={ShareIcon}
+              href="/share"
+              target={isTauri() ? '' : '_blank'}
+              label="share"
+            />
+            <MenuButton
+              icon={CloudArrowDownIcon}
+              href="/import"
+              label="import"
+            />
 
-            <div className="flex flex-row items-center space-x-2">
-              <Link href="/import">
-                <CloudArrowDownIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                />
-              </Link>
-              <span className="text-white hidden">Import</span>
-            </div>
-
-            <div className="flex flex-row items-center space-x-2">
-              { showSubconciousText ? (
-                <IconBrain
-                  className="h-7 w-7 text-white opacity-100 hover:opacity-50 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  stroke={2}
-                  onClick={toggleSubconciousText}
-                />
-              ) : (
-                <IconBrain
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  stroke={2}
-                  onClick={toggleSubconciousText}
-                />
-              )}
-            </div>
-
-            <div className="flex flex-row items-center space-x-2">
-              <button
-                disabled={!isARSupported}
-                onClick={() => toggleAR()}
-              >
-                <CubeTransparentIcon
-                  className={clsx(
-                    'h-7 w-7 text-white',
-                    isARSupported ? 'hover:opacity-100 opacity-50 active:opacity-100 hover:cursor-pointer' : 'cursor-not-allowed opacity-20'
-                  )}
-                  aria-hidden="true"
-                />
-              </button>
-              <span className="text-white hidden">Augmented Reality</span>
-            </div>
-
-            <div className="flex flex-row items-center space-x-2">
-              <CodeBracketSquareIcon
-                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                aria-hidden="true"
-                onClick={() => setShowDebug(true)}
+            { showSubconciousText ? (
+              <MenuButton
+                icon={IconBrain}
+                onClick={toggleShowSubconciousText}
+                label="hide subconscious"
               />
-              <span className="text-white hidden">Debug</span>
-            </div>
+            ) : (
+              <MenuButton
+                icon={IconBrain}
+                onClick={toggleShowSubconciousText}
+                label="show subconscious"
+              />
+            )}
 
-            <div className="flex flex-row items-center space-x-2">
-              {showChatMode ? (
-                <Squares2X2Icon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  onClick={toggleChatMode}
-                />
-              ) : (
-                <SquaresPlusIcon
-                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
-                  aria-hidden="true"
-                  onClick={toggleChatMode}
-                />
-              )}
-            </div>
+            <MenuButton
+              icon={CubeTransparentIcon}
+              disabled={!isARSupported}
+              onClick={() => toggleAR()}
+              label="Augmented Reality"
+            />
+
+            <MenuButton
+              icon={CodeBracketSquareIcon}
+              onClick={() => setShowDebug(true)}
+              label="debug"
+            />
+
+            { showChatMode ? (
+              <MenuButton
+                icon={Squares2X2Icon}
+                onClick={toggleChatMode}
+                label="hide chat mode"
+              />
+            ) : (
+              <MenuButton
+                icon={SquaresPlusIcon}
+                onClick={toggleChatMode}
+                label="show chat mode"
+              />
+            )}
           </div>
         </div>    
       </div>
