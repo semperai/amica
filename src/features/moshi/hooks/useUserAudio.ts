@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import Recorder from "opus-recorder";
 import encoderPath from "opus-recorder/dist/encoderWorker.min.js?url";
-import { useMediaContext } from "../MediaContext";
+import { useMediaContext } from "@/features/moshi/hooks/MediaContext";
 
 export enum UserMediaStatuses {
   IDLE = "IDLE",

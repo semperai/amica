@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { WSMessage } from "../../protocol/types";
+import { WSMessage } from "@/features/moshi/protocol/types";
 
 type SocketContextType = {
   isConnected: boolean;

@@ -1,5 +1,5 @@
 import { FC, RefObject, useCallback, useEffect, useRef, useState } from "react";
-import { clamp } from "../../hooks/audioUtils";
+import { clamp } from "@/utils/audioUtils";
 
 type AudioVisualizerProps = {
   analyser: AnalyserNode | null;

@@ -1,5 +1,5 @@
 import { FC, useEffect, useRef } from "react";
-import { useServerText } from "../../hooks/useServerText";
+import { useServerText } from "@/features/moshi/hooks/useServerText";
 
 type TextDisplayProps = {
   containerRef: React.RefObject<HTMLDivElement>;

@@ -1,7 +1,7 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
-import { useSocketContext } from "../../SocketContext";
-import { useUserAudio } from "../../hooks/useUserAudio";
-import { ClientVisualizer } from "../AudioVisualizer/ClientVisualizer";
+import { useSocketContext } from "@/features/moshi/hooks/SocketContext";
+import { useUserAudio } from "@/features/moshi/hooks/useUserAudio";
+import { ClientVisualizer } from "@/features/moshi/components/ClientVisualizer";
 
 type UserAudioProps = {
   copyCanvasRef: React.RefObject<HTMLCanvasElement>;

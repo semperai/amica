@@ -1,19 +1,19 @@
 import { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSocket } from "./hooks/useSocket";
-import { SocketContext } from "./SocketContext";
-import { ServerAudio } from "./components/ServerAudio/ServerAudio";
-import { UserAudio } from "./components/UserAudio/UserAudio";
-import { Button } from "../../components/Button/Button";
-import { ServerAudioStats } from "./components/ServerAudio/ServerAudioStats";
-import { AudioStats } from "./hooks/useServerAudio";
-import { TextDisplay } from "./components/TextDisplay/TextDisplay";
-import { MediaContext } from "./MediaContext";
-import { ServerInfo } from "./components/ServerInfo/ServerInfo";
-import { ModelParamsValues, useModelParams } from "./hooks/useModelParams";
-import { ModelParams } from "./components/ModelParams/ModelParams";
 import fixWebmDuration from "webm-duration-fix";
-import canvasLogo from "./canvas-logo.png";
-import { getMimeType, getExtension } from "./getMimeType";
+
+import { getMimeType, getExtension } from "@/utils/getMimeType";
+import { SocketContext } from "@/features/moshi/hooks/SocketContext";
+import { MediaContext } from "@/features/moshi/hooks/MediaContext";
+
+import { ServerAudio } from "@/features/moshi/ServerAudio/ServerAudio";
+import { UserAudio } from "@/features/moshi/UserAudio/UserAudio";
+import { ServerAudioStats } from "@/features/moshi/ServerAudio/ServerAudioStats";
+import { TextDisplay } from "@/features/moshi/TextDisplay/TextDisplay";
+import { ModelParams } from "@/features/moshi/ModelParams/ModelParams";
+
+import { useSocket } from "@/features/moshi/hooks/useSocket";
+import { ModelParamsValues, useModelParams } from "@/features/moshi/hooks/useModelParams";
+import { AudioStats } from "@/features/moshi/hooks/useServerAudio";
 
 type ConversationProps = {
   workerAddr: string;
@@ -265,7 +265,7 @@ export const Conversation:FC<ConversationProps> = ({
     <div className="main-grid h-screen max-h-screen w-screen p-4 max-w-96 md:max-w-screen-lg m-auto">
       <div className="controls text-center flex justify-center items-center gap-2">
          {isOver && !isBypass && (
-            <Button
+            <button
               onClick={() => {
                 // Reload the page to reset the conversation on iOS
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
@@ -277,19 +277,19 @@ export const Conversation:FC<ConversationProps> = ({
               }}
             >
               Start Over
-            </Button>
+            </button>
           )
         }
         {
           (!isOver || isBypass) && (
-            <Button
+            <button
               onClick={() => {
                 audioContext.current.resume();
                 isConnected ? stop() : start();
               }}
             >
               {!isConnected ? "Connect" : "Disconnect"}
-            </Button>
+            </button>
           )
         }
           <div className={`h-4 w-4 rounded-full ${isConnected ? 'bg-green-700': 'bg-red-700'}`} />
@@ -316,7 +316,6 @@ export const Conversation:FC<ConversationProps> = ({
           </div>
         </div>
         <div className="max-w-96 md:max-w-screen-lg p-4 m-auto text-center">
-          <ServerInfo/>
           {!workerAuthId && <ModelParams {...modelParams} isConnected={isConnected} /> }
         </div>
         <canvas height={380} width={380} className="hidden" ref={canvasRef} />

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { WSMessage } from "../../../protocol/types";
-import { decodeMessage, encodeMessage } from "../../../protocol/encoder";
+import { WSMessage } from "@/features/moshi/protocol/types";
+import { decodeMessage, encodeMessage } from "@/features/moshi/protocol/encoder";
 
 export const useSocket = ({
   onMessage,

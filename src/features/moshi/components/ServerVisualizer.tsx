@@ -1,6 +1,6 @@
 import { FC, RefObject, useCallback, useEffect, useRef, useState } from "react";
-import { clamp } from "../../hooks/audioUtils";
-import { useSocketContext } from "../../SocketContext";
+import { clamp } from "@/utils/audioUtils";
+import { useSocketContext } from "@/features/moshi/hooks/SocketContext";
 
 type AudioVisualizerProps = {
   analyser: AnalyserNode | null;

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSocketContext } from "../SocketContext";
-import { decodeMessage } from "../../../protocol/encoder";
-import { useMediaContext } from "../MediaContext";
-import { DecoderWorker } from "../../../decoder/decoderWorker";
+import { useSocketContext } from "@/features/moshi/hooks/SocketContext";
+import { decodeMessage } from "@/features/moshi/protocol/encoder";
+import { useMediaContext } from "@/features/moshi/hooks/MediaContext";
+import { DecoderWorker } from "@/features/moshi/decoder/decoderWorker";
 
 export type AudioStats = {
   playedAudioDuration: number;

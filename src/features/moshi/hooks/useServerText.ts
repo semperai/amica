@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSocketContext } from "../SocketContext";
-import { decodeMessage } from "../../../protocol/encoder";
+import { useSocketContext } from "@/features/moshi/hooks/SocketContext";
+import { decodeMessage } from "@/features/moshi/protocol/encoder";
 
 export const useServerText = () => {
   const [text, setText] = useState<string[]>([]);
