@@ -264,7 +264,9 @@ export const Settings = ({
         menuClick={handleMenuClick} />;
 
     case 'language':
-      return <LanguagePage />;
+      return <LanguagePage
+        setSettingsUpdated={setSettingsUpdated}
+      />;
 
     case 'tts':
       return <MenuPage
