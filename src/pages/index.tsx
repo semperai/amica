@@ -373,6 +373,17 @@ export default function Home() {
         </div>    
       </div>
 
+      {/*
+      <Moshi
+        workerAddr="https://orcsza38j78yrh-8998.proxy.runpod.net/"
+        workerAuthId="amica"
+        audioContext={null}
+        worklet={null}
+        onConversationEnd={() => {}}
+        isBypass={false}
+      />
+      */}
+
       {showChatLog && <ChatLog messages={chatLog} />}
 
       {/* Normal chat text */}
