@@ -3,7 +3,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
 });
 
-const output = process.env.OUTPUT || undefined;
+const output = process.env.NEXT_OUTPUT || undefined;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
