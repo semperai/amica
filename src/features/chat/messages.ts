@@ -23,7 +23,6 @@ export type Talk = {
 
 //Name of all the expression in the vrm 
 export const emotionNames: string[] = [];
-console.log("All emotion names, ",emotionNames);
 
 export const emotions = 
 ["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 
