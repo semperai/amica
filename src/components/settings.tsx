@@ -549,7 +549,7 @@ export const Settings = ({
   return (
     <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20 overflow-y-auto backdrop-blur">
       <div
-        className="absolute top-0 left-0 w-full h-full bg-violet-700 opacity-10 z-index-50"
+        className="absolute top-0 left-0 w-full h-full bg-gray-700 opacity-10 z-index-50"
       ></div>
       <div className="fixed w-full top-0 left-0 z-50 p-2 bg-white">
 
