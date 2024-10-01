@@ -29,7 +29,7 @@
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@xenova/transformers": "^2.7.0",
-    "clsx": "^2.0.0",
+    "clsx": "^2.1.1",
     "dexie": "^4.0.4",
     "dexie-react-hooks": "^1.1.7",
     "file-saver": "^2.0.5",
