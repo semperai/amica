@@ -19,7 +19,7 @@
   "dependencies": {
     "@charcoal-ui/icons": "^3.15.0",
     "@charcoal-ui/theme": "^3.15.0",
-    "@ducanh2912/next-pwa": "^9.7.2",
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@headlessui/react": "^2.1.8",
     "@heroicons/react": "^2.1.5",
     "@pixiv/three-vrm": "^3.1.1",
