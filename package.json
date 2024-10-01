@@ -17,8 +17,8 @@
     "splash": "cp ./public/splashscreen.html out/"
   },
   "dependencies": {
-    "@charcoal-ui/icons": "^2.10.0",
-    "@charcoal-ui/theme": "^2.7.0",
+    "@charcoal-ui/icons": "^3.15.0",
+    "@charcoal-ui/theme": "^3.15.0",
     "@ducanh2912/next-pwa": "^9.7.2",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
