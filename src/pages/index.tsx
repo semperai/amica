@@ -359,12 +359,14 @@ export default function Home() {
             { showChatMode ? (
               <MenuButton
                 icon={Squares2X2Icon}
+                disabled={viewer.currentSession !== null}
                 onClick={toggleChatMode}
                 label="hide chat mode"
               />
             ) : (
               <MenuButton
                 icon={SquaresPlusIcon}
+                disabled={viewer.currentSession !== null}
                 onClick={toggleChatMode}
                 label="show chat mode"
               />
