@@ -54,8 +54,8 @@
   },
   "devDependencies": {
     "@gltf-transform/core": "^2.5.1",
-    "@tauri-apps/api": "^1.5.3",
-    "@tauri-apps/cli": "^1.5.8",
+    "@tauri-apps/api": "^1.6.0",
+    "@tauri-apps/cli": "^1.6.0",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.2",
     "@types/dom-speech-recognition": "^0.0.1",
