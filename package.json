@@ -21,7 +21,7 @@
     "@charcoal-ui/theme": "^3.15.0",
     "@ducanh2912/next-pwa": "^9.7.2",
     "@headlessui/react": "^1.7.17",
-    "@heroicons/react": "^2.0.18",
+    "@heroicons/react": "^2.1.5",
     "@pixiv/three-vrm": "^3.1.1",
     "@ricky0123/vad-react": "^0.0.17",
     "@supabase/supabase-js": "^2.39.0",
@@ -53,7 +53,7 @@
     "ws": "^8.16.0"
   },
   "devDependencies": {
-    "@gltf-transform/core": "^2.4.6",
+    "@gltf-transform/core": "^2.5.1",
     "@tauri-apps/api": "^1.5.3",
     "@tauri-apps/cli": "^1.5.8",
     "@testing-library/jest-dom": "^6.1.4",
