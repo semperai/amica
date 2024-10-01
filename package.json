@@ -53,7 +53,7 @@
     "ws": "^8.16.0"
   },
   "devDependencies": {
-    "@gltf-transform/core": "^2.5.1",
+    "@gltf-transform/core": "^4.0.10",
     "@tauri-apps/api": "^1.6.0",
     "@tauri-apps/cli": "^1.6.0",
     "@testing-library/jest-dom": "^6.1.4",
