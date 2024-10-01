@@ -28,7 +28,7 @@ registerPlugin(
 async function hashFile(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
   const hashValue = createHash('sha256')
-    .update(Buffer.from(buffer))
+    .update(new Uint8Array(buffer))
     .digest('hex');
   return hashValue;
 }
