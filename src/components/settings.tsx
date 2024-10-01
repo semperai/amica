@@ -150,6 +150,11 @@ export const Settings = ({
     bgImgFileInputRef.current?.click();
   }, []);
 
+  const topMenuRef = useRef<HTMLDivElement>(null);
+  const backButtonRef = useRef<HTMLDivElement>(null);
+  const mainMenuRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
   const handleChangeVrmFile = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
@@ -240,6 +245,41 @@ export const Settings = ({
     sttWakeWordEnabled, sttWakeWord,
   ]);
 
+  useEffect(() => {
+    function click(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      // console.log('click', target);
+      if (mainMenuRef.current?.contains(target)) {
+        // console.log('mainMenuRef click');
+        return;
+      }
+      if (backButtonRef.current?.contains(target)) {
+        // console.log('backButtonRef click');
+        return;
+      }
+      if (topMenuRef.current?.contains(target)) {
+        // console.log('topMenuRef click');
+        return;
+      }
+      if (notificationsRef.current?.contains(target)) {
+        // console.log('notificationsRef click');
+        return;
+      }
+
+      // console.log('click outside to close');
+      onClickClose();
+    }
+    document.addEventListener('click', click, { capture: true });
+
+    return () => {
+      document.removeEventListener('click', click, { capture: true });
+    };
+  }, [
+    topMenuRef,
+    backButtonRef,
+    mainMenuRef,
+    notificationsRef
+  ]);
 
   function handleMenuClick(link: Link) {
     setPage(link.key)
@@ -547,11 +587,16 @@ export const Settings = ({
   }
 
   return (
-    <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20 overflow-y-auto backdrop-blur">
+    <div
+      className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20 overflow-y-auto backdrop-blur"
+    >
       <div
         className="absolute top-0 left-0 w-full h-full bg-gray-700 opacity-10 z-index-50"
       ></div>
-      <div className="fixed w-full top-0 left-0 z-50 p-2 bg-white">
+      <div
+        className="fixed w-full top-0 left-0 z-50 p-2 bg-white"
+        ref={topMenuRef}
+      >
 
         <nav aria-label="Breadcrumb" className="inline-block ml-4">
           <ol role="list" className="flex items-center space-x-4">
@@ -603,29 +648,36 @@ export const Settings = ({
 
       <div className="h-screen overflow-auto opacity-95 backdrop-blur">
         <div className="mx-auto max-w-2xl py-16 text-text1">
-          <div className="mt-16">
-            <TextButton
-              className="rounded-b-none text-lg ml-4 px-8 shadow-sm"
-              onClick={() => {
-                if (breadcrumbs.length === 0) {
-                  onClickClose();
-                  return;
-                }
-                if (breadcrumbs.length === 1) {
-                  setPage('main_menu');
-                  setBreadcrumbs([]);
-                  return;
-                }
-
-                const prevPage = breadcrumbs[breadcrumbs.length - 2];
-                setPage(prevPage.key);
-                setBreadcrumbs(breadcrumbs.slice(0, -1));
-              }}
+          <div className="mt-12">
+            <div
+              className="inline-block pt-4 pr-4"
+              ref={backButtonRef}
             >
-              <ArrowUturnLeftIcon className="h-5 w-5 flex-none text-white" aria-hidden="true" />
-            </TextButton>
+              <TextButton
+                className="rounded-b-none text-lg ml-4 px-8 shadow-sm"
+                onClick={() => {
+                  if (breadcrumbs.length === 0) {
+                    onClickClose();
+                    return;
+                  }
+                  if (breadcrumbs.length === 1) {
+                    setPage('main_menu');
+                    setBreadcrumbs([]);
+                    return;
+                  }
 
-            { renderPage() }
+                  const prevPage = breadcrumbs[breadcrumbs.length - 2];
+                  setPage(prevPage.key);
+                  setBreadcrumbs(breadcrumbs.slice(0, -1));
+                }}
+              >
+                <ArrowUturnLeftIcon className="h-5 w-5 flex-none text-white" aria-hidden="true" />
+              </TextButton>
+            </div>
+
+            <div ref={mainMenuRef}>
+              { renderPage() }
+            </div>
           </div>
         </div>
       </div>
@@ -633,6 +685,7 @@ export const Settings = ({
       <div
         aria-live="assertive"
         className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6 mt-2"
+        ref={notificationsRef}
       >
         <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
 
