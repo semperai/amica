@@ -1,8 +1,8 @@
 import * as THREE from "three";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Model } from "./model";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { config } from "@/utils/config";
 
 /**
@@ -32,7 +32,6 @@ export class Viewer {
   private cachedCameraRotation: THREE.Euler | null = null;
   private controller: any | null = null;
   private reticle: THREE.Mesh | null = null;
-
 
   constructor() {
     this.isReady = false;
@@ -282,7 +281,7 @@ export class Viewer {
     // this._cameraControls?.update();
   }
 
-  public update = (time?: DOMHighResTimeStamp, frame?: XRFrame) => {
+  public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {
     const delta = this._clock.getDelta();
     // update vrm components
     if (this.model) {
@@ -297,7 +296,7 @@ export class Viewer {
 
       }
     }
-  };
+  }
 
   public onMouseClick(event: MouseEvent): boolean {
     if (!this._renderer || !this._camera || !this.model?.vrm) return false;
