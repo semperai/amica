@@ -241,7 +241,14 @@ export class Viewer {
     });
   }
 
-  public onSelect(event: any) {
+  public onSelect(event: XRInputSourceEvent) {
+    console.log('onSelect', event);
+    console.log('onSelect', event.inputSource);
+    console.log('onSelect', event.inputSource.hand);
+    console.log('onSelect', event.inputSource.handedness);
+    console.log('onSelect', event.inputSource.gripSpace);
+    console.log('onSelect', event.inputSource.targetRayMode);
+    console.log('onSelect', event.inputSource.targetRaySpace);
   }
 
   /**
