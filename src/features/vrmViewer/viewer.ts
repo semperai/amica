@@ -1,5 +1,10 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {
+  reversePainterSortStable,
+  Container,
+  Root,
+} from '@pmndrs/uikit'
 import { Model } from "./model";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
@@ -19,6 +24,7 @@ export class Viewer {
   private _scene: THREE.Scene;
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
+  private _uiroot?: Root;
 
   private _raycaster?: THREE.Raycaster;
   private _mouse?: THREE.Vector2;
@@ -31,7 +37,6 @@ export class Viewer {
   private cachedCameraPosition: THREE.Vector3 | null = null;
   private cachedCameraRotation: THREE.Euler | null = null;
   private controller: any | null = null;
-  private reticle: THREE.Mesh | null = null;
 
   constructor() {
     this.isReady = false;
@@ -55,13 +60,16 @@ export class Viewer {
     this._clock.start();
   }
 
+  public getCanvas() {
+    return this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
+  }
+
   public async onSessionStarted(session: XRSession) {
     if (! this._renderer) {
       return;
     }
 
-    // hide canvas element
-    const canvas = this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
+    const canvas = this.getCanvas();
     canvas!.style.display = "none";
 
     this.cachedCameraPosition = this._camera?.position.clone() as THREE.Vector3;
@@ -73,6 +81,7 @@ export class Viewer {
 
     this.currentSession = session;
     this.currentSession.addEventListener('end', this.onSessionEnded);
+    this.currentSession.addEventListener('select', this.onSelect);
   }
 
   public onSessionEnded(/*event*/) {
@@ -84,7 +93,7 @@ export class Viewer {
     this._camera?.position.copy(this.cachedCameraPosition as THREE.Vector3);
     this._camera?.rotation.copy(this.cachedCameraRotation as THREE.Euler);
 
-    const canvas = this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
+    const canvas = this.getCanvas();
     canvas!.style.display = "inline";
 
     this.currentSession.removeEventListener('end', this.onSessionEnded);
@@ -142,6 +151,8 @@ export class Viewer {
     this._renderer.setSize(width, height);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._renderer.xr.enabled = true;
+    this._renderer.localClippingEnabled = true
+    this._renderer.setTransparentSort(reversePainterSortStable)
 
     // camera
     this._camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
@@ -161,6 +172,47 @@ export class Viewer {
 
     this._cameraControls.update();
 
+    this._uiroot = new Root(this._camera, this._renderer, {
+      flexDirection: 'row',
+      padding: 10,
+      gap: 10,
+      width: 500,
+      height: 250,
+      // display: 'none', // change to 'flex' to show in AR mode
+      /*
+      This._uiroot.setStyle({
+        display: 'none',
+      });
+      */
+    });
+    this._scene.add(this._uiroot);
+
+
+    const c1 = new Container({
+      flexGrow: 1,
+      backgroundOpacity: 0.5,
+      hover: { backgroundOpacity: 1 },
+      backgroundColor: "red"
+    })
+    this._uiroot.add(c1)
+    const c2 = new Container({
+        flexGrow: 1,
+        backgroundOpacity: 0.5,
+        hover: { backgroundOpacity: 1 },
+        backgroundColor: "blue"
+    })
+    this._uiroot.add(c2)
+
+    c2.dispatchEvent({
+      type: 'pointerover',
+      distance: 0,
+      nativeEvent: {} as any,
+      object: c1,
+      point: new THREE.Vector3(),
+      pointerId: -1,
+    });
+
+
     // raycaster and mouse
     this._raycaster = new THREE.Raycaster();
     this._mouse = new THREE.Vector2();
@@ -173,13 +225,6 @@ export class Viewer {
       });
       this._scene.add(this.controller);
 
-      this.reticle = new THREE.Mesh(
-        new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
-        new THREE.MeshBasicMaterial()
-      );
-      this.reticle.matrixAutoUpdate = false;
-      this.reticle.visible = false;
-      this._scene.add(this.reticle);
       console.log('controller', this.controller);
     } catch (e) {
       console.log("No controller available");
@@ -196,15 +241,6 @@ export class Viewer {
   }
 
   public onSelect(event: any) {
-    if (this.currentSession && this.reticle && this.reticle.visible) {
-      // reticle.matrix.decompose(this.reticle.position, this.reticle.quaternion, this.reticle.scale);
-    
-      this.model?.vrm?.scene?.position?.set(
-        this.reticle.position.x,
-        this.reticle.position.y,
-        this.reticle.position.z
-      );
-    }
   }
 
   /**
@@ -289,6 +325,10 @@ export class Viewer {
     }
 
     if (this._renderer && this._camera) {
+
+      if (this._uiroot) {
+        this._uiroot.update(delta);
+      }
       this._renderer.render(this._scene, this._camera);
       if (this.sendScreenshotToCallback && this.screenshotCallback) {
         this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");

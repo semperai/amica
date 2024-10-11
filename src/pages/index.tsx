@@ -4,6 +4,8 @@ import {
   useEffect,
   useState,
 } from "react";
+import { XRDevice, metaQuest3 } from 'iwer';
+import { DevUI } from '@iwer/devui';
 import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
 import { clsx } from "clsx";
@@ -14,6 +16,7 @@ import {
   ChatBubbleLeftRightIcon,
   CloudArrowDownIcon,
   CodeBracketSquareIcon,
+  CubeIcon,
   CubeTransparentIcon,
   LanguageIcon,
   ShareIcon,
@@ -94,10 +97,21 @@ export default function Home() {
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   const [isARSupported, setIsARSupported] = useState(false);
+  const [isVRSupported, setIsVRSupported] = useState(false);
 
   useEffect(() => {
     amicaLife.checkSettingOff(!showSettings);
   }, [showSettings, amicaLife]);
+
+  /*
+  useEffect(() => {
+    console.log('iwer init');
+    const xrDevice = new XRDevice(metaQuest3);
+    xrDevice.installRuntime();
+    const devui = new DevUI(xrDevice);
+    console.log('iwer device', xrDevice);
+  }, []);
+  */
 
   useEffect(() => {
     if (muted === null) {
@@ -112,10 +126,17 @@ export default function Home() {
 
     if (window.navigator.xr && window.navigator.xr.isSessionSupported) {
       window.navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+        console.log('ar supported', supported);
         setIsARSupported(supported);
       });
+      window.navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+        console.log('vr supported', supported);
+        setIsVRSupported(supported);
+      });
     }
+
   }, []);
+
 
   function toggleTTSMute() {
     updateConfig('tts_muted', config('tts_muted') === 'true' ? 'false' : 'true')
@@ -148,14 +169,14 @@ export default function Home() {
     toggleState(setShowChatMode, [setShowChatLog, setShowSubconciousText]);
   };
 
-  const toggleAR = async () => {
-    console.log('Toggle AR');
+  const toggleXR = async (immersiveType: XRSessionMode) => {
+    console.log('Toggle XR', immersiveType);
 
     if (! window.navigator.xr) {
       console.error("WebXR not supported");
       return;
     }
-    if (! await window.navigator.xr.isSessionSupported('immersive-ar')) {
+    if (! await window.navigator.xr.isSessionSupported(immersiveType)) {
       console.error("Session not supported");
       return;
     }
@@ -165,8 +186,13 @@ export default function Home() {
       return;
     }
 
+    let optionalFeatures: string[] = [];
+    if (immersiveType === 'immersive-ar') {
+      optionalFeatures = ['dom-overlay'];
+    }
+
     const sessionInit = {
-      optionalFeatures: ['dom-overlay'],
+      optionalFeatures,
       domOverlay: { root: document.body },
     };
 
@@ -181,7 +207,7 @@ export default function Home() {
       // @ts-ignore
       if (window.navigator.xr.offerSession !== undefined) {
         // @ts-ignore
-        const session = await navigator.xr?.offerSession('immersive-ar', sessionInit);
+        const session = await navigator.xr?.offerSession(immersiveType, sessionInit);
         viewer.onSessionStarted(session);
       }
       return;
@@ -190,12 +216,12 @@ export default function Home() {
     // @ts-ignore
     if (window.navigator.xr.offerSession !== undefined ) {
       // @ts-ignore
-      const session = await navigator.xr?.offerSession('immersive-ar', sessionInit);
+      const session = await navigator.xr?.offerSession(immersiveType, sessionInit);
       viewer.onSessionStarted(session);
     }
 
     try {
-      const session = await window.navigator.xr.requestSession('immersive-ar', sessionInit);
+      const session = await window.navigator.xr.requestSession(immersiveType, sessionInit);
 
       viewer.onSessionStarted(session);
     } catch (err) {
@@ -346,8 +372,15 @@ export default function Home() {
             <MenuButton
               icon={CubeTransparentIcon}
               disabled={!isARSupported}
-              onClick={() => toggleAR()}
+              onClick={() => toggleXR('immersive-ar')}
               label="Augmented Reality"
+            />
+
+            <MenuButton
+              icon={CubeIcon}
+              disabled={!isVRSupported}
+              onClick={() => toggleXR('immersive-vr')}
+              label="Virtual Reality"
             />
 
             <MenuButton
