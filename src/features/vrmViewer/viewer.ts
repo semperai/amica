@@ -151,6 +151,7 @@ export class Viewer {
     this._renderer.setSize(width, height);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._renderer.xr.enabled = true;
+    this._renderer.xr.setFoveation(0);
     this._renderer.localClippingEnabled = true
     this._renderer.setTransparentSort(reversePainterSortStable)
 
