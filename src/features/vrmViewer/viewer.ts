@@ -2,6 +2,9 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory';
 import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
+import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh.js';
+import { InteractiveGroup } from 'three/examples/jsm/interactive/InteractiveGroup.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 import {
   reversePainterSortStable,
   Container,
@@ -27,6 +30,9 @@ export class Viewer {
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
   private _uiroot?: Root;
+  private _stats?: Stats;
+  private _statsMesh?: THREE.Mesh;
+
 
   private _raycaster?: THREE.Raycaster;
   private _mouse?: THREE.Vector2;
@@ -316,8 +322,35 @@ export class Viewer {
       this.controller2.add(line.clone());
 
     } catch (e) {
-      console.log("No controller available");
+      console.log("No controller available", e);
     }
+
+    const igroup = new InteractiveGroup();
+    igroup.listenToPointerEvents(this._renderer, this._camera);
+    // @ts-ignore
+    igroup.listenToXRControllerEvents(this.controller1);
+    // @ts-ignore
+    igroup.listenToXRControllerEvents(this.controller2);
+    this._scene.add(igroup);
+
+
+    // stats
+    this._stats = new Stats();
+    this._stats.dom.style.width = '80px';
+    this._stats.dom.style.height = '48px';
+    this._stats.dom.style.position = 'absolute';
+    this._stats.dom.style.top = '0px';
+    this._stats.dom.style.left = window.innerWidth - 80 + 'px';
+    document.body.appendChild(this._stats.dom);
+
+    this._statsMesh = new HTMLMesh(this._stats.dom);
+    this._statsMesh.position.x = -0.5;
+    this._statsMesh.position.y = 1.5;
+    this._statsMesh.position.z = -0.6;
+    this._statsMesh.rotation.y = Math.PI / 4;
+    this._statsMesh.scale.setScalar( 2.5 );
+    igroup.add(this._statsMesh);
+
 
     window.addEventListener("resize", () => {
       this.resize();
@@ -426,6 +459,13 @@ export class Viewer {
         this._uiroot.update(delta);
       }
       this._renderer.render(this._scene, this._camera);
+      if (this._stats) {
+        this._stats.update();
+      }
+      if (this._statsMesh) {
+        // @ts-ignore
+        this._statsMesh.material.map.update();
+      }
       if (this.sendScreenshotToCallback && this.screenshotCallback) {
         this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
         this.sendScreenshotToCallback = false;
