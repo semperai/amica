@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory';
+import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
 import {
   reversePainterSortStable,
   Container,
@@ -36,7 +38,13 @@ export class Viewer {
   public currentSession: XRSession | null = null;
   private cachedCameraPosition: THREE.Vector3 | null = null;
   private cachedCameraRotation: THREE.Euler | null = null;
-  private controller: any | null = null;
+  private hand1: THREE.Group | null = null;
+  private hand2: THREE.Group | null = null;
+  private controller1: THREE.Group | null = null;
+  private controller2: THREE.Group | null = null;
+  private controllerGrip1: THREE.Group | null = null;
+  private controllerGrip2: THREE.Group | null = null;
+  private handModels: { left: THREE.Object3D[], right: THREE.Object3D[] } = { left: [], right: [] };
 
   constructor() {
     this.isReady = false;
@@ -150,10 +158,11 @@ export class Viewer {
     });
     this._renderer.setSize(width, height);
     this._renderer.setPixelRatio(window.devicePixelRatio);
+    this._renderer.setTransparentSort(reversePainterSortStable)
+    this._renderer.localClippingEnabled = true
+    this._renderer.shadowMap.enabled = true;
     this._renderer.xr.enabled = true;
     this._renderer.xr.setFoveation(0);
-    this._renderer.localClippingEnabled = true
-    this._renderer.setTransparentSort(reversePainterSortStable)
 
     // camera
     this._camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
@@ -220,13 +229,92 @@ export class Viewer {
 
     // check if controller is available
     try {
-      this.controller = this._renderer.xr.getController(0);
-      this.controller.addEventListener("select", (event: any) => {
-        this.onSelect(event);
-      });
-      this._scene.add(this.controller);
+      this.controller1 = this._renderer.xr.getController(0);
+      this._scene.add(this.controller1);
+      this.controller2 = this._renderer.xr.getController(1);
+      this._scene.add(this.controller2);
 
-      console.log('controller', this.controller);
+      console.log('controller1', this.controller1);
+      console.log('controller2', this.controller2);
+
+      const controllerModelFactory = new XRControllerModelFactory();
+      const handModelFactory = new XRHandModelFactory();
+
+      this.controllerGrip1 = this._renderer.xr.getControllerGrip(0);
+      this.controllerGrip1.add(controllerModelFactory.createControllerModel(this.controllerGrip1));
+      this._scene.add(this.controllerGrip1);
+
+      this.controllerGrip2 = this._renderer.xr.getControllerGrip(1);
+      this.controllerGrip2.add(controllerModelFactory.createControllerModel(this.controllerGrip2));
+      this._scene.add(this.controllerGrip2);
+
+      this.hand1 = this._renderer.xr.getHand(0);
+      this.hand1.userData.currentHandModel = 0;
+      this._scene.add(this.hand1);
+
+      this.hand2 = this._renderer.xr.getHand(1);
+      this.hand2.userData.currentHandModel = 0;
+      this._scene.add(this.hand2);
+
+      this.handModels.left = [
+        handModelFactory.createHandModel(this.hand1, 'boxes'),
+        handModelFactory.createHandModel(this.hand1, 'spheres'),
+        handModelFactory.createHandModel(this.hand1, 'mesh')
+      ];
+
+      this.handModels.right = [
+        handModelFactory.createHandModel(this.hand2, 'boxes'),
+        handModelFactory.createHandModel(this.hand2, 'spheres'),
+        handModelFactory.createHandModel(this.hand2, 'mesh')
+      ];
+
+      for (let i=0; i<3; ++i) {
+        {
+          const model = this.handModels.left[i];
+          model.visible = i == 0;
+          this.hand1.add(model);
+        }
+
+        {
+          const model = this.handModels.right[i];
+          model.visible = i == 0;
+          this.hand2.add(model);
+        }
+      }
+
+      // TODO fix the ts-ignore
+      const that = this;
+      // @ts-ignore
+      this.hand1.addEventListener('pinchend', function () {
+        // @ts-ignore
+        that.handModels.left[this.userData.currentHandModel].visible = false;
+        // @ts-ignore
+        this.userData.currentHandModel = (this.userData.currentHandModel + 1) % 3;
+        // @ts-ignore
+        that.handModels.left[this.userData.currentHandModel].visible = true;
+      });
+      // @ts-ignore
+      this.hand2.addEventListener('pinchend', function () {
+        // @ts-ignore
+        that.handModels.right[this.userData.currentHandModel].visible = false;
+        // @ts-ignore
+        this.userData.currentHandModel = (this.userData.currentHandModel + 1) % 3;
+        // @ts-ignore
+        that.handModels.right[this.userData.currentHandModel].visible = true;
+      });
+
+      const geometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, 0, -1)
+      ]);
+
+      const line = new THREE.Line(geometry);
+      line.name = 'line';
+      line.scale.z = 5;
+
+      this.controller1.add(line.clone());
+      this.controller2.add(line.clone());
+
     } catch (e) {
       console.log("No controller available");
     }

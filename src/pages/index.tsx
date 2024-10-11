@@ -186,9 +186,10 @@ export default function Home() {
       return;
     }
 
-    let optionalFeatures: string[] = [];
+    // TODO should hand tracking be required?
+    let optionalFeatures: string[] = ['hand-tracking'];
     if (immersiveType === 'immersive-ar') {
-      optionalFeatures = ['dom-overlay'];
+      optionalFeatures.push('dom-overlay');
     }
 
     const sessionInit = {
