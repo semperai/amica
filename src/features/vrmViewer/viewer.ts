@@ -11,6 +11,7 @@ import {
   Root,
 } from '@pmndrs/uikit'
 import { Model } from "./model";
+import { Room } from "./room";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { config } from "@/utils/config";
@@ -23,6 +24,7 @@ import { config } from "@/utils/config";
 export class Viewer {
   public isReady: boolean;
   public model?: Model;
+  public room?: Room;
 
   private _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
@@ -33,9 +35,6 @@ export class Viewer {
   private _stats?: Stats;
   private _statsMesh?: THREE.Mesh;
 
-
-  private _raycaster?: THREE.Raycaster;
-  private _mouse?: THREE.Vector2;
 
   private sendScreenshotToCallback: boolean;
   private screenshotCallback: BlobCallback | undefined;
@@ -149,6 +148,16 @@ export class Viewer {
     }
   }
 
+  public loadRoom(url: string) {
+    this.room = new Room();
+    return this.room.loadRoom(url).then(async () => {
+      if (!this.room?.room) return;
+
+      this.room.room.position.set(0, -0.3, 0);
+      this._scene.add(this.room.room);
+    });
+  }
+
   /**
    * Reactで管理しているCanvasを後から設定する
    */
@@ -204,6 +213,7 @@ export class Viewer {
     this._scene.add(this._uiroot);
 
 
+    /*
     const c1 = new Container({
       flexGrow: 1,
       backgroundOpacity: 0.5,
@@ -227,11 +237,8 @@ export class Viewer {
       point: new THREE.Vector3(),
       pointerId: -1,
     });
+    */
 
-
-    // raycaster and mouse
-    this._raycaster = new THREE.Raycaster();
-    this._mouse = new THREE.Vector2();
 
     // check if controller is available
     try {
@@ -472,27 +479,6 @@ export class Viewer {
 
       }
     }
-  }
-
-  public onMouseClick(event: MouseEvent): boolean {
-    if (!this._renderer || !this._camera || !this.model?.vrm) return false;
-
-    const rect = this._renderer.domElement.getBoundingClientRect();
-
-    // calculate mouse position in normalized device coordinates
-    this._mouse!.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    this._mouse!.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    // update the picking ray with the camera and mouse position
-    this._raycaster!.setFromCamera(this._mouse!, this._camera);
-
-    // calculate objects intersecting the picking ray
-    const intersects = this._raycaster!.intersectObject(this.model.vrm.scene, true);
-
-    if (intersects.length > 0) {
-      return true;
-    }
-    return false;
   }
 
   public getScreenshotBlob = (callback: BlobCallback) => {

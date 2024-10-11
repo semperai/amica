@@ -6,7 +6,6 @@ import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlug
 import { LipSync } from "@/features/lipSync/lipSync";
 import { EmoteController } from "@/features/emoteController/emoteController";
 import { Screenplay } from "@/features/chat/messages";
-import { Viewer } from "@/features/vrmViewer/viewer";
 import { config } from "@/utils/config";
 
 /**
