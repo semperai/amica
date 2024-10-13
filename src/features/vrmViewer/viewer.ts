@@ -469,23 +469,32 @@ export class Viewer {
   }
 
   public doublePinchHandler() {
-    if (! this.igroup) {
+    if (! this.igroup || ! this._renderer || !this.controller1 || !this.controller2) {
       return;
     }
 
-    if (! this._renderer) {
-      return;
-    }
+    const cam = this._renderer.xr.getCamera();
 
-    const camera = this._renderer.xr.getCamera();
+    const avgControllerPos = new THREE.Vector3()
+      .addVectors(this.controller1.position, this.controller2.position)
+      .multiplyScalar(0.5);
 
-    // Position the menu in front of the user
-    const distance = 1; // Adjust this value to set how far in front the menu appears
-    const menuPosition = new THREE.Vector3(0, 0, -distance).applyMatrix4(camera.matrixWorld);
-    this.igroup.position.copy(menuPosition);
+    const directionToControllers = new THREE.Vector3()
+      .subVectors(avgControllerPos, cam.position)
+      .normalize();
 
-    // Make the menu face the user
-    this.igroup.quaternion.copy(camera.quaternion);
+    const controller1Distance = cam.position.distanceTo(this.controller1.position);
+    const controller2Distance = cam.position.distanceTo(this.controller2.position);
+    const avgControllerDistance = (controller1Distance + controller2Distance) / 2;
+
+    const distanceScale = 1;
+    const d = 0.7 + (avgControllerDistance * distanceScale);
+
+    const pos = new THREE.Vector3()
+      .addVectors(cam.position, directionToControllers.multiplyScalar(d));
+
+    this.igroup.position.copy(pos);
+    this.igroup.lookAt(cam.position);
   }
 
   /**
