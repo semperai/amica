@@ -157,6 +157,19 @@ export class Viewer {
       this._scene.add(this.room.room);
     });
   }
+  public loadSplat(url: string) {
+    if (! this.room) {
+      this.room = new Room();
+    }
+    return this.room.loadSplat(url).then(async () => {
+      console.log('splat loaded', this.room?.splat);
+      if (!this.room?.splat) return;
+
+      this.room.splat.position.set(0, 4, 0);
+      this.room.splat.rotation.set(0, 0, Math.PI);
+      this._scene.add(this.room.splat);
+    });
+  }
 
   /**
    * Reactで管理しているCanvasを後から設定する
@@ -473,6 +486,11 @@ export class Viewer {
         // @ts-ignore
         this._statsMesh.material.map.update();
       }
+      if (this.room?.splat) {
+        // this.room.splat.update(this._renderer, this._camera);
+        // this.room.splat.render();
+      }
+
       if (this.sendScreenshotToCallback && this.screenshotCallback) {
         this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
         this.sendScreenshotToCallback = false;
