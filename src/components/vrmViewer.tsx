@@ -36,7 +36,8 @@ export default function VrmViewer({chatMode}:{chatMode: boolean}) {
               resolve(false);
             } else {
               await viewer.loadVrm(buildUrl(currentVrm.url));
-              await viewer.loadRoom(buildUrl('/room/myroom.glb'));
+              // await viewer.loadRoom(buildUrl('/room/myroom.glb'));
+              await viewer.loadRoom(buildUrl('/room/bathroom.glb'));
               // await viewer.loadSplat(buildUrl('/splats/garden.ksplat'));
               // await viewer.loadSplat(buildUrl('/splats/bonsai_trimmed.ksplat'));
               resolve(true);

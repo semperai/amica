@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory';
 import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
 import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh.js';
+import GUI from 'lil-gui';
 import { InteractiveGroup } from 'three/examples/jsm/interactive/InteractiveGroup.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import {
@@ -49,7 +50,16 @@ export class Viewer {
   private controller2: THREE.Group | null = null;
   private controllerGrip1: THREE.Group | null = null;
   private controllerGrip2: THREE.Group | null = null;
+  private isPinching1 = false;
+  private isPinching2 = false;
+  private currentHandModel: number = 0;
   private handModels: { left: THREE.Object3D[], right: THREE.Object3D[] } = { left: [], right: [] };
+  private igroup: InteractiveGroup | null = null;
+
+  private gparams = {
+    'y-offset': 0,
+    'hands': 0,
+  };
 
   constructor() {
     this.isReady = false;
@@ -81,20 +91,23 @@ export class Viewer {
     if (! this._renderer) {
       return;
     }
+    console.log('session', session);
 
     const canvas = this.getCanvas();
-    canvas!.style.display = "none";
+    // TODO this needs to be set to none to prevent double render breaking the compositing
+    // except on desktop using emulator, then it should not be changed
+    // canvas!.style.display = "none";
 
     this.cachedCameraPosition = this._camera?.position.clone() as THREE.Vector3;
     this.cachedCameraRotation = this._camera?.rotation.clone() as THREE.Euler;
 
     this._renderer.xr.setReferenceSpaceType('local');
     await this._renderer.xr.setSession(session);
-    this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
+    // this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
+    this.teleport(0, -1.2, 0);
 
     this.currentSession = session;
     this.currentSession.addEventListener('end', this.onSessionEnded);
-    this.currentSession.addEventListener('select', this.onSelect);
   }
 
   public onSessionEnded(/*event*/) {
@@ -115,6 +128,28 @@ export class Viewer {
     requestAnimationFrame(() => {
       this.resetCamera();
     });
+  }
+
+  public teleport(x: number, y: number, z: number) {
+    if (!this._renderer) {
+      return;
+    }
+    if (!this._renderer.xr) {
+      return;
+    }
+    if (!this._renderer.xr.isPresenting) {
+      return;
+    }
+    const baseReferenceSpace = this._renderer.xr.getReferenceSpace();
+    if (baseReferenceSpace) {
+      const offsetPosition = { x, y, z, w: 1, };
+      const offsetRotation = new THREE.Quaternion();
+      // offsetRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+      const transform = new XRRigidTransform(offsetPosition, offsetRotation);
+      const teleportSpaceOffset = baseReferenceSpace.getOffsetReferenceSpace(transform);
+
+      this._renderer.xr.setReferenceSpace(teleportSpaceOffset);
+    }
   }
 
   public loadVrm(url: string) {
@@ -153,7 +188,7 @@ export class Viewer {
     return this.room.loadRoom(url).then(async () => {
       if (!this.room?.room) return;
 
-      this.room.room.position.set(0, -0.3, 0);
+      this.room.room.position.set(0, 1.2, 0);
       this._scene.add(this.room.room);
     });
   }
@@ -194,8 +229,8 @@ export class Viewer {
 
     // camera
     this._camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
-    this._camera.position.set(0, 1.3, 1.5);
-    this._cameraControls?.target.set(0, 1.3, 0);
+    this._camera.position.set(0, -3, -3.5);
+    this._cameraControls?.target.set(0, 4.3, 0);
     this._cameraControls?.update();
     // camera controls
     this._cameraControls = new OrbitControls(
@@ -206,7 +241,7 @@ export class Viewer {
     this._cameraControls.screenSpacePanning = true;
 
     this._cameraControls.minDistance = 0.5;
-    this._cameraControls.maxDistance = 4;
+    this._cameraControls.maxDistance = 8;
 
     this._cameraControls.update();
 
@@ -275,11 +310,9 @@ export class Viewer {
       this._scene.add(this.controllerGrip2);
 
       this.hand1 = this._renderer.xr.getHand(0);
-      this.hand1.userData.currentHandModel = 0;
       this._scene.add(this.hand1);
 
       this.hand2 = this._renderer.xr.getHand(1);
-      this.hand2.userData.currentHandModel = 0;
       this._scene.add(this.hand2);
 
       this.handModels.left = [
@@ -297,36 +330,33 @@ export class Viewer {
       for (let i=0; i<3; ++i) {
         {
           const model = this.handModels.left[i];
-          model.visible = i == 0;
+          model.visible = i == this.currentHandModel;
           this.hand1.add(model);
         }
 
         {
           const model = this.handModels.right[i];
-          model.visible = i == 0;
+          model.visible = i == this.currentHandModel;
           this.hand2.add(model);
         }
       }
 
-      // TODO fix the ts-ignore
-      const that = this;
       // @ts-ignore
-      this.hand1.addEventListener('pinchend', function () {
-        // @ts-ignore
-        that.handModels.left[this.userData.currentHandModel].visible = false;
-        // @ts-ignore
-        this.userData.currentHandModel = (this.userData.currentHandModel + 1) % 3;
-        // @ts-ignore
-        that.handModels.left[this.userData.currentHandModel].visible = true;
+      this.hand1.addEventListener('pinchstart', () => {
+        this.isPinching1 = true;
       });
       // @ts-ignore
-      this.hand2.addEventListener('pinchend', function () {
-        // @ts-ignore
-        that.handModels.right[this.userData.currentHandModel].visible = false;
-        // @ts-ignore
-        this.userData.currentHandModel = (this.userData.currentHandModel + 1) % 3;
-        // @ts-ignore
-        that.handModels.right[this.userData.currentHandModel].visible = true;
+      this.hand2.addEventListener('pinchstart', () => {
+        this.isPinching2 = true;
+      });
+
+      // @ts-ignore
+      this.hand1.addEventListener('pinchend', () => {
+        this.isPinching1 = false;
+      });
+      // @ts-ignore
+      this.hand2.addEventListener('pinchend', () => {
+        this.isPinching2 = false;
       });
 
       const geometry = new THREE.BufferGeometry().setFromPoints([
@@ -345,13 +375,49 @@ export class Viewer {
       console.log("No controller available", e);
     }
 
-    const igroup = new InteractiveGroup();
+    this.igroup = new InteractiveGroup();
+    const igroup = this.igroup;
     igroup.listenToPointerEvents(this._renderer, this._camera);
     // @ts-ignore
     igroup.listenToXRControllerEvents(this.controller1);
     // @ts-ignore
     igroup.listenToXRControllerEvents(this.controller2);
+    igroup.position.set(-0.25, 1.3, -0.8);
+    igroup.rotation.set(0, Math.PI / 8, 0);
     this._scene.add(igroup);
+
+    // gui
+    const gui = new GUI();
+    let updateDebounceId: ReturnType<typeof setTimeout>|null = null;
+    gui.add(this.gparams, 'y-offset', -0.2, 0.2).onChange((value: number) => {
+      if (updateDebounceId) {
+        clearTimeout(updateDebounceId);
+      }
+
+      updateDebounceId = setTimeout(() => {
+        this.teleport(0, value, 0);
+        this.gparams['y-offset'] = 0;
+      }, 1000);
+    });
+
+    gui.add(this.gparams, 'hands', 0, 2, 1).onChange((value: number) => {
+      this.handModels.left[this.currentHandModel].visible = false;
+      this.handModels.right[this.currentHandModel].visible = false;
+
+      this.currentHandModel = value;
+
+      this.handModels.left[this.currentHandModel].visible = true;
+      this.handModels.right[this.currentHandModel].visible = true;
+    });
+
+    gui.domElement.style.visibility = 'hidden';
+
+    const guiMesh = new HTMLMesh(gui.domElement);
+    guiMesh.position.x = 0;
+    guiMesh.position.y = 0;
+    guiMesh.position.z = 0;
+    guiMesh.scale.setScalar(2);
+    igroup.add(guiMesh);
 
 
     // stats
@@ -364,12 +430,12 @@ export class Viewer {
     document.body.appendChild(this._stats.dom);
 
     this._statsMesh = new HTMLMesh(this._stats.dom);
-    this._statsMesh.position.x = -0.5;
-    this._statsMesh.position.y = 1.5;
-    this._statsMesh.position.z = -0.6;
-    this._statsMesh.rotation.y = Math.PI / 4;
-    this._statsMesh.scale.setScalar( 2.5 );
+    this._statsMesh.position.x = 0;
+    this._statsMesh.position.y = 0.25;
+    this._statsMesh.position.z = 0;
+    this._statsMesh.scale.setScalar(2.5);
     igroup.add(this._statsMesh);
+
 
 
     window.addEventListener("resize", () => {
@@ -390,6 +456,26 @@ export class Viewer {
     console.log('onSelect', event.inputSource.gripSpace);
     console.log('onSelect', event.inputSource.targetRayMode);
     console.log('onSelect', event.inputSource.targetRaySpace);
+  }
+
+  public doublePinchHandler() {
+    if (! this.igroup) {
+      return;
+    }
+
+    if (! this._renderer) {
+      return;
+    }
+
+    const camera = this._renderer.xr.getCamera();
+
+    // Position the menu in front of the user
+    const distance = 1; // Adjust this value to set how far in front the menu appears
+    const menuPosition = new THREE.Vector3(0, 0, -distance).applyMatrix4(camera.matrixWorld);
+    this.igroup.position.copy(menuPosition);
+
+    // Make the menu face the user
+    this.igroup.quaternion.copy(camera.quaternion);
   }
 
   /**
@@ -489,6 +575,10 @@ export class Viewer {
       if (this.room?.splat) {
         // this.room.splat.update(this._renderer, this._camera);
         // this.room.splat.render();
+      }
+
+      if (this.isPinching1 && this.isPinching2) {
+        this.doublePinchHandler();
       }
 
       if (this.sendScreenshotToCallback && this.screenshotCallback) {

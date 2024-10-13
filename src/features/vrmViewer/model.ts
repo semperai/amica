@@ -66,8 +66,6 @@ export class Model {
 
     this.emoteController = new EmoteController(vrm, this._lookAtTargetParent);
 
-    // TODO this causes helperRoot to be rendered to side
-    VRMUtils.rotateVRM0(vrm);
   }
 
   public unLoadVrm() {
