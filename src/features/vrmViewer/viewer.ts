@@ -1,4 +1,13 @@
 import * as THREE from "three";
+import {
+  computeBoundsTree,
+  disposeBoundsTree,
+  computeBatchedBoundsTree,
+  disposeBatchedBoundsTree,
+  acceleratedRaycast,
+  MeshBVHHelper,
+  StaticGeometryGenerator,
+} from 'three-mesh-bvh';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory';
 import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
@@ -16,6 +25,16 @@ import { Room } from "./room";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { config } from "@/utils/config";
+
+// Add the extension functions
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+THREE.BatchedMesh.prototype.computeBoundsTree = computeBatchedBoundsTree;
+THREE.BatchedMesh.prototype.disposeBoundsTree = disposeBatchedBoundsTree;
+THREE.BatchedMesh.prototype.raycast = acceleratedRaycast;
+
 
 /**
  * three.jsを使った3Dビューワー
@@ -52,6 +71,8 @@ export class Viewer {
   private controllerGrip2: THREE.Group | null = null;
   private isPinching1 = false;
   private isPinching2 = false;
+  private raycaster1 = new THREE.Raycaster();
+  private raycaster2 = new THREE.Raycaster();
   private currentHandModel: number = 0;
   private handModels: { left: THREE.Object3D[], right: THREE.Object3D[] } = { left: [], right: [] };
   private igroup: InteractiveGroup | null = null;
@@ -65,6 +86,9 @@ export class Viewer {
     this.isReady = false;
     this.sendScreenshotToCallback = false;
     this.screenshotCallback = undefined;
+
+    this.raycaster1.firstHitOnly = true;
+    this.raycaster2.firstHitOnly = true;
 
     // scene
     const scene = new THREE.Scene();
@@ -172,6 +196,27 @@ export class Viewer {
     return this.model.loadVRM(url).then(async () => {
       if (!this.model?.vrm) return;
 
+      // build bvh
+      const meshes = [];
+
+      for (const child of this.model.vrm.scene.children) {
+        if (child instanceof THREE.Object3D) {
+          for (const gchild of child.children) {
+            if (gchild instanceof THREE.Mesh) {
+              meshes.push(gchild);
+            }
+          }
+        }
+      }
+
+      console.log('meshes', meshes);
+      const generator = new StaticGeometryGenerator(meshes);
+      generator.generate();
+      for (const mesh of meshes) {
+        const helper = new MeshBVHHelper(mesh);
+        helper.color.set(0xE91E63);
+        this._scene.add(helper);
+      }
       this._scene.add(this.model.vrm.scene);
 
       const animation = config("animation_url").indexOf("vrma") > 0
@@ -197,6 +242,18 @@ export class Viewer {
     this.room = new Room();
     return this.room.loadRoom(url).then(async () => {
       if (!this.room?.room) return;
+
+      // build bvh
+      this.room.room.children.forEach((child) => {
+        if (child instanceof THREE.Mesh) {
+          const geometry = child.geometry;
+          geometry.computeBoundsTree();
+
+          const helper = new MeshBVHHelper(child);
+          helper.color.set(0xE91E63);
+          this._scene.add(helper);
+        }
+      });
 
       this.room.room.position.set(0, 1.2, 0);
       this._scene.add(this.room.room);
@@ -571,6 +628,72 @@ export class Viewer {
     // this._cameraControls?.update();
   }
 
+  public createBallAtPoint(point: THREE.Vector3) {
+    const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+    const ballGeometry = new THREE.SphereGeometry(0.02, 32, 32);
+    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+    ball.position.copy(point);
+    this._scene.add(ball);
+
+    // Optional: Remove the ball after a short delay
+    setTimeout(() => {
+      this._scene.remove(ball);
+    }, 1000);
+
+  }
+
+  public updateRaycasts() {
+    if (! this.controller1 || ! this.controller2 || ! this.model || ! this.room) {
+      return;
+    }
+
+    const tempMatrix = new THREE.Matrix4();
+
+    tempMatrix.identity().extractRotation(this.controller1.matrixWorld);
+    this.raycaster1.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
+    this.raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
+    // Update raycaster for controller2
+    tempMatrix.identity().extractRotation(this.controller2.matrixWorld);
+    this.raycaster2.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
+    this.raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
+    // Perform raycasts
+    const targets: THREE.Mesh[] = [];
+    /*
+    if (this.model.vrm) {
+      // targets.push(...this.model.vrm.scene.children);
+      this.model.vrm.scene.children.forEach((child) => {
+        if (child instanceof THREE.Object3D) {
+          for (const gchild of child.children) {
+            if (gchild instanceof THREE.Mesh) {
+              targets.push(gchild);
+            }
+          }
+        }
+      });
+    }
+    */
+    if (this.room.room) {
+      for (const child of this.room.room.children) {
+        if (child instanceof THREE.Mesh) {
+          targets.push(child);
+        }
+      }
+    }
+    const intersects1 = this.raycaster1.intersectObjects(targets, true);
+    const intersects2 = this.raycaster2.intersectObjects(targets, true);
+
+    if (intersects1.length > 0) {
+      this.createBallAtPoint(intersects1[0].point);
+    }
+
+    if (intersects2.length > 0) {
+      this.createBallAtPoint(intersects2[0].point);
+    }
+  }
+
   public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {
     const delta = this._clock.getDelta();
     // update vrm components
@@ -599,6 +722,8 @@ export class Viewer {
       if (this.isPinching1 && this.isPinching2) {
         this.doublePinchHandler();
       }
+
+      this.updateRaycasts();
 
       if (this.sendScreenshotToCallback && this.screenshotCallback) {
         this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
