@@ -83,6 +83,7 @@ export class Viewer {
   private generator: StaticGeometryGenerator | null = null;
   private meshHelper: THREE.Mesh | null = null;
   private bvhHelper: MeshBVHHelper | null = null;
+  private raycastTargets: THREE.Mesh[] = [];
 
   constructor() {
     this.isReady = false;
@@ -211,16 +212,15 @@ export class Viewer {
       this.bvhHelper = new MeshBVHHelper(this.meshHelper);
       this._scene.add(this.bvhHelper);
 
-      this._scene.add(this.model.vrm.scene);
-
       this.regenerateBVH();
+      this.buildRaycastTargets();
+
+      this._scene.add(this.model.vrm.scene);
 
       const animation = config("animation_url").indexOf("vrma") > 0
         ? await loadVRMAnimation(config("animation_url"))
         : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
       if (animation) this.model.loadAnimation(animation);
-
-      this.regenerateBVH();
 
       // HACK: Adjust the camera position after playback because the origin of the animation is offset
       requestAnimationFrame(() => {
@@ -282,6 +282,7 @@ export class Viewer {
       });
 
       this.room.room.position.set(0, 1.2, 0);
+      this.buildRaycastTargets();
       this._scene.add(this.room.room);
     });
   }
@@ -669,6 +670,32 @@ export class Viewer {
 
   }
 
+  public buildRaycastTargets() {
+    const targets: THREE.Mesh[] = [];
+
+    if (this.model && this.model.vrm) {
+      this.model.vrm.scene.children.forEach((child) => {
+        if (child instanceof THREE.Object3D) {
+          for (const gchild of child.children) {
+            if (gchild instanceof THREE.Mesh) {
+              targets.push(gchild);
+            }
+          }
+        }
+      });
+    }
+
+    if (this.room && this.room.room) {
+      for (const child of this.room.room.children) {
+        if (child instanceof THREE.Mesh) {
+          targets.push(child);
+        }
+      }
+    }
+
+    this.raycastTargets = targets;
+  }
+
   public updateRaycasts() {
     if (! this.controller1 || ! this.controller2 || ! this.model || ! this.room) {
       return;
@@ -692,30 +719,8 @@ export class Viewer {
     raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
     // Perform raycasts
-    const targets: THREE.Mesh[] = [];
-    /*
-    if (this.model.vrm) {
-      // targets.push(...this.model.vrm.scene.children);
-      this.model.vrm.scene.children.forEach((child) => {
-        if (child instanceof THREE.Object3D) {
-          for (const gchild of child.children) {
-            if (gchild instanceof THREE.Mesh) {
-              targets.push(gchild);
-            }
-          }
-        }
-      });
-    }
-    */
-    if (this.room.room) {
-      for (const child of this.room.room.children) {
-        if (child instanceof THREE.Mesh) {
-          targets.push(child);
-        }
-      }
-    }
-    const intersects1 = raycaster1.intersectObjects(targets, true);
-    const intersects2 = raycaster2.intersectObjects(targets, true);
+    const intersects1 = raycaster1.intersectObjects(this.raycastTargets, true);
+    const intersects2 = raycaster2.intersectObjects(this.raycastTargets, true);
 
     if (intersects1.length > 0) {
       this.createBallAtPoint(intersects1[0].point);
@@ -755,8 +760,8 @@ export class Viewer {
         this.doublePinchHandler();
       }
 
-      this.updateRaycasts();
       this.regenerateBVH();
+      this.updateRaycasts();
 
       if (this.sendScreenshotToCallback && this.screenshotCallback) {
         this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
