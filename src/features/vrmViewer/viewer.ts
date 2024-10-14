@@ -540,20 +540,6 @@ export class Viewer {
 
       this.controller1.add(line.clone());
       this.controller2.add(line.clone());
-
-      const fingerTips = [
-        'thumb-tip',
-        'index-finger-tip',
-        'middle-finger-tip',
-        'ring-finger-tip',
-        'pinky-finger-tip'
-      ];
-      fingerTips.forEach((name, index) => {
-        const joint = this.hand1?.getObjectByName(name);
-        console.log('joint found', joint);
-      });
-
-
     } catch (e) {
       console.log("No controller available", e);
     }
@@ -868,21 +854,16 @@ export class Viewer {
       checkIntersection();
     }
 
-    if (this.controller1) {
-      raycasterTempM.identity().extractRotation(this.controller1.matrixWorld);
-      raycaster.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
+    const handleController = (controller: THREE.Group) => {
+      raycasterTempM.identity().extractRotation(controller.matrixWorld);
+      raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
       raycaster.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
 
       checkIntersection();
     }
 
-    if (this.controller2) {
-      raycasterTempM.identity().extractRotation(this.controller2.matrixWorld);
-      raycaster.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
-      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
-
-      checkIntersection();
-    }
+    if (this.controller1) handleController(this.controller1);
+    if (this.controller2) handleController(this.controller2);
   }
 
   public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {

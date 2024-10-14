@@ -15,7 +15,7 @@ class XRHandMeshModel {
     }
 
     loader.load(`${handedness}.glb`, gltf => {
-      const object = gltf.scene.children[ 0 ];
+      const object = gltf.scene.children[0];
       this.handModel.add(object);
 
       const mesh = object.getObjectByProperty('type', 'SkinnedMesh');
@@ -71,11 +71,11 @@ class XRHandMeshModel {
     // XR Joints
     const XRJoints = this.controller.joints;
 
-    for (let i = 0; i < this.bones.length; i ++) {
-      const bone = this.bones[ i ];
+    for (let i=0; i < this.bones.length; i++) {
+      const bone = this.bones[i];
 
       if (bone) {
-        const XRJoint = XRJoints[ bone.jointName ];
+        const XRJoint = XRJoints[bone.jointName];
 
         if (XRJoint.visible) {
           const position = XRJoint.position;

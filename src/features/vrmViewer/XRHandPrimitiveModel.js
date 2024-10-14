@@ -70,15 +70,15 @@ class XRHandPrimitiveModel {
 
     let count = 0;
 
-    for (let i = 0; i < this.joints.length; i ++) {
-      const joint = joints[ this.joints[ i ] ];
+    for (let i = 0; i < this.joints.length; i++) {
+      const joint = joints[this.joints[i]];
 
       if (joint.visible) {
         _vector.setScalar(joint.jointRadius || defaultRadius);
         _matrix.compose(joint.position, joint.quaternion, _vector);
         this.handMesh.setMatrixAt(i, _matrix);
 
-        count ++;
+        count++;
       }
     }
 
