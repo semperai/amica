@@ -80,6 +80,10 @@ export class Viewer {
     'hands': 0,
   };
 
+  private generator: StaticGeometryGenerator | null = null;
+  private meshHelper: THREE.Mesh | null = null;
+  private bvhHelper: MeshBVHHelper | null = null;
+
   constructor() {
     this.isReady = false;
     this.sendScreenshotToCallback = false;
@@ -192,38 +196,65 @@ export class Viewer {
       if (!this.model?.vrm) return;
 
       // build bvh
-      const meshes = [];
+      this.generator = new StaticGeometryGenerator(this.model.vrm.scene);
 
-      for (const child of this.model.vrm.scene.children) {
-        if (child instanceof THREE.Object3D) {
-          for (const gchild of child.children) {
-            if (gchild instanceof THREE.Mesh) {
-              meshes.push(gchild);
-            }
-          }
-        }
-      }
+      // TODO show during debug mode
+      const wireframeMaterial = new THREE.MeshBasicMaterial( {
+        wireframe:   true,
+        transparent: true,
+        opacity:     0.05,
+        depthWrite:  false,
+      });
+      this.meshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
+      this._scene.add(this.meshHelper);
 
-      console.log('meshes', meshes);
-      const generator = new StaticGeometryGenerator(meshes);
-      generator.generate();
-      for (const mesh of meshes) {
-        const helper = new MeshBVHHelper(mesh);
-        helper.color.set(0xE91E63);
-        this._scene.add(helper);
-      }
+      this.bvhHelper = new MeshBVHHelper(this.meshHelper);
+      this._scene.add(this.bvhHelper);
+
       this._scene.add(this.model.vrm.scene);
+
+      this.regenerateBVH();
 
       const animation = config("animation_url").indexOf("vrma") > 0
         ? await loadVRMAnimation(config("animation_url"))
         : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
       if (animation) this.model.loadAnimation(animation);
 
+      this.regenerateBVH();
+
       // HACK: Adjust the camera position after playback because the origin of the animation is offset
       requestAnimationFrame(() => {
         this.resetCamera();
       });
     });
+  }
+
+  public regenerateBVH() {
+    if (! this.meshHelper || ! this.generator || ! this.bvhHelper) {
+      return;
+    }
+
+    // time geometry generation
+    let startTime = window.performance.now();
+    this.generator.generate(this.meshHelper.geometry);
+    const generateTime = window.performance.now() - startTime;
+
+    // time bvh refitting
+    startTime = window.performance.now();
+    let refitTime = 0;
+    if (! this.meshHelper.geometry.boundsTree) {
+      this.meshHelper.geometry.computeBoundsTree();
+    } else {
+      this.meshHelper.geometry.boundsTree.refit();
+      refitTime = window.performance.now() - startTime;
+    }
+
+    // time bvh update
+    startTime = window.performance.now();
+    this.bvhHelper.update();
+    const updateTime = window.performance.now() - startTime;
+
+    console.log(`BVH generation: ${generateTime.toFixed(2)}ms, refit: ${refitTime.toFixed(2)}ms, update: ${updateTime.toFixed(2)}ms`);
   }
 
   public unloadVRM(): void {
@@ -725,6 +756,7 @@ export class Viewer {
       }
 
       this.updateRaycasts();
+      this.regenerateBVH();
 
       if (this.sendScreenshotToCallback && this.screenshotCallback) {
         this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");

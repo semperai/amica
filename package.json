@@ -51,6 +51,7 @@
     "react-i18next": "^15.0.2",
     "react-webcam": "^7.2.0",
     "three": "^0.169.0",
+    "three-mesh-bvh": "^0.8.2",
     "typescript-collections": "^1.3.3",
     "wavefile": "^11.0.0",
     "webm-duration-fix": "^1.0.4",
