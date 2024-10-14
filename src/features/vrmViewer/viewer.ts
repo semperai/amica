@@ -220,7 +220,7 @@ export class Viewer {
       this.bvhHelper = new MeshBVHHelper(this.meshHelper);
       this._scene.add(this.bvhHelper);
 
-      this.regenerateBVH();
+      this.regenerateBVHForModel();
       this.buildRaycastTargets();
 
       this._scene.add(this.model.vrm.scene);
@@ -237,7 +237,7 @@ export class Viewer {
     });
   }
 
-  public regenerateBVH() {
+  public regenerateBVHForModel() {
     if (! this.meshHelper || ! this.generator || ! this.bvhHelper) {
       return;
     }
@@ -543,7 +543,6 @@ export class Viewer {
     });
 
     canvas.addEventListener("mousemove", (event) => {
-      console.log('mousemove', event);
       this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     });
@@ -667,14 +666,46 @@ export class Viewer {
     // this._cameraControls?.update();
   }
 
+  public hslToRgb(h: number, s: number, l: number) {
+    let r, g, b;
+
+    if (s == 0) {
+      r = g = b = l; // achromatic
+    } else {
+      function hue2rgb(p: number, q: number, t: number) {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      }
+
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      var p = 2 * l - q;
+
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return parseInt(`0x`+[r * 255, g * 255, b * 255 ].map(Math.floor).map(v => v.toString(16).padStart(2, '0')).join(''));
+  }
+
   public createBallAtPoint(point: THREE.Vector3) {
+    const distance = point.distanceTo(this._camera?.position as THREE.Vector3);
+    const s = 5;
+    const h = (distance * s) - Math.floor(distance * s);
+    console.log(h);
+    const color = this.hslToRgb(h, 1, 0.5);
+
     const ballMaterial = new THREE.MeshBasicMaterial({
-      color: 0xFF0000,
+      color,
       transparent: true,
       opacity: 0.5,
     });
 
-    const ballGeometry = new THREE.SphereGeometry(0.002, 16, 16);
+    const ballGeometry = new THREE.SphereGeometry(0.005, 16, 16);
     const ball = new THREE.Mesh(ballGeometry, ballMaterial);
     ball.position.copy(point);
     this._scene.add(ball);
@@ -713,7 +744,6 @@ export class Viewer {
     const raycasterTempM = new THREE.Matrix4();
 
     if (! this.usingController1 && ! this.usingController2) {
-      console.log('mouse', this.mouse);
       // apply mouse position
       const mouse = this.mouse;
       raycaster.setFromCamera(mouse, this._camera);
@@ -782,7 +812,7 @@ export class Viewer {
       }
 
       let time = performance.now();
-      this.regenerateBVH();
+      this.regenerateBVHForModel();
       this.gparams['bvh_ms'] = performance.now() - time;
       time = performance.now();
       this.updateRaycasts();
