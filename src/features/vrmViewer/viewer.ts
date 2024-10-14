@@ -220,7 +220,6 @@ export class Viewer {
       this.bvhHelper = new MeshBVHHelper(this.meshHelper);
       this._scene.add(this.bvhHelper);
 
-      this.regenerateBVHForModel();
       this.buildRaycastTargets();
 
       this._scene.add(this.model.vrm.scene);
@@ -229,6 +228,9 @@ export class Viewer {
         ? await loadVRMAnimation(config("animation_url"))
         : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
       if (animation) this.model.loadAnimation(animation);
+      this.model.update(0.0001);
+
+      this.regenerateBVHForModel();
 
       // HACK: Adjust the camera position after playback because the origin of the animation is offset
       requestAnimationFrame(() => {
