@@ -84,9 +84,13 @@ export class Viewer {
   private gparams = {
     'y-offset': 0,
     'hands': 0,
-    'bvh_ms': 0,
-    'raycast_ms': 0,
   };
+  private updateMsPanel: any = null;
+  private renderMsPanel: any = null;
+  private modelMsPanel: any = null;
+  private bvhMsPanel: any = null;
+  private raycastMsPanel: any = null;
+  private statsMsPanel: any = null;
 
   private modelBVHGenerator: StaticGeometryGenerator | null = null;
   private modelMeshHelper: THREE.Mesh | null = null;
@@ -581,8 +585,6 @@ export class Viewer {
       this.handModels.left[this.currentHandModel].visible = true;
       this.handModels.right[this.currentHandModel].visible = true;
     });
-    gui.add(this.gparams, 'bvh_ms').listen();
-    gui.add(this.gparams, 'raycast_ms').listen();
 
     // gui.domElement.style.visibility = 'hidden';
 
@@ -601,6 +603,15 @@ export class Viewer {
     this._stats.dom.style.position = 'absolute';
     this._stats.dom.style.top = '0px';
     this._stats.dom.style.left = window.innerWidth - 80 + 'px';
+
+    this.updateMsPanel  = this._stats.addPanel(new Stats.Panel('update_ms', '#fff', '#221'));
+    this.renderMsPanel  = this._stats.addPanel(new Stats.Panel('render_ms', '#ff8', '#221'));
+    this.modelMsPanel   = this._stats.addPanel(new Stats.Panel('model_ms', '#f8f', '#212'));
+    this.bvhMsPanel     = this._stats.addPanel(new Stats.Panel('bvh_ms', '#8ff', '#122'));
+    this.raycastMsPanel = this._stats.addPanel(new Stats.Panel('raycast_ms', '#f8f', '#212'));
+    this.statsMsPanel   = this._stats.addPanel(new Stats.Panel('stats_ms', '#8f8', '#212'));
+
+
     document.body.appendChild(this._stats.dom);
 
     this._statsMesh = new HTMLMesh(this._stats.dom);
@@ -871,17 +882,28 @@ export class Viewer {
 
   public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {
     const delta = this._clock.getDelta();
-    // update vrm components
+
+    let utime = performance.now();
+
+    let ptime = performance.now();
     if (this.model) {
       this.model.update(delta);
     }
+    this.modelMsPanel.update(performance.now() - ptime, 40);
 
     if (this._renderer && this._camera) {
 
+      /*
       if (this._uiroot) {
         this._uiroot.update(delta);
       }
+      */
+
+      ptime = performance.now();
       this._renderer.render(this._scene, this._camera);
+      this.renderMsPanel.update(performance.now() - ptime, 100);
+
+      ptime = performance.now();
       if (this._stats) {
         this._stats.update();
       }
@@ -889,6 +911,9 @@ export class Viewer {
         // @ts-ignore
         this._statsMesh.material.map.update();
       }
+      this.statsMsPanel.update(performance.now() - ptime, 100);
+
+
       if (this.room?.splat) {
         // this.room.splat.update(this._renderer, this._camera);
         // this.room.splat.render();
@@ -898,14 +923,15 @@ export class Viewer {
         this.doublePinchHandler();
       }
 
-      let time = performance.now();
       // TODO run this in a web worker
       // ideally parallel version
+      ptime = performance.now();
       // this.regenerateBVHForModel();
-      this.gparams['bvh_ms'] = performance.now() - time;
-      time = performance.now();
+      this.bvhMsPanel.update(performance.now() - ptime, 100);
+
+      ptime = performance.now();
       this.updateRaycasts();
-      this.gparams['raycast_ms'] = performance.now() - time;
+      this.raycastMsPanel.update(performance.now() - ptime, 100);
 
       if (this.sendScreenshotToCallback && this.screenshotCallback) {
         this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
@@ -913,6 +939,8 @@ export class Viewer {
 
       }
     }
+
+    this.updateMsPanel.update(performance.now() - utime, 40);
   }
 
   public getScreenshotBlob = (callback: BlobCallback) => {
