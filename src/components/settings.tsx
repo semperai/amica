@@ -27,6 +27,7 @@ import { Link } from "./settings/common";
 import { MenuPage } from './settings/MenuPage';
 import { LanguagePage } from './settings/LanguagePage';
 import { ResetSettingsPage } from './settings/ResetSettingsPage';
+import { DeveloperPage } from './settings/DeveloperPage';
 import { CommunityPage } from './settings/CommunityPage';
 
 import { BackgroundImgPage } from './settings/BackgroundImgPage';
@@ -139,6 +140,8 @@ export const Settings = ({
 
   const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
+
+  const [debugGfx, setDebugGfx] = useState<boolean>(config("debug_gfx") === 'true' ? true : false);
 
   const vrmFileInputRef = useRef<HTMLInputElement>(null);
   const handleClickOpenVrmFile = useCallback(() => {
@@ -290,7 +293,7 @@ export const Settings = ({
     switch(page) {
     case 'main_menu':
       return <MenuPage
-        keys={["appearance", "amica_life", "chatbot", "language", "tts", "stt", "vision", "reset_settings", "community"]}
+        keys={["appearance", "amica_life", "chatbot", "language", "tts", "stt", "vision", "developer", "reset_settings", "community"]}
         menuClick={handleMenuClick} />;
 
     case 'appearance':
@@ -325,6 +328,13 @@ export const Settings = ({
 
     case 'reset_settings':
       return <ResetSettingsPage />;
+
+    case 'developer':
+      return <DeveloperPage
+        debugGfx={debugGfx}
+        setDebugGfx={setDebugGfx}
+        setSettingsUpdated={setSettingsUpdated}
+      />;
 
     case 'community':
       return <CommunityPage />

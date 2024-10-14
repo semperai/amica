@@ -778,6 +778,7 @@ export class Viewer {
 
   // itype: 0 = amica, 1 = room
   public createBallAtPoint(point: THREE.Vector3, itype: number = 0) {
+    return;
     const distance = point.distanceTo(this._camera?.position as THREE.Vector3);
     const s = 5;
     const h = (distance * s) - Math.floor(distance * s);
