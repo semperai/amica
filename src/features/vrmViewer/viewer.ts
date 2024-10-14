@@ -88,9 +88,7 @@ export class Viewer {
   private modelBVHGenerator: StaticGeometryGenerator | null = null;
   private modelMeshHelper: THREE.Mesh | null = null;
   private modelBVHHelper: MeshBVHHelper | null = null;
-  private roomBVHGenerator: StaticGeometryGenerator | null = null;
-  private roomMeshHelper: THREE.Mesh | null = null;
-  private roomBVHHelper: MeshBVHHelper | null = null;
+  private roomBVHHelperGroup: THREE.Group = new THREE.Group();
 
   private mouse = new THREE.Vector2();
 
@@ -121,6 +119,8 @@ export class Viewer {
     floor.rotation.x = Math.PI / 2;
     floor.visible = false;
     scene.add(floor);
+
+    scene.add(this.roomBVHHelperGroup);
 
     // animate
     this._clock = new THREE.Clock();
@@ -222,10 +222,14 @@ export class Viewer {
         depthWrite:  false,
       });
       this.modelMeshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
-      this._scene.add(this.modelMeshHelper);
+      if (config("debug_gfx") === "true") {
+        this._scene.add(this.modelMeshHelper);
+      }
 
       this.modelBVHHelper = new MeshBVHHelper(this.modelMeshHelper);
-      this._scene.add(this.modelBVHHelper);
+      if (config("debug_gfx") === "true") {
+        this._scene.add(this.modelBVHHelper);
+      }
 
       this._scene.add(this.model.vrm.scene);
 
@@ -262,22 +266,6 @@ export class Viewer {
     this.modelBVHHelper.update();
   }
 
-  public regenerateBVHForRoom() {
-    if (! this.roomMeshHelper || ! this.roomBVHGenerator || ! this.roomBVHHelper) {
-      return;
-    }
-
-    this.roomBVHGenerator.generate(this.roomMeshHelper.geometry);
-
-    if (! this.roomMeshHelper.geometry.boundsTree) {
-      this.roomMeshHelper.geometry.computeBoundsTree();
-    } else {
-      this.roomMeshHelper.geometry.boundsTree.refit();
-    }
-
-    this.roomBVHHelper.update();
-  }
-
   public unloadVRM(): void {
     if (this.model?.vrm) {
       this._scene.remove(this.model.vrm.scene);
@@ -310,24 +298,20 @@ export class Viewer {
       this._scene.add(this.room.room);
 
       // build bvh
-      this.roomBVHGenerator = new StaticGeometryGenerator(this.room.room);
+      this.room.room.children.forEach((child) => {
+        if (child instanceof THREE.Mesh) {
+          const geometry = child.geometry;
+          geometry.computeBoundsTree();
 
-      // TODO show during debug mode
-      const wireframeMaterial = new THREE.MeshBasicMaterial( {
-        wireframe:   true,
-        transparent: true,
-        opacity:     0.05,
-        depthWrite:  false,
+          if (config("debug_gfx") === "true") {
+            const helper = new MeshBVHHelper(child);
+            helper.color.set(0xE91E63);
+            this.roomBVHHelperGroup.add(helper);
+          }
+        }
       });
-      this.roomMeshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
-      this.roomMeshHelper.position.set(0, roomYOffset, 0);
-      this._scene.add(this.roomMeshHelper);
 
-      this.roomBVHHelper = new MeshBVHHelper(this.roomMeshHelper);
-      this.roomBVHHelper.color.set(0xE91E63);
-      this._scene.add(this.roomBVHHelper);
-
-      this.regenerateBVHForRoom();
+      this._scene.add(this.roomBVHHelperGroup);
     });
   }
 
@@ -335,15 +319,21 @@ export class Viewer {
     if (this.room?.room) {
       this._scene.remove(this.room.room);
       // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
-      {
-        const geometry = this.roomMeshHelper?.geometry;
-        geometry?.dispose();
-        for (const key in geometry?.attributes) {
-          geometry?.deleteAttribute(key);
+      for (const item of this.roomBVHHelperGroup.children) {
+        if (item instanceof MeshBVHHelper) {
+          try {
+            // @ts-ignore
+            const geometry = item.geometry;
+            geometry?.dispose();
+            for (const key in geometry?.attributes) {
+              geometry?.deleteAttribute(key);
+            }
+          } catch (e) {
+            console.error('error disposing room geometry', e);
+          }
         }
-        this._scene.remove(this.roomMeshHelper as THREE.Object3D);
-        this._scene.remove(this.roomBVHHelper as THREE.Object3D);
       }
+      this._scene.remove(this.roomBVHHelperGroup);
     }
   }
 
