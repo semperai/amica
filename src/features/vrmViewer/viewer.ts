@@ -6,6 +6,8 @@ import {
   disposeBatchedBoundsTree,
   acceleratedRaycast,
   MeshBVHHelper,
+  CENTER,
+  SAH,
   StaticGeometryGenerator,
 } from 'three-mesh-bvh';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -78,12 +80,17 @@ export class Viewer {
   private gparams = {
     'y-offset': 0,
     'hands': 0,
+    'bvh_ms': 0,
+    'raycast_ms': 0,
   };
 
   private generator: StaticGeometryGenerator | null = null;
   private meshHelper: THREE.Mesh | null = null;
   private bvhHelper: MeshBVHHelper | null = null;
   private raycastTargets: THREE.Mesh[] = [];
+  private raycaster1 = new THREE.Raycaster();
+  private raycaster2 = new THREE.Raycaster();
+  private raycasterTempM = new THREE.Matrix4();
 
   constructor() {
     this.isReady = false;
@@ -234,27 +241,15 @@ export class Viewer {
       return;
     }
 
-    // time geometry generation
-    let startTime = window.performance.now();
     this.generator.generate(this.meshHelper.geometry);
-    const generateTime = window.performance.now() - startTime;
 
-    // time bvh refitting
-    startTime = window.performance.now();
-    let refitTime = 0;
     if (! this.meshHelper.geometry.boundsTree) {
       this.meshHelper.geometry.computeBoundsTree();
     } else {
       this.meshHelper.geometry.boundsTree.refit();
-      refitTime = window.performance.now() - startTime;
     }
 
-    // time bvh update
-    startTime = window.performance.now();
     this.bvhHelper.update();
-    const updateTime = window.performance.now() - startTime;
-
-    console.log(`BVH generation: ${generateTime.toFixed(2)}ms, refit: ${refitTime.toFixed(2)}ms, update: ${updateTime.toFixed(2)}ms`);
   }
 
   public unloadVRM(): void {
@@ -503,8 +498,10 @@ export class Viewer {
       this.handModels.left[this.currentHandModel].visible = true;
       this.handModels.right[this.currentHandModel].visible = true;
     });
+    gui.add(this.gparams, 'bvh_ms').listen();
+    gui.add(this.gparams, 'raycast_ms').listen();
 
-    gui.domElement.style.visibility = 'hidden';
+    // gui.domElement.style.visibility = 'hidden';
 
     const guiMesh = new HTMLMesh(gui.domElement);
     guiMesh.position.x = 0;
@@ -530,6 +527,9 @@ export class Viewer {
     this._statsMesh.scale.setScalar(2.5);
     igroup.add(this._statsMesh);
 
+
+    this.raycaster1.firstHitOnly = true;
+    this.raycaster2.firstHitOnly = true;
 
 
     window.addEventListener("resize", () => {
@@ -673,16 +673,8 @@ export class Viewer {
   public buildRaycastTargets() {
     const targets: THREE.Mesh[] = [];
 
-    if (this.model && this.model.vrm) {
-      this.model.vrm.scene.children.forEach((child) => {
-        if (child instanceof THREE.Object3D) {
-          for (const gchild of child.children) {
-            if (gchild instanceof THREE.Mesh) {
-              targets.push(gchild);
-            }
-          }
-        }
-      });
+    if (this.meshHelper) {
+      targets.push(this.meshHelper);
     }
 
     if (this.room && this.room.room) {
@@ -701,26 +693,20 @@ export class Viewer {
       return;
     }
 
-    const raycaster1 = new THREE.Raycaster();
-    const raycaster2 = new THREE.Raycaster();
-    const raycasterTempM = new THREE.Matrix4();
-
-    raycaster1.firstHitOnly = true;
-    raycaster2.firstHitOnly = true;
 
 
-    raycasterTempM.identity().extractRotation(this.controller1.matrixWorld);
-    raycaster1.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
-    raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
+    this.raycasterTempM.identity().extractRotation(this.controller1.matrixWorld);
+    this.raycaster1.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
+    this.raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(this.raycasterTempM);
 
     // Update raycaster for controller2
-    raycasterTempM.identity().extractRotation(this.controller2.matrixWorld);
-    raycaster2.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
-    raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
+    this.raycasterTempM.identity().extractRotation(this.controller2.matrixWorld);
+    this.raycaster2.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
+    this.raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(this.raycasterTempM);
 
     // Perform raycasts
-    const intersects1 = raycaster1.intersectObjects(this.raycastTargets, true);
-    const intersects2 = raycaster2.intersectObjects(this.raycastTargets, true);
+    const intersects1 = this.raycaster1.intersectObjects(this.raycastTargets, true);
+    const intersects2 = this.raycaster2.intersectObjects(this.raycastTargets, true);
 
     if (intersects1.length > 0) {
       this.createBallAtPoint(intersects1[0].point);
@@ -760,8 +746,12 @@ export class Viewer {
         this.doublePinchHandler();
       }
 
+      let time = performance.now();
       this.regenerateBVH();
+      this.gparams['bvh_ms'] = performance.now() - time;
+      time = performance.now();
       this.updateRaycasts();
+      this.gparams['raycast_ms'] = performance.now() - time;
 
       if (this.sendScreenshotToCallback && this.screenshotCallback) {
         this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
