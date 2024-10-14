@@ -161,10 +161,14 @@ export class Viewer {
     }
 
     this.currentSession = session;
-    this.currentSession.addEventListener('end', this.onSessionEnded);
+    this.currentSession.addEventListener('end', () => this.onSessionEnded());
   }
 
   public onSessionEnded(/*event*/) {
+    if (! this) {
+      console.error('onSessionEnded called without this');
+      return;
+    }
     if (! this.currentSession) {
       return;
     }
@@ -196,6 +200,7 @@ export class Viewer {
     if (!this._renderer.xr.isPresenting) {
       return;
     }
+
     const baseReferenceSpace = this._renderer.xr.getReferenceSpace();
     if (baseReferenceSpace) {
       const offsetPosition = { x, y, z, w: 1, };
@@ -351,7 +356,7 @@ export class Viewer {
       this.room = new Room();
     }
     return this.room.loadSplat(url).then(async () => {
-      console.log('splat loaded', this.room?.splat);
+      console.log('splat loaded');
       if (!this.room?.splat) return;
 
       this.room.splat.position.set(0, 4, 0);
@@ -364,6 +369,7 @@ export class Viewer {
    * Reactで管理しているCanvasを後から設定する
    */
   public setup(canvas: HTMLCanvasElement) {
+    console.log('setup canvas');
     const parentElement = canvas.parentElement;
     const width = parentElement?.clientWidth || canvas.width;
     const height = parentElement?.clientHeight || canvas.height;
@@ -372,12 +378,13 @@ export class Viewer {
       canvas: canvas,
       alpha: true,
       antialias: true,
+      powerPreference: 'high-performance',
     });
     this._renderer.setSize(width, height);
     this._renderer.setPixelRatio(window.devicePixelRatio);
-    this._renderer.setTransparentSort(reversePainterSortStable)
-    this._renderer.localClippingEnabled = true
-    this._renderer.shadowMap.enabled = true;
+    // this._renderer.setTransparentSort(reversePainterSortStable)
+    // this._renderer.localClippingEnabled = true
+    // this._renderer.shadowMap.enabled = true;
     this._renderer.xr.enabled = true;
     this._renderer.xr.setFoveation(0);
 
@@ -778,7 +785,6 @@ export class Viewer {
 
   // itype: 0 = amica, 1 = room
   public createBallAtPoint(point: THREE.Vector3, itype: number = 0) {
-    return;
     const distance = point.distanceTo(this._camera?.position as THREE.Vector3);
     const s = 5;
     const h = (distance * s) - Math.floor(distance * s);
@@ -794,8 +800,6 @@ export class Viewer {
 
     const ballMaterial = new THREE.MeshBasicMaterial({
       color,
-      transparent: true,
-      opacity: 0.5,
     });
 
     const ballGeometry = new THREE.SphereGeometry(0.005, 16, 16);
