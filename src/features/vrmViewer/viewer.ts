@@ -85,9 +85,12 @@ export class Viewer {
     'raycast_ms': 0,
   };
 
-  private generator: StaticGeometryGenerator | null = null;
-  private meshHelper: THREE.Mesh | null = null;
-  private bvhHelper: MeshBVHHelper | null = null;
+  private modelBVHGenerator: StaticGeometryGenerator | null = null;
+  private modelMeshHelper: THREE.Mesh | null = null;
+  private modelBVHHelper: MeshBVHHelper | null = null;
+  private roomBVHGenerator: StaticGeometryGenerator | null = null;
+  private roomMeshHelper: THREE.Mesh | null = null;
+  private roomBVHHelper: MeshBVHHelper | null = null;
 
   private mouse = new THREE.Vector2();
 
@@ -209,7 +212,7 @@ export class Viewer {
       if (!this.model?.vrm) return;
 
       // build bvh
-      this.generator = new StaticGeometryGenerator(this.model.vrm.scene);
+      this.modelBVHGenerator = new StaticGeometryGenerator(this.model.vrm.scene);
 
       // TODO show during debug mode
       const wireframeMaterial = new THREE.MeshBasicMaterial( {
@@ -218,19 +221,21 @@ export class Viewer {
         opacity:     0.05,
         depthWrite:  false,
       });
-      this.meshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
-      this._scene.add(this.meshHelper);
+      this.modelMeshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
+      this._scene.add(this.modelMeshHelper);
 
-      this.bvhHelper = new MeshBVHHelper(this.meshHelper);
-      this._scene.add(this.bvhHelper);
+      this.modelBVHHelper = new MeshBVHHelper(this.modelMeshHelper);
+      this._scene.add(this.modelBVHHelper);
 
       this._scene.add(this.model.vrm.scene);
 
       const animation = config("animation_url").indexOf("vrma") > 0
         ? await loadVRMAnimation(config("animation_url"))
         : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
-      if (animation) this.model.loadAnimation(animation);
-      this.model.update(0.0001);
+      if (animation) {
+        await this.model.loadAnimation(animation);
+        this.model.update(0);
+      }
 
       this.regenerateBVHForModel();
 
@@ -242,51 +247,108 @@ export class Viewer {
   }
 
   public regenerateBVHForModel() {
-    if (! this.meshHelper || ! this.generator || ! this.bvhHelper) {
+    if (! this.modelMeshHelper || ! this.modelBVHGenerator || ! this.modelBVHHelper) {
       return;
     }
 
-    this.generator.generate(this.meshHelper.geometry);
+    this.modelBVHGenerator.generate(this.modelMeshHelper.geometry);
 
-    if (! this.meshHelper.geometry.boundsTree) {
-      this.meshHelper.geometry.computeBoundsTree();
+    if (! this.modelMeshHelper.geometry.boundsTree) {
+      this.modelMeshHelper.geometry.computeBoundsTree();
     } else {
-      this.meshHelper.geometry.boundsTree.refit();
+      this.modelMeshHelper.geometry.boundsTree.refit();
     }
 
-    this.bvhHelper.update();
+    this.modelBVHHelper.update();
+  }
+
+  public regenerateBVHForRoom() {
+    if (! this.roomMeshHelper || ! this.roomBVHGenerator || ! this.roomBVHHelper) {
+      return;
+    }
+
+    this.roomBVHGenerator.generate(this.roomMeshHelper.geometry);
+
+    if (! this.roomMeshHelper.geometry.boundsTree) {
+      this.roomMeshHelper.geometry.computeBoundsTree();
+    } else {
+      this.roomMeshHelper.geometry.boundsTree.refit();
+    }
+
+    this.roomBVHHelper.update();
   }
 
   public unloadVRM(): void {
     if (this.model?.vrm) {
       this._scene.remove(this.model.vrm.scene);
-      this._scene.remove(this.meshHelper as THREE.Object3D);
-      this._scene.remove(this.bvhHelper as THREE.Object3D);
+      // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
+      {
+        const geometry = this.modelMeshHelper?.geometry;
+        geometry?.dispose();
+        for (const key in geometry?.attributes) {
+          geometry?.deleteAttribute(key);
+        }
+        this._scene.remove(this.modelMeshHelper as THREE.Object3D);
+        this._scene.remove(this.modelBVHHelper as THREE.Object3D);
+      }
       this.model?.unLoadVrm();
     }
   }
 
   public loadRoom(url: string) {
+    if (this.room?.room) {
+      this.unloadRoom();
+    }
+
     this.room = new Room();
     return this.room.loadRoom(url).then(async () => {
       if (!this.room?.room) return;
 
-      // build bvh
-      this.room.room.children.forEach((child) => {
-        if (child instanceof THREE.Mesh) {
-          const geometry = child.geometry;
-          geometry.computeBoundsTree();
+      const roomYOffset = 1.2;
 
-          const helper = new MeshBVHHelper(child);
-          helper.color.set(0xE91E63);
-          this._scene.add(helper);
-        }
-      });
-
-      this.room.room.position.set(0, 1.2, 0);
+      this.room.room.position.set(0, roomYOffset, 0);
       this._scene.add(this.room.room);
+
+      // build bvh
+      this.roomBVHGenerator = new StaticGeometryGenerator(this.room.room);
+
+      // TODO show during debug mode
+      const wireframeMaterial = new THREE.MeshBasicMaterial( {
+        wireframe:   true,
+        transparent: true,
+        opacity:     0.05,
+        depthWrite:  false,
+      });
+      this.roomMeshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
+      this.roomMeshHelper.position.set(0, roomYOffset, 0);
+      this._scene.add(this.roomMeshHelper);
+
+      this.roomBVHHelper = new MeshBVHHelper(this.roomMeshHelper);
+      this.roomBVHHelper.color.set(0xE91E63);
+      this._scene.add(this.roomBVHHelper);
+
+      this.regenerateBVHForRoom();
     });
   }
+
+  public unloadRoom(): void {
+    if (this.room?.room) {
+      this._scene.remove(this.room.room);
+      // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
+      {
+        const geometry = this.roomMeshHelper?.geometry;
+        geometry?.dispose();
+        for (const key in geometry?.attributes) {
+          geometry?.deleteAttribute(key);
+        }
+        this._scene.remove(this.roomMeshHelper as THREE.Object3D);
+        this._scene.remove(this.roomBVHHelper as THREE.Object3D);
+      }
+    }
+  }
+
+  // probably too slow to use
+  // but fun experiment. maybe some use somewhere for tiny splats ?
   public loadSplat(url: string) {
     if (! this.room) {
       this.room = new Room();
@@ -750,8 +812,8 @@ export class Viewer {
     const modelTargets: THREE.Mesh[] = [];
     const roomTargets: THREE.Mesh[] = [];
 
-    if (this.meshHelper) {
-      modelTargets.push(this.meshHelper);
+    if (this.modelMeshHelper) {
+      modelTargets.push(this.modelMeshHelper);
     }
 
     if (this.room && this.room.room) {
@@ -767,8 +829,16 @@ export class Viewer {
     const raycasterTempM = new THREE.Matrix4();
 
     const checkIntersection = () => {
-      const intersectsModel = raycaster.intersectObjects(modelTargets, true);
-      const intersectsRoom = raycaster.intersectObjects(roomTargets, true);
+      let intersectsModel = [];
+      let intersectsRoom = [];
+      try {
+        intersectsModel = raycaster.intersectObjects(modelTargets, true);
+        intersectsRoom = raycaster.intersectObjects(roomTargets, true);
+      } catch (e) {
+        // if the models get removed from scene during raycast then this will throw an error
+        console.error('intersectObjects error', e);
+        return;
+      }
 
       // check which object is closer
       if (intersectsModel.length > 0 && intersectsRoom.length > 0) {
