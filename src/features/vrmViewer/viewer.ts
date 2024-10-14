@@ -703,20 +703,20 @@ export class Viewer {
 
     const raycaster1 = new THREE.Raycaster();
     const raycaster2 = new THREE.Raycaster();
+    const raycasterTempM = new THREE.Matrix4();
 
     raycaster1.firstHitOnly = true;
     raycaster2.firstHitOnly = true;
 
-    const tempMatrix = new THREE.Matrix4();
 
-    tempMatrix.identity().extractRotation(this.controller1.matrixWorld);
+    raycasterTempM.identity().extractRotation(this.controller1.matrixWorld);
     raycaster1.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
-    raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+    raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
 
     // Update raycaster for controller2
-    tempMatrix.identity().extractRotation(this.controller2.matrixWorld);
+    raycasterTempM.identity().extractRotation(this.controller2.matrixWorld);
     raycaster2.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
-    raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+    raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
 
     // Perform raycasts
     const intersects1 = raycaster1.intersectObjects(this.raycastTargets, true);
