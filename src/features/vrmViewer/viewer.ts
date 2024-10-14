@@ -71,8 +71,6 @@ export class Viewer {
   private controllerGrip2: THREE.Group | null = null;
   private isPinching1 = false;
   private isPinching2 = false;
-  private raycaster1 = new THREE.Raycaster();
-  private raycaster2 = new THREE.Raycaster();
   private currentHandModel: number = 0;
   private handModels: { left: THREE.Object3D[], right: THREE.Object3D[] } = { left: [], right: [] };
   private igroup: InteractiveGroup | null = null;
@@ -86,9 +84,6 @@ export class Viewer {
     this.isReady = false;
     this.sendScreenshotToCallback = false;
     this.screenshotCallback = undefined;
-
-    this.raycaster1.firstHitOnly = true;
-    this.raycaster2.firstHitOnly = true;
 
     // scene
     const scene = new THREE.Scene();
@@ -648,16 +643,22 @@ export class Viewer {
       return;
     }
 
+    const raycaster1 = new THREE.Raycaster();
+    const raycaster2 = new THREE.Raycaster();
+
+    raycaster1.firstHitOnly = true;
+    raycaster2.firstHitOnly = true;
+
     const tempMatrix = new THREE.Matrix4();
 
     tempMatrix.identity().extractRotation(this.controller1.matrixWorld);
-    this.raycaster1.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
-    this.raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+    raycaster1.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
+    raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
     // Update raycaster for controller2
     tempMatrix.identity().extractRotation(this.controller2.matrixWorld);
-    this.raycaster2.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
-    this.raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+    raycaster2.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
+    raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
     // Perform raycasts
     const targets: THREE.Mesh[] = [];
@@ -682,8 +683,8 @@ export class Viewer {
         }
       }
     }
-    const intersects1 = this.raycaster1.intersectObjects(targets, true);
-    const intersects2 = this.raycaster2.intersectObjects(targets, true);
+    const intersects1 = raycaster1.intersectObjects(targets, true);
+    const intersects2 = raycaster2.intersectObjects(targets, true);
 
     if (intersects1.length > 0) {
       this.createBallAtPoint(intersects1[0].point);
