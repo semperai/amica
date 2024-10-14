@@ -69,6 +69,8 @@ export class Viewer {
   private hand2: THREE.Group | null = null;
   private controller1: THREE.Group | null = null;
   private controller2: THREE.Group | null = null;
+  private usingController1 = false;
+  private usingController2 = false;
   private controllerGrip1: THREE.Group | null = null;
   private controllerGrip2: THREE.Group | null = null;
   private isPinching1 = false;
@@ -88,9 +90,8 @@ export class Viewer {
   private meshHelper: THREE.Mesh | null = null;
   private bvhHelper: MeshBVHHelper | null = null;
   private raycastTargets: THREE.Mesh[] = [];
-  private raycaster1 = new THREE.Raycaster();
-  private raycaster2 = new THREE.Raycaster();
-  private raycasterTempM = new THREE.Matrix4();
+
+  private mouse = new THREE.Vector2();
 
   constructor() {
     this.isReady = false;
@@ -384,6 +385,15 @@ export class Viewer {
       this.controller2 = this._renderer.xr.getController(1);
       this._scene.add(this.controller2);
 
+      // @ts-ignore
+      this.controller1.addEventListener('connected', (event) => {
+        this.usingController1 = true;
+      });
+      // @ts-ignore
+      this.controller2.addEventListener('connected', (event) => {
+        this.usingController2 = true;
+      });
+
       console.log('controller1', this.controller1);
       console.log('controller2', this.controller2);
 
@@ -528,12 +538,14 @@ export class Viewer {
     igroup.add(this._statsMesh);
 
 
-    this.raycaster1.firstHitOnly = true;
-    this.raycaster2.firstHitOnly = true;
-
-
     window.addEventListener("resize", () => {
       this.resize();
+    });
+
+    canvas.addEventListener("mousemove", (event) => {
+      console.log('mousemove', event);
+      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     });
 
     this.isReady = true;
@@ -656,17 +668,20 @@ export class Viewer {
   }
 
   public createBallAtPoint(point: THREE.Vector3) {
-    const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const ballMaterial = new THREE.MeshBasicMaterial({
+      color: 0xFF0000,
+      transparent: true,
+      opacity: 0.5,
+    });
 
-    const ballGeometry = new THREE.SphereGeometry(0.02, 32, 32);
+    const ballGeometry = new THREE.SphereGeometry(0.002, 16, 16);
     const ball = new THREE.Mesh(ballGeometry, ballMaterial);
     ball.position.copy(point);
     this._scene.add(ball);
 
-    // Optional: Remove the ball after a short delay
     setTimeout(() => {
       this._scene.remove(ball);
-    }, 1000);
+    }, 10000);
 
   }
 
@@ -689,31 +704,51 @@ export class Viewer {
   }
 
   public updateRaycasts() {
-    if (! this.controller1 || ! this.controller2 || ! this.model || ! this.room) {
+    if (! this._camera || ! this.model || ! this.room) {
       return;
     }
 
+    const raycaster = new THREE.Raycaster();
+    raycaster.firstHitOnly = true;
+    const raycasterTempM = new THREE.Matrix4();
 
+    if (! this.usingController1 && ! this.usingController2) {
+      console.log('mouse', this.mouse);
+      // apply mouse position
+      const mouse = this.mouse;
+      raycaster.setFromCamera(mouse, this._camera);
 
-    this.raycasterTempM.identity().extractRotation(this.controller1.matrixWorld);
-    this.raycaster1.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
-    this.raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(this.raycasterTempM);
+      const intersects = raycaster.intersectObjects(this.raycastTargets, true);
 
-    // Update raycaster for controller2
-    this.raycasterTempM.identity().extractRotation(this.controller2.matrixWorld);
-    this.raycaster2.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
-    this.raycaster2.ray.direction.set(0, 0, -1).applyMatrix4(this.raycasterTempM);
-
-    // Perform raycasts
-    const intersects1 = this.raycaster1.intersectObjects(this.raycastTargets, true);
-    const intersects2 = this.raycaster2.intersectObjects(this.raycastTargets, true);
-
-    if (intersects1.length > 0) {
-      this.createBallAtPoint(intersects1[0].point);
+      if (intersects.length > 0) {
+        this.createBallAtPoint(intersects[0].point);
+      }
     }
 
-    if (intersects2.length > 0) {
-      this.createBallAtPoint(intersects2[0].point);
+    if (this.controller1) {
+      raycasterTempM.identity().extractRotation(this.controller1.matrixWorld);
+      raycaster.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
+      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
+
+      const intersects = raycaster.intersectObjects(this.raycastTargets, true);
+
+      if (intersects.length > 0) {
+        this.createBallAtPoint(intersects[0].point);
+      }
+    }
+
+    if (this.controller2) {
+      raycasterTempM.identity().extractRotation(this.controller2.matrixWorld);
+      raycaster.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
+      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
+
+      // Perform raycasts
+      const intersects = raycaster.intersectObjects(this.raycastTargets, true);
+
+
+      if (intersects.length > 0) {
+        this.createBallAtPoint(intersects[0].point);
+      }
     }
   }
 
