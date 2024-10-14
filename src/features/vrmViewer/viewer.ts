@@ -6,8 +6,6 @@ import {
   disposeBatchedBoundsTree,
   acceleratedRaycast,
   MeshBVHHelper,
-  CENTER,
-  SAH,
   StaticGeometryGenerator,
 } from 'three-mesh-bvh';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -51,6 +49,7 @@ export class Viewer {
   private _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
   private _scene: THREE.Scene;
+  private _floor?: THREE.Mesh;
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
   private _uiroot?: Root;
@@ -89,7 +88,6 @@ export class Viewer {
   private generator: StaticGeometryGenerator | null = null;
   private meshHelper: THREE.Mesh | null = null;
   private bvhHelper: MeshBVHHelper | null = null;
-  private raycastTargets: THREE.Mesh[] = [];
 
   private mouse = new THREE.Vector2();
 
@@ -116,8 +114,9 @@ export class Viewer {
       side: THREE.DoubleSide,
     });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    this._floor = floor;
     floor.rotation.x = Math.PI / 2;
-    floor.receiveShadow = true;
+    floor.visible = false;
     scene.add(floor);
 
     // animate
@@ -129,7 +128,7 @@ export class Viewer {
     return this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
   }
 
-  public async onSessionStarted(session: XRSession) {
+  public async onSessionStarted(session: XRSession, immersiveType: XRSessionMode) {
     if (! this._renderer) {
       return;
     }
@@ -147,6 +146,9 @@ export class Viewer {
     await this._renderer.xr.setSession(session);
     // this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
     this.teleport(0, -1.2, 0);
+    if (immersiveType === 'immersive-vr') {
+      this._floor!.visible = true;
+    }
 
     this.currentSession = session;
     this.currentSession.addEventListener('end', this.onSessionEnded);
@@ -166,7 +168,9 @@ export class Viewer {
 
     this.currentSession.removeEventListener('end', this.onSessionEnded);
     this.currentSession = null;
-    this.model?.vrm?.scene.position.set(0, 0, 0);
+    // this.model?.vrm?.scene.position.set(0, 0, 0);
+    this._floor!.visible = false;
+
     requestAnimationFrame(() => {
       this.resetCamera();
     });
@@ -220,8 +224,6 @@ export class Viewer {
       this.bvhHelper = new MeshBVHHelper(this.meshHelper);
       this._scene.add(this.bvhHelper);
 
-      this.buildRaycastTargets();
-
       this._scene.add(this.model.vrm.scene);
 
       const animation = config("animation_url").indexOf("vrma") > 0
@@ -258,6 +260,8 @@ export class Viewer {
   public unloadVRM(): void {
     if (this.model?.vrm) {
       this._scene.remove(this.model.vrm.scene);
+      this._scene.remove(this.meshHelper as THREE.Object3D);
+      this._scene.remove(this.bvhHelper as THREE.Object3D);
       this.model?.unLoadVrm();
     }
   }
@@ -280,7 +284,6 @@ export class Viewer {
       });
 
       this.room.room.position.set(0, 1.2, 0);
-      this.buildRaycastTargets();
       this._scene.add(this.room.room);
     });
   }
@@ -471,6 +474,19 @@ export class Viewer {
 
       this.controller1.add(line.clone());
       this.controller2.add(line.clone());
+
+      const fingerTips = [
+        'thumb-tip',
+        'index-finger-tip',
+        'middle-finger-tip',
+        'ring-finger-tip',
+        'pinky-finger-tip'
+      ];
+      fingerTips.forEach((name, index) => {
+        const joint = this.hand1?.getObjectByName(name);
+        console.log('joint found', joint);
+      });
+
 
     } catch (e) {
       console.log("No controller available", e);
@@ -694,12 +710,20 @@ export class Viewer {
     return parseInt(`0x`+[r * 255, g * 255, b * 255 ].map(Math.floor).map(v => v.toString(16).padStart(2, '0')).join(''));
   }
 
-  public createBallAtPoint(point: THREE.Vector3) {
+  // itype: 0 = amica, 1 = room
+  public createBallAtPoint(point: THREE.Vector3, itype: number = 0) {
     const distance = point.distanceTo(this._camera?.position as THREE.Vector3);
     const s = 5;
     const h = (distance * s) - Math.floor(distance * s);
-    console.log(h);
-    const color = this.hslToRgb(h, 1, 0.5);
+
+    const getAmicaColor = () => {
+      return this.hslToRgb(h, 1, 0.5);
+    }
+    const getRoomColor = () => {
+      return this.hslToRgb(h, 0.1, 0.4);
+    }
+
+    const color = itype == 0 ? getAmicaColor() : getRoomColor();
 
     const ballMaterial = new THREE.MeshBasicMaterial({
       color,
@@ -718,43 +742,51 @@ export class Viewer {
 
   }
 
-  public buildRaycastTargets() {
-    const targets: THREE.Mesh[] = [];
+  public updateRaycasts() {
+    if (! this._camera || ! this.model || ! this.room) {
+      return;
+    }
+
+    const modelTargets: THREE.Mesh[] = [];
+    const roomTargets: THREE.Mesh[] = [];
 
     if (this.meshHelper) {
-      targets.push(this.meshHelper);
+      modelTargets.push(this.meshHelper);
     }
 
     if (this.room && this.room.room) {
       for (const child of this.room.room.children) {
         if (child instanceof THREE.Mesh) {
-          targets.push(child);
+          roomTargets.push(child);
         }
       }
-    }
-
-    this.raycastTargets = targets;
-  }
-
-  public updateRaycasts() {
-    if (! this._camera || ! this.model || ! this.room) {
-      return;
     }
 
     const raycaster = new THREE.Raycaster();
     raycaster.firstHitOnly = true;
     const raycasterTempM = new THREE.Matrix4();
 
-    if (! this.usingController1 && ! this.usingController2) {
-      // apply mouse position
-      const mouse = this.mouse;
-      raycaster.setFromCamera(mouse, this._camera);
+    const checkIntersection = () => {
+      const intersectsModel = raycaster.intersectObjects(modelTargets, true);
+      const intersectsRoom = raycaster.intersectObjects(roomTargets, true);
 
-      const intersects = raycaster.intersectObjects(this.raycastTargets, true);
-
-      if (intersects.length > 0) {
-        this.createBallAtPoint(intersects[0].point);
+      // check which object is closer
+      if (intersectsModel.length > 0 && intersectsRoom.length > 0) {
+        if (intersectsModel[0].distance < intersectsRoom[0].distance) {
+          this.createBallAtPoint(intersectsModel[0].point, 0);
+        } else {
+          this.createBallAtPoint(intersectsRoom[0].point, 1);
+        }
+      } else if (intersectsModel.length > 0) {
+        this.createBallAtPoint(intersectsModel[0].point, 0);
+      } else if (intersectsRoom.length > 0) {
+        this.createBallAtPoint(intersectsRoom[0].point, 1);
       }
+    }
+
+    if (! this.usingController1 && ! this.usingController2) {
+      raycaster.setFromCamera(this.mouse, this._camera);
+      checkIntersection();
     }
 
     if (this.controller1) {
@@ -762,11 +794,7 @@ export class Viewer {
       raycaster.ray.origin.setFromMatrixPosition(this.controller1.matrixWorld);
       raycaster.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
 
-      const intersects = raycaster.intersectObjects(this.raycastTargets, true);
-
-      if (intersects.length > 0) {
-        this.createBallAtPoint(intersects[0].point);
-      }
+      checkIntersection();
     }
 
     if (this.controller2) {
@@ -774,13 +802,7 @@ export class Viewer {
       raycaster.ray.origin.setFromMatrixPosition(this.controller2.matrixWorld);
       raycaster.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
 
-      // Perform raycasts
-      const intersects = raycaster.intersectObjects(this.raycastTargets, true);
-
-
-      if (intersects.length > 0) {
-        this.createBallAtPoint(intersects[0].point);
-      }
+      checkIntersection();
     }
   }
 
@@ -814,7 +836,9 @@ export class Viewer {
       }
 
       let time = performance.now();
-      this.regenerateBVHForModel();
+      // TODO run this in a web worker
+      // ideally parallel version
+      // this.regenerateBVHForModel();
       this.gparams['bvh_ms'] = performance.now() - time;
       time = performance.now();
       this.updateRaycasts();
