@@ -8,23 +8,26 @@ import {
   MeshBVHHelper,
   StaticGeometryGenerator,
 } from 'three-mesh-bvh';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory';
-import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
-import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh.js';
-import GUI from 'lil-gui';
-import { InteractiveGroup } from 'three/examples/jsm/interactive/InteractiveGroup.js';
-import Stats from 'three/examples/jsm/libs/stats.module.js';
 import {
   reversePainterSortStable,
   Container,
   Root,
 } from '@pmndrs/uikit'
-import { Model } from "./model";
-import { Room } from "./room";
+import GUI from 'lil-gui';
+import Stats from 'stats.js';
+
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { InteractiveGroup } from 'three/examples/jsm/interactive/InteractiveGroup.js';
+import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh.js';
+
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { loadMixamoAnimation } from "@/lib/VRMAnimation/loadMixamoAnimation";
 import { config } from "@/utils/config";
+
+import { XRControllerModelFactory } from './XRControllerModelFactory';
+import { XRHandModelFactory } from './XRHandModelFactory';
+import { Model } from "./model";
+import { Room } from "./room";
 
 // Add the extension functions
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
