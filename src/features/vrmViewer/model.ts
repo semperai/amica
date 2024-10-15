@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import {
+  MToonMaterial,
+  MToonMaterialLoaderPlugin,
   VRM,
   VRMLoaderPlugin,
   VRMUtils,
 } from "@pixiv/three-vrm";
-import { MToonMaterialLoaderPlugin } from '@pixiv/three-vrm-materials-mtoon';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { VRMAnimation } from "@/lib/VRMAnimation/VRMAnimation";
 import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlugin/VRMLookAtSmootherLoaderPlugin";
@@ -49,17 +50,15 @@ export class Model {
     loader.register((parser) => {
       const options: any = {
         lookAtPlugin: new VRMLookAtSmootherLoaderPlugin(parser),
+        mtoonMaterialPlugin: new MToonMaterialLoaderPlugin(parser, {
+          // TODO currently MToonNodeMaterial is broken
+          // materialType: config("use_webgpu") === 'true' ? MToonNodeMaterial : MToonMaterial,
+          materialType: MToonMaterial,
+        }),
       };
 
       if (config("debug_gfx") === "true") {
         options.helperRoot = helperRoot;
-      }
-
-      if (config("use_webgpu") === "true") {
-        // TODO currently this is broken on latest three.js
-        // options.mtoonMaterialPlugin = new MToonMaterialLoaderPlugin(parser, {
-        //   materialType: MToonNodeMaterial,
-        // });
       }
 
       return new VRMLoaderPlugin(parser, options);
