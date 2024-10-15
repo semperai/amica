@@ -152,8 +152,9 @@ export class Viewer {
 
     this._renderer.xr.setReferenceSpaceType('local');
     await this._renderer.xr.setSession(session);
-    // this.model?.vrm?.scene.position.set(0.25, -1.5, -1.25);
+
     this.teleport(0, -1.2, 0);
+
     if (immersiveType === 'immersive-vr') {
       this._floor!.visible = true;
     }
@@ -180,7 +181,7 @@ export class Viewer {
 
     this.currentSession.removeEventListener('end', this.onSessionEnded);
     this.currentSession = null;
-    // this.model?.vrm?.scene.position.set(0, 0, 0);
+
     this._floor!.visible = false;
 
     requestAnimationFrame(() => {
