@@ -131,7 +131,7 @@ export class AmicaLife {
     }
 
     // Re-enqueue subconcious event after get the user input (1 Subconcious events per idle cycle)
-    (!this.containsEvent("Subconcious")) ? this.mainEvents.enqueue({ events: "Subconcious" }) : null;
+    // (!this.containsEvent("Subconcious")) ? this.mainEvents.enqueue({ events: "Subconcious" }) : null;
 
     this.pause();
     this.isSleep = false;
@@ -196,15 +196,15 @@ export class AmicaLife {
         resumeIdleTimer();
 
         // Check for pause and sleep
-        await this.checkSleep();
+        // await this.checkSleep();
         await this.checkPause();
 
         // Random chance for doing nothing (25% chance)
-        if (Math.random() <= 0.25) {
-          console.log("Handling idle event:", "Doing nothing this cycle");
-          await this.waitInterval();
-          continue;
-        }
+        // if (Math.random() <= 0.25) {
+        //   console.log("Handling idle event:", "Doing nothing this cycle");
+        //   await this.waitInterval();
+        //   continue;
+        // }
 
         // Main event handling
         const idleEvent = this.mainEvents.dequeue();
