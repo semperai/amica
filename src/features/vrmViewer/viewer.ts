@@ -10,11 +10,6 @@ import {
 } from 'three-mesh-bvh';
 import { GenerateMeshBVHWorker } from '@/workers/bvh/GenerateMeshBVHWorker';
 import { WorkerBase } from '@/workers/bvh/utils/WorkerBase';
-import {
-  reversePainterSortStable,
-  Container,
-  Root,
-} from '@pmndrs/uikit'
 import GUI from 'lil-gui';
 import Stats from 'stats.js';
 
@@ -394,9 +389,6 @@ export class Viewer {
     });
     this._renderer.setSize(width, height);
     this._renderer.setPixelRatio(window.devicePixelRatio);
-    // this._renderer.setTransparentSort(reversePainterSortStable)
-    // this._renderer.localClippingEnabled = true
-    // this._renderer.shadowMap.enabled = true;
     this._renderer.xr.enabled = true;
     this._renderer.xr.setFoveation(0);
 
@@ -417,49 +409,6 @@ export class Viewer {
     this._cameraControls.maxDistance = 8;
 
     this._cameraControls.update();
-
-    this._uiroot = new Root(this._camera, this._renderer, {
-      flexDirection: 'row',
-      padding: 10,
-      gap: 10,
-      width: 500,
-      height: 250,
-      // display: 'none', // change to 'flex' to show in AR mode
-      /*
-      This._uiroot.setStyle({
-        display: 'none',
-      });
-      */
-    });
-    this._scene.add(this._uiroot);
-
-
-    /*
-    const c1 = new Container({
-      flexGrow: 1,
-      backgroundOpacity: 0.5,
-      hover: { backgroundOpacity: 1 },
-      backgroundColor: "red"
-    })
-    this._uiroot.add(c1)
-    const c2 = new Container({
-        flexGrow: 1,
-        backgroundOpacity: 0.5,
-        hover: { backgroundOpacity: 1 },
-        backgroundColor: "blue"
-    })
-    this._uiroot.add(c2)
-
-    c2.dispatchEvent({
-      type: 'pointerover',
-      distance: 0,
-      nativeEvent: {} as any,
-      object: c1,
-      point: new THREE.Vector3(),
-      pointerId: -1,
-    });
-    */
-
 
     // check if controller is available
     try {
@@ -891,13 +840,6 @@ export class Viewer {
     this.modelMsPanel.update(performance.now() - ptime, 40);
 
     if (this._renderer && this._camera) {
-
-      /*
-      if (this._uiroot) {
-        this._uiroot.update(delta);
-      }
-      */
-
       ptime = performance.now();
       this._renderer.render(this._scene, this._camera);
       this.renderMsPanel.update(performance.now() - ptime, 100);
