@@ -72,9 +72,26 @@ export class Model {
     VRMUtils.removeUnnecessaryVertices(gltf.scene);
     VRMUtils.removeUnnecessaryJoints(gltf.scene);
 
-    // Disable frustum culling
-    vrm.scene.traverse((obj: THREE.Object3D) => {
+    const mtoonDebugMode = config('mtoon_debug_mode');
+    vrm.scene.traverse((obj: any) => {
       obj.frustumCulled = false;
+
+      if (mtoonDebugMode !== 'none') {
+        if (obj.material) {
+
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach((mat: any) => {
+              if (mat.isMToonMaterial) {
+                mat.debugMode = mtoonDebugMode;
+              }
+            });
+          } else {
+            if (obj.material.isMToonMaterial) {
+              obj.material.debugMode = mtoonDebugMode;
+            }
+          }
+        }
+      }
     });
 
     if (config("debug_gfx") === "true") {

@@ -5,6 +5,7 @@ const defaults = {
   time_before_idle_sec: '20',
   debug_gfx: 'false',
   use_webgpu: 'false',
+  mtoon_debug_mode: 'none',
   language: 'en',
   show_introduction: 'true',
   show_add_to_homescreen: 'true',
