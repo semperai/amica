@@ -52,7 +52,6 @@ export class Viewer {
   private _floor?: THREE.Mesh;
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
-  private _uiroot?: Root;
   private _stats?: Stats;
   private _statsMesh?: THREE.Mesh;
 
