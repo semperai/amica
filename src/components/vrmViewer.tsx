@@ -26,9 +26,9 @@ export default function VrmViewer({chatMode}:{chatMode: boolean}) {
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement) => {
       if (canvas && (!isVrmLocal || !isLoadingVrmList)) {
-        viewer.setup(canvas);
-        
         (new Promise(async (resolve, reject) => {
+          await viewer.setup(canvas);
+
           try {
             const currentVrm = getCurrentVrm();
             if (!currentVrm) {
