@@ -20,20 +20,15 @@
 
 Amica is an application that allows you to easily converse with 3D characters in your browser.
 
+[Try Amica here on mobile, tablet or desktop](https://amica.arbius.ai)
+
+We just released Amica 1.2 with lots of new features. Docs will be further updated soon, watch the video to learn about what Amica 1.2 offers:
+
+[![Video Title](https://img.youtube.com/vi/3zCN2IlxHrU/0.jpg)](https://www.youtube.com/watch?v=3zCN2IlxHrU)
+
 You can import VRM files, adjust the voice to fit the character, and generate response text that includes emotional expressions.
 
-> **For Windows Users**: Please create a new folder for Amica during installation to prevent the unintentional deletion of other files during uninstallation.
 
-<p align="center">
-  <a href="https://github.com/semperai/amica/releases/latest">
-    <img src="https://img.shields.io/badge/Download%20for%20Windows%20-black?style=for-the-badge&logo=windows" />
-  </a>
-  <a href="https://github.com/semperai/amica/releases/latest">
-    <img src="https://img.shields.io/badge/Download%20for%20Mac%20-black?style=for-the-badge&logo=apple" />
-  </a>
-  <a href="https://github.com/semperai/amica/releases/latest">
-    <img src="https://img.shields.io/badge/Download%20for%20Linux%20-black?style=for-the-badge&logo=linux" />
-  </a>
 </p>
 
 The various features of Amica mainly use the following technologies:
