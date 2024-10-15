@@ -6,9 +6,7 @@ import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlug
 import { LipSync } from "@/features/lipSync/lipSync";
 import { EmoteController } from "@/features/emoteController/emoteController";
 import { Screenplay } from "@/features/chat/messages";
-import { Viewer } from "@/features/vrmViewer/viewer";
 import { config } from "@/utils/config";
-import { Dictionary } from "typescript-collections";
 
 /**
  * 3Dキャラクターを管理するクラス
@@ -123,10 +121,10 @@ export class Model {
     }
 
     // Use the current hips bone position as the start position
-    const currentHipsPosition = hipsBone!.getWorldPosition(new THREE.Vector3())
+    const currentHipsPosition = hipsBone!.getWorldPosition(new THREE.Vector3());
 
     // Extract the start position from the animation clip
-    let clipStartPositionHips: THREE.Vector3 | null = null
+    let clipStartPositionHips: THREE.Vector3 | null = null;
     
     for (const track of clip.tracks) {
       if (track.name.endsWith(".position") && track.name.includes("Hips")) {
@@ -140,8 +138,6 @@ export class Model {
     if (clipStartPositionHips) {
       // Calculate the offset
       const offsetHipsPosition = currentHipsPosition.clone().sub(clipStartPositionHips);
-
-      console.log("offsetHips Position: ",offsetHipsPosition);
 
       // Apply the offset to all keyframes
       for (const track of clip.tracks) {
