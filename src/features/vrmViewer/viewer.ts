@@ -318,7 +318,7 @@ export class Viewer {
         if (child instanceof THREE.Mesh) {
           // this must be cloned because the worker breaks rendering for some reason
           const geometry = child.geometry.clone() as THREE.BufferGeometry;
-          const bvh = await this.bvhWorker!.generate(geometry)!;
+          const bvh = await this.bvhWorker!.generate(geometry, { maxLeafTris: 1 })!;
           child.geometry.boundsTree = bvh;
 
           if (config("debug_gfx") === "true") {
