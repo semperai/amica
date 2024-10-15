@@ -42,13 +42,13 @@ THREE.BatchedMesh.prototype.raycast = acceleratedRaycast;
  * setup()でcanvasを渡してから使う
  */
 export class Viewer {
-  public isReady: boolean;
+  public isReady: boolean = false;
   public model?: Model;
   public room?: Room;
 
   private _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
-  private _scene: THREE.Scene;
+  private _scene?: THREE.Scene;
   private _floor?: THREE.Mesh;
   private _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
@@ -102,11 +102,43 @@ export class Viewer {
     this.sendScreenshotToCallback = false;
     this.screenshotCallback = undefined;
 
-    // scene
+    // animate
+    this._clock = new THREE.Clock();
+    this._clock.start();
+  }
+
+  public async setup(canvas: HTMLCanvasElement) {
+    console.log('setup canvas');
+    const parentElement = canvas.parentElement;
+    const width = parentElement?.clientWidth || canvas.width;
+    const height = parentElement?.clientHeight || canvas.height;
+
+
+    let WebRendererType = THREE.WebGLRenderer;
+    if (config('use_webgpu') === 'true') {
+      // @ts-ignore
+      WebRendererType = (await import("three/src/renderers/webgpu/WebGPURenderer.js")).default;
+    }
+
+    const renderer = new WebRendererType({
+      canvas: canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance',
+    }) as THREE.WebGLRenderer;
+    this._renderer = renderer;
+
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.xr.enabled = true;
+    // webgpu does not support foveation yet
+    if (config('use_webgpu') !== 'true') {
+      renderer.xr.setFoveation(0);
+    }
+
     const scene = new THREE.Scene();
     this._scene = scene;
 
-    // light
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
     directionalLight.position.set(1.0, 1.0, 1.0).normalize();
     scene.add(directionalLight);
@@ -121,351 +153,100 @@ export class Viewer {
     });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     this._floor = floor;
+
     floor.rotation.x = Math.PI / 2;
     floor.visible = false;
     scene.add(floor);
 
     scene.add(this.roomBVHHelperGroup);
 
-    // animate
-    this._clock = new THREE.Clock();
-    this._clock.start();
-  }
-
-  public getCanvas() {
-    return this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
-  }
-
-  public async onSessionStarted(session: XRSession, immersiveType: XRSessionMode) {
-    if (! this._renderer) {
-      return;
-    }
-    console.log('session', session);
-
-    const canvas = this.getCanvas();
-    // TODO this needs to be set to none to prevent double render breaking the compositing
-    // except on desktop using emulator, then it should not be changed
-    // canvas!.style.display = "none";
-
-    this.cachedCameraPosition = this._camera?.position.clone() as THREE.Vector3;
-    this.cachedCameraRotation = this._camera?.rotation.clone() as THREE.Euler;
-
-    this._renderer.xr.setReferenceSpaceType('local');
-    await this._renderer.xr.setSession(session);
-
-    this.teleport(0, -1.2, 0);
-
-    if (immersiveType === 'immersive-vr') {
-      this._floor!.visible = true;
-    }
-
-    this.currentSession = session;
-    this.currentSession.addEventListener('end', () => this.onSessionEnded());
-  }
-
-  public onSessionEnded(/*event*/) {
-    if (! this) {
-      console.error('onSessionEnded called without this');
-      return;
-    }
-    if (! this.currentSession) {
-      return;
-    }
-
-    // reset camera
-    this._camera?.position.copy(this.cachedCameraPosition as THREE.Vector3);
-    this._camera?.rotation.copy(this.cachedCameraRotation as THREE.Euler);
-
-    const canvas = this.getCanvas();
-    canvas!.style.display = "inline";
-
-    this.currentSession.removeEventListener('end', this.onSessionEnded);
-    this.currentSession = null;
-
-    this._floor!.visible = false;
-
-    requestAnimationFrame(() => {
-      this.resetCamera();
-    });
-  }
-
-  public teleport(x: number, y: number, z: number) {
-    if (!this._renderer) {
-      return;
-    }
-    if (!this._renderer.xr) {
-      return;
-    }
-    if (!this._renderer.xr.isPresenting) {
-      return;
-    }
-
-    const baseReferenceSpace = this._renderer.xr.getReferenceSpace();
-    if (baseReferenceSpace) {
-      const offsetPosition = { x, y, z, w: 1, };
-      const offsetRotation = new THREE.Quaternion();
-      // offsetRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
-      const transform = new XRRigidTransform(offsetPosition, offsetRotation);
-      const teleportSpaceOffset = baseReferenceSpace.getOffsetReferenceSpace(transform);
-
-      this._renderer.xr.setReferenceSpace(teleportSpaceOffset);
-    }
-  }
-
-  public loadVrm(url: string) {
-    if (this.model?.vrm) {
-      this.unloadVRM();
-    }
-
-    // gltf and vrm
-    this.model = new Model(this._camera || new THREE.Object3D());
-    return this.model.loadVRM(url).then(async () => {
-      if (!this.model?.vrm) return;
-
-      // build bvh
-      this.modelBVHGenerator = new StaticGeometryGenerator(this.model.vrm.scene);
-      // this.modelBVHGenerator.attributes = ['position', 'normal']
-      // this.modelBVHGenerator.useGroups = false
-      this.modelGeometry = this.modelBVHGenerator.generate().center();
-
-      // TODO show during debug mode
-      const wireframeMaterial = new THREE.MeshBasicMaterial( {
-        wireframe:   true,
-        transparent: true,
-        opacity:     0.05,
-        depthWrite:  false,
-      });
-      this.modelMeshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
-      if (config("debug_gfx") === "true") {
-        this._scene.add(this.modelMeshHelper);
-      }
-
-      this.modelBVHHelper = new MeshBVHHelper(this.modelMeshHelper);
-      if (config("debug_gfx") === "true") {
-        this._scene.add(this.modelBVHHelper);
-      }
-
-      this._scene.add(this.model.vrm.scene);
-
-      const animation = config("animation_url").indexOf("vrma") > 0
-        ? await loadVRMAnimation(config("animation_url"))
-        : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
-      if (animation) {
-        await this.model.loadAnimation(animation);
-        this.model.update(0);
-      }
-
-      await this.regenerateBVHForModel();
-
-      // HACK: Adjust the camera position after playback because the origin of the animation is offset
-      requestAnimationFrame(() => {
-        this.resetCamera();
-      });
-    });
-  }
-
-  // TODO use the bvh worker to generate the bvh / bounds tree
-  // TODO run this in its own loop to keep the bvh in sync with animation
-  // TODO investigate if we can get speedup using parallel bvh generation
-  public async regenerateBVHForModel() {
-    if (! this.modelMeshHelper || ! this.modelBVHGenerator || ! this.modelBVHHelper) {
-      return;
-    }
-
-    this.modelBVHGenerator.generate(this.modelMeshHelper.geometry);
-
-    if (! this.modelMeshHelper.geometry.boundsTree) {
-      this.modelMeshHelper.geometry.computeBoundsTree();
-    } else {
-      this.modelMeshHelper.geometry.boundsTree.refit();
-    }
-
-    this.modelBVHHelper.update();
-  }
-
-  public unloadVRM(): void {
-    if (this.model?.vrm) {
-      this._scene.remove(this.model.vrm.scene);
-      // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
-      {
-        const geometry = this.modelMeshHelper?.geometry;
-        geometry?.dispose();
-        for (const key in geometry?.attributes) {
-          geometry?.deleteAttribute(key);
-        }
-        this._scene.remove(this.modelMeshHelper as THREE.Object3D);
-        this._scene.remove(this.modelBVHHelper as THREE.Object3D);
-      }
-      this.model?.unLoadVrm();
-    }
-  }
-
-  public loadRoom(url: string) {
-    if (this.room?.room) {
-      this.unloadRoom();
-    }
-
-    this.room = new Room();
-    return this.room.loadRoom(url).then(async () => {
-      if (!this.room?.room) return;
-
-      const roomYOffset = 1.2;
-
-      this.room.room.position.set(0, roomYOffset, 0);
-      this._scene.add(this.room.room);
-
-      // build bvh
-      for (let child of this.room.room.children) {
-        if (child instanceof THREE.Mesh) {
-          // this must be cloned because the worker breaks rendering for some reason
-          const geometry = child.geometry.clone() as THREE.BufferGeometry;
-          const bvh = await this.bvhWorker!.generate(geometry, { maxLeafTris: 1 })!;
-          child.geometry.boundsTree = bvh;
-
-          if (config("debug_gfx") === "true") {
-            const helper = new MeshBVHHelper(child, bvh);
-            helper.color.set(0xE91E63);
-            this.roomBVHHelperGroup.add(helper)
-          }
-        }
-      }
-
-      this._scene.add(this.roomBVHHelperGroup);
-    });
-  }
-
-  public unloadRoom(): void {
-    if (this.room?.room) {
-      this._scene.remove(this.room.room);
-      // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
-      for (const item of this.roomBVHHelperGroup.children) {
-        if (item instanceof MeshBVHHelper) {
-          try {
-            // @ts-ignore
-            const geometry = item.geometry;
-            geometry?.dispose();
-            for (const key in geometry?.attributes) {
-              geometry?.deleteAttribute(key);
-            }
-          } catch (e) {
-            console.error('error disposing room geometry', e);
-          }
-        }
-      }
-      this._scene.remove(this.roomBVHHelperGroup);
-    }
-  }
-
-  // probably too slow to use
-  // but fun experiment. maybe some use somewhere for tiny splats ?
-  public loadSplat(url: string) {
-    if (! this.room) {
-      this.room = new Room();
-    }
-    return this.room.loadSplat(url).then(async () => {
-      console.log('splat loaded');
-      if (!this.room?.splat) return;
-
-      this.room.splat.position.set(0, 4, 0);
-      this.room.splat.rotation.set(0, 0, Math.PI);
-      this._scene.add(this.room.splat);
-    });
-  }
-
-  /**
-   * Reactで管理しているCanvasを後から設定する
-   */
-  public async setup(canvas: HTMLCanvasElement) {
-    console.log('setup canvas');
-    const parentElement = canvas.parentElement;
-    const width = parentElement?.clientWidth || canvas.width;
-    const height = parentElement?.clientHeight || canvas.height;
-
-    let WebRendererType = THREE.WebGLRenderer;
-    if (config('use_webgpu') === 'true') {
-      // @ts-ignore
-      WebRendererType = (await import("three/src/renderers/webgpu/WebGPURenderer.js")).default;
-    }
-
-    this._renderer = new WebRendererType({
-      canvas: canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance',
-    }) as THREE.WebGLRenderer;
-    this._renderer.setSize(width, height);
-    this._renderer.setPixelRatio(window.devicePixelRatio);
-    this._renderer.xr.enabled = true;
-
-    // webgpu does not support foveation yet
-    if (config('use_webgpu') !== 'true') {
-      this._renderer.xr.setFoveation(0);
-    }
-
     // camera
-    this._camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
-    this._camera.position.set(0, -3, -3.5);
-    this._cameraControls?.target.set(0, 4.3, 0);
-    this._cameraControls?.update();
-    // camera controls
-    this._cameraControls = new OrbitControls(
-      this._camera,
-      this._renderer.domElement
+    const camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
+    this._camera = camera;
+
+    camera.position.set(0, -3, -3.5);
+
+    const cameraControls = new OrbitControls(
+      camera,
+      renderer.domElement
     );
+    this._cameraControls = cameraControls;
 
-    this._cameraControls.screenSpacePanning = true;
+    cameraControls.screenSpacePanning = true;
+    cameraControls.minDistance = 0.5;
+    cameraControls.maxDistance = 8;
+    cameraControls.update();
 
-    this._cameraControls.minDistance = 0.5;
-    this._cameraControls.maxDistance = 8;
+    const igroup = new InteractiveGroup();
+    this.igroup = igroup;
 
-    this._cameraControls.update();
+    igroup.position.set(-0.25, 1.3, -0.8);
+    igroup.rotation.set(0, Math.PI / 8, 0);
+    scene.add(igroup);
+
+    igroup.listenToPointerEvents(renderer, camera);
+
+    canvas.addEventListener("mousemove", (event) => {
+      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
 
     // check if controller is available
     try {
-      this.controller1 = this._renderer.xr.getController(0);
-      this._scene.add(this.controller1);
-      this.controller2 = this._renderer.xr.getController(1);
-      this._scene.add(this.controller2);
+      const controller1 = renderer.xr.getController(0);
+      this.controller1 = controller1;
+
+      const controller2 = renderer.xr.getController(1);
+      this.controller2 = controller2;
+
+      scene.add(controller1);
+      scene.add(controller2);
 
       // @ts-ignore
-      this.controller1.addEventListener('connected', (event) => {
+      controller1.addEventListener('connected', (event) => {
         this.usingController1 = true;
       });
       // @ts-ignore
-      this.controller2.addEventListener('connected', (event) => {
+      controller2.addEventListener('connected', (event) => {
         this.usingController2 = true;
       });
 
-      console.log('controller1', this.controller1);
-      console.log('controller2', this.controller2);
+      console.log('controller1', controller1);
+      console.log('controller2', controller2);
 
       const controllerModelFactory = new XRControllerModelFactory();
       const handModelFactory = new XRHandModelFactory();
 
-      this.controllerGrip1 = this._renderer.xr.getControllerGrip(0);
-      this.controllerGrip1.add(controllerModelFactory.createControllerModel(this.controllerGrip1));
-      this._scene.add(this.controllerGrip1);
+      const controllerGrip1 = renderer.xr.getControllerGrip(0);
+      this.controllerGrip1 = controllerGrip1;
 
-      this.controllerGrip2 = this._renderer.xr.getControllerGrip(1);
-      this.controllerGrip2.add(controllerModelFactory.createControllerModel(this.controllerGrip2));
-      this._scene.add(this.controllerGrip2);
+      controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
+      scene.add(controllerGrip1);
 
-      this.hand1 = this._renderer.xr.getHand(0);
-      this._scene.add(this.hand1);
+      const controllerGrip2 = renderer.xr.getControllerGrip(1);
+      this.controllerGrip2 = controllerGrip2;
 
-      this.hand2 = this._renderer.xr.getHand(1);
-      this._scene.add(this.hand2);
+      controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
+      scene.add(controllerGrip2);
+
+      const hand1 = renderer.xr.getHand(0);
+      this.hand1 = hand1;
+      scene.add(hand1);
+
+      const hand2 = renderer.xr.getHand(1);
+      this.hand2 = hand2;
+      scene.add(hand2);
 
       this.handModels.left = [
-        handModelFactory.createHandModel(this.hand1, 'boxes'),
-        handModelFactory.createHandModel(this.hand1, 'spheres'),
-        handModelFactory.createHandModel(this.hand1, 'mesh')
+        handModelFactory.createHandModel(hand1, 'boxes'),
+        handModelFactory.createHandModel(hand1, 'spheres'),
+        handModelFactory.createHandModel(hand1, 'mesh')
       ];
 
       this.handModels.right = [
-        handModelFactory.createHandModel(this.hand2, 'boxes'),
-        handModelFactory.createHandModel(this.hand2, 'spheres'),
-        handModelFactory.createHandModel(this.hand2, 'mesh')
+        handModelFactory.createHandModel(hand2, 'boxes'),
+        handModelFactory.createHandModel(hand2, 'spheres'),
+        handModelFactory.createHandModel(hand2, 'mesh')
       ];
 
       for (let i=0; i<3; ++i) {
@@ -483,20 +264,20 @@ export class Viewer {
       }
 
       // @ts-ignore
-      this.hand1.addEventListener('pinchstart', () => {
+      hand1.addEventListener('pinchstart', () => {
         this.isPinching1 = true;
       });
       // @ts-ignore
-      this.hand2.addEventListener('pinchstart', () => {
+      hand2.addEventListener('pinchstart', () => {
         this.isPinching2 = true;
       });
 
       // @ts-ignore
-      this.hand1.addEventListener('pinchend', () => {
+      hand1.addEventListener('pinchend', () => {
         this.isPinching1 = false;
       });
       // @ts-ignore
-      this.hand2.addEventListener('pinchend', () => {
+      hand2.addEventListener('pinchend', () => {
         this.isPinching2 = false;
       });
 
@@ -509,27 +290,19 @@ export class Viewer {
       line.name = 'line';
       line.scale.z = 5;
 
-      this.controller1.add(line.clone());
-      this.controller2.add(line.clone());
+      controller1.add(line.clone());
+      controller2.add(line.clone());
+
+      // webgpu does not support xr controller events yet
+      if (config('use_webgpu') !== 'true') {
+        // @ts-ignore
+        igroup.listenToXRControllerEvents(controller1);
+        // @ts-ignore
+        igroup.listenToXRControllerEvents(controller2);
+      }
     } catch (e) {
       console.log("No controller available", e);
     }
-
-    this.igroup = new InteractiveGroup();
-    const igroup = this.igroup;
-    igroup.listenToPointerEvents(this._renderer, this._camera);
-    // webgpu does not support xr controller events yet
-    if (config('use_webgpu') !== 'true') {
-      // @ts-ignore
-      igroup.listenToXRControllerEvents(this.controller1);
-    }
-    if (config('use_webgpu') !== 'true') {
-      // @ts-ignore
-      igroup.listenToXRControllerEvents(this.controller2);
-    }
-    igroup.position.set(-0.25, 1.3, -0.8);
-    igroup.rotation.set(0, Math.PI / 8, 0);
-    this._scene.add(igroup);
 
     // gui
     const gui = new GUI();
@@ -566,29 +339,30 @@ export class Viewer {
 
 
     // stats
-    this._stats = new Stats();
-    this._stats.dom.style.width = '80px';
-    this._stats.dom.style.height = '48px';
-    this._stats.dom.style.position = 'absolute';
-    this._stats.dom.style.top = '0px';
-    this._stats.dom.style.left = window.innerWidth - 80 + 'px';
+    const stats = new Stats();
+    this._stats = stats;
+    stats.dom.style.width = '80px';
+    stats.dom.style.height = '48px';
+    stats.dom.style.position = 'absolute';
+    stats.dom.style.top = '0px';
+    stats.dom.style.left = window.innerWidth - 80 + 'px';
+    document.body.appendChild(stats.dom);
 
-    this.updateMsPanel  = this._stats.addPanel(new Stats.Panel('update_ms', '#fff', '#221'));
-    this.renderMsPanel  = this._stats.addPanel(new Stats.Panel('render_ms', '#ff8', '#221'));
-    this.modelMsPanel   = this._stats.addPanel(new Stats.Panel('model_ms', '#f8f', '#212'));
-    this.bvhMsPanel     = this._stats.addPanel(new Stats.Panel('bvh_ms', '#8ff', '#122'));
-    this.raycastMsPanel = this._stats.addPanel(new Stats.Panel('raycast_ms', '#f8f', '#212'));
-    this.statsMsPanel   = this._stats.addPanel(new Stats.Panel('stats_ms', '#8f8', '#212'));
+    this.updateMsPanel  = stats.addPanel(new Stats.Panel('update_ms', '#fff', '#221'));
+    this.renderMsPanel  = stats.addPanel(new Stats.Panel('render_ms', '#ff8', '#221'));
+    this.modelMsPanel   = stats.addPanel(new Stats.Panel('model_ms', '#f8f', '#212'));
+    this.bvhMsPanel     = stats.addPanel(new Stats.Panel('bvh_ms', '#8ff', '#122'));
+    this.raycastMsPanel = stats.addPanel(new Stats.Panel('raycast_ms', '#f8f', '#212'));
+    this.statsMsPanel   = stats.addPanel(new Stats.Panel('stats_ms', '#8f8', '#212'));
 
+    const statsMesh = new HTMLMesh(stats.dom);
+    this._statsMesh = statsMesh;
 
-    document.body.appendChild(this._stats.dom);
-
-    this._statsMesh = new HTMLMesh(this._stats.dom);
-    this._statsMesh.position.x = 0;
-    this._statsMesh.position.y = 0.25;
-    this._statsMesh.position.z = 0;
-    this._statsMesh.scale.setScalar(2.5);
-    igroup.add(this._statsMesh);
+    statsMesh.position.x = 0;
+    statsMesh.position.y = 0.25;
+    statsMesh.position.z = 0;
+    statsMesh.scale.setScalar(2.5);
+    igroup.add(statsMesh);
 
     this.bvhWorker = new GenerateMeshBVHWorker();
 
@@ -596,14 +370,237 @@ export class Viewer {
       this.resize();
     });
 
-    canvas.addEventListener("mousemove", (event) => {
-      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    });
-
     this.isReady = true;
-    this._renderer.setAnimationLoop(() => {
+    renderer.setAnimationLoop(() => {
       this.update();
+    });
+  }
+
+  public getCanvas() {
+    return this._renderer?.domElement?.parentElement?.getElementsByTagName("canvas")[0];
+  }
+
+  public async onSessionStarted(session: XRSession, immersiveType: XRSessionMode) {
+    if (! this._renderer) return;
+    console.log('session', session);
+
+    const canvas = this.getCanvas();
+    // TODO this needs to be set to none to prevent double render breaking the compositing
+    // except on desktop using emulator, then it should not be changed
+    // canvas!.style.display = "none";
+
+    this.cachedCameraPosition = this._camera?.position.clone() as THREE.Vector3;
+    this.cachedCameraRotation = this._camera?.rotation.clone() as THREE.Euler;
+
+    this._renderer.xr.setReferenceSpaceType('local');
+    await this._renderer.xr.setSession(session);
+
+    this.teleport(0, -1.2, 0);
+
+    if (immersiveType === 'immersive-vr') {
+      this._floor!.visible = true;
+    }
+
+    this.currentSession = session;
+    this.currentSession.addEventListener('end', () => this.onSessionEnded());
+  }
+
+  public onSessionEnded(/*event*/) {
+    // TODO investigate this
+    if (! this) {
+      console.error('onSessionEnded called without this');
+      return;
+    }
+    if (! this.currentSession) return;
+
+    // reset camera
+    this._camera?.position.copy(this.cachedCameraPosition as THREE.Vector3);
+    this._camera?.rotation.copy(this.cachedCameraRotation as THREE.Euler);
+
+    const canvas = this.getCanvas();
+    canvas!.style.display = "inline";
+
+    this.currentSession.removeEventListener('end', this.onSessionEnded);
+    this.currentSession = null;
+
+    this._floor!.visible = false;
+
+    requestAnimationFrame(() => {
+      this.resetCamera();
+    });
+  }
+
+  public teleport(x: number, y: number, z: number) {
+    if (! this._renderer?.xr?.isPresenting) return;
+
+    const baseReferenceSpace = this._renderer!.xr.getReferenceSpace();
+    if (! baseReferenceSpace) {
+      console.warn('baseReferenceSpace not found');
+      return;
+    }
+
+    const offsetPosition = { x, y, z, w: 1, };
+    const offsetRotation = new THREE.Quaternion();
+    // offsetRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+    const transform = new XRRigidTransform(offsetPosition, offsetRotation);
+    const teleportSpaceOffset = baseReferenceSpace.getOffsetReferenceSpace(transform);
+
+    this._renderer!.xr.setReferenceSpace(teleportSpaceOffset);
+  }
+
+  public loadVrm(url: string) {
+    if (this.model?.vrm) {
+      this.unloadVRM();
+    }
+
+    // gltf and vrm
+    this.model = new Model(this._camera || new THREE.Object3D());
+    return this.model.loadVRM(url).then(async () => {
+      if (!this.model?.vrm) return;
+
+      // build bvh
+      this.modelBVHGenerator = new StaticGeometryGenerator(this.model.vrm.scene);
+      // this.modelBVHGenerator.attributes = ['position', 'normal']
+      // this.modelBVHGenerator.useGroups = false
+      this.modelGeometry = this.modelBVHGenerator.generate().center();
+
+      // TODO show during debug mode
+      const wireframeMaterial = new THREE.MeshBasicMaterial( {
+        wireframe:   true,
+        transparent: true,
+        opacity:     0.05,
+        depthWrite:  false,
+      });
+      this.modelMeshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
+      if (config("debug_gfx") === "true") {
+        this._scene!.add(this.modelMeshHelper);
+      }
+
+      this.modelBVHHelper = new MeshBVHHelper(this.modelMeshHelper);
+      if (config("debug_gfx") === "true") {
+        this._scene!.add(this.modelBVHHelper);
+      }
+
+      this._scene!.add(this.model.vrm.scene);
+
+      const animation = config("animation_url").indexOf("vrma") > 0
+        ? await loadVRMAnimation(config("animation_url"))
+        : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
+      if (animation) {
+        await this.model.loadAnimation(animation);
+        this.model.update(0);
+      }
+
+      await this.regenerateBVHForModel();
+
+      // HACK: Adjust the camera position after playback because the origin of the animation is offset
+      requestAnimationFrame(() => {
+        this.resetCamera();
+      });
+    });
+  }
+
+  // TODO use the bvh worker to generate the bvh / bounds tree
+  // TODO run this in its own loop to keep the bvh in sync with animation
+  // TODO investigate if we can get speedup using parallel bvh generation
+  public async regenerateBVHForModel() {
+    this.modelBVHGenerator!.generate(this.modelMeshHelper!.geometry);
+
+    if (! this.modelMeshHelper!.geometry.boundsTree) {
+      this.modelMeshHelper!.geometry.computeBoundsTree();
+    } else {
+      this.modelMeshHelper!.geometry.boundsTree.refit();
+    }
+
+    this.modelBVHHelper!.update();
+  }
+
+  public unloadVRM(): void {
+    if (this.model?.vrm) {
+      this._scene!.remove(this.model.vrm.scene);
+      // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
+      {
+        const geometry = this.modelMeshHelper?.geometry;
+        geometry?.dispose();
+        for (const key in geometry?.attributes) {
+          geometry?.deleteAttribute(key);
+        }
+        this._scene!.remove(this.modelMeshHelper as THREE.Object3D);
+        this._scene!.remove(this.modelBVHHelper as THREE.Object3D);
+      }
+      this.model?.unLoadVrm();
+    }
+  }
+
+  public loadRoom(url: string) {
+    if (this.room?.room) {
+      this.unloadRoom();
+    }
+
+    this.room = new Room();
+    return this.room.loadRoom(url).then(async () => {
+      if (!this.room?.room) return;
+
+      const roomYOffset = 1.2;
+
+      this.room.room.position.set(0, roomYOffset, 0);
+      this._scene!.add(this.room.room);
+
+      // build bvh
+      for (let child of this.room.room.children) {
+        if (child instanceof THREE.Mesh) {
+          // this must be cloned because the worker breaks rendering for some reason
+          const geometry = child.geometry.clone() as THREE.BufferGeometry;
+          const bvh = await this.bvhWorker!.generate(geometry, { maxLeafTris: 1 })!;
+          child.geometry.boundsTree = bvh;
+
+          if (config("debug_gfx") === "true") {
+            const helper = new MeshBVHHelper(child, bvh);
+            helper.color.set(0xE91E63);
+            this.roomBVHHelperGroup.add(helper)
+          }
+        }
+      }
+
+      this._scene!.add(this.roomBVHHelperGroup);
+    });
+  }
+
+  public unloadRoom(): void {
+    if (this.room?.room) {
+      this._scene!.remove(this.room.room);
+      // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
+      for (const item of this.roomBVHHelperGroup.children) {
+        if (item instanceof MeshBVHHelper) {
+          try {
+            // @ts-ignore
+            const geometry = item.geometry;
+            geometry?.dispose();
+            for (const key in geometry?.attributes) {
+              geometry?.deleteAttribute(key);
+            }
+          } catch (e) {
+            console.error('error disposing room geometry', e);
+          }
+        }
+      }
+      this._scene!.remove(this.roomBVHHelperGroup);
+    }
+  }
+
+  // probably too slow to use
+  // but fun experiment. maybe some use somewhere for tiny splats ?
+  public loadSplat(url: string) {
+    if (! this.room) {
+      this.room = new Room();
+    }
+    return this.room.loadSplat(url).then(async () => {
+      console.log('splat loaded');
+      if (!this.room?.splat) return;
+
+      this.room.splat.position.set(0, 4, 0);
+      this.room.splat.rotation.set(0, 0, Math.PI);
+      this._scene!.add(this.room.splat);
     });
   }
 
@@ -618,22 +615,18 @@ export class Viewer {
   }
 
   public doublePinchHandler() {
-    if (! this.igroup || ! this._renderer || !this.controller1 || !this.controller2) {
-      return;
-    }
-
-    const cam = this._renderer.xr.getCamera();
+    const cam = this._renderer!.xr.getCamera();
 
     const avgControllerPos = new THREE.Vector3()
-      .addVectors(this.controller1.position, this.controller2.position)
+      .addVectors(this.controller1!.position, this.controller2!.position)
       .multiplyScalar(0.5);
 
     const directionToControllers = new THREE.Vector3()
       .subVectors(avgControllerPos, cam.position)
       .normalize();
 
-    const controller1Distance = cam.position.distanceTo(this.controller1.position);
-    const controller2Distance = cam.position.distanceTo(this.controller2.position);
+    const controller1Distance = cam.position.distanceTo(this.controller1!.position);
+    const controller2Distance = cam.position.distanceTo(this.controller2!.position);
     const avgControllerDistance = (controller1Distance + controller2Distance) / 2;
 
     const distanceScale = 1;
@@ -642,8 +635,8 @@ export class Viewer {
     const pos = new THREE.Vector3()
       .addVectors(cam.position, directionToControllers.multiplyScalar(d));
 
-    this.igroup.position.copy(pos);
-    this.igroup.lookAt(cam.position);
+    this.igroup!.position.copy(pos);
+    this.igroup!.lookAt(cam.position);
   }
 
   /**
@@ -661,10 +654,9 @@ export class Viewer {
       parentElement.clientHeight
     );
 
-    if (!this._camera) return;
-    this._camera.aspect =
+    this._camera!.aspect =
       parentElement.clientWidth / parentElement.clientHeight;
-    this._camera.updateProjectionMatrix();
+    this._camera!.updateProjectionMatrix();
   }
 
   public resizeChatMode(on: boolean){
@@ -715,7 +707,7 @@ export class Viewer {
       1.3,
       this._camera?.position.z
     );
-    this._camera?.position.lerpVectors(this._camera?.position,newPosition,0);
+    this._camera?.position.lerpVectors(this._camera?.position, newPosition, 0);
     // this._cameraControls?.target.lerpVectors(this._cameraControls?.target,headWPos,0.5);
     // this._cameraControls?.update();
   }
@@ -748,6 +740,7 @@ export class Viewer {
 
   // itype: 0 = amica, 1 = room
   public createBallAtPoint(point: THREE.Vector3, itype: number = 0) {
+    return;
     const distance = point.distanceTo(this._camera?.position as THREE.Vector3);
     const s = 5;
     const h = (distance * s) - Math.floor(distance * s);
@@ -768,19 +761,14 @@ export class Viewer {
     const ballGeometry = new THREE.SphereGeometry(0.005, 16, 16);
     const ball = new THREE.Mesh(ballGeometry, ballMaterial);
     ball.position.copy(point);
-    this._scene.add(ball);
+    this._scene!.add(ball);
 
     setTimeout(() => {
-      this._scene.remove(ball);
+      this._scene!.remove(ball);
     }, 10000);
-
   }
 
   public updateRaycasts() {
-    if (! this._camera || ! this.model || ! this.room) {
-      return;
-    }
-
     const modelTargets: THREE.Mesh[] = [];
     const roomTargets: THREE.Mesh[] = [];
 
@@ -827,7 +815,7 @@ export class Viewer {
     }
 
     if (! this.usingController1 && ! this.usingController2) {
-      raycaster.setFromCamera(this.mouse, this._camera);
+      raycaster.setFromCamera(this.mouse, this._camera!);
       checkIntersection();
     }
 
@@ -844,56 +832,48 @@ export class Viewer {
   }
 
   public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {
+    // quick exit until setup finishes
+    if (! this.isReady) return;
+
     const delta = this._clock.getDelta();
 
     let utime = performance.now();
 
     let ptime = performance.now();
-    if (this.model) {
-      this.model.update(delta);
-    }
+    this.model?.update(delta);
     this.modelMsPanel.update(performance.now() - ptime, 40);
 
-    if (this._renderer && this._camera) {
-      ptime = performance.now();
-      this._renderer.render(this._scene, this._camera);
-      this.renderMsPanel.update(performance.now() - ptime, 100);
+    ptime = performance.now();
+    this._renderer!.render(this._scene!, this._camera!);
+    this.renderMsPanel.update(performance.now() - ptime, 100);
 
-      ptime = performance.now();
-      if (this._stats) {
-        this._stats.update();
-      }
-      if (this._statsMesh) {
-        // @ts-ignore
-        this._statsMesh.material.map.update();
-      }
-      this.statsMsPanel.update(performance.now() - ptime, 100);
+    ptime = performance.now();
+    this._stats!.update();
+    // @ts-ignore
+    this._statsMesh!.material.map.update();
+    this.statsMsPanel.update(performance.now() - ptime, 100);
 
+    this.room?.splat?.update(this._renderer, this._camera);
+    this.room?.splat?.render();
 
-      if (this.room?.splat) {
-        // this.room.splat.update(this._renderer, this._camera);
-        // this.room.splat.render();
-      }
+    if (this.isPinching1 && this.isPinching2) {
+      this.doublePinchHandler();
+    }
 
-      if (this.isPinching1 && this.isPinching2) {
-        this.doublePinchHandler();
-      }
+    // TODO run this in a web worker
+    // ideally parallel version
+    ptime = performance.now();
+    // this.regenerateBVHForModel();
+    this.bvhMsPanel.update(performance.now() - ptime, 100);
 
-      // TODO run this in a web worker
-      // ideally parallel version
-      ptime = performance.now();
-      // this.regenerateBVHForModel();
-      this.bvhMsPanel.update(performance.now() - ptime, 100);
+    ptime = performance.now();
+    this.updateRaycasts();
+    this.raycastMsPanel.update(performance.now() - ptime, 100);
 
-      ptime = performance.now();
-      this.updateRaycasts();
-      this.raycastMsPanel.update(performance.now() - ptime, 100);
+    if (this.sendScreenshotToCallback && this.screenshotCallback) {
+      this._renderer!.domElement.toBlob(this.screenshotCallback, "image/jpeg");
+      this.sendScreenshotToCallback = false;
 
-      if (this.sendScreenshotToCallback && this.screenshotCallback) {
-        this._renderer.domElement.toBlob(this.screenshotCallback, "image/jpeg");
-        this.sendScreenshotToCallback = false;
-
-      }
     }
 
     this.updateMsPanel.update(performance.now() - utime, 40);
