@@ -142,6 +142,7 @@ export const Settings = ({
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
   const [debugGfx, setDebugGfx] = useState<boolean>(config("debug_gfx") === 'true' ? true : false);
+  const [mtoonDebugMode, setMtoonDebugMode] = useState(config("mtoon_debug_mode"));
   const [useWebGPU, setUseWebGPU] = useState<boolean>(config("use_webgpu") === 'true' ? true : false);
 
   const vrmFileInputRef = useRef<HTMLInputElement>(null);
@@ -334,6 +335,8 @@ export const Settings = ({
       return <DeveloperPage
         debugGfx={debugGfx}
         setDebugGfx={setDebugGfx}
+        mtoonDebugMode={mtoonDebugMode}
+        setMtoonDebugMode={setMtoonDebugMode}
         useWebGPU={useWebGPU}
         setUseWebGPU={setUseWebGPU}
         setSettingsUpdated={setSettingsUpdated}
