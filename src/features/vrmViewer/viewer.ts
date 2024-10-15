@@ -8,6 +8,8 @@ import {
   MeshBVHHelper,
   StaticGeometryGenerator,
 } from 'three-mesh-bvh';
+import { GenerateMeshBVHWorker } from '@/workers/bvh/GenerateMeshBVHWorker';
+import { WorkerBase } from '@/workers/bvh/utils/WorkerBase';
 import {
   reversePainterSortStable,
   Container,
@@ -92,7 +94,9 @@ export class Viewer {
   private raycastMsPanel: any = null;
   private statsMsPanel: any = null;
 
+  private bvhWorker: WorkerBase | null = null;
   private modelBVHGenerator: StaticGeometryGenerator | null = null;
+  private modelGeometry: THREE.BufferGeometry | null = null;
   private modelMeshHelper: THREE.Mesh | null = null;
   private modelBVHHelper: MeshBVHHelper | null = null;
   private roomBVHHelperGroup: THREE.Group = new THREE.Group();
@@ -225,6 +229,9 @@ export class Viewer {
 
       // build bvh
       this.modelBVHGenerator = new StaticGeometryGenerator(this.model.vrm.scene);
+      // this.modelBVHGenerator.attributes = ['position', 'normal']
+      // this.modelBVHGenerator.useGroups = false
+      this.modelGeometry = this.modelBVHGenerator.generate().center();
 
       // TODO show during debug mode
       const wireframeMaterial = new THREE.MeshBasicMaterial( {
@@ -253,7 +260,7 @@ export class Viewer {
         this.model.update(0);
       }
 
-      this.regenerateBVHForModel();
+      await this.regenerateBVHForModel();
 
       // HACK: Adjust the camera position after playback because the origin of the animation is offset
       requestAnimationFrame(() => {
@@ -262,7 +269,10 @@ export class Viewer {
     });
   }
 
-  public regenerateBVHForModel() {
+  // TODO use the bvh worker to generate the bvh / bounds tree
+  // TODO run this in its own loop to keep the bvh in sync with animation
+  // TODO investigate if we can get speedup using parallel bvh generation
+  public async regenerateBVHForModel() {
     if (! this.modelMeshHelper || ! this.modelBVHGenerator || ! this.modelBVHHelper) {
       return;
     }
@@ -310,18 +320,20 @@ export class Viewer {
       this._scene.add(this.room.room);
 
       // build bvh
-      this.room.room.children.forEach((child) => {
+      for (let child of this.room.room.children) {
         if (child instanceof THREE.Mesh) {
-          const geometry = child.geometry;
-          geometry.computeBoundsTree();
+          // this must be cloned because the worker breaks rendering for some reason
+          const geometry = child.geometry.clone() as THREE.BufferGeometry;
+          const bvh = await this.bvhWorker!.generate(geometry)!;
+          child.geometry.boundsTree = bvh;
 
           if (config("debug_gfx") === "true") {
-            const helper = new MeshBVHHelper(child);
+            const helper = new MeshBVHHelper(child, bvh);
             helper.color.set(0xE91E63);
-            this.roomBVHHelperGroup.add(helper);
+            this.roomBVHHelperGroup.add(helper)
           }
         }
-      });
+      }
 
       this._scene.add(this.roomBVHHelperGroup);
     });
@@ -614,6 +626,7 @@ export class Viewer {
     this._statsMesh.scale.setScalar(2.5);
     igroup.add(this._statsMesh);
 
+    this.bvhWorker = new GenerateMeshBVHWorker();
 
     window.addEventListener("resize", () => {
       this.resize();
