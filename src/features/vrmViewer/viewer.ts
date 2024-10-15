@@ -114,7 +114,7 @@ export class Viewer {
     const ambientLight = new THREE.AmbientLight(0xffffff, 2.);
     scene.add(ambientLight);
 
-    const floorGeometry = new THREE.PlaneGeometry(100, 100);
+    const floorGeometry = new THREE.PlaneGeometry(10, 10);
     const floorMaterial = new THREE.MeshBasicMaterial({
       color: 0xFFFFFF,
       side: THREE.DoubleSide,
