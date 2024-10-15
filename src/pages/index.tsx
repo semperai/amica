@@ -9,7 +9,6 @@ import { DevUI } from '@iwer/devui';
 import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
 import { clsx } from "clsx";
-import { Montserrat } from "next/font/google";
 import { useTranslation, Trans } from 'react-i18next';
 import {
   ChatBubbleLeftIcon,
@@ -59,12 +58,6 @@ import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
 import { ChatModeText } from "@/components/chatModeText";
 
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
-
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  display: "swap",
-  subsets: ["latin"],
-});
 
 export default function Home() {
   const { t, i18n } = useTranslation();
@@ -267,7 +260,7 @@ export default function Home() {
   if (!showContent) return <></>;
 
   return (
-    <div className={montserrat.variable}>
+    <div>
       { config("youtube_videoid") !== '' && (
         <div className="fixed video-container w-full h-full z-0">
           <iframe
