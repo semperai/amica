@@ -278,7 +278,7 @@ export const Settings = ({
 
     case 'tts':
       return <MenuPage
-        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", , "coquiLocal_settings", "openai_tts_settings", "piper_settings", "rvc_settings"]}
+        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coquiLocal_settings", "openai_tts_settings", "piper_settings", "rvc_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'stt':

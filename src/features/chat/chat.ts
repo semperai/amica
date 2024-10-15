@@ -499,9 +499,7 @@ export class Chat {
           return voice.audio;
         }
         case 'coquiLocal': {
-          const voiceId = config('coqui_voice_id');
-          const voice = await coqui(talk.message, voiceId, talk.style);
-          if (rvcEnabled) { return await this.handleRvc(voice.audio) }
+          const voice = await coquiLocal(talk.message);
           return voice.audio;
         }
         case 'openai_tts': {
