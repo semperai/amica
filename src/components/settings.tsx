@@ -142,6 +142,7 @@ export const Settings = ({
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
   const [debugGfx, setDebugGfx] = useState<boolean>(config("debug_gfx") === 'true' ? true : false);
+  const [useWebGPU, setUseWebGPU] = useState<boolean>(config("use_webgpu") === 'true' ? true : false);
 
   const vrmFileInputRef = useRef<HTMLInputElement>(null);
   const handleClickOpenVrmFile = useCallback(() => {
@@ -333,6 +334,8 @@ export const Settings = ({
       return <DeveloperPage
         debugGfx={debugGfx}
         setDebugGfx={setDebugGfx}
+        useWebGPU={useWebGPU}
+        setUseWebGPU={setUseWebGPU}
         setSettingsUpdated={setSettingsUpdated}
       />;
 
