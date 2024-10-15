@@ -26,7 +26,7 @@
     "@heroicons/react": "^2.1.5",
     "@iwer/devui": "^0.1.1",
     "@mkkellogg/gaussian-splats-3d": "^0.4.5",
-    "@pixiv/three-vrm": "^3.1.1",
+    "@pixiv/three-vrm": "^3.1.2",
     "@ricky0123/vad-react": "^0.0.24",
     "@supabase/supabase-js": "^2.45.4",
     "@tabler/icons-react": "^3.19.0",
