@@ -4,6 +4,7 @@ const defaults = {
   wake_word: 'Hello',
   time_before_idle_sec: '20',
   debug_gfx: 'false',
+  use_webgpu: 'false',
   language: 'en',
   show_introduction: 'true',
   show_add_to_homescreen: 'true',

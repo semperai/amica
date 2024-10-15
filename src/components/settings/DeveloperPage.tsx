@@ -8,10 +8,14 @@ import { config, updateConfig } from "@/utils/config";
 export function DeveloperPage({
   debugGfx,
   setDebugGfx,
+  useWebGPU,
+  setUseWebGPU,
   setSettingsUpdated,
 }: {
   debugGfx: boolean;
   setDebugGfx: (value: boolean) => void;
+  useWebGPU: boolean;
+  setUseWebGPU: (value: boolean) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
   const { t } = useTranslation();
@@ -30,6 +34,19 @@ export function DeveloperPage({
               onChange={(value: boolean) => {
                 setDebugGfx(value);
                 updateConfig("debug_gfx", value.toString());
+                setSettingsUpdated(true);
+              }}
+            />
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label="Use WebGPU (requires restart)">
+            <SwitchBox
+              value={useWebGPU}
+              label="WebGPU Rendering"
+              onChange={(value: boolean) => {
+                setDebugGfx(value);
+                updateConfig("use_webgpu", value.toString());
                 setSettingsUpdated(true);
               }}
             />
