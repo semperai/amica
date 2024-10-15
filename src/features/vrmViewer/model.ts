@@ -1,5 +1,10 @@
 import * as THREE from "three";
-import { VRM, VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
+import {
+  VRM,
+  VRMLoaderPlugin,
+  VRMUtils,
+} from "@pixiv/three-vrm";
+import { MToonMaterialLoaderPlugin } from '@pixiv/three-vrm-materials-mtoon';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { VRMAnimation } from "@/lib/VRMAnimation/VRMAnimation";
 import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlugin/VRMLookAtSmootherLoaderPlugin";
@@ -33,6 +38,14 @@ export class Model {
     const helperRoot = new THREE.Group();
     helperRoot.renderOrder = 10000;
 
+    let MToonNodeMaterial = undefined;
+    if (config("use_webgpu") === "true") {
+      // create a WebGPU compatible MToonMaterialLoaderPlugin
+      // @ts-ignore
+      const { MToonNodeMaterial: mat } = await import('@pixiv/three-vrm-materials-mtoon/nodes');
+      MToonNodeMaterial = mat;
+    }
+
     loader.register((parser) => {
       const options: any = {
         lookAtPlugin: new VRMLookAtSmootherLoaderPlugin(parser),
@@ -40,6 +53,13 @@ export class Model {
 
       if (config("debug_gfx") === "true") {
         options.helperRoot = helperRoot;
+      }
+
+      if (config("use_webgpu") === "true") {
+        // TODO currently this is broken on latest three.js
+        // options.mtoonMaterialPlugin = new MToonMaterialLoaderPlugin(parser, {
+        //   materialType: MToonNodeMaterial,
+        // });
       }
 
       return new VRMLoaderPlugin(parser, options);

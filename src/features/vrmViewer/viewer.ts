@@ -375,22 +375,32 @@ export class Viewer {
   /**
    * Reactで管理しているCanvasを後から設定する
    */
-  public setup(canvas: HTMLCanvasElement) {
+  public async setup(canvas: HTMLCanvasElement) {
     console.log('setup canvas');
     const parentElement = canvas.parentElement;
     const width = parentElement?.clientWidth || canvas.width;
     const height = parentElement?.clientHeight || canvas.height;
-    // renderer
-    this._renderer = new THREE.WebGLRenderer({
+
+    let WebRendererType = THREE.WebGLRenderer;
+    if (config('use_webgpu') === 'true') {
+      // @ts-ignore
+      WebRendererType = (await import("three/src/renderers/webgpu/WebGPURenderer.js")).default;
+    }
+
+    this._renderer = new WebRendererType({
       canvas: canvas,
       alpha: true,
       antialias: true,
       powerPreference: 'high-performance',
-    });
+    }) as THREE.WebGLRenderer;
     this._renderer.setSize(width, height);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._renderer.xr.enabled = true;
-    this._renderer.xr.setFoveation(0);
+
+    // webgpu does not support foveation yet
+    if (config('use_webgpu') !== 'true') {
+      this._renderer.xr.setFoveation(0);
+    }
 
     // camera
     this._camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
@@ -508,10 +518,15 @@ export class Viewer {
     this.igroup = new InteractiveGroup();
     const igroup = this.igroup;
     igroup.listenToPointerEvents(this._renderer, this._camera);
-    // @ts-ignore
-    igroup.listenToXRControllerEvents(this.controller1);
-    // @ts-ignore
-    igroup.listenToXRControllerEvents(this.controller2);
+    // webgpu does not support xr controller events yet
+    if (config('use_webgpu') !== 'true') {
+      // @ts-ignore
+      igroup.listenToXRControllerEvents(this.controller1);
+    }
+    if (config('use_webgpu') !== 'true') {
+      // @ts-ignore
+      igroup.listenToXRControllerEvents(this.controller2);
+    }
     igroup.position.set(-0.25, 1.3, -0.8);
     igroup.rotation.set(0, Math.PI / 8, 0);
     this._scene.add(igroup);
