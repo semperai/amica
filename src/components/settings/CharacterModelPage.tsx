@@ -4,6 +4,7 @@ import { BasicPage } from "./common";
 import { updateConfig } from "@/utils/config";
 import { TextButton } from "@/components/textButton";
 import { VrmData } from '@/features/vrmStore/vrmData';
+import { Viewer } from '@/features/vrmViewer/viewer';
 
 export function CharacterModelPage({
   viewer,
@@ -17,7 +18,7 @@ export function CharacterModelPage({
   setSettingsUpdated,
   handleClickOpenVrmFile,
 }: {
-  viewer: any; // TODO
+  viewer: Viewer;
   vrmHash: string;
   vrmUrl: string;
   vrmSaveType: string;
