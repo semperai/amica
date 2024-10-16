@@ -213,8 +213,7 @@ export class AmicaLife {
         // Main event handling
         const idleEvent = this.mainEvents.dequeue();
         if (idleEvent) {
-          // removed for staging usage
-          //console.time(`processing_event ${idleEvent.events}`);
+          console.time(`processing_event ${idleEvent.events}`);
           this.eventProcessing = true;
           await handleIdleEvent(idleEvent, this, this.chat!, this.viewer!);
           !(idleEvent.events === 'Subconcious' || idleEvent.events === 'Sleep') ? this.mainEvents.enqueue(idleEvent) : null;

@@ -60,7 +60,8 @@ async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
 
   // Store the current animation as the previous one for the next call
   previousAnimation = basename(randomAnimation);
-  console.log("Handling idle event (animation):", previousAnimation);
+  // removed for staging logs.
+  //console.log("Handling idle event (animation):", previousAnimation);
 
   try {
     if (viewer) {
@@ -91,8 +92,8 @@ async function handleTextEvent(chat: Chat, amicaLife: AmicaLife) {
     Math.random() * basedPrompt.idleTextPrompt.length,
   );
   const randomTextPrompt = basedPrompt.idleTextPrompt[randomIndex];
-
-  console.log("Handling idle event (text):", randomTextPrompt);
+  // removed for staging logs.
+  //console.log("Handling idle event (text):", randomTextPrompt);
   try {
     await chat.receiveMessageFromUser?.(randomTextPrompt, true);
     amicaLife.eventProcessing = false;
@@ -108,7 +109,7 @@ async function handleTextEvent(chat: Chat, amicaLife: AmicaLife) {
 // Handles sleep event.
 
 export async function handleSleepEvent(chat: Chat, amicaLife: AmicaLife) {
-  console.log("Handling idle event :", "Sleep");
+  console.log("Sleeping...");
   amicaLife.pause();
   amicaLife.isSleep = true;
   try {
@@ -130,7 +131,8 @@ export async function handleSubconsciousEvent(
   chat: Chat,
   amicaLife: AmicaLife,
 ) {
-  console.log("Handling idle event:", "Subconscious");
+  // removed for staging logs.
+  //console.log("Handling idle event:", "Subconscious");
 
   const convo = chat.messageList;
   const convoLog = convo
@@ -218,7 +220,7 @@ export async function handleSubconsciousEvent(
 // Handles news event
 
 export async function handleNewsEvent(chat: Chat, amicaLife: AmicaLife) {
-  console.log("Handling idle event :", "News");
+  console.log("Function Calling: News");
 
   try {
     const news = await functionCalling("news");
