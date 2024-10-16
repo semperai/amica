@@ -165,6 +165,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'piper_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'rvc_settings': return <CogIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'coquiLocal_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'localXTTS_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'stt_backend':         return <PencilSquareIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'stt_wake_word':  return <MoonIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -212,7 +213,8 @@ function getLabelFromPage(page: string): string {
     case 'openai_tts_settings': return t('OpenAI');
     case 'piper_settings':      return t('Piper');
     case 'rvc_settings':        return t('RVC');
-    case 'coquiLocal_settings':      return t('coquiLocal');
+    case 'coquiLocal_settings': return t('Coqui Local');
+    case 'localXTTS_settings':  return t('LocalXTTS');
 
     case 'vision_backend':           return t('Vision Backend');
     case 'vision_llamacpp_settings': return t('LLama.cpp');

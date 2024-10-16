@@ -57,7 +57,7 @@ export function TTSBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["elevenlabs", "speecht5", "openai_tts", "piper", "coquiLocal"].includes(ttsBackend) && (
+        { ["elevenlabs", "speecht5", "openai_tts", "piper", "coquiLocal", "localXTTS"].includes(ttsBackend) && (
           <li className="py-4">
             <FormRow label={`${t("Configure")} ${t(idToTitle(ttsBackend))}`}>
               <button

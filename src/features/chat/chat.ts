@@ -498,10 +498,6 @@ export class Chat {
           if (rvcEnabled) { return await this.handleRvc(voice.audio) }
           return voice.audio;
         }
-        case 'coquiLocal': {
-          const voice = await coquiLocal(talk.message);
-          return voice.audio;
-        }
         case 'openai_tts': {
           const voice = await openaiTTS(talk.message);
           if (rvcEnabled) { return await this.handleRvc(voice.audio) }
