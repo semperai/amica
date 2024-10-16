@@ -226,6 +226,7 @@ export class Viewer {
 
     igroup.position.set(-0.25, 1.3, -0.8);
     igroup.rotation.set(0, Math.PI / 8, 0);
+    igroup.visible = false;
     scene.add(igroup);
 
     igroup.listenToPointerEvents(renderer, camera);
@@ -439,6 +440,7 @@ export class Viewer {
 
     this.teleport(0, -1.2, 0);
 
+    this.igroup!.visible = true;
     if (immersiveType === 'immersive-vr') {
       this._floor!.visible = true;
       this.handGroup.visible = true;
@@ -466,6 +468,7 @@ export class Viewer {
     this.currentSession.removeEventListener('end', this.onSessionEnded);
     this.currentSession = null;
 
+    this.igroup!.visible = false;
     this._floor!.visible = false;
     this.handGroup.visible = false;
 
