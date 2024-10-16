@@ -128,7 +128,7 @@ export class AmicaLife {
   // Function to check message from user
   public receiveMessageFromUser(message: string) {
     if (message.toLowerCase().includes('news')) {
-      console.log("Added news event to amica life");
+      console.log("Triggering news function call.");
       this.insertFront({events: "News"});
     }
 
@@ -155,7 +155,7 @@ export class AmicaLife {
 
     this.isProcessingIdleRunning = true;
 
-    console.log("Starting idle loop");
+    console.log("Starting Amica Life");
     while (config("amica_life_enabled") === "true") {
       // Check if amica is in idle state trigger processingEvent loop
       if (!this.chat?.isAwake()) {
@@ -204,7 +204,8 @@ export class AmicaLife {
 
         // Random chance for doing nothing (25% chance)
         if (Math.random() <= 0.25) {
-          console.log("Handling idle event:", "Doing nothing this cycle");
+          // removed for staging usage
+          //console.log("Handling idle event:", "Doing nothing this cycle");
           await this.waitInterval();
           continue;
         }
@@ -217,7 +218,8 @@ export class AmicaLife {
           await handleIdleEvent(idleEvent, this, this.chat!, this.viewer!);
           !(idleEvent.events === 'Subconcious' || idleEvent.events === 'Sleep') ? this.mainEvents.enqueue(idleEvent) : null;
         } else {
-          console.log("Handling idle event:", "No idle events in queue");
+          //removed for staging usage
+          //console.log("Handling idle event:", "No idle events in queue");
         } 
       } else if ( this.chat!.speakJobs.size() > 0 || this.chat!.ttsJobs.size() > 0 || this.isChatSpeaking) {
         pauseIdleTimer();
@@ -258,12 +260,12 @@ export class AmicaLife {
   // Function to pause the processingEvent loop is pauseFlag is true/false
   private async checkPause() {
     if (this.isPause) {
-      console.log("Idle loop paused");
+      console.log("Amica Life Paused");
       await new Promise<void>((resolve) => {
         const checkPause = setInterval(() => {
           if (!this.isPause) {
             clearInterval(checkPause);
-            resolve(console.log("Idle loop resumed"));
+            resolve(console.log("Amica Life Initiated"));
           }
         }, 50);
       });
@@ -301,7 +303,8 @@ export class AmicaLife {
       240,
     );
     // updateConfig("time_before_idle_sec", idleTimeSec.toString());
-    console.log(`Updated time before idle to ${idleTimeSec} seconds`);
+    // removed for staging
+    //console.log(`Updated time before idle to ${idleTimeSec} seconds`);
   }
 
   public async waitInterval() {

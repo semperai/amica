@@ -22,10 +22,15 @@ export const Introduction = ({ open }: {
             {t("Welcome to Amica")}
           </div>
           <p>{t("amica_intro", `
-            Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.
-            It is designed to be able to be attached to any ChatBot API.
+            Amica is an open source chatbot interface that provides emotion, vision, animations, self triggered actions, text to speech, and speech to text capabilities.
+            
+            It is designed to be able to be attached to any AI model.
+            
             It can be used with any VRM model and is very customizable.
+            
             You can even run Amica on your own computer without an internet connection, or on your phone.
+
+            On launch Amica uses our demo chatbot and TTS server. It may take time to load the first message you send.
           `)}
           </p>
         </div>
@@ -35,7 +40,10 @@ export const Introduction = ({ open }: {
           </div>
           <p>{t('amica_setup', `
             Click on the top left of the screen to open settings.
-            You can change the voice, language, and attach to different backends or in-browser models.
+            
+            You can change the voice, character system prompt, share/load/save and attach to different backends or in-browser models. 
+            
+            Please check our docs for more detailed configuration instructions on docs.heyamica.com
           `)}
           {' '}
           <a href="https://docs.heyamica.com" target="_blank" className="text-cyan-500">{t("Read the full documentation here.")}</a>

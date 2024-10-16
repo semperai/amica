@@ -38,7 +38,7 @@ export function CoquiLocalSettingsPage({
   return (
     <BasicPage
       title={t("CoquiLocal") + " "+ t("Settings")}
-      description={t("coquiLocal_desc", "Configure CoquiLocal")}
+      description={t("coquiLocal_desc", "Configure Coqui (Local), this is running Coqui locally, and no Coqui API (where the company has stopped providing an API service.")}
     >
       { config("tts_backend") !== "coquiLocal" && (
         <NotUsingAlert>

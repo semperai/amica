@@ -22,7 +22,7 @@ export function CharacterAnimationPage({
   return (
     <BasicPage
       title={t("Character Idle Animation")}
-      description={t("Select the animation to play when idle.")}
+      description={t("Select the animation to play when idle. To load more animations refer to docs.")}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
