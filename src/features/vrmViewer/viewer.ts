@@ -493,18 +493,21 @@ export class Viewer {
     this._renderer!.xr.setReferenceSpace(teleportSpaceOffset);
   }
 
-  public async loadVrm(url: string) {
+  public async loadVrm(url: string, setLoadingProgress: (progress: string) => void) {
     if (this.model?.vrm) {
       this.unloadVRM();
     }
+    setLoadingProgress('Loading VRM');
 
     // gltf and vrm
     this.model = new Model(this._camera || new THREE.Object3D());
-    await this.model.loadVRM(url);
+    await this.model.loadVRM(url, setLoadingProgress);
+    setLoadingProgress('VRM loaded');
     if (!this.model?.vrm) return;
 
     // build bvh
     this.modelBVHGenerator = new StaticGeometryGenerator(this.model.vrm.scene);
+    setLoadingProgress('Creating geometry');
 
     // TODO show during debug mode
     const wireframeMaterial = new THREE.MeshBasicMaterial( {
@@ -531,11 +534,15 @@ export class Viewer {
       ? await loadVRMAnimation(config("animation_url"))
       : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
     if (animation) {
+      setLoadingProgress('Loading animation');
       await this.model.loadAnimation(animation);
       this.model.update(0);
     }
 
+    setLoadingProgress('Regenerating BVH');
     await this.regenerateBVHForModel();
+
+    setLoadingProgress('Complete');
 
     // HACK: Adjust the camera position after playback because the origin of the animation is offset
     this.resetCamera();

@@ -35,7 +35,9 @@ async function hashFile(file: File): Promise<string> {
 
 async function updateVrmAvatar(viewer: any, url: string) {
   try {
-    await viewer.loadVrm(url);
+    await viewer.loadVrm(url, (progress: string) => {
+      // TODO handle loading progress
+    });
   } catch (e) {
     console.error(e);
   }

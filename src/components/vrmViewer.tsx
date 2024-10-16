@@ -14,6 +14,7 @@ export default function VrmViewer({chatMode}:{chatMode: boolean}) {
   const { viewer } = useContext(ViewerContext);
   const { getCurrentVrm, vrmList, vrmListAddFile, isLoadingVrmList } = useVrmStoreContext();
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState('');
   const [loadingError, setLoadingError] = useState(false);
   const isVrmLocal = 'local' == config("vrm_save_type");
 
@@ -35,7 +36,7 @@ export default function VrmViewer({chatMode}:{chatMode: boolean}) {
               setIsLoading(true);
               resolve(false);
             } else {
-              await viewer.loadVrm(buildUrl(currentVrm.url));
+              await viewer.loadVrm(buildUrl(currentVrm.url), setLoadingProgress);
               // await viewer.loadRoom(buildUrl('/room/myroom.glb'));
               // await viewer.loadRoom(buildUrl('/room/bathroom.glb'));
               // await viewer.loadRoom(buildUrl('/room/basic_house.glb'));
@@ -99,7 +100,7 @@ export default function VrmViewer({chatMode}:{chatMode: boolean}) {
       <canvas ref={canvasRef} className={"h-full w-full"}></canvas>
       {isLoading && (
         <div className={"absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"}>
-          <div className={"text-white text-2xl"}>Loading...</div>
+          <div className={"text-white text-2xl"}>{loadingProgress}</div>
         </div>
       )}
       {loadingError && (

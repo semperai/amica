@@ -40,7 +40,9 @@ export function CharacterModelPage({
             <button
               key={vrm.url}
               onClick={() => {
-                viewer.loadVrm(vrm.url);
+                viewer.loadVrm(vrm.url, (progress: string) => {
+                  // TODO handle loading progress
+                });
                 setVrmSaveType(vrm.saveType);
                 updateConfig('vrm_save_type', vrm.saveType);
                 if (vrm.saveType == 'local') {

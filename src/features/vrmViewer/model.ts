@@ -32,7 +32,7 @@ export class Model {
     this._lipSync = new LipSync(new AudioContext());
   }
 
-  public async loadVRM(url: string): Promise<void> {
+  public async loadVRM(url: string, setLoadingProgress: (progress: string) => void): Promise<void> {
     const loader = new GLTFLoader();
 
     // used for debug rendering
@@ -90,43 +90,55 @@ export class Model {
       return new VRMLoaderPlugin(parser, options);
     });
 
-    const gltf = await loader.loadAsync(url);
+    return new Promise((resolve, reject) => {
+      loader.load(url, (gltf) => {
+        setLoadingProgress("Processing VRM");
 
-    const vrm = (this.vrm = gltf.userData.vrm);
-    vrm.scene.name = "VRMRoot";
+        const vrm = (this.vrm = gltf.userData.vrm);
+        vrm.scene.name = "VRMRoot";
 
-    VRMUtils.removeUnnecessaryVertices(gltf.scene);
-    VRMUtils.removeUnnecessaryJoints(gltf.scene);
+        VRMUtils.removeUnnecessaryVertices(gltf.scene);
+        VRMUtils.removeUnnecessaryJoints(gltf.scene);
 
-    const mtoonDebugMode = config('mtoon_debug_mode');
-    vrm.scene.traverse((obj: any) => {
-      obj.frustumCulled = false;
+        const mtoonDebugMode = config('mtoon_debug_mode');
+        vrm.scene.traverse((obj: any) => {
+          obj.frustumCulled = false;
 
-      if (mtoonDebugMode !== 'none') {
-        if (obj.material) {
-          if (Array.isArray(obj.material)) {
-            obj.material.forEach((mat: any) => {
-              if (mat.isMToonMaterial) {
-                mat.debugMode = mtoonDebugMode;
+          if (mtoonDebugMode !== 'none') {
+            if (obj.material) {
+              if (Array.isArray(obj.material)) {
+                obj.material.forEach((mat: any) => {
+                  if (mat.isMToonMaterial) {
+                    mat.debugMode = mtoonDebugMode;
+                  }
+                });
+              } else {
+                if (obj.material.isMToonMaterial) {
+                  obj.material.debugMode = mtoonDebugMode;
+                }
               }
-            });
-          } else {
-            if (obj.material.isMToonMaterial) {
-              obj.material.debugMode = mtoonDebugMode;
             }
           }
+        });
+
+        // TODO this causes helperRoot to be rendered to side
+        // VRMUtils.rotateVRM0(vrm);
+
+        if (config("debug_gfx") === "true") {
+          vrm.scene.add(helperRoot);
         }
-      }
+
+        this.mixer = new THREE.AnimationMixer(vrm.scene);
+
+        this.emoteController = new EmoteController(vrm, this._lookAtTargetParent);
+
+        resolve();
+      }, (xhr) => {
+        setLoadingProgress(`${Math.floor(xhr.loaded / xhr.total * 10000)/100}% loaded`);
+      }, (error) => {
+        reject(error);
+      });
     });
-
-    if (config("debug_gfx") === "true") {
-      vrm.scene.add(helperRoot);
-    }
-
-    this.mixer = new THREE.AnimationMixer(vrm.scene);
-
-    this.emoteController = new EmoteController(vrm, this._lookAtTargetParent);
-
   }
 
   public unLoadVrm() {

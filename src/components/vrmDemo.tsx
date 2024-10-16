@@ -16,6 +16,7 @@ export default function VrmDemo({
   
   const { viewer } = useContext(ViewerContext);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState('');
   const [loadingError, setLoadingError] = useState(false);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function VrmDemo({
         viewer.setup(canvas);
         (new Promise(async (resolve, reject) => {
           try {
-            const loaded = await viewer.loadVrm(buildUrl(vrmUrl));
+            await viewer.loadVrm(buildUrl(vrmUrl), setLoadingProgress);
             resolve(true);
           } catch (e) {
             reject();
@@ -58,7 +59,7 @@ export default function VrmDemo({
     <div>
       <canvas ref={canvasRef} className={"h-full w-full"} />
       {isLoading && (
-        <div className={"text-gray-500 p-2 text-2xl"}>Loading...</div>
+        <div className={"text-gray-500 p-2 text-2xl"}>{loadingProgress}</div>
       )}
       {loadingError && (
         <div className={"p-2 text-2xl"}>Error loading VRM model...</div>
