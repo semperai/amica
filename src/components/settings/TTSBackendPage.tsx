@@ -7,10 +7,10 @@ const ttsEngines = [
   {key: "none",       label: "None"},
   {key: "elevenlabs", label: "ElevenLabs"},
   {key: "speecht5",   label: "SpeechT5"},
-  {key: "coqui",      label: "Coqui TTS"},
   {key: "openai_tts", label: "OpenAI TTS"},
-  {key: "localXTTS",  label: "Local XTTS"}, // Our local TTS endpoint (XTTS based)
+  {key: "localXTTS",  label: "Alltalk TTS"}, // Our local TTS endpoint (XTTS based)
   {key: "piper",      label: "Piper"},
+  {key: "coquiLocal", label: "Coqui Local"},
 ];
 
 function idToTitle(id: string): string {
@@ -37,7 +37,7 @@ export function TTSBackendPage({
   return (
     <BasicPage
       title={t("TTS Backend")}
-      description={t("TTS_Backend_desc", "Select the TTS backend to use")}
+      description={t("TTS_Backend_desc", "Select the TTS backend to use. By default this is set to our TTS server. Elevenlabs is a paid service with the best voice, but it is free for non-commercial use. SpeechT5 is an open source TTS model. OpenAI TTS is an open source TTS model. Local XTTS is our local TTS endpoint (XTTS based). Piper is a free TTS model. Coqui Local is a free TTS model.")}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
@@ -57,7 +57,7 @@ export function TTSBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["elevenlabs", "speecht5", "coqui", "openai_tts", "piper"].includes(ttsBackend) && (
+        { ["elevenlabs", "speecht5", "openai_tts", "piper", "coquiLocal", "localXTTS"].includes(ttsBackend) && (
           <li className="py-4">
             <FormRow label={`${t("Configure")} ${t(idToTitle(ttsBackend))}`}>
               <button

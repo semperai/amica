@@ -18,11 +18,15 @@
 
 </h5>
 
-Amica is an application that allows you to easily converse with 3D characters in your browser.
+Amica allows you to converse with highly customizable 3D characters that can communicate via natural voice chat and vision, with an emotion engine that allows Amica to express feelings and more. Customize her any way you want with any AI technology.
 
 [Try Amica here on mobile, tablet or desktop](https://amica.arbius.ai)
 
-We just released Amica 1.2 with lots of new features. Docs will be further updated soon, watch the video to learn about what Amica 1.2 offers:
+> **For Windows Users**: Please create a new folder for Amica during installation to prevent the unintentional deletion of other files during uninstallation.
+
+<p align="center"><a href="https://github.com/flukexp/llama-piper-go/releases/download/v1.0.0/llama-piper-window.exe"><img src="https://img.shields.io/badge/Download%20for%20Windows%20-green?style=for-the-badge&logo=windows" /></a>
+
+We just released Amica 1.2 with lots of new features. [Docs](https://docs.heyamica.com/) will be further updated soon, **watch the video to learn about what Amica 1.2 offers:**
 
 [![Video Title](https://img.youtube.com/vi/3zCN2IlxHrU/0.jpg)](https://www.youtube.com/watch?v=3zCN2IlxHrU)
 
@@ -31,7 +35,9 @@ You can import VRM files, adjust the voice to fit the character, and generate re
 
 </p>
 
-The various features of Amica mainly use the following technologies:
+The various features of Amica mainly use and support the following technologies:
+
+> To see tutorials on configuring any of these with Amica please visit the [official Amica documentation](https://docs.heyamica.com/).
 
 - 3D Rendering
   - [three.js](https://threejs.org/)
@@ -49,11 +55,14 @@ The various features of Amica mainly use the following technologies:
   - [Window.ai](https://windowai.io/)
   - [Ollama](https://ollama.ai)
   - [KoboldCpp](https://github.com/LostRuins/koboldcpp)
+  - [Oobabooga](https://github.com/oobabooga/text-generation-webui/wiki)
 - Text-to-Speech
-  - [Coqui API](https://coqui.ai/)
   - [Eleven Labs API](https://elevenlabs.io/)
   - [Speech T5](https://huggingface.co/microsoft/speecht5_tts)
   - [OpenAI](https://platform.openai.com/docs/guides/text-to-speech)
+  - [Coqui (Local)](https://github.com/coqui-ai)
+  - [RVC](https://github.com/SocAIty/Retrieval-based-Voice-Conversion-FastAPI)
+  - [AllTalkTTS](https://github.com/erew123/alltalk_tts)
 - Vision
   - [Bakllava](https://github.com/SkunkworksAI/BakLLaVA)
 

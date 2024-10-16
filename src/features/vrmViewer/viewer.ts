@@ -109,7 +109,7 @@ export class Viewer {
   public model?: Model;
   public room?: Room;
 
-  private _renderer?: THREE.WebGLRenderer;
+  public _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
   private elapsedMsMid: number = 0;
   private elapsedMsSlow: number = 0;

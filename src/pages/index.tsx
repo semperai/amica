@@ -4,8 +4,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { XRDevice, metaQuest3 } from 'iwer';
-import { DevUI } from '@iwer/devui';
 import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
 import { clsx } from "clsx";
@@ -67,6 +65,7 @@ export default function Home() {
   const { chat: bot } = useContext(ChatContext);
   const { amicaLife: amicaLife } = useContext(AmicaLifeContext);
 
+  const [chatSpeaking, setChatSpeaking] = useState(false);
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
@@ -96,16 +95,6 @@ export default function Home() {
     amicaLife.checkSettingOff(!showSettings);
   }, [showSettings, amicaLife]);
 
-  /*
-  useEffect(() => {
-    console.log('iwer init');
-    const xrDevice = new XRDevice(metaQuest3);
-    xrDevice.installRuntime();
-    const devui = new DevUI(xrDevice);
-    console.log('iwer device', xrDevice);
-  }, []);
-  */
-
   useEffect(() => {
     if (muted === null) {
       setMuted(config('tts_muted') === 'true');
@@ -127,7 +116,6 @@ export default function Home() {
         setIsVRSupported(supported);
       });
     }
-
   }, []);
 
 
@@ -238,6 +226,7 @@ export default function Home() {
       setAssistantMessage,
       setShownMessage,
       setChatProcessing,
+      setChatSpeaking,
     );
 
     // TODO remove in future
@@ -252,6 +241,7 @@ export default function Home() {
       viewer,
       bot,
       setSubconciousLogs,
+      chatSpeaking,
     );
   }, [amicaLife, bot, viewer]);
 

@@ -60,14 +60,8 @@ async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
 
   // Store the current animation as the previous one for the next call
   previousAnimation = basename(randomAnimation);
-  console.log("Handling idle event (animation):", previousAnimation);
-
-  // Boolean to check if the animation should reinitialized its initial position to sync with idle action or not
-  const modify =
-    basename(randomAnimation) === "greeting.vrma" ||
-    basename(randomAnimation) === "idle_loop.vrma"
-      ? false
-      : true;
+  // removed for staging logs.
+  //console.log("Handling idle event (animation):", previousAnimation);
 
   try {
     if (viewer) {
@@ -76,7 +70,7 @@ async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
         throw new Error("Loading animation failed");
       }
       // @ts-ignore
-      const duration = await viewer.model!.playAnimation(animation, modify);
+      const duration = await viewer.model!.playAnimation(animation, previousAnimation);
       requestAnimationFrame(() => { viewer.resetCameraLerp(); });
 
       // Set timeout for the duration of the animation
@@ -98,8 +92,8 @@ async function handleTextEvent(chat: Chat, amicaLife: AmicaLife) {
     Math.random() * basedPrompt.idleTextPrompt.length,
   );
   const randomTextPrompt = basedPrompt.idleTextPrompt[randomIndex];
-
-  console.log("Handling idle event (text):", randomTextPrompt);
+  // removed for staging logs.
+  //console.log("Handling idle event (text):", randomTextPrompt);
   try {
     await chat.receiveMessageFromUser?.(randomTextPrompt, true);
     amicaLife.eventProcessing = false;
@@ -115,7 +109,7 @@ async function handleTextEvent(chat: Chat, amicaLife: AmicaLife) {
 // Handles sleep event.
 
 export async function handleSleepEvent(chat: Chat, amicaLife: AmicaLife) {
-  console.log("Handling idle event :", "Sleep");
+  console.log("Sleeping...");
   amicaLife.pause();
   amicaLife.isSleep = true;
   try {
@@ -137,7 +131,8 @@ export async function handleSubconsciousEvent(
   chat: Chat,
   amicaLife: AmicaLife,
 ) {
-  console.log("Handling idle event:", "Subconscious");
+  // removed for staging logs.
+  //console.log("Handling idle event:", "Subconscious");
 
   const convo = chat.messageList;
   const convoLog = convo
@@ -155,7 +150,8 @@ export async function handleSubconsciousEvent(
       `${convoLog}`,
       null,
     );
-    console.log("Result from step 1: ", subconciousWordSalad);
+    // Removed for staging logs.
+    //console.log("Result from step 1: ", subconciousWordSalad);
 
     // Step 2: Describe the emotion you feel about the subconscious diary
     const secondStepPrompt = subconciousWordSalad.startsWith("Error:")
@@ -166,7 +162,9 @@ export async function handleSubconsciousEvent(
       secondStepPrompt,
       null,
     );
-    console.log("Result from step 2: ", decipherEmotion);
+
+    // Removed for staging logs.
+    //console.log("Result from step 2: ", decipherEmotion);
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
     const thirdStepPrompt = decipherEmotion.startsWith("Error:")
@@ -179,7 +177,9 @@ export async function handleSubconsciousEvent(
       thirdStepPrompt,
       chat,
     );
-    console.log("Result from step 3: ", emotionDecided);
+
+    // Removed for staging logs.
+    // console.log("Result from step 3: ", emotionDecided);
 
     // Step 4: Compress the subconscious diary entry to 240 characters
     const fourthStepPrompt = subconciousWordSalad.startsWith("Error:")
@@ -190,7 +190,7 @@ export async function handleSubconsciousEvent(
       fourthStepPrompt,
       null,
     );
-    console.log("Result from step 4: ", compressSubconcious);
+    console.log("Stored Memory: ", compressSubconcious);
 
     // Add timestamp to the compressed subconscious
     const timestampedPrompt: TimestampedPrompt = {
@@ -220,7 +220,7 @@ export async function handleSubconsciousEvent(
 // Handles news event
 
 export async function handleNewsEvent(chat: Chat, amicaLife: AmicaLife) {
-  console.log("Handling idle event :", "News");
+  console.log("Function Calling: News");
 
   try {
     const news = await functionCalling("news");
