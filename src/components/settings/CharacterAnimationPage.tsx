@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { Viewer } from "@/features/vrmViewer/viewer";
 import { BasicPage, FormRow, basename } from "./common";
 import { SwitchBox } from '@/components/switchBox';
 import { animationList } from "@/paths";
@@ -58,7 +59,7 @@ export function CharacterAnimationPage({
                 // @ts-ignore
                 const animation = url.indexOf("vrma") > 0
                   ? await loadVRMAnimation(url)
-                  : await loadMixamoAnimation(url, viewer.model!.vrm);
+                  : await loadMixamoAnimation(url, viewer.model!.vrm!);
 
                 // @ts-ignore
                 viewer.model!.loadAnimation(animation);
