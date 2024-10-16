@@ -440,6 +440,7 @@ export class Viewer {
 
     this.teleport(0, -1.2, -1);
 
+    // TODO igroup should only be visible if xr doesnt support dom-overlay
     this.igroup!.visible = true;
     if (immersiveType === 'immersive-vr') {
       this._floor!.visible = true;
