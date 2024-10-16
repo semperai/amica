@@ -50,6 +50,7 @@ export class Chat {
   public setAssistantMessage?: (message: string) => void;
   public setShownMessage?: (role: Role) => void;
   public setChatProcessing?: (processing: boolean) => void;
+  public setChatSpeaking?: (speaking: boolean) => void;
 
   // the message from the user that is currently being processed
   // it can be reset
@@ -103,6 +104,7 @@ export class Chat {
     setAssistantMessage: (message: string) => void,
     setShownMessage: (role: Role) => void,
     setChatProcessing: (processing: boolean) => void,
+    setChatSpeaking: (speaking: boolean) => void,
   ) {
     this.amicaLife = amicaLife;
     this.viewer = viewer;
@@ -112,6 +114,7 @@ export class Chat {
     this.setAssistantMessage = setAssistantMessage;
     this.setShownMessage = setShownMessage;
     this.setChatProcessing = setChatProcessing;
+    this.setChatSpeaking = setChatSpeaking;
 
     // these will run forever
     this.processTtsJobs();
@@ -221,7 +224,9 @@ export class Chat {
         this.bubbleMessage("assistant",speak.screenplay.text);
 
         if (speak.audioBuffer) {
+          this.setChatSpeaking!(true);
           await this.viewer!.model?.speak(speak.audioBuffer, speak.screenplay);
+          this.setChatSpeaking!(false);
           this.isAwake() ? this.updateAwake() : null;
         }
       } while (this.speakJobs.size() > 0);
@@ -316,9 +321,6 @@ export class Chat {
   public async receiveMessageFromUser(message: string, amicaLife: boolean) {
     if (message === null || message === "") {
       return;
-    }
-    if (config("wake_word_enabled") === 'true') {
-      this.updateAwake();
     }
 
     console.time('performance_interrupting');
