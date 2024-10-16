@@ -19,7 +19,7 @@ export async function localXTTSTTS(message:string){
   });
 
   try {
-    const res = await fetch("http://127.0.0.1:7851/api/tts-generate", {
+    const res = await fetch(`${config("localXTTS_url")}`, {
       method: "POST",
       body: formData,
       

@@ -46,6 +46,7 @@ import { SpeechT5SettingsPage } from './settings/SpeechT5SettingsPage';
 import { OpenAITTSSettingsPage } from './settings/OpenAITTSSettingsPage';
 import { PiperSettingsPage } from './settings/PiperSettingsPage';
 import { CoquiLocalSettingsPage } from './settings/CoquiLocalSettingsPage';
+import { LocalXTTSSettingsPage } from "./settings/LocalXTTSSettingsPage";
 
 import { RVCSettingsPage } from './settings/RVCSettingsPage';
 
@@ -118,6 +119,8 @@ export const Settings = ({
 
   const [coquiLocalUrl, setCoquiLocalUrl] = useState(config("coquiLocal_url"));
   const [coquiLocalVoiceId, setCoquiLocalVoiceId] = useState(config("coquiLocal_voiceid"));
+
+  const [localXTTSUrl, setLocalXTTSUrl] = useState(config("localXTTS_url"));
 
   const [visionBackend, setVisionBackend] = useState(config("vision_backend"));
   const [visionLlamaCppUrl, setVisionLlamaCppUrl] = useState(config("vision_llamacpp_url"));
@@ -245,6 +248,7 @@ export const Settings = ({
     piperUrl,
     rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,,rvcResampleSr,rvcRmsMixRate,rvcProtect,
     coquiLocalUrl,coquiLocalVoiceId,
+    localXTTSUrl,
     visionBackend,
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
@@ -285,7 +289,7 @@ export const Settings = ({
 
     case 'tts':
       return <MenuPage
-        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coquiLocal_settings", "openai_tts_settings", "piper_settings", "rvc_settings"]}
+        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coquiLocal_settings", "openai_tts_settings", "piper_settings", "localXTTS_settings", "rvc_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'stt':
@@ -450,6 +454,13 @@ export const Settings = ({
         coquiLocalVoiceId={coquiLocalVoiceId}
         setCoquiLocalVoiceId={setCoquiLocalVoiceId}
         setCoquiLocalUrl={setCoquiLocalUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'localXTTS_settings':
+      return <LocalXTTSSettingsPage
+        localXTTSUrl={localXTTSUrl}
+        setLocalXTTSUrl={setLocalXTTSUrl}
         setSettingsUpdated={setSettingsUpdated}
         />
 
