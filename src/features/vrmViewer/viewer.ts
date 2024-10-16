@@ -85,6 +85,7 @@ export class Viewer {
   private _cameraControls?: OrbitControls;
   private _stats?: Stats;
   private _statsMesh?: THREE.Mesh;
+  private _guiMesh?: THREE.Mesh;
 
 
   private sendScreenshotToCallback: boolean;
@@ -337,6 +338,8 @@ export class Viewer {
     // gui.domElement.style.visibility = 'hidden';
 
     const guiMesh = new HTMLMesh(gui.domElement);
+    this._guiMesh = guiMesh;
+
     guiMesh.position.x = 0;
     guiMesh.position.y = 0;
     guiMesh.position.z = 0;
@@ -347,6 +350,7 @@ export class Viewer {
     // stats
     const stats = new Stats();
     this._stats = stats;
+
     stats.dom.style.width = '80px';
     stats.dom.style.height = '48px';
     stats.dom.style.position = 'absolute';
@@ -954,6 +958,7 @@ export class Viewer {
       ptime = performance.now();
       // @ts-ignore
       this._statsMesh!.material.map.update();
+      this._guiMesh!.material.map.update();
       this.statsMsPanel.update(performance.now() - ptime, 100);
 
       // TODO run this in a web worker
