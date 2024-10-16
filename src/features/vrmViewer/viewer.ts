@@ -27,13 +27,42 @@ import { Model } from "./model";
 import { Room } from "./room";
 
 // Add the extension functions
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
+THREE.BatchedMesh.prototype.raycast = acceleratedRaycast;
+
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
-THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 THREE.BatchedMesh.prototype.computeBoundsTree = computeBatchedBoundsTree;
 THREE.BatchedMesh.prototype.disposeBoundsTree = disposeBatchedBoundsTree;
-THREE.BatchedMesh.prototype.raycast = acceleratedRaycast;
+
+const joints = [
+  'wrist',
+  'thumb-metacarpal',
+  'thumb-phalanx-proximal',
+  'thumb-phalanx-distal',
+  'thumb-tip',
+  'index-finger-metacarpal',
+  'index-finger-phalanx-proximal',
+  'index-finger-phalanx-intermediate',
+  'index-finger-phalanx-distal',
+  'index-finger-tip',
+  'middle-finger-metacarpal',
+  'middle-finger-phalanx-proximal',
+  'middle-finger-phalanx-intermediate',
+  'middle-finger-phalanx-distal',
+  'middle-finger-tip',
+  'ring-finger-metacarpal',
+  'ring-finger-phalanx-proximal',
+  'ring-finger-phalanx-intermediate',
+  'ring-finger-phalanx-distal',
+  'ring-finger-tip',
+  'pinky-finger-metacarpal',
+  'pinky-finger-phalanx-proximal',
+  'pinky-finger-phalanx-intermediate',
+  'pinky-finger-phalanx-distal',
+  'pinky-finger-tip',
+];
 
 
 /**
@@ -48,6 +77,8 @@ export class Viewer {
 
   private _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
+  private elapsedMsMid: number = 0;
+  private elapsedMsSlow: number = 0;
   private _scene?: THREE.Scene;
   private _floor?: THREE.Mesh;
   private _camera?: THREE.PerspectiveCamera;
@@ -73,13 +104,10 @@ export class Viewer {
   private controllerGrip2: THREE.Group | null = null;
   private isPinching1 = false;
   private isPinching2 = false;
-  private currentHandModel: number = 0;
-  private handModels: { left: THREE.Object3D[], right: THREE.Object3D[] } = { left: [], right: [] };
   private igroup: InteractiveGroup | null = null;
 
   private gparams = {
     'y-offset': 0,
-    'hands': 0,
   };
   private updateMsPanel: any = null;
   private renderMsPanel: any = null;
@@ -94,6 +122,15 @@ export class Viewer {
   private modelMeshHelper: THREE.Mesh | null = null;
   private modelBVHHelper: MeshBVHHelper | null = null;
   private roomBVHHelperGroup: THREE.Group = new THREE.Group();
+  private modelTargets: THREE.Mesh[] = [];
+  private roomTargets: THREE.Mesh[] = [];
+  private raycaster = new THREE.Raycaster();
+  private raycasterTempM = new THREE.Matrix4();
+  private intersectsModel: THREE.Intersection[] = [];
+  private intersectsRoom: THREE.Intersection[] = [];
+
+  private jointMeshes1: THREE.Mesh[] = []; // controller1
+  private jointMeshes2: THREE.Mesh[] = []; // controller2
 
   private mouse = new THREE.Vector2();
 
@@ -128,9 +165,13 @@ export class Viewer {
     }) as THREE.WebGLRenderer;
     this._renderer = renderer;
 
+    renderer.shadowMap.enabled = false;
+
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.xr.enabled = true;
+    // TODO should this be enabled for only the quest3?
+    renderer.xr.setFramebufferScaleFactor(2.0); // reduce pixelation with minimal performance hit on quest 3
     // webgpu does not support foveation yet
     if (config('use_webgpu') !== 'true') {
       renderer.xr.setFoveation(0);
@@ -141,6 +182,7 @@ export class Viewer {
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
     directionalLight.position.set(1.0, 1.0, 1.0).normalize();
+    directionalLight.castShadow = false;
     scene.add(directionalLight);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 2.);
@@ -215,7 +257,6 @@ export class Viewer {
       console.log('controller2', controller2);
 
       const controllerModelFactory = new XRControllerModelFactory();
-      const handModelFactory = new XRHandModelFactory();
 
       const controllerGrip1 = renderer.xr.getControllerGrip(0);
       this.controllerGrip1 = controllerGrip1;
@@ -237,32 +278,6 @@ export class Viewer {
       this.hand2 = hand2;
       scene.add(hand2);
 
-      this.handModels.left = [
-        handModelFactory.createHandModel(hand1, 'boxes'),
-        handModelFactory.createHandModel(hand1, 'spheres'),
-        handModelFactory.createHandModel(hand1, 'mesh')
-      ];
-
-      this.handModels.right = [
-        handModelFactory.createHandModel(hand2, 'boxes'),
-        handModelFactory.createHandModel(hand2, 'spheres'),
-        handModelFactory.createHandModel(hand2, 'mesh')
-      ];
-
-      for (let i=0; i<3; ++i) {
-        {
-          const model = this.handModels.left[i];
-          model.visible = i == this.currentHandModel;
-          this.hand1.add(model);
-        }
-
-        {
-          const model = this.handModels.right[i];
-          model.visible = i == this.currentHandModel;
-          this.hand2.add(model);
-        }
-      }
-
       // @ts-ignore
       hand1.addEventListener('pinchstart', () => {
         this.isPinching1 = true;
@@ -281,17 +296,18 @@ export class Viewer {
         this.isPinching2 = false;
       });
 
-      const geometry = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, -1)
-      ]);
+      {
+        const geometry = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(0, 0, -1)
+        ]);
 
-      const line = new THREE.Line(geometry);
-      line.name = 'line';
-      line.scale.z = 5;
+        const line = new THREE.Line(geometry);
+        line.scale.z = 5;
 
-      controller1.add(line.clone());
-      controller2.add(line.clone());
+        controller1.add(line.clone());
+        controller2.add(line.clone());
+      }
 
       // webgpu does not support xr controller events yet
       if (config('use_webgpu') !== 'true') {
@@ -316,16 +332,6 @@ export class Viewer {
         this.teleport(0, value, 0);
         this.gparams['y-offset'] = 0;
       }, 1000);
-    });
-
-    gui.add(this.gparams, 'hands', 0, 2, 1).onChange((value: number) => {
-      this.handModels.left[this.currentHandModel].visible = false;
-      this.handModels.right[this.currentHandModel].visible = false;
-
-      this.currentHandModel = value;
-
-      this.handModels.left[this.currentHandModel].visible = true;
-      this.handModels.right[this.currentHandModel].visible = true;
     });
 
     // gui.domElement.style.visibility = 'hidden';
@@ -365,6 +371,37 @@ export class Viewer {
     igroup.add(statsMesh);
 
     this.bvhWorker = new GenerateMeshBVHWorker();
+    this.raycaster.firstHitOnly = true;
+
+    // add joint / hand meshes
+    {
+      const geometry = new THREE.BoxGeometry(0.01, 0.01, 0.01);
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 1.0,
+        metalness: 0.0,
+      });
+
+      const mesh = new THREE.Mesh(geometry, material);
+
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, -1, 0)
+      ]);
+
+      const line = new THREE.Line(lineGeometry);
+      line.scale.z = 5;
+
+      for (const _ of joints) {
+        this.jointMeshes1.push(mesh.clone());
+        this.jointMeshes2.push(mesh.clone());
+        this.jointMeshes1[this.jointMeshes1.length - 1].add(line.clone());
+        this.jointMeshes2[this.jointMeshes2.length - 1].add(line.clone());
+
+        scene.add(this.jointMeshes1[this.jointMeshes1.length - 1]);
+        scene.add(this.jointMeshes2[this.jointMeshes2.length - 1]);
+      }
+    }
 
     window.addEventListener("resize", () => {
       this.resize();
@@ -424,10 +461,7 @@ export class Viewer {
     this.currentSession = null;
 
     this._floor!.visible = false;
-
-    requestAnimationFrame(() => {
-      this.resetCamera();
-    });
+    this.resetCamera();
   }
 
   public teleport(x: number, y: number, z: number) {
@@ -448,71 +482,52 @@ export class Viewer {
     this._renderer!.xr.setReferenceSpace(teleportSpaceOffset);
   }
 
-  public loadVrm(url: string) {
+  public async loadVrm(url: string) {
     if (this.model?.vrm) {
       this.unloadVRM();
     }
 
     // gltf and vrm
     this.model = new Model(this._camera || new THREE.Object3D());
-    return this.model.loadVRM(url).then(async () => {
-      if (!this.model?.vrm) return;
+    await this.model.loadVRM(url);
+    if (!this.model?.vrm) return;
 
-      // build bvh
-      this.modelBVHGenerator = new StaticGeometryGenerator(this.model.vrm.scene);
-      // this.modelBVHGenerator.attributes = ['position', 'normal']
-      // this.modelBVHGenerator.useGroups = false
-      this.modelGeometry = this.modelBVHGenerator.generate().center();
+    // build bvh
+    this.modelBVHGenerator = new StaticGeometryGenerator(this.model.vrm.scene);
 
-      // TODO show during debug mode
-      const wireframeMaterial = new THREE.MeshBasicMaterial( {
-        wireframe:   true,
-        transparent: true,
-        opacity:     0.05,
-        depthWrite:  false,
-      });
-      this.modelMeshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
-      if (config("debug_gfx") === "true") {
-        this._scene!.add(this.modelMeshHelper);
-      }
-
-      this.modelBVHHelper = new MeshBVHHelper(this.modelMeshHelper);
-      if (config("debug_gfx") === "true") {
-        this._scene!.add(this.modelBVHHelper);
-      }
-
-      this._scene!.add(this.model.vrm.scene);
-
-      const animation = config("animation_url").indexOf("vrma") > 0
-        ? await loadVRMAnimation(config("animation_url"))
-        : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
-      if (animation) {
-        await this.model.loadAnimation(animation);
-        this.model.update(0);
-      }
-
-      await this.regenerateBVHForModel();
-
-      // HACK: Adjust the camera position after playback because the origin of the animation is offset
-      requestAnimationFrame(() => {
-        this.resetCamera();
-      });
+    // TODO show during debug mode
+    const wireframeMaterial = new THREE.MeshBasicMaterial( {
+      wireframe:   true,
+      transparent: true,
+      opacity:     0.05,
+      depthWrite:  false,
     });
-  }
+    this.modelMeshHelper = new THREE.Mesh(new THREE.BufferGeometry(), wireframeMaterial);
+    this.modelTargets = [this.modelMeshHelper];
 
-  // TODO use the bvh worker to generate the bvh / bounds tree
-  // TODO run this in its own loop to keep the bvh in sync with animation
-  // TODO investigate if we can get speedup using parallel bvh generation
-  public async regenerateBVHForModel() {
-    this.modelBVHGenerator!.generate(this.modelMeshHelper!.geometry);
-
-    if (! this.modelMeshHelper!.geometry.boundsTree) {
-      this.modelMeshHelper!.geometry.computeBoundsTree();
-    } else {
-      this.modelMeshHelper!.geometry.boundsTree.refit();
+    if (config("debug_gfx") === "true") {
+      this._scene!.add(this.modelMeshHelper);
     }
 
-    this.modelBVHHelper!.update();
+    this.modelBVHHelper = new MeshBVHHelper(this.modelMeshHelper);
+    if (config("debug_gfx") === "true") {
+      this._scene!.add(this.modelBVHHelper);
+    }
+
+    this._scene!.add(this.model.vrm.scene);
+
+    const animation = config("animation_url").indexOf("vrma") > 0
+      ? await loadVRMAnimation(config("animation_url"))
+      : await loadMixamoAnimation(config("animation_url"), this.model?.vrm);
+    if (animation) {
+      await this.model.loadAnimation(animation);
+      this.model.update(0);
+    }
+
+    await this.regenerateBVHForModel();
+
+    // HACK: Adjust the camera position after playback because the origin of the animation is offset
+    this.resetCamera();
   }
 
   public unloadVRM(): void {
@@ -547,9 +562,11 @@ export class Viewer {
       this._scene!.add(this.room.room);
 
       // build bvh
+      this.roomTargets = [];
       for (let child of this.room.room.children) {
         if (child instanceof THREE.Mesh) {
           // this must be cloned because the worker breaks rendering for some reason
+          this.roomTargets.push(child);
           const geometry = child.geometry.clone() as THREE.BufferGeometry;
           const bvh = await this.bvhWorker!.generate(geometry, { maxLeafTris: 1 })!;
           child.geometry.boundsTree = bvh;
@@ -602,6 +619,23 @@ export class Viewer {
       this.room.splat.rotation.set(0, 0, Math.PI);
       this._scene!.add(this.room.splat);
     });
+  }
+
+  // TODO use the bvh worker to generate the bvh / bounds tree
+  // TODO run this in its own loop to keep the bvh in sync with animation
+  // TODO investigate if we can get speedup using parallel bvh generation
+  public async regenerateBVHForModel() {
+    if (! this.modelMeshHelper) return;
+
+    this.modelBVHGenerator!.generate(this.modelMeshHelper!.geometry);
+
+    if (! this.modelMeshHelper!.geometry.boundsTree) {
+      this.modelMeshHelper!.geometry.computeBoundsTree();
+    } else {
+      this.modelMeshHelper!.geometry.boundsTree.refit();
+    }
+
+    this.modelBVHHelper!.update();
   }
 
   public onSelect(event: XRInputSourceEvent) {
@@ -769,31 +803,14 @@ export class Viewer {
   }
 
   public updateRaycasts() {
-    const modelTargets: THREE.Mesh[] = [];
-    const roomTargets: THREE.Mesh[] = [];
-
-    if (this.modelMeshHelper) {
-      modelTargets.push(this.modelMeshHelper);
-    }
-
-    if (this.room && this.room.room) {
-      for (const child of this.room.room.children) {
-        if (child instanceof THREE.Mesh) {
-          roomTargets.push(child);
-        }
-      }
-    }
-
-    const raycaster = new THREE.Raycaster();
-    raycaster.firstHitOnly = true;
-    const raycasterTempM = new THREE.Matrix4();
-
     const checkIntersection = () => {
-      let intersectsModel = [];
-      let intersectsRoom = [];
       try {
-        intersectsModel = raycaster.intersectObjects(modelTargets, true);
-        intersectsRoom = raycaster.intersectObjects(roomTargets, true);
+        if (this.modelTargets.length > 0) {
+          this.intersectsModel = this.raycaster.intersectObjects(this.modelTargets, true);
+        }
+        if (this.roomTargets.length > 0) {
+          this.intersectsRoom = this.raycaster.intersectObjects(this.roomTargets, true);
+        }
       } catch (e) {
         // if the models get removed from scene during raycast then this will throw an error
         console.error('intersectObjects error', e);
@@ -801,57 +818,110 @@ export class Viewer {
       }
 
       // check which object is closer
-      if (intersectsModel.length > 0 && intersectsRoom.length > 0) {
-        if (intersectsModel[0].distance < intersectsRoom[0].distance) {
-          this.createBallAtPoint(intersectsModel[0].point, 0);
+      // TODO clean this up
+      if (this.intersectsModel.length > 0 && this.intersectsRoom.length > 0) {
+        if (this.intersectsModel[0].distance < this.intersectsRoom[0].distance) {
+          this.createBallAtPoint(this.intersectsModel[0].point, 0);
         } else {
-          this.createBallAtPoint(intersectsRoom[0].point, 1);
+          this.createBallAtPoint(this.intersectsRoom[0].point, 1);
         }
-      } else if (intersectsModel.length > 0) {
-        this.createBallAtPoint(intersectsModel[0].point, 0);
-      } else if (intersectsRoom.length > 0) {
-        this.createBallAtPoint(intersectsRoom[0].point, 1);
+      } else if (this.intersectsModel.length > 0) {
+        this.createBallAtPoint(this.intersectsModel[0].point, 0);
+      } else if (this.intersectsRoom.length > 0) {
+        this.createBallAtPoint(this.intersectsRoom[0].point, 1);
       }
     }
 
     if (! this.usingController1 && ! this.usingController2) {
-      raycaster.setFromCamera(this.mouse, this._camera!);
+      this.raycaster.setFromCamera(this.mouse, this._camera!);
       checkIntersection();
     }
 
     const handleController = (controller: THREE.Group) => {
-      raycasterTempM.identity().extractRotation(controller.matrixWorld);
-      raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(raycasterTempM);
-
+      this.raycasterTempM.identity().extractRotation(controller.matrixWorld);
+      this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+      this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(this.raycasterTempM);
       checkIntersection();
     }
 
-    if (this.controller1) handleController(this.controller1);
-    if (this.controller2) handleController(this.controller2);
+    const handleHand = (joints: THREE.Mesh[]) => {
+      for (const joint of joints) {
+        const m = joint.matrixWorld;
+        this.raycasterTempM.identity().extractRotation(m);
+        this.raycaster.ray.origin.setFromMatrixPosition(m);
+        this.raycaster.ray.direction.set(0, -1, 0).applyMatrix4(this.raycasterTempM);
+
+        checkIntersection();
+      }
+    }
+
+    if (this.hand1) {
+      handleHand(this.jointMeshes1);
+    } else if (this.controller1) {
+      handleController(this.controller1);
+    }
+    if (this.hand2) {
+      handleHand(this.jointMeshes2);
+    } else if (this.controller2) {
+      handleController(this.controller2);
+    }
+  }
+
+  // thx @ke456-png :)
+  public applyWind(dir: THREE.Vector3, strength: number) {
+    this.model?.vrm?.springBoneManager?.joints.forEach(e => {
+      // console.log('e', e.bone.name);
+      // console.log('e', e);
+      e.settings.gravityDir = dir;
+      e.settings.gravityPower = strength;
+    });
   }
 
   public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {
+    let utime = performance.now(); // count total update time
+
     // quick exit until setup finishes
     if (! this.isReady) return;
 
     const delta = this._clock.getDelta();
 
-    let utime = performance.now();
+    this.elapsedMsSlow += delta;
+    this.elapsedMsMid += delta;
+
+    // @ts-ignore
+    if (this.hand1 && this.hand1.joints) {
+      let i=0; for (const name of joints) {
+        // @ts-ignore // TODO fix this
+        const joint = this.hand1?.joints[name];
+        if (! joint) continue;
+        const mesh = this.jointMeshes1[i];
+        mesh.position.copy(joint.position);
+        mesh.quaternion.copy(joint.quaternion);
+        console.log('joint', joint);
+        ++i;
+      }
+    }
+    // @ts-ignore
+    if (this.hand2 && this.hand2.joints) {
+      let i=0; for (const name of joints) {
+        // @ts-ignore // TODO fix this
+        const joint = this.hand2?.joints[name];
+        if (! joint) continue;
+        const mesh = this.jointMeshes2[i];
+        mesh.position.copy(joint.position);
+        mesh.quaternion.copy(joint.quaternion);
+        console.log('joint', joint);
+        ++i;
+      }
+    }
+
+    this._stats!.update();
 
     let ptime = performance.now();
-    this.model?.update(delta);
-    this.modelMsPanel.update(performance.now() - ptime, 40);
 
     ptime = performance.now();
     this._renderer!.render(this._scene!, this._camera!);
     this.renderMsPanel.update(performance.now() - ptime, 100);
-
-    ptime = performance.now();
-    this._stats!.update();
-    // @ts-ignore
-    this._statsMesh!.material.map.update();
-    this.statsMsPanel.update(performance.now() - ptime, 100);
 
     this.room?.splat?.update(this._renderer, this._camera);
     this.room?.splat?.render();
@@ -860,15 +930,40 @@ export class Viewer {
       this.doublePinchHandler();
     }
 
-    // TODO run this in a web worker
-    // ideally parallel version
-    ptime = performance.now();
-    // this.regenerateBVHForModel();
-    this.bvhMsPanel.update(performance.now() - ptime, 100);
+    if (this.elapsedMsMid > 1 / 30) {
+      {
+        this.applyWind(
+          new THREE.Vector3(1, 0, -1),
+          (Math.sin(this._clock.elapsedTime * Math.PI / 3) + 1) * 0.1
+        );
+      }
 
-    ptime = performance.now();
-    this.updateRaycasts();
-    this.raycastMsPanel.update(performance.now() - ptime, 100);
+      ptime = performance.now();
+      this.model?.update(this.elapsedMsMid);
+      this.modelMsPanel.update(performance.now() - ptime, 40);
+
+      ptime = performance.now();
+      this.updateRaycasts();
+      this.raycastMsPanel.update(performance.now() - ptime, 100);
+
+      this.elapsedMsMid = 0;
+    }
+
+    if (this.elapsedMsSlow > 1) {
+      // updating the texture for this is very slow
+      ptime = performance.now();
+      // @ts-ignore
+      this._statsMesh!.material.map.update();
+      this.statsMsPanel.update(performance.now() - ptime, 100);
+
+      // TODO run this in a web worker
+      // ideally parallel version
+      ptime = performance.now();
+      // this.regenerateBVHForModel();
+      this.bvhMsPanel.update(performance.now() - ptime, 100);
+
+      this.elapsedMsSlow = 0;
+    }
 
     if (this.sendScreenshotToCallback && this.screenshotCallback) {
       this._renderer!.domElement.toBlob(this.screenshotCallback, "image/jpeg");
