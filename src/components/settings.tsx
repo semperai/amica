@@ -216,6 +216,13 @@ export const Settings = ({
   }
 
   useEffect(() => {
+    // Change the chatbot to 'llamacpp' if Amica Life is enabled and previous chatbot was 'echo'
+    if (amicaLifeEnabled && chatbotBackend === "echo") {
+      setAmicaLifeEnabled(false);
+    }
+  }, [chatbotBackend, amicaLifeEnabled]);
+
+  useEffect(() => {
     const timeOutId = setTimeout(() => {
       if (settingsUpdated) {
         setShowNotification(true);
