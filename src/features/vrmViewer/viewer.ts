@@ -433,8 +433,8 @@ export class Viewer {
       for (const _ of joints) {
         this.jointMeshes1.push(mesh.clone());
         this.jointMeshes2.push(mesh.clone());
-        this.jointMeshes1[this.jointMeshes1.length - 1].add(line.clone());
-        this.jointMeshes2[this.jointMeshes2.length - 1].add(line.clone());
+        // this.jointMeshes1[this.jointMeshes1.length - 1].add(line.clone());
+        // this.jointMeshes2[this.jointMeshes2.length - 1].add(line.clone());
 
         this.handGroup.add(this.jointMeshes1[this.jointMeshes1.length - 1]);
         this.handGroup.add(this.jointMeshes2[this.jointMeshes2.length - 1]);
