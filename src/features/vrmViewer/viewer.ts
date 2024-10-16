@@ -1064,7 +1064,6 @@ export class Viewer {
       ptime = performance.now();
       // this.regenerateBVHForModel();
       this.bvhMsPanel.update(performance.now() - ptime, 100);
-
       this.elapsedMsSlow = 0;
     }
 
