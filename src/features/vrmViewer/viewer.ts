@@ -122,7 +122,7 @@ export class Viewer {
   private modelGeometry: THREE.BufferGeometry | null = null;
   private modelMeshHelper: THREE.Mesh | null = null;
   private modelBVHHelper: MeshBVHHelper | null = null;
-  private roomBVHHelperGroup: THREE.Group = new THREE.Group();
+  private roomBVHHelperGroup = new THREE.Group();
   private modelTargets: THREE.Mesh[] = [];
   private roomTargets: THREE.Mesh[] = [];
   private raycaster = new THREE.Raycaster();
@@ -132,6 +132,7 @@ export class Viewer {
 
   private jointMeshes1: THREE.Mesh[] = []; // controller1
   private jointMeshes2: THREE.Mesh[] = []; // controller2
+  private handGroup = new THREE.Group();
 
   private mouse = new THREE.Vector2();
 
@@ -402,9 +403,12 @@ export class Viewer {
         this.jointMeshes1[this.jointMeshes1.length - 1].add(line.clone());
         this.jointMeshes2[this.jointMeshes2.length - 1].add(line.clone());
 
-        scene.add(this.jointMeshes1[this.jointMeshes1.length - 1]);
-        scene.add(this.jointMeshes2[this.jointMeshes2.length - 1]);
+        this.handGroup.add(this.jointMeshes1[this.jointMeshes1.length - 1]);
+        this.handGroup.add(this.jointMeshes2[this.jointMeshes2.length - 1]);
       }
+
+      this.handGroup.visible = false;
+      scene.add(this.handGroup);
     }
 
     window.addEventListener("resize", () => {
@@ -440,6 +444,7 @@ export class Viewer {
 
     if (immersiveType === 'immersive-vr') {
       this._floor!.visible = true;
+      this.handGroup.visible = true;
     }
 
     this.currentSession = session;
@@ -465,6 +470,8 @@ export class Viewer {
     this.currentSession = null;
 
     this._floor!.visible = false;
+    this.handGroup.visible = false;
+
     this.resetCamera();
   }
 
@@ -806,6 +813,29 @@ export class Viewer {
     }, 10000);
   }
 
+  public updateHands() {
+    const handle = (hand: THREE.Group, jointMeshes: THREE.Mesh[]) => {
+      // @ts-ignore
+      if (hand.joints) {
+        let i=0;
+        for (const name of joints) {
+          // @ts-ignore
+          const joint = hand?.joints[name];
+          if (! joint) {
+            break; // if one isnt found then they all wont be found
+          }
+          const mesh = jointMeshes[i];
+          mesh.position.setFromMatrixPosition(joint.matrix);
+          mesh.quaternion.setFromRotationMatrix(joint.matrix);
+          ++i;
+        }
+      }
+    };
+
+    if (this.hand1) handle(this.hand1, this.jointMeshes1);
+    if (this.hand2) handle(this.hand2, this.jointMeshes2);
+  }
+
   public updateRaycasts() {
     const checkIntersection = () => {
       try {
@@ -892,32 +922,7 @@ export class Viewer {
     this.elapsedMsSlow += delta;
     this.elapsedMsMid += delta;
 
-    // @ts-ignore
-    if (this.hand1 && this.hand1.joints) {
-      let i=0; for (const name of joints) {
-        // @ts-ignore // TODO fix this
-        const joint = this.hand1?.joints[name];
-        if (! joint) continue;
-        const mesh = this.jointMeshes1[i];
-        mesh.position.copy(joint.position);
-        mesh.quaternion.copy(joint.quaternion);
-        console.log('joint', joint);
-        ++i;
-      }
-    }
-    // @ts-ignore
-    if (this.hand2 && this.hand2.joints) {
-      let i=0; for (const name of joints) {
-        // @ts-ignore // TODO fix this
-        const joint = this.hand2?.joints[name];
-        if (! joint) continue;
-        const mesh = this.jointMeshes2[i];
-        mesh.position.copy(joint.position);
-        mesh.quaternion.copy(joint.quaternion);
-        console.log('joint', joint);
-        ++i;
-      }
-    }
+    this.updateHands();
 
     this._stats!.update();
 
@@ -958,6 +963,7 @@ export class Viewer {
       ptime = performance.now();
       // @ts-ignore
       this._statsMesh!.material.map.update();
+      // @ts-ignore
       this._guiMesh!.material.map.update();
       this.statsMsPanel.update(performance.now() - ptime, 100);
 
