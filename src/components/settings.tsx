@@ -274,6 +274,7 @@ export const Settings = ({
     amicaLifeEnabled, timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
     name,
     systemPrompt,
+    debugGfx, mtoonDebugMode, mtoonMaterialType, useWebGPU,
     sttWakeWordEnabled, sttWakeWord,
   ]);
 
