@@ -16,7 +16,7 @@
   "Load Chat": "Load Chat",
   "YOU": "YOU",
   "Welcome to Amica": "Welcome to Amica",
-  "amica_intro": "\nAmica is an open source chatbot interface that provides emotion, vision, animations, self triggered actions, text to speech, and speech to text capabilities.\nIt is designed to be able to be attached to any AI model.\nIt can be used with any VRM model and is very customizable.\nYou can even run Amica on your own computer without an internet connection, or on your phone.",
+  "amica_intro": "\nAmica is an open source chatbot interface that provides emotion, vision, animations, self triggered actions, text to speech, and speech to text capabilities.\nIt is designed to be able to be attached to any AI model.\nIt can be used with any VRM model and is very customizable.\nYou can even run Amica on your own computer without an internet connection, or on your phone.\nOn launch Amica uses our demo chatbot and TTS server. It may take time to load the first message you send.",
   "Setup": "Setup",
   "amica_setup": "\nClick on the top left of the screen to open settings.\nYou can change the voice, character system prompt, share/load/save and attach to different backends or in-browser models. Please check our docs for more detailed configuration instructions on docs.heyamica.com",
   "Read the full documentation here.": "Read the full documentation here.",

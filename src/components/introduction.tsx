@@ -29,6 +29,8 @@ export const Introduction = ({ open }: {
             It can be used with any VRM model and is very customizable.
             
             You can even run Amica on your own computer without an internet connection, or on your phone.
+
+            On launch Amica uses our demo chatbot and TTS server. It may take time to load the first message you send.
           `)}
           </p>
         </div>

@@ -155,7 +155,7 @@ export class AmicaLife {
 
     this.isProcessingIdleRunning = true;
 
-    console.log("Starting Amica Life);
+    console.log("Starting Amica Life");
     while (config("amica_life_enabled") === "true") {
       // Check if amica is in idle state trigger processingEvent loop
       if (!this.chat?.isAwake()) {
