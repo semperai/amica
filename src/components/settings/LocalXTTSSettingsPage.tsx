@@ -17,12 +17,12 @@ export function LocalXTTSSettingsPage({
 
     return (
         <BasicPage
-            title={t("Local XTTS") + " " + t("Settings")}
-            description={t("localXTTS_desc", "Configure Local XTTS")}
+            title={t("Alltalk TTS") + " " + t("Settings")}
+            description={t("localXTTS_desc", "Configure Alltalk TTS")}
         >
             {config("tts_backend") !== "localXTTS" && (
                 <NotUsingAlert>
-                    {t("not_using_alert", "You are not currently using {{name}} as your {{what}} backend. These settings will not be used.", { name: t("Local XTTS"), what: t("TTS") })}
+                    {t("not_using_alert", "You are not currently using {{name}} as your {{what}} backend. These settings will not be used.", { name: t("AllTalk TTS"), what: t("TTS") })}
                 </NotUsingAlert>
             )}
             <ul role="list" className="divide-y divide-gray-100 max-w-xs">

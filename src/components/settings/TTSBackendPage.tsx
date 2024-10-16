@@ -8,7 +8,7 @@ const ttsEngines = [
   {key: "elevenlabs", label: "ElevenLabs"},
   {key: "speecht5",   label: "SpeechT5"},
   {key: "openai_tts", label: "OpenAI TTS"},
-  {key: "localXTTS",  label: "Local XTTS"}, // Our local TTS endpoint (XTTS based)
+  {key: "localXTTS",  label: "Alltalk TTS"}, // Our local TTS endpoint (XTTS based)
   {key: "piper",      label: "Piper"},
   {key: "coquiLocal", label: "Coqui Local"},
 ];

@@ -214,7 +214,7 @@ function getLabelFromPage(page: string): string {
     case 'piper_settings':      return t('Piper');
     case 'rvc_settings':        return t('RVC');
     case 'coquiLocal_settings': return t('Coqui Local');
-    case 'localXTTS_settings':  return t('LocalXTTS');
+    case 'localXTTS_settings':  return t('Alltalk');
 
     case 'vision_backend':           return t('Vision Backend');
     case 'vision_llamacpp_settings': return t('LLama.cpp');
