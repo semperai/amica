@@ -930,7 +930,7 @@ export class Viewer {
     let ptime = performance.now();
 
     ptime = performance.now();
-    this.model?.update(this.elapsedMsMid);
+    this.model?.update(delta);
     this.modelMsPanel.update(performance.now() - ptime, 40);
 
     ptime = performance.now();
