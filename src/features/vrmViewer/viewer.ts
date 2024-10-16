@@ -936,6 +936,10 @@ export class Viewer {
     let ptime = performance.now();
 
     ptime = performance.now();
+    this.model?.update(this.elapsedMsMid);
+    this.modelMsPanel.update(performance.now() - ptime, 40);
+
+    ptime = performance.now();
     this._renderer!.render(this._scene!, this._camera!);
     this.renderMsPanel.update(performance.now() - ptime, 100);
 
@@ -952,11 +956,8 @@ export class Viewer {
           new THREE.Vector3(1, 0, -1),
           (Math.sin(this._clock.elapsedTime * Math.PI / 3) + 1) * 0.1
         );
-      }
 
-      ptime = performance.now();
-      this.model?.update(this.elapsedMsMid);
-      this.modelMsPanel.update(performance.now() - ptime, 40);
+      }
 
       ptime = performance.now();
       this.updateRaycasts();
