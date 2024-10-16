@@ -10,6 +10,7 @@ import {
 } from 'three-mesh-bvh';
 import { GenerateMeshBVHWorker } from '@/workers/bvh/GenerateMeshBVHWorker';
 import { WorkerBase } from '@/workers/bvh/utils/WorkerBase';
+import { VRMHumanBoneName } from '@pixiv/three-vrm';
 import GUI from 'lil-gui';
 import Stats from 'stats.js';
 
@@ -62,6 +63,39 @@ const joints = [
   'pinky-finger-phalanx-intermediate',
   'pinky-finger-phalanx-distal',
   'pinky-finger-tip',
+];
+
+const amicaBones: VRMHumanBoneName[] = [
+ 'hips',
+ 'spine',
+ 'chest',
+ 'upperChest',
+ 'neck',
+
+ 'head',
+ 'leftEye',
+ 'rightEye',
+ 'jaw',
+
+ 'leftUpperLeg',
+ 'leftLowerLeg',
+ 'leftFoot',
+ 'leftToes',
+
+ 'rightUpperLeg',
+ 'rightLowerLeg',
+ 'rightFoot',
+ 'rightToes',
+
+ 'leftShoulder',
+ 'leftUpperArm',
+ 'leftLowerArm',
+ 'leftHand',
+
+ 'rightShoulder',
+ 'rightUpperArm',
+ 'rightLowerArm',
+ 'rightHand',
 ];
 
 
@@ -131,6 +165,9 @@ export class Viewer {
   private jointMeshes1: THREE.Mesh[] = []; // controller1
   private jointMeshes2: THREE.Mesh[] = []; // controller2
   private handGroup = new THREE.Group();
+
+  private closestPart1: THREE.Object3D | null = null;
+  private closestPart2: THREE.Object3D | null = null;
 
   private mouse = new THREE.Vector2();
 
@@ -405,6 +442,22 @@ export class Viewer {
 
       this.handGroup.visible = false;
       scene.add(this.handGroup);
+    }
+
+    {
+      const geometry = new THREE.SphereGeometry(1, 16, 16);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        transparent: true,
+        opacity: 0.5,
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+      this.closestPart1 = mesh.clone();
+      this.closestPart2 = mesh.clone();
+      this.closestPart1.visible = false;
+      this.closestPart2.visible = false;
+      scene.add(this.closestPart1);
+      scene.add(this.closestPart2);
     }
 
     window.addEventListener("resize", () => {
@@ -838,7 +891,7 @@ export class Viewer {
   }
 
   public updateRaycasts() {
-    const checkIntersection = () => {
+    const checkIntersection = (closestPart: THREE.Object3D) => {
       try {
         if (this.modelTargets.length > 0) {
           this.intersectsModel = this.raycaster.intersectObjects(this.modelTargets, true);
@@ -852,16 +905,51 @@ export class Viewer {
         return;
       }
 
+      const highlightClosestBone = (point: THREE.Vector3) => {
+        if (! this.model?.vrm) {
+          return;
+        }
+
+        let vec3 = new THREE.Vector3(); // tmp
+
+        let closestBone = null;
+        let mindist = Number.MAX_VALUE;
+        let closestname = '';
+
+        for (const bone of amicaBones) {
+          const node = this.model?.vrm?.humanoid.getNormalizedBoneNode(bone);
+          if (! node) continue;
+
+          const dist = point.distanceTo(node.getWorldPosition(vec3));
+          if (dist < mindist) {
+            mindist = dist;
+            closestBone = node;
+            closestname = bone;
+          }
+        }
+
+        if (closestBone) {
+          closestPart.position.copy(closestBone.getWorldPosition(vec3));
+          closestPart.scale.setScalar(0.1);
+          closestPart.visible = true;
+          console.log('closest bone', closestname);
+        }
+      }
+
+      const handleAmicaIntersection = (point: THREE.Vector3) => {
+        highlightClosestBone(point);
+      }
+
       // check which object is closer
       // TODO clean this up
       if (this.intersectsModel.length > 0 && this.intersectsRoom.length > 0) {
         if (this.intersectsModel[0].distance < this.intersectsRoom[0].distance) {
-          this.createBallAtPoint(this.intersectsModel[0].point, 0);
+          handleAmicaIntersection(this.intersectsModel[0].point);
         } else {
           this.createBallAtPoint(this.intersectsRoom[0].point, 1);
         }
       } else if (this.intersectsModel.length > 0) {
-        this.createBallAtPoint(this.intersectsModel[0].point, 0);
+        handleAmicaIntersection(this.intersectsModel[0].point);
       } else if (this.intersectsRoom.length > 0) {
         this.createBallAtPoint(this.intersectsRoom[0].point, 1);
       }
@@ -869,36 +957,38 @@ export class Viewer {
 
     if (! this.usingController1 && ! this.usingController2) {
       this.raycaster.setFromCamera(this.mouse, this._camera!);
-      checkIntersection();
+      checkIntersection(this.closestPart1!);
     }
 
-    const handleController = (controller: THREE.Group) => {
+
+
+    const handleController = (controller: THREE.Group, closestPart: THREE.Object3D) => {
       this.raycasterTempM.identity().extractRotation(controller.matrixWorld);
       this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
       this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(this.raycasterTempM);
-      checkIntersection();
+      checkIntersection(closestPart);
     }
 
-    const handleHand = (joints: THREE.Mesh[]) => {
+    const handleHand = (joints: THREE.Mesh[], closestPart: THREE.Object3D) => {
       for (const joint of joints) {
         const m = joint.matrixWorld;
         this.raycasterTempM.identity().extractRotation(m);
         this.raycaster.ray.origin.setFromMatrixPosition(m);
         this.raycaster.ray.direction.set(0, -1, 0).applyMatrix4(this.raycasterTempM);
 
-        checkIntersection();
+        checkIntersection(closestPart);
       }
     }
 
     if (this.hand1) {
-      handleHand(this.jointMeshes1);
+      handleHand(this.jointMeshes1, this.closestPart1!);
     } else if (this.controller1) {
-      handleController(this.controller1);
+      handleController(this.controller1, this.closestPart1!);
     }
     if (this.hand2) {
-      handleHand(this.jointMeshes2);
+      handleHand(this.jointMeshes2, this.closestPart2!);
     } else if (this.controller2) {
-      handleController(this.controller2);
+      handleController(this.controller2, this.closestPart2!);
     }
   }
 
