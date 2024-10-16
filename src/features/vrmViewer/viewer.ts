@@ -255,9 +255,6 @@ export class Viewer {
         this.usingController2 = true;
       });
 
-      console.log('controller1', controller1);
-      console.log('controller2', controller2);
-
       const controllerModelFactory = new XRControllerModelFactory();
 
       const controllerGrip1 = renderer.xr.getControllerGrip(0);
