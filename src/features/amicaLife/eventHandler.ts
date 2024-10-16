@@ -148,7 +148,8 @@ export async function handleSubconsciousEvent(
       `${convoLog}`,
       null,
     );
-    console.log("Result from step 1: ", subconciousWordSalad);
+    // Removed for staging logs.
+    //console.log("Result from step 1: ", subconciousWordSalad);
 
     // Step 2: Describe the emotion you feel about the subconscious diary
     const secondStepPrompt = subconciousWordSalad.startsWith("Error:")
@@ -159,7 +160,9 @@ export async function handleSubconsciousEvent(
       secondStepPrompt,
       null,
     );
-    console.log("Result from step 2: ", decipherEmotion);
+
+    // Removed for staging logs.
+    //console.log("Result from step 2: ", decipherEmotion);
 
     // Step 3: Decide on one of the emotion tags best suited for the described emotion
     const thirdStepPrompt = decipherEmotion.startsWith("Error:")
@@ -172,7 +175,9 @@ export async function handleSubconsciousEvent(
       thirdStepPrompt,
       chat,
     );
-    console.log("Result from step 3: ", emotionDecided);
+
+    // Removed for staging logs.
+    // console.log("Result from step 3: ", emotionDecided);
 
     // Step 4: Compress the subconscious diary entry to 240 characters
     const fourthStepPrompt = subconciousWordSalad.startsWith("Error:")
@@ -183,7 +188,7 @@ export async function handleSubconsciousEvent(
       fourthStepPrompt,
       null,
     );
-    console.log("Result from step 4: ", compressSubconcious);
+    console.log("Stored Memory: ", compressSubconcious);
 
     // Add timestamp to the compressed subconscious
     const timestampedPrompt: TimestampedPrompt = {
