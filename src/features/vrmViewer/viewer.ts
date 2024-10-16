@@ -208,7 +208,7 @@ export class Viewer {
     const camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
     this._camera = camera;
 
-    camera.position.set(0, -3, -3.5);
+    camera.position.set(0, -3, 3.5);
 
     const cameraControls = new OrbitControls(
       camera,
@@ -438,7 +438,7 @@ export class Viewer {
     this._renderer.xr.setReferenceSpaceType('local');
     await this._renderer.xr.setSession(session);
 
-    this.teleport(0, -1.2, 0);
+    this.teleport(0, -1.2, -1);
 
     this.igroup!.visible = true;
     if (immersiveType === 'immersive-vr') {

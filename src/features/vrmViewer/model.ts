@@ -121,12 +121,18 @@ export class Model {
           }
         });
 
-        // TODO this causes helperRoot to be rendered to side
-        // VRMUtils.rotateVRM0(vrm);
-
         if (config("debug_gfx") === "true") {
           vrm.scene.add(helperRoot);
         }
+
+        // TODO this causes helperRoot to be rendered to side
+        // VRMUtils.rotateVRM0(vrm);
+        // hacky fix
+        if (vrm.meta?.metaVersion === '0') {
+          vrm.scene.rotation.y = Math.PI;
+          helperRoot.rotation.y = Math.PI;
+        }
+
 
         this.mixer = new THREE.AnimationMixer(vrm.scene);
 
