@@ -137,6 +137,7 @@ export const Settings = ({
   const [vrmSaveType, setVrmSaveType] = useState(config('vrm_save_type'));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
+  const [animationProcedural, setAnimationProcedural] = useState<boolean>(config("animation_procedural") === 'true' ? true : false);
 
   const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
   const [sttWakeWordEnabled, setSTTWakeWordEnabled] = useState<boolean>(config("wake_word_enabled") === 'true' ? true : false);
@@ -266,7 +267,7 @@ export const Settings = ({
     visionOllamaUrl, visionOllamaModel,
     visionSystemPrompt,
     bgColor,
-    bgUrl, vrmHash, vrmUrl, youtubeVideoID, animationUrl,
+    bgUrl, vrmHash, vrmUrl, youtubeVideoID, animationUrl, animationProcedural,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
@@ -414,6 +415,8 @@ export const Settings = ({
         viewer={viewer}
         animationUrl={animationUrl}
         setAnimationUrl={setAnimationUrl}
+        animationProcedural={animationProcedural}
+        setAnimationProcedural={setAnimationProcedural}
         setSettingsUpdated={setSettingsUpdated}
         />
 

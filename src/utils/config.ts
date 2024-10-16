@@ -17,6 +17,7 @@ const defaults = {
   vrm_save_type: 'web',
   youtube_videoid: '',
   animation_url: process.env.NEXT_PUBLIC_ANIMATION_URL ?? '/animations/idle_loop.vrma',
+  animation_procedural: process.env.NEXT_PUBLIC_ANIMATION_PROCEDURAL ?? 'false',
   voice_url: process.env.NEXT_PUBLIC_VOICE_URL ?? '',
   chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'openai',
   openai_apikey: process.env.NEXT_PUBLIC_OPENAI_APIKEY ?? 'default',
