@@ -39,21 +39,47 @@ export class Model {
     const helperRoot = new THREE.Group();
     helperRoot.renderOrder = 10000;
 
-    let MToonNodeMaterial = undefined;
+    // the type of material to use
+    // should usually be MToonMaterial
+    let materialType: any;
+    switch (config("mtoon_material_type")) {
+      case "mtoon":
+        materialType = MToonMaterial;
+        break;
+      case "mtoon_node":
+        // @ts-ignore
+        const { MToonNodeMaterial } = await import('@pixiv/three-vrm/nodes');
+        materialType = MToonNodeMaterial;
+        break;
+      case "meshtoon":
+        materialType = THREE.MeshToonMaterial;
+        break;
+      case "basic":
+        materialType = THREE.MeshBasicMaterial;
+        break;
+      case "depth":
+        materialType = THREE.MeshDepthMaterial;
+        break;
+      case "normal":
+        materialType = THREE.MeshNormalMaterial;
+        break;
+      default:
+        console.error('mtoon_material_type not found');
+        break;
+    }
+
     if (config("use_webgpu") === "true") {
       // create a WebGPU compatible MToonMaterialLoaderPlugin
       // @ts-ignore
-      const { MToonNodeMaterial: mat } = await import('@pixiv/three-vrm-materials-mtoon/nodes');
-      MToonNodeMaterial = mat;
+      // TODO currently MToonNodeMaterial is broken in amica
+      // materialType = MTonNodeMaterial;
     }
 
     loader.register((parser) => {
       const options: any = {
         lookAtPlugin: new VRMLookAtSmootherLoaderPlugin(parser),
         mtoonMaterialPlugin: new MToonMaterialLoaderPlugin(parser, {
-          // TODO currently MToonNodeMaterial is broken
-          // materialType: config("use_webgpu") === 'true' ? MToonNodeMaterial : MToonMaterial,
-          materialType: MToonMaterial,
+          materialType,
         }),
       };
 
@@ -78,7 +104,6 @@ export class Model {
 
       if (mtoonDebugMode !== 'none') {
         if (obj.material) {
-
           if (Array.isArray(obj.material)) {
             obj.material.forEach((mat: any) => {
               if (mat.isMToonMaterial) {

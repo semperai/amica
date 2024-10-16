@@ -12,11 +12,22 @@ const mtoonDebugModes = [
   {key: "uv",            label: "uv"},
 ];
 
+const mtoonMaterialTypes = [
+  {key: 'mtoon',      label: 'MToon'},
+  {key: 'mtoon_node', label: 'MToonNode'},
+  {key: 'meshtoon',   label: 'MeshToon'},
+  {key: 'basic',      label: 'Basic'},
+  {key: 'depth',      label: 'Depth'},
+  {key: 'normal',     label: 'Normal'},
+];
+
 export function DeveloperPage({
   debugGfx,
   setDebugGfx,
   mtoonDebugMode,
   setMtoonDebugMode,
+  mtoonMaterialType,
+  setMtoonMaterialType,
   useWebGPU,
   setUseWebGPU,
   setSettingsUpdated,
@@ -25,6 +36,8 @@ export function DeveloperPage({
   setDebugGfx: (value: boolean) => void;
   mtoonDebugMode: string;
   setMtoonDebugMode: (mode: string) => void;
+  mtoonMaterialType: string;
+  setMtoonMaterialType: (mode: string) => void;
   useWebGPU: boolean;
   setUseWebGPU: (value: boolean) => void;
   setSettingsUpdated: (updated: boolean) => void;
@@ -62,6 +75,23 @@ export function DeveloperPage({
               }}
             >
               {mtoonDebugModes.map((mode) => (
+                <option key={mode.key} value={mode.key}>{mode.label}</option>
+              ))}
+            </select>
+          </FormRow>
+        </li>
+        <li className="py-4">
+          <FormRow label={t("MToon Material Type")}>
+            <select
+              value={mtoonMaterialType}
+              className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              onChange={(event: React.ChangeEvent<any>) => {
+                setMtoonMaterialType(event.target.value);
+                updateConfig("mtoon_material_type", event.target.value);
+                setSettingsUpdated(true);
+              }}
+            >
+              {mtoonMaterialTypes.map((mode) => (
                 <option key={mode.key} value={mode.key}>{mode.label}</option>
               ))}
             </select>
