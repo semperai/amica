@@ -1035,13 +1035,12 @@ export class Viewer {
     }
 
     if (this.elapsedMsMid > 1 / 30) {
-      {
-        this.applyWind(
-          new THREE.Vector3(1, 0, -1),
-          (Math.sin(this._clock.elapsedTime * Math.PI / 3) + 1) * 0.1
-        );
-
-      }
+      /*
+      this.applyWind(
+        new THREE.Vector3(1, 0, -1),
+        (Math.sin(this._clock.elapsedTime * Math.PI / 3) + 1) * 0.1
+      );
+      */
 
       ptime = performance.now();
       this.updateRaycasts();
