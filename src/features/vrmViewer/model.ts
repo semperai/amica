@@ -6,7 +6,6 @@ import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlug
 import { LipSync } from "@/features/lipSync/lipSync";
 import { EmoteController } from "@/features/emoteController/emoteController";
 import { Screenplay } from "@/features/chat/messages";
-import { Viewer } from "@/features/vrmViewer/viewer";
 import { config } from "@/utils/config";
 
 /**
@@ -108,7 +107,7 @@ export class Model {
 					.play();
   }
 
-  private async modifyAnimationPosition(clip: THREE.AnimationClip) {
+  private async modifyAnimationPosition(clip: THREE.AnimationClip, weight: { [key: string]: number }) {
     const { vrm } = this;
     if (vrm == null) {
       throw new Error("You have to load VRM first");
@@ -133,20 +132,22 @@ export class Model {
         clipStartPositionHips = new THREE.Vector3(values[0], values[1], values[2]);
         break;
       }
+
     }
 
     if (clipStartPositionHips) {
       // Calculate the offset
-      const offsetHips = currentHipsPosition.clone().sub(clipStartPositionHips);
+      const offsetHipsPosition = currentHipsPosition.clone().sub(clipStartPositionHips);
 
       // Apply the offset to all keyframes
       for (const track of clip.tracks) {
+
         if (track.name.endsWith(".position") && track.name.includes("Hips")) {
           const values = (track as THREE.VectorKeyframeTrack).values;
           for (let i = 0; i < values.length; i += 3) {
-            values[i] -= offsetHips.x;
-            values[i + 1] -= offsetHips.y;
-            values[i + 2] -= offsetHips.z;
+            values[i] -= offsetHipsPosition.x / weight.x;
+            values[i + 1] += offsetHipsPosition.y * weight.y;
+            values[i + 2] += offsetHipsPosition.z * weight.z;
           }
         }
       }
@@ -155,7 +156,7 @@ export class Model {
     }
   }
 
-  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, modify: boolean): Promise<number> {
+  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, name: string): Promise<number> {
     const { vrm, mixer } = this;
     if (vrm == null || mixer == null) {
       throw new Error("You have to load VRM first");
@@ -167,9 +168,17 @@ export class Model {
         : animation.createAnimationClip(vrm);
 
     // modify the initial position of the VRMA animation to be sync with idle animation
-    if (modify) {
-      this.modifyAnimationPosition(clip);
+    let weight: { [key: string]: number } = { x: 1, y: 1, z: 1 };
+
+    if (!(name === "idle_loop.vrma" || name === "greeting.vrma")) {
+      if (name === "dance.vrma") {
+        weight = { x:2 ,y:1.25 ,z:1.5 };
+      } else {
+        weight = { x:1 ,y:1 ,z:0 };
+      } 
+      this.modifyAnimationPosition(clip, weight);
     }
+
     
     const idleAction = this._currentAction!;
     const VRMAaction = mixer.clipAction(clip);
@@ -183,8 +192,9 @@ export class Model {
     }
 
     mixer.addEventListener("finished", restoreState);
-    return clip.duration;
+    return clip.duration + 1 + 0.5; // 1 = fade out time, 0.5 = fade in time
   }
+
 
   public async playEmotion(expression: string) {
     this.emoteController?.playEmotion(expression);

@@ -62,13 +62,6 @@ async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
   previousAnimation = basename(randomAnimation);
   console.log("Handling idle event (animation):", previousAnimation);
 
-  // Boolean to check if the animation should reinitialized its initial position to sync with idle action or not
-  const modify =
-    basename(randomAnimation) === "greeting.vrma" ||
-    basename(randomAnimation) === "idle_loop.vrma"
-      ? false
-      : true;
-
   try {
     if (viewer) {
       const animation = await loadVRMAnimation(randomAnimation);
@@ -76,7 +69,7 @@ async function handleVRMAnimationEvent(viewer: Viewer, amicaLife: AmicaLife) {
         throw new Error("Loading animation failed");
       }
       // @ts-ignore
-      const duration = await viewer.model!.playAnimation(animation, modify);
+      const duration = await viewer.model!.playAnimation(animation, previousAnimation);
       requestAnimationFrame(() => { viewer.resetCameraLerp(); });
 
       // Set timeout for the duration of the animation

@@ -14,10 +14,10 @@ export class Viewer {
   public isReady: boolean;
   public model?: Model;
 
-  private _renderer?: THREE.WebGLRenderer;
+  public _renderer?: THREE.WebGLRenderer;
   private _clock: THREE.Clock;
   private _scene: THREE.Scene;
-  private _camera?: THREE.PerspectiveCamera;
+  public _camera?: THREE.PerspectiveCamera;
   private _cameraControls?: OrbitControls;
 
   private _raycaster?: THREE.Raycaster;
