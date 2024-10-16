@@ -481,7 +481,7 @@ export class Viewer {
     const canvas = this.getCanvas();
     // TODO this needs to be set to none to prevent double render breaking the compositing
     // except on desktop using emulator, then it should not be changed
-    // canvas!.style.display = "none";
+    canvas!.style.display = "none";
 
     this._renderer.xr.setReferenceSpaceType('local');
     await this._renderer.xr.setSession(session);
