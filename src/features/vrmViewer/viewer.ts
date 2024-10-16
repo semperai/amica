@@ -93,8 +93,6 @@ export class Viewer {
 
   // XR
   public currentSession: XRSession | null = null;
-  private cachedCameraPosition: THREE.Vector3 | null = null;
-  private cachedCameraRotation: THREE.Euler | null = null;
   private hand1: THREE.Group | null = null;
   private hand2: THREE.Group | null = null;
   private controller1: THREE.Group | null = null;
@@ -432,9 +430,6 @@ export class Viewer {
     // except on desktop using emulator, then it should not be changed
     // canvas!.style.display = "none";
 
-    this.cachedCameraPosition = this._camera?.position.clone() as THREE.Vector3;
-    this.cachedCameraRotation = this._camera?.rotation.clone() as THREE.Euler;
-
     this._renderer.xr.setReferenceSpaceType('local');
     await this._renderer.xr.setSession(session);
 
@@ -460,8 +455,8 @@ export class Viewer {
     if (! this.currentSession) return;
 
     // reset camera
-    this._camera?.position.copy(this.cachedCameraPosition as THREE.Vector3);
-    this._camera?.rotation.copy(this.cachedCameraRotation as THREE.Euler);
+    this._camera!.position.set(0, -3, 3.5);
+    this.resetCamera();
 
     const canvas = this.getCanvas();
     canvas!.style.display = "inline";
@@ -472,8 +467,6 @@ export class Viewer {
     this.igroup!.visible = false;
     this._floor!.visible = false;
     this.handGroup.visible = false;
-
-    this.resetCamera();
   }
 
   public teleport(x: number, y: number, z: number) {
