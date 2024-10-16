@@ -143,6 +143,7 @@ export const Settings = ({
 
   const [debugGfx, setDebugGfx] = useState<boolean>(config("debug_gfx") === 'true' ? true : false);
   const [mtoonDebugMode, setMtoonDebugMode] = useState(config("mtoon_debug_mode"));
+  const [mtoonMaterialType, setMtoonMaterialType] = useState(config('mtoon_material_type'));
   const [useWebGPU, setUseWebGPU] = useState<boolean>(config("use_webgpu") === 'true' ? true : false);
 
   const vrmFileInputRef = useRef<HTMLInputElement>(null);
@@ -337,6 +338,8 @@ export const Settings = ({
         setDebugGfx={setDebugGfx}
         mtoonDebugMode={mtoonDebugMode}
         setMtoonDebugMode={setMtoonDebugMode}
+        mtoonMaterialType={mtoonMaterialType}
+        setMtoonMaterialType={setMtoonMaterialType}
         useWebGPU={useWebGPU}
         setUseWebGPU={setUseWebGPU}
         setSettingsUpdated={setSettingsUpdated}
