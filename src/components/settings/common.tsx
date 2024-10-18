@@ -179,6 +179,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'vision_backend':           return <EyeDropperIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'vision_llamacpp_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'vision_ollama_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'vision_openai_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'vision_system_prompt':     return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
   }
 
@@ -225,6 +226,7 @@ function getLabelFromPage(page: string): string {
     case 'vision_backend':           return t('Vision Backend');
     case 'vision_llamacpp_settings': return t('LLama.cpp');
     case 'vision_ollama_settings':   return t('Ollama');
+    case 'vision_openai_settings':   return t('OpenAI');
     case 'vision_system_prompt':     return t('System Prompt');
 
     case 'stt_backend':             return t('STT Backend');

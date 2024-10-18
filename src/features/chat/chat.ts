@@ -4,7 +4,7 @@ import { Viewer } from "@/features/vrmViewer/viewer";
 import { Alert } from "@/features/alert/alert";
 
 import { getEchoChatResponseStream } from './echoChat';
-import { getOpenAiChatResponseStream } from './openAiChat';
+import { getOpenAiChatResponseStream, getOpenAiVisionChatResponse } from './openAiChat';
 import { getLlamaCppChatResponseStream, getLlavaCppChatResponse } from './llamaCppChat';
 import { getWindowAiChatResponseStream } from './windowAiChat';
 import { getOllamaChatResponseStream, getOllamaVisionChatResponse } from './ollamaChat';
@@ -554,20 +554,52 @@ export class Chat {
 
       console.debug('vision_backend', visionBackend);
 
-      const messages: Message[] = [
-        { role: "system", content: config("vision_system_prompt") },
-        ...this.messageList!,
-        {
-          role: 'user',
-          content: "Describe the image as accurately as possible"
-        },
-      ];
-
       let res = '';
       if (visionBackend === 'vision_llamacpp') {
+        const messages: Message[] = [
+          { role: "system", content: config("vision_system_prompt") },
+          ...this.messageList!,
+          {
+            role: 'user',
+            content: "Describe the image as accurately as possible"
+          },
+        ];
+
         res = await getLlavaCppChatResponse(messages, imageData);
       } else if (visionBackend === 'vision_ollama') {
+        const messages: Message[] = [
+          { role: "system", content: config("vision_system_prompt") },
+          ...this.messageList!,
+          {
+            role: 'user',
+            content: "Describe the image as accurately as possible"
+          },
+        ];
+
         res = await getOllamaVisionChatResponse(messages, imageData);
+      } else if (visionBackend === 'vision_openai') {
+        const messages: Message[] = [
+          { role: "user", content: config("vision_system_prompt") },
+          ...this.messageList!,
+          {
+            role: 'user',
+            // @ts-ignore normally this is a string
+            content: [
+              {
+                type: "text",
+                text: "Describe the image as accurately as possible"
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${imageData}`
+                }
+              },
+            ],
+          },
+        ];
+
+        res = await getOpenAiVisionChatResponse(messages);
       } else {
         console.warn('vision_backend not supported', visionBackend);
         return;
