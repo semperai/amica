@@ -181,15 +181,12 @@ export class Chat {
           break;
         }
 
-        console.debug('processing tts');
         if (ttsJob.streamIdx !== this.currentStreamIdx) {
           console.log('skipping tts for streamIdx');
           continue;
         }
 
-        console.time('performance_tts');
         const audioBuffer = await this.fetchAudio(ttsJob.screenplay.talk);
-        console.timeEnd('performance_tts');
         this.speakJobs.enqueue({
           audioBuffer,
           screenplay: ttsJob.screenplay,
@@ -211,7 +208,6 @@ export class Chat {
           console.log('skipping speak for streamIdx');
           continue;
         }
-        console.debug('processing speak');
 
         if((window as any).chatvrm_latency_tracker) {
           if((window as any).chatvrm_latency_tracker.active) {
@@ -292,7 +288,6 @@ export class Chat {
     }
 
     this.setShownMessage!(role);
-    console.debug('bubbler', this.messageList)
   }
 
   public async interrupt() {
@@ -424,8 +419,6 @@ export class Chat {
           rolePlay,
           callback: (aiTalks: Screenplay[]): boolean => {
             // Generate & play audio for each sentence, display responses
-            console.debug('enqueue tts', aiTalks);
-            console.debug('streamIdx', streamIdx, 'currentStreamIdx', this.currentStreamIdx)
             if (streamIdx !== this.currentStreamIdx) {
               console.log('wrong stream idx');
               return true; // should break
