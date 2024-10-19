@@ -28,6 +28,7 @@
     "@mkkellogg/gaussian-splats-3d": "^0.4.5",
     "@pixiv/three-vrm": "^3.1.2",
     "@ricky0123/vad-react": "^0.0.24",
+    "@sentry/nextjs": "^8.34.0",
     "@supabase/supabase-js": "^2.45.4",
     "@tabler/icons-react": "^3.19.0",
     "@tailwindcss/forms": "^0.5.9",
