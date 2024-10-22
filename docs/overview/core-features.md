@@ -1,5 +1,5 @@
 ---
-title: Core Concepts
+title: Core Features
 order: 2
 ---
 

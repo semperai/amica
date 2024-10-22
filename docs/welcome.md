@@ -6,10 +6,12 @@ description: >-
 ---
 
 
-![Amica AI](/docs/images/5.png)
+![Amica](/docs/images/5.png)
 
 
 Amica lets you set up effortlessly with highly customizable expressive AI 3D avatars. 
+
+Check out our [Quick Start Guide](https://docs.heyamica.com/getting-started/quickstart) 
 
 Our open-source project is designed to make the process remarkably easy and fast. With advanced features like seamless transcription, natural text-to-speech, expressive animations, and vision capabilities and more, Amica hopes to makes experimenting with AI fun, limitless and and inspire creativity with AI avatar scenarios.
 
