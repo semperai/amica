@@ -6,7 +6,7 @@ description: >-
 ---
 
 
-![Amica AI](.../images/5.png)
+![Amica AI](/docs/images/5.png)
 
 
 Amica lets you set up effortlessly in the world of lifelike 3D avatars. Our open-source platform is designed to make the process remarkably easy and fast. With advanced features like seamless transcription, natural text-to-speech, expressive animations, and vision capabilities, Amica redefines digital interactions. Experience a new standard in avatar technology.
