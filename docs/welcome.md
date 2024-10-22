@@ -2,7 +2,7 @@
 order: 0
 title: Welcome to Amica!
 description: >-
-  Amica allows you to converse with highly customizable 3D characters that can communicate via natural voice chat and vision, with an emotion engine that allows Amica to express feelings and more. Customize her any way you want with any AI technology.
+  Amica allows you to converse with highly customizable 3D characters that can communicate via natural voice chat and vision, with an emotion engine that allows Amica to express feelings and more.
 ---
 
 
