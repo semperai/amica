@@ -25,7 +25,7 @@ export const ChatModeText = ({ messages }: { messages: Message[] }) => {
                             <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
                                 <Chat
                                     role={msg.role}
-                                    message={msg.content.replace(/\[(.*?)\]/g, "")}
+                                    message={(msg.content as string).replace(/\[(.*?)\]/g, "")}
                                     num={i}
                                 />
                             </div>

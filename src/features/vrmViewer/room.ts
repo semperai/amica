@@ -12,10 +12,10 @@ export class Room {
   public room?: THREE.Group;
   public splat?: any;
 
-  constructor() {
-  }
-
-  public async loadRoom(url: string): Promise<void> {
+  public async loadRoom(
+    url: string,
+    setLoadingProgress: (progress: string) => void,
+  ): Promise<void> {
     const loader = new GLTFLoader();
     /*
     const loader = new OptimizedGLTFLoader({
@@ -54,42 +54,58 @@ export class Room {
       },
     });
     */
-    const gltf = await loader.loadAsync(url);
+    return new Promise((resolve, reject) => {
+      loader.load(
+        url,
+        async (gltf) => {
+          setLoadingProgress('Room fully 100% loaded');
+          /*
+          {
+            const analyzer = new GLTFAnalyzer();
+            const stats = analyzer.analyzeModel(gltf);
+            console.log('Model Statistics:', stats);
+            const suggestions = analyzer.suggestOptimizations(stats);
+            console.log('Optimization Suggestions:', suggestions);
+          }
+          {
+          // Or for more control:
+            const optimizer = new TransparencyOptimizer();
+            const stats = optimizer.analyzeTransparency(gltf);
+            console.log('Transparency analysis:', stats);
+            // Check for issues
+            const issues = optimizer.logTransparencyIssues();
+            console.log('Transparency issues:', issues);
 
-    /*
-    {
-      const analyzer = new GLTFAnalyzer();
-      const stats = analyzer.analyzeModel(gltf);
-      console.log('Model Statistics:', stats);
-      const suggestions = analyzer.suggestOptimizations(stats);
-      console.log('Optimization Suggestions:', suggestions);
-    }
-    {
-    // Or for more control:
-      const optimizer = new TransparencyOptimizer();
-      const stats = optimizer.analyzeTransparency(gltf);
-      console.log('Transparency analysis:', stats);
-      // Check for issues
-      const issues = optimizer.logTransparencyIssues();
-      console.log('Transparency issues:', issues);
+            // Apply optimizations
+            optimizer.optimizeTransparency(gltf, {
+              disableTransparency: true,     // Completely disable all transparency
+              minAlphaThreshold: 0.9,        // Convert nearly opaque materials to fully opaque
+              convertToAlphaTest: false,      // Convert transparency to alphaTest where possible
+              alphaTestThreshold: 0.5        // Threshold for alphaTest conversion
+            });
+          }
+          */
 
-      // Apply optimizations
-      optimizer.optimizeTransparency(gltf, {
-        disableTransparency: true,     // Completely disable all transparency
-        minAlphaThreshold: 0.9,        // Convert nearly opaque materials to fully opaque
-        convertToAlphaTest: false,      // Convert transparency to alphaTest where possible
-        alphaTestThreshold: 0.5        // Threshold for alphaTest conversion
-      });
-    }
-    */
+          // await downscaleModelTextures(gltf, 128);
+          /*
+          gltf.scene.traverse((obj: any) => {
+            obj.frustumCulled = false;
+          });
+          */
+          this.room = gltf.scene;
 
-    // await downscaleModelTextures(gltf, 128);
-    /*
-    gltf.scene.traverse((obj: any) => {
-      obj.frustumCulled = false;
+          resolve();
+        },
+        (xhr) => {
+          setLoadingProgress(
+            `${Math.floor((xhr.loaded / xhr.total) * 10000) / 100}% loaded`,
+          );
+        },
+        (error) => {
+          reject(error);
+        },
+      );
     });
-    */
-    this.room = gltf.scene;
   }
 
   public async loadSplat(url: string): Promise<void> {

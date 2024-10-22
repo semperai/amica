@@ -3,7 +3,7 @@ export type Role = "assistant" | "system" | "user";
 // ChatGPT API
 export type Message = {
   role: Role;
-  content: string;
+  content: string; // this can be a string or like {type: "image", image_url: {url: "https://example.com/image.jpg"} } but the typing for it sucks
 };
 
 const talkStyles = [

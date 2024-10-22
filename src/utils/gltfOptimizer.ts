@@ -74,7 +74,7 @@ class OptimizedGLTFLoader {
     this.extensions.push(callback);
     
     // Register with the underlying loader
-    this.loader.register(callback);
+    this.loader.register(callback as any);
     
     return this;
   }
@@ -84,7 +84,7 @@ class OptimizedGLTFLoader {
     if (!texture) return;
 
     // Apply texture optimizations
-    texture.generateMipmaps = this.options.generateMipmaps;
+    texture.generateMipmaps = this.options.generateMipmaps || false;
     texture.minFilter = this.options.generateMipmaps ? 
       THREE.LinearMipmapLinearFilter : THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
@@ -101,8 +101,10 @@ class OptimizedGLTFLoader {
 
     if (this.options.simplifyMaterials) {
       // Simplify material settings
+      // @ts-ignore
       material.fog = false;
       material.dithering = false;
+      // @ts-ignore
       material.flatShading = true;
       
       if (material instanceof THREE.MeshStandardMaterial) {
@@ -221,7 +223,7 @@ class OptimizedGLTFLoader {
         }
       },
       onProgress,
-      onError
+      onError as any
     );
   }
 

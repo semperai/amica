@@ -6,6 +6,12 @@ interface Dimensions {
   height: number;
 }
 
+interface TextureSource {
+  data: TexImageSource;
+  width: number;
+  height: number;
+}
+
 // Type for supported texture types in materials
 type TextureType = 
   | 'map' 
@@ -44,7 +50,7 @@ function createOffscreenCanvas(width: number, height: number): OffscreenCanvas |
 // Scale down an image to new dimensions
 function scaleImage(image: TexImageSource, newWidth: number, newHeight: number): Promise<ImageBitmap | HTMLCanvasElement> {
   const canvas = createOffscreenCanvas(newWidth, newHeight);
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
 
   if (!ctx) {
     throw new Error('Failed to create 2D context');
@@ -55,14 +61,15 @@ function scaleImage(image: TexImageSource, newWidth: number, newHeight: number):
   ctx.imageSmoothingQuality = 'high';
   
   // Draw the image scaled down
-  ctx.drawImage(image, 0, 0, newWidth, newHeight);
+  (ctx as any).drawImage(image, 0, 0, newWidth, newHeight);
   
   // Return as ImageBitmap if supported, otherwise return canvas
   if (typeof createImageBitmap !== 'undefined') {
     return createImageBitmap(canvas);
   }
 
-  return canvas as HTMLCanvasElement;
+  // return canvas as HTMLCanvasElement;
+  return canvas as any;
 }
 
 // Calculate new dimensions maintaining aspect ratio
@@ -105,9 +112,9 @@ async function processTexture(
       );
 
       texture.image = scaledImage as TexImageSource;
-      texture.source.data = scaledImage as TexImageSource;
-      texture.source.width = newDims.width;
-      texture.source.height = newDims.height;
+      (texture.source as unknown as TextureSource).data = scaledImage as TexImageSource;
+      (texture.source as unknown as TextureSource).width = newDims.width;
+      (texture.source as unknown as TextureSource).height = newDims.height;
       texture.needsUpdate = true;
 
       // Force mipmaps update
@@ -132,32 +139,34 @@ async function downscaleModelTextures(gltf: any, maxDimension: number = 1024): P
   gltf.scene.traverse((node: THREE.Object3D) => {
     if (!(node as THREE.Mesh).isMesh) return;
 
-    const mesh = node as THREE.Mesh;
-    const materials = Array.isArray(node.material) 
-      ? node.material 
-      : [node.material];
+    if (node instanceof THREE.Mesh) {
+      const mesh = node as THREE.Mesh;
+      const materials = Array.isArray(node.material) 
+        ? node.material 
+        : [node.material];
 
-    materials.forEach((material: THREE.Material) => {
-      if (! material) return;
+      materials.forEach((material: THREE.Material) => {
+        if (! material) return;
 
-      const textureTypes: TextureType[] = [
-        'map', 'normalMap', 'roughnessMap', 'metalnessMap',
-        'aoMap', 'emissiveMap', 'displacementMap', 'bumpMap',
-        'alphaMap', 'lightMap', 'clearcoatMap', 'clearcoatNormalMap',
-        'clearcoatRoughnessMap', 'sheenColorMap', 'sheenRoughnessMap',
-        'transmissionMap', 'thicknessMap', 'specularIntensityMap',
-        'specularColorMap', 'iridescenceMap', 'iridescenceThicknessMap'
-      ];
+        const textureTypes: TextureType[] = [
+          'map', 'normalMap', 'roughnessMap', 'metalnessMap',
+          'aoMap', 'emissiveMap', 'displacementMap', 'bumpMap',
+          'alphaMap', 'lightMap', 'clearcoatMap', 'clearcoatNormalMap',
+          'clearcoatRoughnessMap', 'sheenColorMap', 'sheenRoughnessMap',
+          'transmissionMap', 'thicknessMap', 'specularIntensityMap',
+          'specularColorMap', 'iridescenceMap', 'iridescenceThicknessMap'
+        ];
 
 
-      textureTypes.forEach((type: TextureType) => {
-        const texture = (material as any)[type] as THREE.Texture | undefined;
-        if (texture && !processedTextures.has(texture)) {
-          processedTextures.add(texture);
-          texturePromises.push(processTexture(texture, maxDimension));
-        }
+        textureTypes.forEach((type: TextureType) => {
+          const texture = (material as any)[type] as THREE.Texture | undefined;
+          if (texture && !processedTextures.has(texture)) {
+            processedTextures.add(texture);
+            texturePromises.push(processTexture(texture, maxDimension));
+          }
+        });
       });
-    });
+    }
   });
 
   // Wait for all texture processing to complete

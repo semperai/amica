@@ -11,7 +11,12 @@ import { VRMAnimation } from "@/lib/VRMAnimation/VRMAnimation";
 import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlugin/VRMLookAtSmootherLoaderPlugin";
 import { LipSync } from "@/features/lipSync/lipSync";
 import { EmoteController } from "@/features/emoteController/emoteController";
+import { ProceduralAnimation } from "@/features/proceduralAnimation/proceduralAnimation";
 import { Screenplay } from "@/features/chat/messages";
+import { downscaleModelTextures, logTextureInfo } from '@/utils/textureDownscaler';
+import { OptimizedGLTFLoader } from '@/utils/gltfOptimizer';
+import { GLTFAnalyzer } from '@/utils/gltfAnalyzer';
+import { TransparencyOptimizer, checkAndOptimizeTransparency } from '@/utils/transparencyOptimizer';
 import { config } from "@/utils/config";
 
 /**
@@ -21,6 +26,7 @@ export class Model {
   public vrm?: VRM | null;
   public mixer?: THREE.AnimationMixer;
   public emoteController?: EmoteController;
+  public proceduralAnimation?: ProceduralAnimation;
 
   private _lookAtTargetParent: THREE.Object3D;
   private _lipSync?: LipSync;
@@ -32,8 +38,48 @@ export class Model {
     this._lipSync = new LipSync(new AudioContext());
   }
 
-  public async loadVRM(url: string, setLoadingProgress: (progress: string) => void): Promise<void> {
+  public async loadVRM(
+    url: string,
+    setLoadingProgress: (progress: string) => void,
+  ): Promise<void> {
     const loader = new GLTFLoader();
+    /*
+    const loader = new OptimizedGLTFLoader({
+      // Texture optimizations
+      skipTextures: true,          // Skip loading textures completely
+      maxTextureSize: 512,         // Maximum texture size
+      generateMipmaps: false,      // Disable mipmaps
+      
+      // Geometry optimizations
+      skipDraco: true,            // Skip Draco decoder setup
+      preserveIndices: false,     // Remove index buffers
+      
+      // Animation/Material optimizations
+      skipAnimations: true,       // Skip loading animations
+      simplifyMaterials: true,    // Use simplified materials
+      disableNormalMaps: true,    // Disable normal maps
+      
+      // Performance optimizations
+      disposeSourceData: true,    // Clear source data after load
+      
+      // Optional callbacks for fine-tuning
+      onMesh: (mesh) => {
+        // Custom mesh optimizations
+        mesh.castShadow = false;
+        mesh.receiveShadow = false;
+      },
+      onMaterial: (material) => {
+        // Custom material optimizations
+        if (material instanceof THREE.MeshStandardMaterial) {
+          material.envMapIntensity = 0;
+        }
+      },
+      onTexture: (texture) => {
+        // Custom texture optimizations
+        texture.encoding = THREE.LinearEncoding;
+      },
+    });
+    */
 
     // used for debug rendering
     const helperRoot = new THREE.Group();
@@ -48,7 +94,7 @@ export class Model {
         break;
       case "mtoon_node":
         // @ts-ignore
-        const { MToonNodeMaterial } = await import('@pixiv/three-vrm/nodes');
+        const { MToonNodeMaterial } = await import("@pixiv/three-vrm/nodes");
         materialType = MToonNodeMaterial;
         break;
       case "meshtoon":
@@ -64,7 +110,7 @@ export class Model {
         materialType = THREE.MeshNormalMaterial;
         break;
       default:
-        console.error('mtoon_material_type not found');
+        console.error("mtoon_material_type not found");
         break;
     }
 
@@ -91,59 +137,99 @@ export class Model {
     });
 
     return new Promise((resolve, reject) => {
-      loader.load(url, (gltf) => {
-        setLoadingProgress("Processing VRM");
+      loader.load(
+        url,
+        async (gltf) => {
+          setLoadingProgress("Processing VRM");
 
-        const vrm = (this.vrm = gltf.userData.vrm);
-        vrm.scene.name = "VRMRoot";
+          /*
+          {
+            const analyzer = new GLTFAnalyzer();
+            const stats = analyzer.analyzeModel(gltf);
+            console.log('Model Statistics:', stats);
+            const suggestions = analyzer.suggestOptimizations(stats);
+            console.log('Optimization Suggestions:', suggestions);
+          }
+          {
+            // Or for more control:
+            const optimizer = new TransparencyOptimizer();
+            const stats = optimizer.analyzeTransparency(gltf);
+            console.log('Transparency analysis:', stats);
+            // Check for issues
+            const issues = optimizer.logTransparencyIssues();
+            console.log('Transparency issues:', issues);
 
-        VRMUtils.removeUnnecessaryVertices(gltf.scene);
-        VRMUtils.removeUnnecessaryJoints(gltf.scene);
+            // Apply optimizations
+            optimizer.optimizeTransparency(gltf, {
+              disableTransparency: true,     // Completely disable all transparency
+              minAlphaThreshold: 0.9,        // Convert nearly opaque materials to fully opaque
+              convertToAlphaTest: false,      // Convert transparency to alphaTest where possible
+              alphaTestThreshold: 0.5        // Threshold for alphaTest conversion
+            });
+          }
+          */
 
-        const mtoonDebugMode = config('mtoon_debug_mode');
-        vrm.scene.traverse((obj: any) => {
-          obj.frustumCulled = false;
+          const vrm = (this.vrm = gltf.userData.vrm);
+          vrm.scene.name = "VRMRoot";
 
-          if (mtoonDebugMode !== 'none') {
-            if (obj.material) {
-              if (Array.isArray(obj.material)) {
-                obj.material.forEach((mat: any) => {
-                  if (mat.isMToonMaterial) {
-                    mat.debugMode = mtoonDebugMode;
+          VRMUtils.removeUnnecessaryVertices(gltf.scene);
+          VRMUtils.removeUnnecessaryJoints(gltf.scene);
+
+          // await downscaleModelTextures(gltf, 128);
+
+          const mtoonDebugMode = config("mtoon_debug_mode");
+          vrm.scene.traverse((obj: any) => {
+            obj.frustumCulled = false;
+
+            if (mtoonDebugMode !== "none") {
+              if (obj.material) {
+                if (Array.isArray(obj.material)) {
+                  obj.material.forEach((mat: any) => {
+                    if (mat.isMToonMaterial) {
+                      mat.debugMode = mtoonDebugMode;
+                    }
+                  });
+                } else {
+                  if (obj.material.isMToonMaterial) {
+                    obj.material.debugMode = mtoonDebugMode;
                   }
-                });
-              } else {
-                if (obj.material.isMToonMaterial) {
-                  obj.material.debugMode = mtoonDebugMode;
                 }
               }
             }
+          });
+
+          if (config("debug_gfx") === "true") {
+            vrm.scene.add(helperRoot);
           }
-        });
 
-        if (config("debug_gfx") === "true") {
-          vrm.scene.add(helperRoot);
-        }
+          // TODO this causes helperRoot to be rendered to side
+          // VRMUtils.rotateVRM0(vrm);
+          // hacky fix
+          if (vrm.meta?.metaVersion === "0") {
+            vrm.scene.rotation.y = Math.PI;
+            helperRoot.rotation.y = Math.PI;
+          }
 
-        // TODO this causes helperRoot to be rendered to side
-        // VRMUtils.rotateVRM0(vrm);
-        // hacky fix
-        if (vrm.meta?.metaVersion === '0') {
-          vrm.scene.rotation.y = Math.PI;
-          helperRoot.rotation.y = Math.PI;
-        }
+          this.mixer = new THREE.AnimationMixer(vrm.scene);
 
+          this.emoteController = new EmoteController(
+            vrm,
+            this._lookAtTargetParent,
+          );
 
-        this.mixer = new THREE.AnimationMixer(vrm.scene);
+          this.proceduralAnimation = new ProceduralAnimation(vrm);
 
-        this.emoteController = new EmoteController(vrm, this._lookAtTargetParent);
-
-        resolve();
-      }, (xhr) => {
-        setLoadingProgress(`${Math.floor(xhr.loaded / xhr.total * 10000)/100}% loaded`);
-      }, (error) => {
-        reject(error);
-      });
+          resolve();
+        },
+        (xhr) => {
+          setLoadingProgress(
+            `${Math.floor((xhr.loaded / xhr.total) * 10000) / 100}% loaded`,
+          );
+        },
+        (error) => {
+          reject(error);
+        },
+      );
     });
   }
 
@@ -176,7 +262,10 @@ export class Model {
     this._currentAction.play();
   }
 
-  private async fadeToAction( destAction: THREE.AnimationAction, duration: number) {
+  private async fadeToAction(
+    destAction: THREE.AnimationAction,
+    duration: number,
+  ) {
     let previousAction = this._currentAction;
     this._currentAction = destAction;
 
@@ -185,14 +274,17 @@ export class Model {
     }
 
     this._currentAction
-					.reset()
-					.setEffectiveTimeScale( 1 )
-					.setEffectiveWeight( 1 )
-					.fadeIn( 0.5 )
-					.play();
+      .reset()
+      .setEffectiveTimeScale(1)
+      .setEffectiveWeight(1)
+      .fadeIn(0.5)
+      .play();
   }
 
-  private async modifyAnimationPosition(clip: THREE.AnimationClip, weight: { [key: string]: number }) {
+  private async modifyAnimationPosition(
+    clip: THREE.AnimationClip,
+    weight: { [key: string]: number },
+  ) {
     const { vrm } = this;
     if (vrm == null) {
       throw new Error("You have to load VRM first");
@@ -210,23 +302,27 @@ export class Model {
 
     // Extract the start position from the animation clip
     let clipStartPositionHips: THREE.Vector3 | null = null;
-    
+
     for (const track of clip.tracks) {
       if (track.name.endsWith(".position") && track.name.includes("Hips")) {
         const values = (track as THREE.VectorKeyframeTrack).values;
-        clipStartPositionHips = new THREE.Vector3(values[0], values[1], values[2]);
+        clipStartPositionHips = new THREE.Vector3(
+          values[0],
+          values[1],
+          values[2],
+        );
         break;
       }
-
     }
 
     if (clipStartPositionHips) {
       // Calculate the offset
-      const offsetHipsPosition = currentHipsPosition.clone().sub(clipStartPositionHips);
+      const offsetHipsPosition = currentHipsPosition
+        .clone()
+        .sub(clipStartPositionHips);
 
       // Apply the offset to all keyframes
       for (const track of clip.tracks) {
-
         if (track.name.endsWith(".position") && track.name.includes("Hips")) {
           const values = (track as THREE.VectorKeyframeTrack).values;
           for (let i = 0; i < values.length; i += 3) {
@@ -241,7 +337,10 @@ export class Model {
     }
   }
 
-  public async playAnimation(animation: VRMAnimation | THREE.AnimationClip, name: string): Promise<number> {
+  public async playAnimation(
+    animation: VRMAnimation | THREE.AnimationClip,
+    name: string,
+  ): Promise<number> {
     const { vrm, mixer } = this;
     if (vrm == null || mixer == null) {
       throw new Error("You have to load VRM first");
@@ -257,29 +356,27 @@ export class Model {
 
     if (!(name === "idle_loop.vrma" || name === "greeting.vrma")) {
       if (name === "dance.vrma") {
-        weight = { x:2 ,y:1.25 ,z:1.5 };
+        weight = { x: 2, y: 1.25, z: 1.5 };
       } else {
-        weight = { x:1 ,y:1 ,z:0 };
-      } 
+        weight = { x: 1, y: 1, z: 0 };
+      }
       this.modifyAnimationPosition(clip, weight);
     }
 
-    
     const idleAction = this._currentAction!;
     const VRMAaction = mixer.clipAction(clip);
     VRMAaction.clampWhenFinished = true;
     VRMAaction.loop = THREE.LoopOnce;
-    this.fadeToAction(VRMAaction,1);
+    this.fadeToAction(VRMAaction, 1);
 
     const restoreState = () => {
-      mixer.removeEventListener( 'finished', restoreState );
-      this.fadeToAction(idleAction,1);
-    }
+      mixer.removeEventListener("finished", restoreState);
+      this.fadeToAction(idleAction, 1);
+    };
 
     mixer.addEventListener("finished", restoreState);
     return clip.duration + 1 + 0.5; // 1 = fade out time, 0.5 = fade in time
   }
-
 
   public async playEmotion(expression: string) {
     this.emoteController?.playEmotion(expression);
@@ -306,5 +403,8 @@ export class Model {
     this.emoteController?.update(delta);
     this.mixer?.update(delta);
     this.vrm?.update(delta);
+    if (config("animation_procedural") === "true") {
+      this.proceduralAnimation?.update(delta);
+    }
   }
 }
