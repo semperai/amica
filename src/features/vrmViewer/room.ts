@@ -2,6 +2,10 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 // @ts-ignore
 import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
+import { downscaleModelTextures, logTextureInfo } from '@/utils/textureDownscaler';
+import { OptimizedGLTFLoader } from '@/utils/gltfOptimizer';
+import { GLTFAnalyzer } from '@/utils/gltfAnalyzer';
+import { TransparencyOptimizer, checkAndOptimizeTransparency } from '@/utils/transparencyOptimizer';
 import { config } from "@/utils/config";
 
 export class Room {
@@ -13,7 +17,78 @@ export class Room {
 
   public async loadRoom(url: string): Promise<void> {
     const loader = new GLTFLoader();
+    /*
+    const loader = new OptimizedGLTFLoader({
+      // Texture optimizations
+      skipTextures: true,          // Skip loading textures completely
+      maxTextureSize: 512,         // Maximum texture size
+      generateMipmaps: false,      // Disable mipmaps
+
+      // Geometry optimizations
+      skipDraco: true,            // Skip Draco decoder setup
+      preserveIndices: false,     // Remove index buffers
+
+      // Animation/Material optimizations
+      skipAnimations: true,       // Skip loading animations
+      simplifyMaterials: true,    // Use simplified materials
+      disableNormalMaps: true,    // Disable normal maps
+
+      // Performance optimizations
+      disposeSourceData: true,    // Clear source data after load
+
+      // Optional callbacks for fine-tuning
+      onMesh: (mesh) => {
+        // Custom mesh optimizations
+        mesh.castShadow = false;
+        mesh.receiveShadow = false;
+      },
+      onMaterial: (material) => {
+        // Custom material optimizations
+        if (material instanceof THREE.MeshStandardMaterial) {
+          material.envMapIntensity = 0;
+        }
+      },
+      onTexture: (texture) => {
+        // Custom texture optimizations
+        texture.encoding = THREE.LinearEncoding;
+      },
+    });
+    */
     const gltf = await loader.loadAsync(url);
+
+    /*
+    {
+      const analyzer = new GLTFAnalyzer();
+      const stats = analyzer.analyzeModel(gltf);
+      console.log('Model Statistics:', stats);
+      const suggestions = analyzer.suggestOptimizations(stats);
+      console.log('Optimization Suggestions:', suggestions);
+    }
+    {
+    // Or for more control:
+      const optimizer = new TransparencyOptimizer();
+      const stats = optimizer.analyzeTransparency(gltf);
+      console.log('Transparency analysis:', stats);
+      // Check for issues
+      const issues = optimizer.logTransparencyIssues();
+      console.log('Transparency issues:', issues);
+
+      // Apply optimizations
+      optimizer.optimizeTransparency(gltf, {
+        disableTransparency: true,     // Completely disable all transparency
+        minAlphaThreshold: 0.9,        // Convert nearly opaque materials to fully opaque
+        convertToAlphaTest: false,      // Convert transparency to alphaTest where possible
+        alphaTestThreshold: 0.5        // Threshold for alphaTest conversion
+      });
+    }
+    */
+
+    // await downscaleModelTextures(gltf, 128);
+    /*
+    gltf.scene.traverse((obj: any) => {
+      obj.frustumCulled = false;
+    });
+    */
     this.room = gltf.scene;
   }
 
