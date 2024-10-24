@@ -36,7 +36,8 @@ export default function VrmViewer({ chatMode }: { chatMode: boolean }) {
               setIsLoading(true);
               resolve(false);
             } else {
-              await viewer.loadScenario('/scenarios/test1.js');
+              // await viewer.loadScenario('/scenarios/test1.js');
+              await viewer.loadScenario('/scenarios/test2.js');
 
               // await viewer.loadVrm(
               //   buildUrl(currentVrm.url),
