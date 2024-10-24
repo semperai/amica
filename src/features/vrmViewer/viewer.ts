@@ -114,17 +114,17 @@ export class Viewer {
   public model?: Model;
   public room?: Room;
 
-  public _renderer?: THREE.WebGLRenderer;
-  private _clock: THREE.Clock;
+  public renderer?: THREE.WebGLRenderer;
+  private clock: THREE.Clock;
   private elapsedMsMid: number = 0;
   private elapsedMsSlow: number = 0;
-  private _scene?: THREE.Scene;
-  private _camera?: THREE.PerspectiveCamera;
-  private _cameraControls?: OrbitControls;
-  private _stats?: Stats;
-  private _statsMesh?: THREE.Mesh;
+  private scene?: THREE.Scene;
+  private camera?: THREE.PerspectiveCamera;
+  private cameraControls?: OrbitControls;
+  private stats?: Stats;
+  private statsMesh?: THREE.Mesh;
   private gui?: GUI;
-  private _guiMesh?: THREE.Mesh;
+  private guiMesh?: THREE.Mesh;
 
   private sendScreenshotToCallback: boolean;
   private screenshotCallback: BlobCallback | undefined;
@@ -201,8 +201,8 @@ export class Viewer {
     this.screenshotCallback = undefined;
 
     // animate
-    this._clock = new THREE.Clock();
-    this._clock.start();
+    this.clock = new THREE.Clock();
+    this.clock.start();
   }
 
   public async setup(canvas: HTMLCanvasElement) {
@@ -225,7 +225,7 @@ export class Viewer {
       antialias: true,
       powerPreference: "high-performance",
     }) as THREE.WebGLRenderer;
-    this._renderer = renderer;
+    this.renderer = renderer;
 
     renderer.setClearColor(0x000000, 0)
     renderer.shadowMap.enabled = false;
@@ -262,7 +262,7 @@ export class Viewer {
     }
 
     const scene = new THREE.Scene();
-    this._scene = scene;
+    this.scene = scene;
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
     directionalLight.position.set(1.0, 1.0, 1.0).normalize();
@@ -276,12 +276,12 @@ export class Viewer {
 
     // camera
     const camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
-    this._camera = camera;
+    this.camera = camera;
 
     camera.position.set(0, -3, 3.5);
 
     const cameraControls = new OrbitControls(camera, renderer.domElement);
-    this._cameraControls = cameraControls;
+    this.cameraControls = cameraControls;
 
     cameraControls.screenSpacePanning = true;
     cameraControls.minDistance = 0.5;
@@ -422,7 +422,7 @@ export class Viewer {
     // gui.domElement.style.visibility = 'hidden';
 
     const guiMesh = new HTMLMesh(gui.domElement);
-    this._guiMesh = guiMesh;
+    this.guiMesh = guiMesh;
 
     guiMesh.position.x = 0;
     guiMesh.position.y = 0;
@@ -432,7 +432,7 @@ export class Viewer {
 
     // stats
     const stats = new Stats();
-    this._stats = stats;
+    this.stats = stats;
 
     stats.dom.style.width = "80px";
     stats.dom.style.height = "48px";
@@ -465,7 +465,7 @@ export class Viewer {
     );
 
     const statsMesh = new HTMLMesh(stats.dom);
-    this._statsMesh = statsMesh;
+    this.statsMesh = statsMesh;
 
     statsMesh.position.x = 0;
     statsMesh.position.y = 0.25;
@@ -557,11 +557,11 @@ export class Viewer {
     QuarksUtil.setAutoDestroy(effect, true);
     QuarksUtil.addToBatchRenderer(effect, this.particleRenderer);
     QuarksUtil.play(effect);
-    this._scene!.add(effect);
+    this.scene!.add(effect);
   }
 
   public getCanvas() {
-    return this._renderer?.domElement?.parentElement?.getElementsByTagName(
+    return this.renderer?.domElement?.parentElement?.getElementsByTagName(
       "canvas",
     )[0];
   }
@@ -570,7 +570,7 @@ export class Viewer {
     session: XRSession,
     immersiveType: XRSessionMode,
   ) {
-    if (!this._renderer) return;
+    if (!this.renderer) return;
     console.log("session", session);
 
     const canvas = this.getCanvas();
@@ -578,8 +578,8 @@ export class Viewer {
     // except on desktop using emulator, then it should not be changed
     // canvas!.style.display = "none";
 
-    this._renderer.xr.setReferenceSpaceType("local");
-    await this._renderer.xr.setSession(session);
+    this.renderer.xr.setReferenceSpaceType("local");
+    await this.renderer.xr.setSession(session);
 
     this.teleport(0, -1.2, -1);
 
@@ -619,7 +619,7 @@ export class Viewer {
     if (!this.currentSession) return;
 
     // reset camera
-    this._camera!.position.set(0, -3, 3.5);
+    this.camera!.position.set(0, -3, 3.5);
     this.resetCamera();
 
     const canvas = this.getCanvas();
@@ -633,9 +633,9 @@ export class Viewer {
   }
 
   public teleport(x: number, y: number, z: number) {
-    if (!this._renderer?.xr?.isPresenting) return;
+    if (!this.renderer?.xr?.isPresenting) return;
 
-    const baseReferenceSpace = this._renderer!.xr.getReferenceSpace();
+    const baseReferenceSpace = this.renderer!.xr.getReferenceSpace();
     if (!baseReferenceSpace) {
       console.warn("baseReferenceSpace not found");
       return;
@@ -648,7 +648,7 @@ export class Viewer {
     const teleportSpaceOffset =
       baseReferenceSpace.getOffsetReferenceSpace(transform);
 
-    this._renderer!.xr.setReferenceSpace(teleportSpaceOffset);
+    this.renderer!.xr.setReferenceSpace(teleportSpaceOffset);
   }
 
   public async loadVrm(
@@ -661,7 +661,7 @@ export class Viewer {
     setLoadingProgress("Loading VRM");
 
     // gltf and vrm
-    this.model = new Model(this._camera || new THREE.Object3D());
+    this.model = new Model(this.camera || new THREE.Object3D());
     await this.model.loadVRM(url, setLoadingProgress);
     setLoadingProgress("VRM loaded");
     if (!this.model?.vrm) return;
@@ -684,15 +684,15 @@ export class Viewer {
     this.modelTargets = [this.modelMeshHelper];
 
     if (config("debug_gfx") === "true") {
-      this._scene!.add(this.modelMeshHelper);
+      this.scene!.add(this.modelMeshHelper);
     }
 
     this.modelBVHHelper = new MeshBVHHelper(this.modelMeshHelper);
     if (config("debug_gfx") === "true") {
-      this._scene!.add(this.modelBVHHelper);
+      this.scene!.add(this.modelBVHHelper);
     }
 
-    this._scene!.add(this.model.vrm.scene);
+    this.scene!.add(this.model.vrm.scene);
 
     // TODO since poses still work for procedural animation, we can use this to debug
     if (config("animation_procedural") !== "true") {
@@ -717,7 +717,7 @@ export class Viewer {
       });
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.copy(e.bone.getWorldPosition(new THREE.Vector3()));
-      // this._scene!.add(mesh);
+      // this.scene!.add(mesh);
     });
 
     setLoadingProgress("Regenerating BVH");
@@ -731,7 +731,7 @@ export class Viewer {
 
   public unloadVRM(): void {
     if (this.model?.vrm) {
-      this._scene!.remove(this.model.vrm.scene);
+      this.scene!.remove(this.model.vrm.scene);
       // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
       {
         const geometry = this.modelMeshHelper?.geometry;
@@ -739,8 +739,8 @@ export class Viewer {
         for (const key in geometry?.attributes) {
           geometry?.deleteAttribute(key);
         }
-        this._scene!.remove(this.modelMeshHelper as THREE.Object3D);
-        this._scene!.remove(this.modelBVHHelper as THREE.Object3D);
+        this.scene!.remove(this.modelMeshHelper as THREE.Object3D);
+        this.scene!.remove(this.modelBVHHelper as THREE.Object3D);
       }
       this.model?.unLoadVrm();
     }
@@ -774,7 +774,7 @@ export class Viewer {
     this.room.room.position.set(pos.x, pos.y, pos.z);
     this.room.room.rotation.set(rot.x, rot.y, rot.z);
     this.room.room.scale.set(scale.x, scale.y, scale.z);
-    this._scene!.add(this.room.room);
+    this.scene!.add(this.room.room);
 
     // build bvh
     this.roomTargets = [];
@@ -796,12 +796,12 @@ export class Viewer {
       }
     }
 
-    this._scene!.add(this.roomBVHHelperGroup);
+    this.scene!.add(this.roomBVHHelperGroup);
   }
 
   public unloadRoom(): void {
     if (this.room?.room) {
-      this._scene!.remove(this.room.room);
+      this.scene!.remove(this.room.room);
       // TODO if we don't dispose and create a new geometry then it seems like the performance gets slower
       for (const item of this.roomBVHHelperGroup.children) {
         if (item instanceof MeshBVHHelper) {
@@ -817,7 +817,7 @@ export class Viewer {
           }
         }
       }
-      this._scene!.remove(this.roomBVHHelperGroup);
+      this.scene!.remove(this.roomBVHHelperGroup);
     }
   }
 
@@ -833,7 +833,7 @@ export class Viewer {
 
       this.room.splat.position.set(0, 4, 0);
       this.room.splat.rotation.set(0, 0, Math.PI);
-      this._scene!.add(this.room.splat);
+      this.scene!.add(this.room.splat);
     });
   }
 
@@ -865,7 +865,7 @@ export class Viewer {
   }
 
   public doublePinchHandler() {
-    const cam = this._renderer!.xr.getCamera();
+    const cam = this.renderer!.xr.getCamera();
 
     const avgControllerPos = new THREE.Vector3()
       .addVectors(this.controller1!.position, this.controller2!.position)
@@ -900,29 +900,29 @@ export class Viewer {
    * canvasの親要素を参照してサイズを変更する
    */
   public resize() {
-    if (!this._renderer) return;
+    if (!this.renderer) return;
 
-    const parentElement = this._renderer.domElement.parentElement;
+    const parentElement = this.renderer.domElement.parentElement;
     if (!parentElement) return;
 
-    this._renderer.setPixelRatio(window.devicePixelRatio);
-    this._renderer.setSize(
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(
       parentElement.clientWidth,
       parentElement.clientHeight,
     );
 
-    this._camera!.aspect =
+    this.camera!.aspect =
       parentElement.clientWidth / parentElement.clientHeight;
-    this._camera!.updateProjectionMatrix();
+    this.camera!.updateProjectionMatrix();
   }
 
   public resizeChatMode(on: boolean) {
-    if (!this._renderer) return;
+    if (!this.renderer) return;
 
-    const parentElement = this._renderer.domElement.parentElement;
+    const parentElement = this.renderer.domElement.parentElement;
     if (!parentElement) return;
 
-    this._renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
 
     let width = parentElement.clientWidth;
     let height = parentElement.clientHeight;
@@ -931,12 +931,12 @@ export class Viewer {
       height = height / 2;
     }
 
-    this._renderer.setSize(width, height);
+    this.renderer.setSize(width, height);
 
-    if (!this._camera) return;
-    this._camera.aspect =
+    if (!this.camera) return;
+    this.camera.aspect =
       parentElement.clientWidth / parentElement.clientHeight;
-    this._camera.updateProjectionMatrix();
+    this.camera.updateProjectionMatrix();
   }
 
   /**
@@ -947,26 +947,26 @@ export class Viewer {
 
     if (headNode) {
       const headWPos = headNode.getWorldPosition(new THREE.Vector3());
-      this._camera?.position.set(
-        this._camera.position.x,
+      this.camera?.position.set(
+        this.camera.position.x,
         headWPos.y,
-        this._camera.position.z,
+        this.camera.position.z,
       );
-      this._cameraControls?.target.set(headWPos.x, headWPos.y, headWPos.z);
-      this._cameraControls?.update();
+      this.cameraControls?.target.set(headWPos.x, headWPos.y, headWPos.z);
+      this.cameraControls?.update();
     }
   }
 
   public resetCameraLerp() {
     // y = 1.3 is from initial setup position of camera
     const newPosition = new THREE.Vector3(
-      this._camera?.position.x,
+      this.camera?.position.x,
       1.3,
-      this._camera?.position.z,
+      this.camera?.position.z,
     );
-    this._camera?.position.lerpVectors(this._camera?.position, newPosition, 0);
-    // this._cameraControls?.target.lerpVectors(this._cameraControls?.target,headWPos,0.5);
-    // this._cameraControls?.update();
+    this.camera?.position.lerpVectors(this.camera?.position, newPosition, 0);
+    // this.cameraControls?.target.lerpVectors(this.cameraControls?.target,headWPos,0.5);
+    // this.cameraControls?.update();
   }
 
   public hslToRgb(h: number, s: number, l: number) {
@@ -1004,7 +1004,7 @@ export class Viewer {
   // itype: 0 = amica, 1 = room
   public createBallAtPoint(point: THREE.Vector3, itype: number = 0) {
     return;
-    const distance = point.distanceTo(this._camera?.position as THREE.Vector3);
+    const distance = point.distanceTo(this.camera?.position as THREE.Vector3);
     const s = 5;
     const h = distance * s - Math.floor(distance * s);
 
@@ -1024,10 +1024,10 @@ export class Viewer {
     const ballGeometry = new THREE.SphereGeometry(0.005, 16, 16);
     const ball = new THREE.Mesh(ballGeometry, ballMaterial);
     ball.position.copy(point);
-    this._scene!.add(ball);
+    this.scene!.add(ball);
 
     setTimeout(() => {
-      this._scene!.remove(ball);
+      this.scene!.remove(ball);
     }, 10000);
   }
 
@@ -1128,7 +1128,7 @@ export class Viewer {
     };
 
     if (!this.usingController1 && !this.usingController2) {
-      this.raycaster.setFromCamera(this.mouse, this._camera!);
+      this.raycaster.setFromCamera(this.mouse, this.camera!);
       checkIntersection(this.closestPart1!);
     }
 
@@ -1199,14 +1199,14 @@ export class Viewer {
     // quick exit until setup finishes
     if (!this.isReady) return;
 
-    const delta = this._clock.getDelta();
+    const delta = this.clock.getDelta();
 
     this.elapsedMsSlow += delta;
     this.elapsedMsMid += delta;
 
     this.updateHands();
 
-    this._stats!.update();
+    this.stats!.update();
 
     let ptime = performance.now();
 
@@ -1225,10 +1225,10 @@ export class Viewer {
     this.modelMsPanel.update(performance.now() - ptime, 40);
 
     ptime = performance.now();
-    this._renderer!.render(this._scene!, this._camera!);
+    this.renderer!.render(this.scene!, this.camera!);
     this.renderMsPanel.update(performance.now() - ptime, 100);
 
-    this.room?.splat?.update(this._renderer, this._camera);
+    this.room?.splat?.update(this.renderer, this.camera);
     this.room?.splat?.render();
 
     if (this.isPinching1 && this.isPinching2) {
@@ -1240,7 +1240,7 @@ export class Viewer {
       const dir = this.
       this.applyWind(
         new THREE.Vector3(0, 1, 0),
-        (Math.sin(this._clock.elapsedTime * Math.PI / 3) + 1) * 0.3
+        (Math.sin(this.clock.elapsedTime * Math.PI / 3) + 1) * 0.3
       );
       */
 
@@ -1255,9 +1255,9 @@ export class Viewer {
       // updating the texture for this is very slow
       ptime = performance.now();
       // @ts-ignore
-      this._statsMesh!.material.map.update();
+      this.statsMesh!.material.map.update();
       // @ts-ignore
-      this._guiMesh!.material.map.update();
+      this.guiMesh!.material.map.update();
       this.statsMsPanel.update(performance.now() - ptime, 100);
 
       // TODO run this in a web worker
@@ -1269,7 +1269,7 @@ export class Viewer {
     }
 
     if (this.sendScreenshotToCallback && this.screenshotCallback) {
-      this._renderer!.domElement.toBlob(this.screenshotCallback, "image/jpeg");
+      this.renderer!.domElement.toBlob(this.screenshotCallback, "image/jpeg");
       this.sendScreenshotToCallback = false;
     }
 
