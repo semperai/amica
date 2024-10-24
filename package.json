@@ -26,6 +26,7 @@
     "@heroicons/react": "^2.1.5",
     "@iwer/devui": "^0.1.1",
     "@mkkellogg/gaussian-splats-3d": "^0.4.5",
+    "@next/third-parties": "^14.2.16",
     "@pixiv/three-vrm": "^3.1.2",
     "@ricky0123/vad-react": "^0.0.24",
     "@sentry/nextjs": "^8.34.0",
