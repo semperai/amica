@@ -177,6 +177,16 @@ export class Viewer {
   private particleRenderer = new BatchedParticleRenderer();
   private particleCartoonStarField: THREE.Object3D | null = null;
 
+  private ammo: any;
+  private collisionConfiguration: any;
+  private dispatcher: any
+  private broadphase: any;
+  private solver: any;
+  private physicsWorld: any;
+  private transformAux1: any;
+  private tempBtVec3_1: any;
+
+
 
   constructor() {
     this.isReady = false;
@@ -220,6 +230,27 @@ export class Viewer {
     // webgpu does not support foveation yet
     if (config("use_webgpu") !== "true") {
       renderer.xr.setFoveation(0);
+    }
+
+    // initialize phyics
+    if (window.Ammo === undefined) {
+      console.error("Ammo not found");
+    } else {
+      this.ammo = await window.Ammo();
+      console.log('ammo', this.ammo);
+      this.collisionConfiguration = new this.ammo.btDefaultCollisionConfiguration();
+      this.dispatcher = new this.ammo.btCollisionDispatcher(this.collisionConfiguration);
+      this.broadphase = new this.ammo.btDbvtBroadphase();
+      this.solver = new this.ammo.btSequentialImpulseConstraintSolver();
+      this.physicsWorld = new this.ammo.btDiscreteDynamicsWorld(
+        this.dispatcher,
+        this.broadphase,
+        this.solver,
+        this.collisionConfiguration
+      );
+      this.physicsWorld.setGravity(new this.ammo.btVector3(0, -7.8, 0));
+      this.transformAux1 = new this.ammo.btTransform();
+      this.tempBtVec3_1 = new this.ammo.btVector3(0, 0, 0);
     }
 
     const scene = new THREE.Scene();

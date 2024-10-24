@@ -44,6 +44,10 @@ export default function Document() {
           src="/debugLogger.js"
           strategy="beforeInteractive"
         />
+        <Script
+          src="/ammo.wasm.js"
+          strategy="beforeInteractive"
+        />
       </Head>
       <body>
         <Main />
