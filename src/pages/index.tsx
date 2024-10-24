@@ -57,6 +57,42 @@ import { ChatModeText } from "@/components/chatModeText";
 
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
 
+function detectVRHeadset() {
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  // Meta Quest detection
+  // Quest 2 and 3 both use "oculus" in their user agent
+  const isQuest = userAgent.includes('oculus') ||
+                  userAgent.includes('quest 2') ||
+                  userAgent.includes('quest 3');
+
+  // Vision Pro detection
+  // visionOS is the specific identifier for Apple Vision Pro
+  const isVisionPro = userAgent.includes('visionos') ||
+                      userAgent.includes('xros');
+
+  // Detailed device information
+  let deviceInfo = {
+    isVRDevice: isQuest || isVisionPro,
+    deviceType: '',
+    browserInfo: userAgent
+  };
+
+  if (isQuest) {
+    deviceInfo.deviceType = 'quest-3';
+    if (userAgent.includes('quest 3')) {
+      deviceInfo.deviceType = 'quest-3';
+    } else if (userAgent.includes('quest 2')) {
+      deviceInfo.deviceType = 'quest-2';
+    }
+  } else if (isVisionPro) {
+    deviceInfo.deviceType = 'vision-pro';
+  }
+
+  return deviceInfo;
+}
+
+
 export default function Home() {
   const { t, i18n } = useTranslation();
   const currLang = i18n.resolvedLanguage;
@@ -91,6 +127,9 @@ export default function Home() {
   const [isARSupported, setIsARSupported] = useState(false);
   const [isVRSupported, setIsVRSupported] = useState(false);
 
+  const [isVRHeadset, setIsVRHeadset] = useState(false);
+
+
   useEffect(() => {
     amicaLife.checkSettingOff(!showSettings);
   }, [showSettings, amicaLife]);
@@ -107,6 +146,9 @@ export default function Home() {
     }
 
     if (window.navigator.xr && window.navigator.xr.isSessionSupported) {
+      let deviceInfo = detectVRHeadset();
+      setIsVRHeadset(deviceInfo.isVRDevice);
+
       window.navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
         console.log('ar supported', supported);
         setIsARSupported(supported);
@@ -283,6 +325,7 @@ export default function Home() {
         <div className="grid grid-flow-col gap-[8px] place-content-end mt-2 bg-slate-800/40 rounded-md backdrop-blur-md shadow-sm">
           <div className='flex flex-col justify-center items-center p-1 space-y-3'>
             <MenuButton
+              large={isVRHeadset}
               icon={WrenchScrewdriverIcon}
               onClick={() => setShowSettings(true)}
               label="show settings"
@@ -290,12 +333,14 @@ export default function Home() {
 
             {showChatLog ? (
               <MenuButton
+                large={isVRHeadset}
                 icon={ChatBubbleLeftIcon}
                 onClick={toggleChatLog}
                 label="hide chat log"
               />
             ) : (
               <MenuButton
+                large={isVRHeadset}
                 icon={ChatBubbleLeftRightIcon}
                 onClick={toggleChatLog}
                 label="show chat log"
@@ -304,12 +349,14 @@ export default function Home() {
 
             { muted ? (
               <MenuButton
+                large={isVRHeadset}
                 icon={SpeakerXMarkIcon}
                 onClick={toggleTTSMute}
                 label="unmute"
               />
             ) : (
               <MenuButton
+                large={isVRHeadset}
                 icon={SpeakerWaveIcon}
                 onClick={toggleTTSMute}
                 label="mute"
@@ -318,12 +365,14 @@ export default function Home() {
 
             { webcamEnabled ? (
               <MenuButton
+                large={isVRHeadset}
                 icon={VideoCameraIcon}
                 onClick={() => setWebcamEnabled(false)}
                 label="disable webcam"
               />
             ) : (
               <MenuButton
+                large={isVRHeadset}
                 icon={VideoCameraSlashIcon}
                 onClick={() => setWebcamEnabled(true)}
                 label="enable webcam"
@@ -331,12 +380,14 @@ export default function Home() {
             )}
 
             <MenuButton
+              large={isVRHeadset}
               icon={ShareIcon}
               href="/share"
               target={isTauri() ? '' : '_blank'}
               label="share"
             />
             <MenuButton
+              large={isVRHeadset}
               icon={CloudArrowDownIcon}
               href="/import"
               label="import"
@@ -344,12 +395,14 @@ export default function Home() {
 
             { showSubconciousText ? (
               <MenuButton
+                large={isVRHeadset}
                 icon={IconBrain}
                 onClick={toggleShowSubconciousText}
                 label="hide subconscious"
               />
             ) : (
               <MenuButton
+                large={isVRHeadset}
                 icon={IconBrain}
                 onClick={toggleShowSubconciousText}
                 label="show subconscious"
@@ -357,6 +410,7 @@ export default function Home() {
             )}
 
             <MenuButton
+              large={isVRHeadset}
               icon={CubeTransparentIcon}
               disabled={!isARSupported}
               onClick={() => toggleXR('immersive-ar')}
@@ -364,6 +418,7 @@ export default function Home() {
             />
 
             <MenuButton
+              large={isVRHeadset}
               icon={CubeIcon}
               disabled={!isVRSupported}
               onClick={() => toggleXR('immersive-vr')}
@@ -371,6 +426,7 @@ export default function Home() {
             />
 
             <MenuButton
+              large={isVRHeadset}
               icon={CodeBracketSquareIcon}
               onClick={() => setShowDebug(true)}
               label="debug"
@@ -378,6 +434,7 @@ export default function Home() {
 
             { showChatMode ? (
               <MenuButton
+                large={isVRHeadset}
                 icon={Squares2X2Icon}
                 disabled={viewer.currentSession !== null}
                 onClick={toggleChatMode}
@@ -385,6 +442,7 @@ export default function Home() {
               />
             ) : (
               <MenuButton
+                large={isVRHeadset}
                 icon={SquaresPlusIcon}
                 disabled={viewer.currentSession !== null}
                 onClick={toggleChatMode}

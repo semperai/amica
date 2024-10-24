@@ -4,6 +4,7 @@ import clsx from 'clsx';
 export function MenuButton({
   icon,
   onClick,
+  large,
   label,
   href,
   target,
@@ -11,6 +12,7 @@ export function MenuButton({
 }: {
   icon: React.ComponentType<any>,
   onClick?: () => void,
+  large: boolean,
   label: string,
   href?: string,
   target?: string,
@@ -32,7 +34,8 @@ export function MenuButton({
       >
         <Icon
           className={clsx(
-            'h-7 w-7 text-white',
+            large ? 'h-14 w-14' : 'h-7 w-7',
+            'text-white',
             disabled && 'cursor-not-allowed opacity-20',
             !disabled && 'opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer',
          )}
