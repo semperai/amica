@@ -152,6 +152,7 @@ export class Viewer {
   };
   private updateMsPanel: any = null;
   private renderMsPanel: any = null;
+  private scenarioMsPanel: any = null;
   private physicsMsPanel: any = null;
   private modelMsPanel: any = null;
   private bvhMsPanel: any = null;
@@ -192,7 +193,7 @@ export class Viewer {
   private transformAux1: any;
   private tempBtVec3_1: any;
 
-
+  private scenario: any;
 
   constructor() {
     this.isReady = false;
@@ -445,6 +446,9 @@ export class Viewer {
     );
     this.renderMsPanel = stats.addPanel(
       new Stats.Panel("render_ms", "#ff8", "#221"),
+    );
+    this.scenarioMsPanel = stats.addPanel(
+      new Stats.Panel("scenario_ms", "#f8f", "#221"),
     );
     this.physicsMsPanel = stats.addPanel(
       new Stats.Panel("physics_ms", "#88f", "#212"),
@@ -1181,14 +1185,12 @@ export class Viewer {
 
     const ClassDefinition = new Function(`return ${classCode}`)();
 
-    const scenario = new ClassDefinition({
+    this.scenario = new ClassDefinition({
       scope: this,
       THREE,
     });
-    console.log('scenario', scenario);
 
-    await scenario.setup();
-    scenario.update();
+    await this.scenario.setup();
   }
 
   public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {
@@ -1208,6 +1210,13 @@ export class Viewer {
 
     let ptime = performance.now();
 
+    if (this.scenario) {
+      ptime = performance.now();
+      this.scenario.update(delta);
+      this.scenarioMsPanel.update(performance.now() - ptime, 100);
+    }
+
+    ptime = performance.now();
     this.physicsWorld.stepSimulation(delta, 10);
     this.physicsMsPanel.update(performance.now() - ptime, 100);
 
