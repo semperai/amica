@@ -198,6 +198,8 @@ export class Model {
             }
           });
 
+          this.setTransparency(0.5);
+
           if (config("debug_gfx") === "true") {
             vrm.scene.add(helperRoot);
           }
@@ -230,6 +232,30 @@ export class Model {
           reject(error);
         },
       );
+    });
+  }
+
+  public setTransparency(opacity: number) {
+    if (! this.vrm) {
+      return;
+    }
+
+    this.vrm.scene.traverse((obj: any) => {
+      obj.frustumCulled = false;
+
+      if (obj.isMesh) {
+        if (Array.isArray(obj.material)) {
+          obj.material.forEach((mat: any) => {
+            mat.transparent = true;
+            mat.opacity = opacity;
+            mat.alphaTest = 0;
+          });
+        } else if (obj.material) {
+          obj.material.transparent = true;
+          obj.material.opacity = opacity;
+          obj.material.alphaTest = 0;
+        }
+      }
     });
   }
 
