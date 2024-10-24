@@ -123,6 +123,7 @@ export class Viewer {
   private _cameraControls?: OrbitControls;
   private _stats?: Stats;
   private _statsMesh?: THREE.Mesh;
+  private gui?: GUI;
   private _guiMesh?: THREE.Mesh;
 
   private sendScreenshotToCallback: boolean;
@@ -144,6 +145,10 @@ export class Viewer {
 
   private gparams = {
     "y-offset": 0,
+    "room-x": 0,
+    "room-y": 0,
+    "room-z": 0,
+    "room-scale": 1,
   };
   private updateMsPanel: any = null;
   private renderMsPanel: any = null;
@@ -220,6 +225,7 @@ export class Viewer {
     }) as THREE.WebGLRenderer;
     this._renderer = renderer;
 
+    renderer.setClearColor(0x000000, 0)
     renderer.shadowMap.enabled = false;
 
     renderer.setSize(width, height);
@@ -385,7 +391,21 @@ export class Viewer {
 
     // gui
     const gui = new GUI();
+    this.gui = gui;
     let updateDebounceId: ReturnType<typeof setTimeout> | null = null;
+    gui.add(this.gparams, "room-x", -10, 10).onChange((value: number) => {
+      this.room?.room?.position.setX(value);
+    });
+    gui.add(this.gparams, "room-y", -10, 10).onChange((value: number) => {
+      this.room?.room?.position.setY(value);
+    });
+    gui.add(this.gparams, "room-z", -10, 10).onChange((value: number) => {
+      this.room?.room?.position.setZ(value);
+    });
+    gui.add(this.gparams, "room-scale", 0, 1).onChange((value: number) => {
+      this.room?.room?.scale.set(value, value, value);
+    });
+
     gui.add(this.gparams, "y-offset", -0.2, 0.2).onChange((value: number) => {
       if (updateDebounceId) {
         clearTimeout(updateDebounceId);
@@ -734,6 +754,14 @@ export class Viewer {
     await this.room.loadRoom(url, setLoadingProgress);
     setLoadingProgress(`Room load complete ${this.room}`);
     if (!this.room?.room) return;
+
+    this.gparams["room-x"] = pos.x;
+    this.gparams["room-y"] = pos.y;
+    this.gparams["room-z"] = pos.z;
+    this.gparams["room-scale"] = scale.x; // TODO should be uniform scale ?
+    this.gui!.controllers.forEach((c) => {
+      c.updateDisplay();
+    });
 
     this.room.room.position.set(pos.x, pos.y, pos.z);
     this.room.room.rotation.set(rot.x, rot.y, rot.z);
