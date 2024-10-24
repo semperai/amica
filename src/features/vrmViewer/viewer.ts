@@ -1183,7 +1183,7 @@ export class Viewer {
     });
     console.log('scenario', scenario);
 
-    scenario.setup();
+    await scenario.setup();
     scenario.update();
   }
 
