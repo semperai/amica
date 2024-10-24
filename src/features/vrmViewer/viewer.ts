@@ -152,6 +152,7 @@ export class Viewer {
   };
   private updateMsPanel: any = null;
   private renderMsPanel: any = null;
+  private physicsMsPanel: any = null;
   private modelMsPanel: any = null;
   private bvhMsPanel: any = null;
   private raycastMsPanel: any = null;
@@ -444,6 +445,9 @@ export class Viewer {
     );
     this.renderMsPanel = stats.addPanel(
       new Stats.Panel("render_ms", "#ff8", "#221"),
+    );
+    this.physicsMsPanel = stats.addPanel(
+      new Stats.Panel("physics_ms", "#88f", "#212"),
     );
     this.modelMsPanel = stats.addPanel(
       new Stats.Panel("model_ms", "#f8f", "#212"),
@@ -1203,6 +1207,9 @@ export class Viewer {
     this._stats!.update();
 
     let ptime = performance.now();
+
+    this.physicsWorld.stepSimulation(delta, 10);
+    this.physicsMsPanel.update(performance.now() - ptime, 100);
 
     ptime = performance.now();
     this.model?.update(delta);
