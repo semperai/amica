@@ -210,13 +210,17 @@ export default function Home() {
     }
 
     // TODO should hand tracking be required?
-    let optionalFeatures: string[] = ['hand-tracking'];
+    let optionalFeatures: string[] = [
+      'hand-tracking',
+      'local-floor',
+    ];
     if (immersiveType === 'immersive-ar') {
       optionalFeatures.push('dom-overlay');
     }
 
     const sessionInit = {
       optionalFeatures,
+      requiredFeatures: ['bounded-floor'],
       domOverlay: { root: document.body },
     };
 
