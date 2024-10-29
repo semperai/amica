@@ -194,6 +194,7 @@ export class Viewer {
   private tempBtVec3_1: any;
 
   private scenario: any;
+  private scenarioLoading: boolean = false;
 
   constructor() {
     this.isReady = false;
@@ -1180,6 +1181,7 @@ export class Viewer {
   public async loadScenario(url: string) {
     "use strict";
 
+    this.scenarioLoading = true;
     const res = await fetch(url);
     const classCode = await res.text();
 
@@ -1191,6 +1193,7 @@ export class Viewer {
     });
 
     await this.scenario.setup();
+    this.scenarioLoading = false;
   }
 
   public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {
@@ -1198,6 +1201,7 @@ export class Viewer {
 
     // quick exit until setup finishes
     if (!this.isReady) return;
+    if (!this.scenario || this.scenarioLoading) return;
 
     const delta = this.clock.getDelta();
 
