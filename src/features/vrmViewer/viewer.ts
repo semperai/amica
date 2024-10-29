@@ -1214,22 +1214,36 @@ export class Viewer {
 
     let ptime = performance.now();
 
-    if (this.scenario) {
-      ptime = performance.now();
+    ptime = performance.now();
+    try {
       this.scenario.update(delta);
-      this.scenarioMsPanel.update(performance.now() - ptime, 100);
+    } catch (e) {
+      console.error("scenario update error", e);
     }
+    this.scenarioMsPanel.update(performance.now() - ptime, 100);
 
     ptime = performance.now();
-    this.physicsWorld.stepSimulation(delta, 10);
+    try {
+      this.physicsWorld.stepSimulation(delta, 10);
+    } catch (e) {
+      console.error("physics update error", e);
+    }
     this.physicsMsPanel.update(performance.now() - ptime, 100);
 
     ptime = performance.now();
-    this.model?.update(delta);
+    try {
+      this.model?.update(delta);
+    } catch (e) {
+      console.error("model update error", e);
+    }
     this.modelMsPanel.update(performance.now() - ptime, 40);
 
     ptime = performance.now();
-    this.renderer!.render(this.scene!, this.camera!);
+    try {
+      this.renderer!.render(this.scene!, this.camera!);
+    } catch (e) {
+      console.error("render error", e);
+    }
     this.renderMsPanel.update(performance.now() - ptime, 100);
 
     this.room?.splat?.update(this.renderer, this.camera);
