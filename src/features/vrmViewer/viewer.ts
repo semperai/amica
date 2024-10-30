@@ -242,11 +242,16 @@ export class Viewer {
     }
 
     // initialize phyics
-    if (window.Ammo === undefined) {
+    // we have this weird construct because ammo is loaded globally
+    // and things get funny with hot reloading
+    if (typeof window.Ammo === 'undefined') {
       console.error("Ammo not found");
-    } else {
+    } else if (typeof window.Ammo === 'function') {
       this.ammo = await window.Ammo();
-      console.log('ammo', this.ammo);
+    } else {
+      this.ammo = window.Ammo;
+    }
+    if (this.ammo) {
       this.collisionConfiguration = new this.ammo.btDefaultCollisionConfiguration();
       this.dispatcher = new this.ammo.btCollisionDispatcher(this.collisionConfiguration);
       this.broadphase = new this.ammo.btDbvtBroadphase();
