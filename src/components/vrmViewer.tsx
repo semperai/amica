@@ -36,73 +36,7 @@ export default function VrmViewer({ chatMode }: { chatMode: boolean }) {
               setIsLoading(true);
               resolve(false);
             } else {
-              // await viewer.loadScenario('/scenarios/test1.js');
-              await viewer.loadScenario('/scenarios/test2.js');
-
-              // await viewer.loadVrm(
-              //   buildUrl(currentVrm.url),
-              //   setLoadingProgress,
-              // );
-
-              // await viewer.loadRoom(
-              //   buildUrl('/room/japanese_bridge_garden.glb'),
-              //   new THREE.Vector3(0, 0, 0),
-              //   new THREE.Euler(0, 0, 0),
-              //   new THREE.Vector3(1, 1, 1),
-              // );
-
-              // await viewer.loadRoom(
-              //   buildUrl('/room/japanese_bridge_garden.glb'),
-              //   new THREE.Vector3(0, 0, 0),
-              //   new THREE.Euler(0, 0, 0),
-              //   new THREE.Vector3(1, 1, 1),
-              // );
-
-              // DOESNT LOAD COLORS
-              // await viewer.loadRoom(
-              //   buildUrl('/room/japanese_bridge_garden.glb'),
-              //   new THREE.Vector3(0, 0, 0),
-              //   new THREE.Euler(0, 0, 0),
-              //   new THREE.Vector3(1, 1, 1),
-              // );
-
-              // TOO SLOW (but not if transparency etc disabled)
-              // await viewer.loadRoom(
-              //   buildUrl('/room/autumn_house.glb'),
-              //   new THREE.Vector3(0, -0.35, -0.2),
-              //   new THREE.Euler(0, -Math.PI/2, 0),
-              //   new THREE.Vector3(0.2, 0.2, 0.2),
-              // );
-
-              // PERFECT
-              // await viewer.loadRoom(
-              //   `${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}/8d8254f0170994eb26f31b62feecdad79d19bbb1bfbbd7e477acda418921099d`,
-              //   // buildUrl('/room/low_poly_winter_scene.glb'),
-              //   new THREE.Vector3(1, 0, -0.5),
-              //   new THREE.Euler(0, 0, 0),
-              //   new THREE.Vector3(1, 1, 1),
-              // );
-
-              // OK
-              // await viewer.loadRoom(
-              //   `${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}/e8fc9e2a72e9336dde3635cbdebd0867c4640b72b519dcc5066ba348daac8af5`,
-              //   new THREE.Vector3(0, 0.2, -2),
-              //   new THREE.Euler(0, 0, 0),
-              //   new THREE.Vector3(0.016, 0.016, 0.016),
-              // );
-
-              // OK
-              // await viewer.loadRoom(
-              //   `${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}/7aa9bd8033e3a51a69ce1bb26864e0f7e1d17caa92303f0b15d60f027b869557`,
-              //   new THREE.Vector3(0, -0.05, -0.1),
-              //   new THREE.Euler(0, 0, 0),
-              //   new THREE.Vector3(0.7, 0.7, 0.7),
-              // );
-              
-              // await viewer.loadRoom(buildUrl('/room/bathroom.glb'));
-              // await viewer.loadRoom(buildUrl('/room/basic_house.glb'));
-              // await viewer.loadSplat(buildUrl('/splats/garden.ksplat'));
-              // await viewer.loadSplat(buildUrl('/splats/bonsai_trimmed.ksplat'));
+              await viewer.loadScenario(config('scenario_url'));
               resolve(true);
             }
           } catch (e) {

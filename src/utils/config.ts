@@ -89,7 +89,9 @@ Here are some examples:
 [angry] What? Don't keep it a secret, that's not fair!
 [neutral] What are your plans for summer vacation? [happy] Should we go to the beach?
 
-Please respond with only one appropriate message. Please do not use overly polite language. Please be open about yourself. Let's start the conversation.`};
+Please respond with only one appropriate message. Please do not use overly polite language. Please be open about yourself. Let's start the conversation.`,
+  scenario_url: process.env.NEXT_PUBLIC_SCENARIO_URL ?? '/scenarios/test1.js',
+};
 
 function prefixed(key: string) {
   return `chatvrm_${key}`;
