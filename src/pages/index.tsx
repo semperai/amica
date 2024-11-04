@@ -220,7 +220,6 @@ export default function Home() {
 
     const sessionInit = {
       optionalFeatures,
-      requiredFeatures: ['bounded-floor'],
       domOverlay: { root: document.body },
     };
 
