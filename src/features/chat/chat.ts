@@ -5,6 +5,9 @@ import { Alert } from "@/features/alert/alert";
 
 import { getEchoChatResponseStream } from "./echoChat";
 import {
+  getArbiusChatResponseStream,
+} from "./arbiusChat";
+import {
   getOpenAiChatResponseStream,
   getOpenAiVisionChatResponse,
 } from "./openAiChat";
@@ -553,6 +556,8 @@ export class Chat {
     const chatbotBackend = config("chatbot_backend");
 
     switch (chatbotBackend) {
+      case "arbius_llm":
+        return getArbiusChatResponseStream(messages);
       case "chatgpt":
         return getOpenAiChatResponseStream(messages);
       case "llamacpp":

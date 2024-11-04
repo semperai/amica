@@ -155,6 +155,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'character_animation': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'arbius_llm_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'ollama_settings':     return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -207,6 +208,7 @@ function getLabelFromPage(page: string): string {
     case 'character_animation': return t('Character Animation');
 
     case 'chatbot_backend':     return t('ChatBot Backend');
+    case 'arbius_llm_settings': return t('Arbius');
     case 'chatgpt_settings':    return t('ChatGPT');
     case 'llamacpp_settings':   return t('LLama.cpp');
     case 'ollama_settings':     return t('Ollama');

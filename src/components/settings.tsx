@@ -37,6 +37,7 @@ import { CharacterModelPage } from './settings/CharacterModelPage';
 import { CharacterAnimationPage } from './settings/CharacterAnimationPage';
 
 import { ChatbotBackendPage } from './settings/ChatbotBackendPage';
+import { ArbiusLLMSettingsPage } from './settings/ArbiusLLMSettingsPage';
 import { ChatGPTSettingsPage } from './settings/ChatGPTSettingsPage';
 import { LlamaCppSettingsPage } from './settings/LlamaCppSettingsPage';
 import { OllamaSettingsPage } from './settings/OllamaSettingsPage';
@@ -84,6 +85,7 @@ export const Settings = ({
   const [settingsUpdated, setSettingsUpdated] = useState(false);
 
   const [chatbotBackend, setChatbotBackend] = useState(config("chatbot_backend"));
+  const [arbiusLLMModelId, setArbiusLLMModelId] = useState(config("arbius_llm_model_id"));
   const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
   const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
@@ -254,6 +256,7 @@ export const Settings = ({
     return () => clearTimeout(timeOutId);
   }, [
     chatbotBackend,
+    arbiusLLMModelId,
     openAIApiKey, openAIUrl, openAIModel,
     llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
@@ -338,7 +341,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'language':
@@ -434,6 +437,13 @@ export const Settings = ({
         setPage={setPage}
         breadcrumbs={breadcrumbs}
         setBreadcrumbs={setBreadcrumbs}
+        />
+
+    case 'arbius_llm_settings':
+      return <ArbiusLLMSettingsPage
+        arbiusLLMModelId={arbiusLLMModelId}
+        setArbiusLLMModelId={setArbiusLLMModelId}
+        setSettingsUpdated={setSettingsUpdated}
         />
 
     case 'chatgpt_settings':

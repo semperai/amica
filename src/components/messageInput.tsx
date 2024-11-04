@@ -1,3 +1,4 @@
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import * as ort from "onnxruntime-web"
 ort.env.wasm.wasmPaths = '/_next/static/chunks/'
 
@@ -210,14 +211,17 @@ export default function MessageInput({
     <div className="fixed bottom-2 z-20 w-full">
       <div className="mx-auto max-w-4xl p-2 backdrop-blur-lg border-0 rounded-lg">
         <div className="grid grid-flow-col grid-cols-[min-content_1fr_min-content] gap-[8px]">
-          <div className='flex flex-col justify-center items-center'>
-            <IconButton
-              iconName={vad.listening ? "24/PauseAlt" : "24/Microphone"}
-              className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
-              isProcessing={vad.userSpeaking}
-              disabled={config('stt_backend') === 'none' || vad.loading || Boolean(vad.errored)}
-              onClick={vad.toggle}
-            />
+          <div>
+            <ConnectButton />
+            <div className='flex flex-col justify-center items-center'>
+              <IconButton
+                iconName={vad.listening ? "24/PauseAlt" : "24/Microphone"}
+                className="bg-secondary hover:bg-secondary-hover active:bg-secondary-press disabled:bg-secondary-disabled"
+                isProcessing={vad.userSpeaking}
+                disabled={config('stt_backend') === 'none' || vad.loading || Boolean(vad.errored)}
+                onClick={vad.toggle}
+              />
+            </div>
           </div>
 
           <input
