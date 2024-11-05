@@ -37,6 +37,7 @@ import { ChatLog } from "@/components/chatLog";
 import VrmViewer from "@/components/vrmViewer";
 import { MessageInputContainer } from "@/components/messageInputContainer";
 import { Introduction } from "@/components/introduction";
+import { ArbiusIntroduction } from "@/components/arbiusIntroduction";
 import { LoadingProgress } from "@/components/loadingProgress";
 import { DebugPane } from "@/components/debugPane";
 import { Settings } from "@/components/settings";
@@ -113,6 +114,8 @@ export default function Home() {
   // otherwise issues from usage of localStorage and window will occur
   const [showContent, setShowContent] = useState(false);
 
+
+  const [showArbiusIntroduction, setShowArbiusIntroduction] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
@@ -138,6 +141,8 @@ export default function Home() {
     if (muted === null) {
       setMuted(config('tts_muted') === 'true');
     }
+
+    setShowArbiusIntroduction(config("show_arbius_introduction") === 'true');
 
     if (config("bg_color") !== '') {
       document.body.style.backgroundColor = config("bg_color");
@@ -306,6 +311,7 @@ export default function Home() {
       )}
 
       <Introduction open={config("show_introduction") === 'true'} />
+      <ArbiusIntroduction open={showArbiusIntroduction} close={() => setShowArbiusIntroduction(false)} />
 
       <LoadingProgress />
 
