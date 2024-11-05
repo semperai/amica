@@ -9,7 +9,7 @@ const defaults = {
   mtoon_material_type: 'mtoon',
   language: process.env.NEXT_PUBLIC_LANGUAGE ?? 'en',
   show_introduction: process.env.NEXT_PUBLIC_SHOW_INTRODUCTION ?? 'true',
-  show_arbius_introduction: process.env.NEXT_PUBLIC_SHOW_ARBIUS_INTRODUCTION ?? 'true',
+  show_arbius_introduction: process.env.NEXT_PUBLIC_SHOW_ARBIUS_INTRODUCTION ?? 'false',
   show_add_to_homescreen: process.env.NEXT_PUBLIC_SHOW_ADD_TO_HOMESCREEN ?? 'true',
   bg_color: process.env.NEXT_PUBLIC_BG_COLOR ?? '',
   bg_url: process.env.NEXT_PUBLIC_BG_URL ?? '/bg/bg-room2.jpg',
