@@ -20,6 +20,7 @@ export async function localXTTSTTS(message: string) {
     text_filtering: 'standard',
     character_voice_gen: config("alltalk_voice") || 'female_01.wav',
     narrator_enabled: 'false',
+    narrator_voice_gen: config("alltalk_voice") || 'female_01.wav',
     text_not_inside: 'character',
     language: config("alltalk_language") || 'en',
     output_file_name: 'amica_output',
@@ -73,6 +74,6 @@ export async function localXTTSTTS(message: string) {
     return { audio: audioData };
   } catch (e) {
     console.error('[AllTalk] Error:', e);
-    throw new Error(`AllTalk TTS Error: ${e.message}`);
+    throw new Error(`AllTalk TTS Error: ${(e as Error).message}`);
   }
 }
