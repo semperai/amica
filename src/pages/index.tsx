@@ -44,7 +44,7 @@ import { DebugPane } from "@/components/debugPane";
 import { Settings } from "@/components/settings";
 import { EmbeddedWebcam } from "@/components/embeddedWebcam";
 // import { Moshi } from "@/features/moshi/components/Moshi";
-import { Moshi } from "@/features/moshi2/components/Moshi";
+import { Moshi } from "@/features/moshi/components/Moshi";
 
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { Message, Role } from "@/features/chat/messages";

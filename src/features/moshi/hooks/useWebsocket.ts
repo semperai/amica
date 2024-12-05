@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
 
 export const useWebSocket = (
-    url: URL,
+    url: string,
     onOpen: () => void,
     onMessage: (event: MessageEvent) => void,
-    onClose: () => void
+    onClose: () => void,
+    stopAllAction: () => void
 ) => {
     const socketRef = useRef<WebSocket | null>(null);
 
@@ -17,12 +18,9 @@ export const useWebSocket = (
         socket.onclose = onClose;
 
         return () => {
-            if (socketRef.current) {
-                socketRef.current.close();
-                socketRef.current = null;
-            }
+            stopAllAction();
         };
-    }, [url, onOpen, onMessage, onClose]);
+    }, []);
 
     return socketRef;
 };
