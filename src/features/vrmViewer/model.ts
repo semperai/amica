@@ -29,7 +29,7 @@ export class Model {
   public proceduralAnimation?: ProceduralAnimation;
 
   private _lookAtTargetParent: THREE.Object3D;
-  private _lipSync?: LipSync;
+  public _lipSync?: LipSync;
 
   public _currentAction?: THREE.AnimationAction;
 

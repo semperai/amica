@@ -42,6 +42,7 @@ import { ChatGPTSettingsPage } from './settings/ChatGPTSettingsPage';
 import { LlamaCppSettingsPage } from './settings/LlamaCppSettingsPage';
 import { OllamaSettingsPage } from './settings/OllamaSettingsPage';
 import { KoboldAiSettingsPage } from './settings/KoboldAiSettingsPage';
+import { MoshiSettingsPage } from './settings/MoshiSettingsPage';
 
 import { TTSBackendPage } from './settings/TTSBackendPage';
 import { ElevenLabsSettingsPage } from './settings/ElevenLabsSettingsPage';
@@ -96,6 +97,7 @@ export const Settings = ({
   const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
   const [koboldAiUseExtra, setKoboldAiUseExtra] = useState<boolean>(config("koboldai_use_extra") === 'true' ? true : false);
   const [koboldAiStopSequence, setKoboldAiStopSequence] = useState(config("koboldai_stop_sequence"));
+  const [moshiUrl, setMoshiUrl] = useState(config("moshi_url"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -261,6 +263,7 @@ export const Settings = ({
     llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
+    moshiUrl,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -341,7 +344,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'language':
@@ -483,6 +486,13 @@ export const Settings = ({
         setKoboldAiUseExtra={setKoboldAiUseExtra}
         koboldAiStopSequence={koboldAiStopSequence}
         setKoboldAiStopSequence={setKoboldAiStopSequence}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'moshi_settings':
+      return <MoshiSettingsPage
+        moshiUrl={moshiUrl}
+        setMoshiUrl={setMoshiUrl}
         setSettingsUpdated={setSettingsUpdated}
         />
 

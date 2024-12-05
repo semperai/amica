@@ -13,6 +13,7 @@ const chatbotBackends = [
   ...isTauri() ? [] : [{key: "windowai", label: "Window.ai"}], // Hides Window.ai when using the desktop app
   {key: "ollama",     label: "Ollama"},
   {key: "koboldai",   label: "KoboldAI"},
+  {key: "moshi",      label: "Moshi"},
 ];
 
 function idToTitle(id: string): string {
@@ -73,7 +74,7 @@ export function ChatbotBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["arbius_llm", "chatgpt", "llamacpp", "ollama", "koboldai"].includes(chatbotBackend) && (
+        { ["arbius_llm", "chatgpt", "llamacpp", "ollama", "koboldai", "moshi"].includes(chatbotBackend) && (
           <li className="py-4">
             <FormRow label={`${t("Configure")} ${t(idToTitle(chatbotBackend))}`}>
               <button
