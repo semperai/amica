@@ -145,7 +145,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'community':           return <RocketLaunchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'background_img':      return <PhotoIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
-    case 'background_color':      return <SwatchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'background_color':    return <SwatchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'background_video':    return <FilmIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'character_model':     return <UsersIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'character_animation': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -155,6 +155,7 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'ollama_settings':     return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'koboldai_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'openrouter_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'name':                return <IdentificationIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
@@ -204,6 +205,7 @@ function getLabelFromPage(page: string): string {
     case 'llamacpp_settings':   return t('LLama.cpp');
     case 'ollama_settings':     return t('Ollama');
     case 'koboldai_settings':   return t('KoboldAI');
+    case 'openrouter_settings': return t('OpenRouter');
     case 'name'         :       return t('Name');
     case 'system_prompt':       return t('System Prompt');
 

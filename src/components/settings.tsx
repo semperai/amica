@@ -65,6 +65,7 @@ import { NamePage } from './settings/NamePage';
 import { SystemPromptPage } from './settings/SystemPromptPage';
 import { AmicaLifePage } from "./settings/AmicaLifePage";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
+import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
 
 export const Settings = ({
   onClickClose,
@@ -91,6 +92,9 @@ export const Settings = ({
   const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
   const [koboldAiUseExtra, setKoboldAiUseExtra] = useState<boolean>(config("koboldai_use_extra") === 'true' ? true : false);
   const [koboldAiStopSequence, setKoboldAiStopSequence] = useState(config("koboldai_stop_sequence"));
+  const [openRouterApiKey, setOpenRouterApiKey] = useState(config("openrouter_apikey"));
+  const [openRouterUrl, setOpenRouterUrl] = useState(config("openrouter_url"));
+  const [openRouterModel, setOpenRouterModel] = useState(config("openrouter_model"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -241,6 +245,7 @@ export const Settings = ({
     llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
+    openRouterApiKey, openRouterUrl, openRouterModel,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -284,7 +289,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "openrouter_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'tts':
@@ -399,6 +404,17 @@ export const Settings = ({
         setKoboldAiUseExtra={setKoboldAiUseExtra}
         koboldAiStopSequence={koboldAiStopSequence}
         setKoboldAiStopSequence={setKoboldAiStopSequence}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'openrouter_settings':
+      return <OpenRouterSettings
+        openRouterUrl={openRouterUrl}
+        setOpenRouterUrl={setOpenRouterUrl}
+        openRouterApiKey={openRouterApiKey}
+        setOpenRouterApiKey={setOpenRouterApiKey}
+        openRouterModel={openRouterModel}
+        setOpenRouterModel={setOpenRouterModel}
         setSettingsUpdated={setSettingsUpdated}
         />
 

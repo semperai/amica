@@ -25,6 +25,7 @@ import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
 import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
+import { getOpenRouterChatResponseStream } from './openRouterChat';
 
 
 type Speak = {
@@ -543,6 +544,8 @@ export class Chat {
         return getOllamaChatResponseStream(messages);
       case 'koboldai':
         return getKoboldAiChatResponseStream(messages);
+      case 'openrouter':
+        return getOpenRouterChatResponseStream(messages);
     }
 
     return getEchoChatResponseStream(messages);
