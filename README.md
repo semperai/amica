@@ -56,6 +56,7 @@ The various features of Amica mainly use and support the following technologies:
   - [Ollama](https://ollama.ai)
   - [KoboldCpp](https://github.com/LostRuins/koboldcpp)
   - [Oobabooga](https://github.com/oobabooga/text-generation-webui/wiki)
+  - [OpenRouter](https://openrouter.ai/) (access to multiple AI models)
 - Text-to-Speech
   - [Eleven Labs API](https://elevenlabs.io/)
   - [Speech T5](https://huggingface.co/microsoft/speecht5_tts)
@@ -93,6 +94,14 @@ Once started, please visit the following URL to confirm that it is working prope
 ### 📝 Configuration
 
 Most of the configuration is done in the `.env.local` file. Reference the `config.ts` file for the available options.
+
+#### OpenRouter Configuration
+
+To use OpenRouter as a chat backend, set the following environment variables in your `.env.local` file:
+
+- `NEXT_PUBLIC_OPENROUTER_APIKEY`: Your OpenRouter API key (required)
+- `NEXT_PUBLIC_OPENROUTER_URL`: Custom OpenRouter API URL (optional, defaults to https://openrouter.ai/api/v1)
+- `NEXT_PUBLIC_OPENROUTER_MODEL`: Default OpenRouter model (optional, defaults to openai/gpt-3.5-turbo)
 
 ```bash
 amica

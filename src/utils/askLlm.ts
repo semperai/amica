@@ -7,6 +7,7 @@ import { getLlamaCppChatResponseStream } from "@/features/chat/llamaCppChat";
 import { getWindowAiChatResponseStream } from "@/features/chat/windowAiChat";
 import { getOllamaChatResponseStream } from "@/features/chat/ollamaChat";
 import { getKoboldAiChatResponseStream } from "@/features/chat/koboldAiChat";
+import { getOpenRouterChatResponseStream } from "@/features/chat/openRouterChat";
 
 import { config } from "@/utils/config";
 import { processResponse } from "@/utils/processResponse";
@@ -50,6 +51,8 @@ export async function askLLM(
         return getOllamaChatResponseStream(messages);
       case "koboldai":
         return getKoboldAiChatResponseStream(messages);
+      case "openrouter":
+        return getOpenRouterChatResponseStream(messages);
       default:
         return getEchoChatResponseStream(messages);
     }
@@ -111,7 +114,7 @@ export async function askLLM(
 
       receivedMessage += value;
       receivedMessage = receivedMessage.trimStart();
-      
+
 
       if (chat !== null) {
         const proc = processResponse({
@@ -132,16 +135,16 @@ export async function askLLM(
               screenplay: aiTalks[0],
               streamIdx: currentStreamIdx,
             });
-  
+
             if (! firstSentenceEncountered) {
               console.timeEnd('performance_time_to_first_sentence');
               firstSentenceEncountered = true;
             }
-  
+
             return false; // normal processing
           }
         });
-  
+
         sentences = proc.sentences;
         aiTextLog = proc.aiTextLog;
         receivedMessage = proc.receivedMessage;
@@ -149,9 +152,9 @@ export async function askLLM(
         rolePlay = proc.rolePlay;
         if (proc.shouldBreak) {
           break;
-        }  
+        }
       }
-      
+
     }
   } catch (e: any) {
     const errMsg = e.toString();
