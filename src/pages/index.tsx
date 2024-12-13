@@ -24,6 +24,7 @@ import {
   VideoCameraIcon,
   VideoCameraSlashIcon,
   WrenchScrewdriverIcon,
+  AcademicCapIcon,
 } from "@heroicons/react/24/outline";
 import { IconBrain } from '@tabler/icons-react';
 
@@ -42,6 +43,7 @@ import { LoadingProgress } from "@/components/loadingProgress";
 import { DebugPane } from "@/components/debugPane";
 import { Settings } from "@/components/settings";
 import { EmbeddedWebcam } from "@/components/embeddedWebcam";
+// import { Moshi } from "@/features/moshi/components/Moshi";
 import { Moshi } from "@/features/moshi/components/Moshi";
 
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
@@ -114,13 +116,13 @@ export default function Home() {
   // otherwise issues from usage of localStorage and window will occur
   const [showContent, setShowContent] = useState(false);
 
-
   const [showArbiusIntroduction, setShowArbiusIntroduction] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
   const [showChatMode, setShowChatMode] = useState(false);
   const [showSubconciousText, setShowSubconciousText] = useState(false);
+  const [showMoshi, setShowMoshi] = useState(false);
 
   // null indicates havent loaded config yet
   const [muted, setMuted] = useState<boolean|null>(null);
@@ -317,6 +319,7 @@ export default function Home() {
 
       { webcamEnabled && <EmbeddedWebcam setWebcamEnabled={setWebcamEnabled} /> }
       { showDebug && <DebugPane onClickClose={() => setShowDebug(false) }/> }
+      { config("chatbot_backend") === "moshi" && <Moshi setAssistantText={setAssistantMessage}/>  }
 
       <VrmStoreProvider>
         <VrmViewer chatMode={showChatMode}/>
@@ -327,7 +330,7 @@ export default function Home() {
         )}
       </VrmStoreProvider>
       
-      <MessageInputContainer isChatProcessing={chatProcessing} />
+      { config("chatbot_backend") !== "moshi" && <MessageInputContainer isChatProcessing={chatProcessing} />}
 
       {/* main menu */}
       <div className="absolute z-10 m-2">

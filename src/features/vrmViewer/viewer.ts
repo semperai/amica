@@ -347,12 +347,16 @@ export class Viewer {
       );
       scene.add(controllerGrip2);
 
+      const handModelFactory = new XRHandModelFactory();
+
       const hand1 = renderer.xr.getHand(0);
       this.hand1 = hand1;
+      this.hand1.add(handModelFactory.createHandModel(this.hand1,"mesh"))
       scene.add(hand1);
 
       const hand2 = renderer.xr.getHand(1);
       this.hand2 = hand2;
+      this.hand2.add(handModelFactory.createHandModel(this.hand2,"mesh"))
       scene.add(hand2);
 
       // @ts-ignore
@@ -502,8 +506,12 @@ export class Viewer {
       line.scale.z = 5;
 
       for (const _ of joints) {
-        this.jointMeshes1.push(mesh.clone());
-        this.jointMeshes2.push(mesh.clone());
+        // Make joint mesh invisible
+        const clonedMesh = mesh.clone();
+        clonedMesh.visible = false; 
+
+        this.jointMeshes1.push(clonedMesh);
+        this.jointMeshes2.push(clonedMesh);
         // this.jointMeshes1[this.jointMeshes1.length - 1].add(line.clone());
         // this.jointMeshes2[this.jointMeshes2.length - 1].add(line.clone());
 

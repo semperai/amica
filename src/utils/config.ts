@@ -32,6 +32,7 @@ const defaults = {
   koboldai_url: process.env.NEXT_PUBLIC_KOBOLDAI_URL ?? 'http://localhost:5001',
   koboldai_use_extra: process.env.NEXT_PUBLIC_KOBOLDAI_USE_EXTRA ?? 'false',
   koboldai_stop_sequence: process.env.NEXT_PUBLIC_KOBOLDAI_STOP_SEQUENCE ?? '(End)||[END]||Note||***||You:||User:||</s>',
+  moshi_url: process.env.NEXT_PUBLIC_MOSHI_URL ?? 'https://runpod.proxy.net',
   tts_muted: 'false',
   tts_backend: process.env.NEXT_PUBLIC_TTS_BACKEND ?? 'openai_tts',
   stt_backend: process.env.NEXT_PUBLIC_STT_BACKEND ?? 'whisper_openai',
