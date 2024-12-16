@@ -1,23 +1,33 @@
 import { Message } from "./messages";
 import { config } from '@/utils/config';
 
-export async function getOpenAiChatResponseStream(messages: Message[]) {
-  const apiKey = config("openai_apikey");
+function getApiKey(configKey: string) {
+  const apiKey = config(configKey);
   if (!apiKey) {
-    throw new Error("Invalid OpenAI API Key");
+    throw new Error(`Invalid ${configKey} API Key`);
   }
+  return apiKey;
+}
+
+async function getResponseStream(
+  messages: Message[],
+  url: string,
+  model: string,
+  apiKey: string,
+) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "Authorization": `Bearer ${apiKey}`,
     "HTTP-Referer": "https://amica.arbius.ai",
     "X-Title": "Amica",
   };
-  const res = await fetch(`${config("openai_url")}/v1/chat/completions`, {
+
+  const res = await fetch(`${url}/v1/chat/completions`, {
     headers: headers,
     method: "POST",
     body: JSON.stringify({
-      model: config("openai_model"),
-      messages: messages,
+      model,
+      messages,
       stream: true,
       max_tokens: 200,
     }),
@@ -83,4 +93,29 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
   });
 
   return stream;
+}
+
+export async function getOpenAiChatResponseStream(messages: Message[]) {
+  const apiKey = getApiKey("openai_apikey");
+  const url = config("openai_url");
+  const model = config("openai_model");
+  return getResponseStream(messages, url, model, apiKey);
+}
+
+export async function getOpenAiVisionChatResponse(messages: Message[],) {
+  const apiKey = getApiKey("vision_openai_apikey");
+  const url = config("vision_openai_url");
+  const model = config("vision_openai_model");
+
+  const stream = await getResponseStream(messages, url, model, apiKey);
+  const sreader = await stream.getReader();
+
+  let combined = "";
+  while (true) {
+    const { done, value } = await sreader.read();
+    if (done) break;
+    combined += value;
+  }
+
+  return combined;
 }
