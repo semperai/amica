@@ -26,6 +26,7 @@
 * [Using KoboldCpp](./guides/using-koboldcpp.md)
 * [Using OpenAI](./guides/using-openai.md)
 * [Using Oobabooga](./guides/using-oobabooga.md)
+* [Using OpenRouter](./guides/using-openrouter.md)
 
 ## 🔊 Connecting Speech Options (TTS)
 
