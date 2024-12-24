@@ -429,7 +429,8 @@ export class Viewer {
       }, 1000);
     });
 
-    // gui.domElement.style.visibility = 'hidden';
+    // Temp Disable : WebXR
+    gui.domElement.style.visibility = 'hidden';
 
     const guiMesh = new HTMLMesh(gui.domElement);
     this.guiMesh = guiMesh;
@@ -450,6 +451,9 @@ export class Viewer {
     stats.dom.style.top = "0px";
     stats.dom.style.left = window.innerWidth - 80 + "px";
     document.body.appendChild(stats.dom);
+
+    // Temp Disable : WebXR
+    stats.dom.style.visibility = "hidden";
 
     this.updateMsPanel = stats.addPanel(
       new Stats.Panel("update_ms", "#fff", "#221"),
@@ -1212,9 +1216,9 @@ export class Viewer {
   public update(time?: DOMHighResTimeStamp, frame?: XRFrame) {
     let utime = performance.now(); // count total update time
 
-    // quick exit until setup finishes
-    if (!this.isReady) return;
-    if (!this.scenario || this.scenarioLoading) return;
+    // WebXR: quick exit until setup finishes
+    // if (!this.isReady) return;
+    // if (!this.scenario || this.scenarioLoading) return;
 
     const delta = this.clock.getDelta();
 
@@ -1227,13 +1231,14 @@ export class Viewer {
 
     let ptime = performance.now();
 
-    ptime = performance.now();
-    try {
-      this.scenario.update(delta);
-    } catch (e) {
-      console.error("scenario update error", e);
-    }
-    this.scenarioMsPanel.update(performance.now() - ptime, 100);
+    // Temp Disable : WebXR
+    // ptime = performance.now();
+    // try {
+    //   this.scenario.update(delta);
+    // } catch (e) {
+    //   console.error("scenario update error", e);
+    // }
+    // this.scenarioMsPanel.update(performance.now() - ptime, 100);
 
     ptime = performance.now();
     try {
@@ -1249,6 +1254,7 @@ export class Viewer {
     } catch (e) {
       console.error("model update error", e);
     }
+
     this.modelMsPanel.update(performance.now() - ptime, 40);
 
     ptime = performance.now();
@@ -1259,8 +1265,9 @@ export class Viewer {
     }
     this.renderMsPanel.update(performance.now() - ptime, 100);
 
-    this.room?.splat?.update(this.renderer, this.camera);
-    this.room?.splat?.render();
+    // Temp Disable : WebXR
+    // this.room?.splat?.update(this.renderer, this.camera);
+    // this.room?.splat?.render();
 
     if (this.isPinching1 && this.isPinching2) {
       this.doublePinchHandler();

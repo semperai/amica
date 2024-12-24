@@ -36,7 +36,11 @@ export default function VrmViewer({ chatMode }: { chatMode: boolean }) {
               setIsLoading(true);
               resolve(false);
             } else {
-              await viewer.loadScenario(config('scenario_url'));
+              // Temp Disable : WebXR
+              // await viewer.loadScenario(config('scenario_url'));
+              await viewer.loadVrm(buildUrl(currentVrm.url),
+              (progress) => { console.log(`loading model ${progress}`);}
+              );
               resolve(true);
             }
           } catch (e) {

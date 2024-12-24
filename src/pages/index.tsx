@@ -421,7 +421,8 @@ export default function Home() {
               />
             )}
 
-            <MenuButton
+            {/* Temp Disable : WebXR */}
+            {/*<MenuButton
               large={isVRHeadset}
               icon={CubeTransparentIcon}
               disabled={!isARSupported}
@@ -442,7 +443,7 @@ export default function Home() {
               icon={CodeBracketSquareIcon}
               onClick={() => setShowDebug(true)}
               label="debug"
-            />
+            />*/}
 
             { showChatMode ? (
               <MenuButton

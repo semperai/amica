@@ -62,6 +62,7 @@ export function Moshi({ setAssistantText }: {setAssistantText: (message: string)
                 const updated = prev + text;
                 if (/[.!?]$/.test(updated)) {
                     setCompletedSentences((prev) => [...prev, updated]);
+                    bot.bubbleMessage("assistant", updated);
                     return "";
                 }
                 return updated;
@@ -127,13 +128,10 @@ export function Moshi({ setAssistantText }: {setAssistantText: (message: string)
     );
 
     useEffect(() => {
-        if (!pendingSentence && completedSentences.length > 0) {
-            bot.bubbleMessage("assistant", completedSentences[completedSentences.length - 1]);
-        }
         if (pendingSentence) {
             setAssistantText(pendingSentence);
         }
-    }, [pendingSentence, completedSentences]);
+    }, [pendingSentence]);
 
     return <AudioControl recorder={recorder} />;
 };
