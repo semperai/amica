@@ -288,14 +288,16 @@ export class Chat {
         this.currentAssistantMessage = text;
         this.setAssistantMessage!(this.currentAssistantMessage);
       } else if (config("chatbot_backend") === "moshi") {
+        if (this.currentAssistantMessage !== "") {
+          this.messageList!.push({
+            role: "assistant",
+            content: this.currentAssistantMessage,
+          });
+        }
         this.currentAssistantMessage = text;
-        this.setUserMessage!("");
         this.setAssistantMessage!(this.currentAssistantMessage);
+        this.setUserMessage!("");
 
-        this.messageList!.push({
-          role: "assistant",
-          content: this.currentAssistantMessage,
-        });
       } else {
         this.currentAssistantMessage += text;
         this.setUserMessage!("");
