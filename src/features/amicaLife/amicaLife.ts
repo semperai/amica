@@ -132,7 +132,7 @@ export class AmicaLife {
       this.insertFront({events: "News"});
     }
 
-    // Re-enqueue subconcious event after get the user input (1 Subconcious events per idle cycle)
+    // Re-enqueue subconscious event after get the user input (1 Subconcious events per idle cycle)
     (!this.containsEvent("Subconcious")) ? this.mainEvents.enqueue({ events: "Subconcious" }) : null;
 
     this.pause();

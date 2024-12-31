@@ -1,11 +1,4 @@
 const defaults = {
-  // AllTalk TTS specific settings
-  localXTTS_url: process.env.NEXT_PUBLIC_LOCALXTTS_URL ?? 'http://127.0.0.1:7851',
-  alltalk_version: process.env.NEXT_PUBLIC_ALLTALK_VERSION ?? 'v2',
-  alltalk_voice: process.env.NEXT_PUBLIC_ALLTALK_VOICE ?? 'female_01.wav',
-  alltalk_language: process.env.NEXT_PUBLIC_ALLTALK_LANGUAGE ?? 'en',
-  alltalk_rvc_voice: process.env.NEXT_PUBLIC_ALLTALK_RVC_VOICE ?? 'Disabled',
-  alltalk_rvc_pitch: process.env.NEXT_PUBLIC_ALLTALK_RVC_PITCH ?? '0',
   autosend_from_mic: 'true',
   wake_word_enabled: 'false',
   wake_word: 'Hello',
@@ -33,9 +26,6 @@ const defaults = {
   koboldai_url: process.env.NEXT_PUBLIC_KOBOLDAI_URL ?? 'http://localhost:5001',
   koboldai_use_extra: process.env.NEXT_PUBLIC_KOBOLDAI_USE_EXTRA ?? 'false',
   koboldai_stop_sequence: process.env.NEXT_PUBLIC_KOBOLDAI_STOP_SEQUENCE ?? '(End)||[END]||Note||***||You:||User:||</s>',
-  openrouter_apikey: process.env.NEXT_PUBLIC_OPENROUTER_APIKEY ?? '',
-  openrouter_url: process.env.NEXT_PUBLIC_OPENROUTER_URL ?? 'https://openrouter.ai/api/v1',
-  openrouter_model: process.env.NEXT_PUBLIC_OPENROUTER_MODEL ?? 'openai/gpt-3.5-turbo',
   tts_muted: 'false',
   tts_backend: process.env.NEXT_PUBLIC_TTS_BACKEND ?? 'piper',
   stt_backend: process.env.NEXT_PUBLIC_STT_BACKEND ?? 'whisper_browser',
@@ -65,6 +55,7 @@ const defaults = {
   rvc_protect: process.env.NEXT_PUBLIC_RVC_PROTECT ?? '0.33',
   coquiLocal_url: process.env.NEXT_PUBLIC_COQUILOCAL_URL ?? 'http://localhost:5002',
   coquiLocal_voiceid: process.env.NEXT_PUBLIC_COQUILOCAL_VOICEID ?? 'p240',
+  localXTTS_url: process.env.NEXT_PUBLIC_LOCALXTTS_URL ?? 'http://127.0.0.1:7851/api/tts-generate',
   piper_url: process.env.NEXT_PUBLIC_PIPER_URL ?? 'https://i-love-amica.com:5000/tts',
   elevenlabs_apikey: process.env.NEXT_PUBLIC_ELEVENLABS_APIKEY ??'',
   elevenlabs_voiceid: process.env.NEXT_PUBLIC_ELEVENLABS_VOICEID ?? '21m00Tcm4TlvDq8ikWAM',
@@ -73,6 +64,7 @@ const defaults = {
   coqui_apikey: process.env.NEXT_PUBLIC_COQUI_APIKEY ?? "",
   coqui_voice_id: process.env.NEXT_PUBLIC_COQUI_VOICEID ?? "71c6c3eb-98ca-4a05-8d6b-f8c2b5f9f3a3",
   amica_life_enabled: process.env.NEXT_PUBLIC_AMICA_LIFE_ENABLED ?? 'true',
+  reasoning_engine_enabled: 'false',
   min_time_interval_sec: '10',
   max_time_interval_sec: '20',
   time_to_sleep_sec: '90',
@@ -102,26 +94,92 @@ function prefixed(key: string) {
   return `chatvrm_${key}`;
 }
 
+
+// Fetch configuration from the server
+let serverConfig: Record<string, string> | null = null;
+
+let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
+dataHandlerUrl.searchParams.append('type', 'config');
+
+async function fetchServerConfig() {
+  try {
+    const response = await fetch(dataHandlerUrl);
+    if (response.ok) {
+      serverConfig = await response.json();
+    }
+  } catch (error) {
+    console.error("Failed to fetch server config:", error);
+  }
+}
+
+// Call this function at the beginning of your application to load the server config and sync to localStorage if needed.
+async function initializeConfig() {
+  await fetchServerConfig(); // Load server config into serverConfig variable
+
+  // Sync server config to localStorage if it's missing there
+  if (serverConfig) {
+    for (const [key, value] of Object.entries(serverConfig)) {
+      const localKey = prefixed(key);
+      if (typeof localStorage !== "undefined" && !localStorage.hasOwnProperty(localKey)) {
+        localStorage.setItem(localKey, value);
+      }
+    }
+  }
+}
+initializeConfig();
+
+
 export function config(key: string): string {
-  if (localStorage.hasOwnProperty(prefixed(key))) {
-    return (<any>localStorage).getItem(prefixed(key));
+  try {
+    const localKey = prefixed(key);
+    
+    // Check localStorage
+    if (typeof localStorage !== "undefined" && localStorage.hasOwnProperty(localKey)) {
+      return localStorage.getItem(localKey)!;
+    }
+
+    // Fallback to serverConfig if localStorage is unavailable or missing
+    if (serverConfig && serverConfig.hasOwnProperty(key)) {
+      return serverConfig[key];
+    }
+  } catch (e) {
+    console.error(`Error accessing config for key "${key}": ${e}`);
   }
 
+  // Fallback to defaults if no other sources have the value
   if (defaults.hasOwnProperty(key)) {
     return (<any>defaults)[key];
   }
 
-  throw new Error(`config key not found: ${key}`);
+  throw new Error(`Config key not found: ${key}`);
 }
 
-export function updateConfig(key: string, value: string) {
-  if (defaults.hasOwnProperty(key)) {
-    localStorage.setItem(prefixed(key), value);
-    return;
+
+export async function updateConfig(key: string, value: string) {
+  try {
+    const localKey = prefixed(key);
+
+    // Update localStorage if available
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(localKey, value);
+    }
+
+    // Sync update to server config
+    await fetch(dataHandlerUrl.toString(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, value }),
+    });
+
+    // Update in-memory serverConfig for consistency
+    if (serverConfig) {
+      serverConfig[key] = value;
+    }
+  } catch (e) {
+    console.error(`Error updating config for key "${key}": ${e}`);
   }
-
-  throw new Error(`config key not found: ${key}`);
 }
+
 
 export function defaultConfig(key: string): string {
   if (defaults.hasOwnProperty(key)) {
@@ -131,8 +189,9 @@ export function defaultConfig(key: string): string {
   throw new Error(`config key not found: ${key}`);
 }
 
-export function resetConfig() {
-  Object.entries(defaults).forEach(([key, value]) => {
-    updateConfig(key, value);
-  });
+export async function resetConfig() {
+  for (const [key, value] of Object.entries(defaults)) {
+    await updateConfig(key, value);
+  }
 }
+

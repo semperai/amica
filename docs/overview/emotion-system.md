@@ -77,6 +77,6 @@ VRM models use blendshapes (also known as morph targets) to create facial expres
 You can either create these blendshapes yourself if you're experienced with 3D modeling, or commission a VRM artist who specializes in creating expressive avatars. Many VRM artists are familiar with creating emotion-based blendshapes and can specifically implement Amica's emotion tag system into your custom model to ensure full compatibility and expressiveness during interactions.
 ## Future Plans
 
-In the future the emotion system will be expanded to work with subconcious sub-routines
+In the future the emotion system will be expanded to work with subconscious sub-routines
 
 

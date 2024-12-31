@@ -36,7 +36,7 @@ export type AmicaLifeEvents = {
   events: string;
 };
 
-// Define a constant for max subconcious storage tokens
+// Define a constant for max subconscious storage tokens
 const MAX_STORAGE_TOKENS = 3000;
 
 // Define the interface for a timestamped prompt
@@ -46,7 +46,10 @@ export type TimestampedPrompt = {
 }
 
 // Placeholder for storing compressed subconscious prompts
-export let storedPrompts: TimestampedPrompt[] = [];
+export let storedSubconcious: TimestampedPrompt[] = [];
+
+let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
+dataHandlerUrl.searchParams.append('type', 'subconscious');
 
 let previousAnimation = "";
 
@@ -125,7 +128,7 @@ export async function handleSleepEvent(chat: Chat, amicaLife: AmicaLife) {
   }
 }
 
-// Handles subconcious event.
+// Handles subconscious event.
 
 export async function handleSubconsciousEvent(
   chat: Chat,
@@ -198,17 +201,41 @@ export async function handleSubconsciousEvent(
       timestamp: new Date().toISOString(),
     };
 
-    storedPrompts.push(timestampedPrompt);
-    let totalStorageTokens = storedPrompts.reduce(
+    // Get the current stored subconscious and add the new entry
+    const data = await fetch(dataHandlerUrl);
+    if (!data.ok) {
+      throw new Error('Failed to get subconscious data');
+    }
+
+    const currentStoredSubconscious: TimestampedPrompt[] = await data.json();
+    currentStoredSubconscious.push(timestampedPrompt);
+
+    let totalStorageTokens = currentStoredSubconscious.reduce(
       (totalTokens, prompt) => totalTokens + prompt.prompt.length,
       0,
     );
     while (totalStorageTokens > MAX_STORAGE_TOKENS) {
-      const removed = storedPrompts.shift();
+      const removed = currentStoredSubconscious.shift();
       totalStorageTokens -= removed!.prompt.length;
     }
-    console.log("Stored subconcious prompts:", storedPrompts);
-    amicaLife.setSubconciousLogs!(storedPrompts);
+
+    // Save updated subconscious data back to file
+    const response = await fetch(dataHandlerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ subconscious: currentStoredSubconscious }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update subconscious data');
+    }
+
+    // Update in-memory store
+    storedSubconcious = currentStoredSubconscious;
+
+    console.log("Stored subconscious prompts:", storedSubconcious);
+    amicaLife.setSubconciousLogs!(storedSubconcious);
 
     amicaLife.eventProcessing = false;
     console.timeEnd(`processing_event Subconcious`);

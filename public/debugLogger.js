@@ -14,6 +14,13 @@ if (typeof window !== "undefined") {
             ts: +new Date,
             arguments,
           });
+          let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
+          dataHandlerUrl.searchParams.append('type', 'logs');
+          fetch(dataHandlerUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({type: name,ts: +new Date,arguments,}),
+          });
           passf.apply(null, arguments);
         }
 

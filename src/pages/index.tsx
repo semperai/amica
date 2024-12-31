@@ -2,6 +2,7 @@ import {
   Fragment,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import Link from "next/link";
@@ -21,6 +22,7 @@ import {
   VideoCameraIcon,
   VideoCameraSlashIcon,
   WrenchScrewdriverIcon,
+  SignalIcon,
 } from "@heroicons/react/24/outline";
 import { IconBrain } from '@tabler/icons-react';
 
@@ -97,6 +99,10 @@ export default function Home() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
+
+  const [showStreamWindow, setShowStreamWindow] = useState(false);
+  const videoRef = useRef(null);
+
   useEffect(() => {
     amicaLife.checkSettingOff(!showSettings);
   }, [showSettings, amicaLife]);
@@ -111,8 +117,15 @@ export default function Home() {
     } else {
       document.body.style.backgroundImage = `url(${config("bg_url")})`;
     }
-
   }, []);
+
+  useEffect(() => {
+    if (viewer && videoRef.current && showStreamWindow) {
+      viewer.startStreaming(videoRef.current);
+    } else {
+      viewer.stopStreaming();
+    }
+  }, [viewer, videoRef, showStreamWindow]);
 
   function toggleTTSMute() {
     updateConfig('tts_muted', config('tts_muted') === 'true' ? 'false' : 'true')
@@ -183,6 +196,18 @@ export default function Home() {
       m_plus_2.variable,
       montserrat.variable,
     )}>
+      {showStreamWindow && 
+
+      <div className="fixed top-4 right-4 w-[200px] h-[150px] z-20">
+        <video
+          ref={videoRef} 
+          autoPlay
+          muted
+          playsInline
+          className="w-full h-full object-cover rounded-lg shadow-lg outline outline-2 outline-red-500"
+        />
+      </div> }
+
       { config("youtube_videoid") !== '' && (
         <div className="fixed video-container w-full h-full z-0">
           <iframe
@@ -355,14 +380,14 @@ export default function Home() {
               )}
             </div>
 
-            {/*<div className="flex flex-row items-center space-x-2">
+            {/* <div className="flex flex-row items-center space-x-2">
                 <CodeBracketSquareIcon
                   className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
                   aria-hidden="true"
                   onClick={() => setShowDebug(true)}
                 />
                 <span className="text-white hidden">Debug</span> 
-            </div>*/}
+            </div> */}
 
             <div className="flex flex-row items-center space-x-2">
               <VerticalSwitchBox
@@ -370,6 +395,22 @@ export default function Home() {
                   label={""}
                   onChange={toggleChatMode}
                 />
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              { showStreamWindow ? (
+                <SignalIcon
+                  className="h-7 w-7 text-white opacity-100 hover:opacity-50 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setShowStreamWindow(false)}
+                />
+              ) : (
+                <SignalIcon
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setShowStreamWindow(true)}
+                />
+              )}
             </div>
             
           </div>

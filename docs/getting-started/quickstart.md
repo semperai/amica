@@ -52,5 +52,5 @@ On the top left corner there is a vertical menu, here are all the buttons and wh
 5. **Language** Change the language of the chatbot.
 6. **Share** Share your exact avatar with others. (Including system prompt, name etc.)
 7. **Import** Import your avatar from a URL sent from another community member.
-8. **Brain** See your avatar's subconcious memories.
+8. **Brain** See your avatar's subconscious memories.
 9. **Chat Toggle** Turn into a mode where you can see the entire conversation and shrink the avatar to mini-mode.

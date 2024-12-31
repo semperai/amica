@@ -3,68 +3,51 @@ title: Using AllTalk
 order: 14
 ---
 
-You can find the full AllTalk documentation [here](https://github.com/erew123/alltalk_tts/wiki).
-Navigate to [AllTalk](https://github.com/erew123/alltalk_tts) and follow the instructions below to set up standalone AllTalk version 2.
+Navigate to [AllTalk](https://github.com/erew123/alltalk_tts) and follow the instructions below to set up AllTalk using Docker or manually.
 
-## Setting Up Standalone AllTalk Version 2
+## Setting Up AllTalk Locally
 
-### Windows Instructions
+### Method 1: Manual Setup 
 
-For manual setup, follow the official instructions provided [here](https://github.com/erew123/alltalk_tts/wiki/Install-%E2%80%90-Standalone-Installation).
+For manual setup, follow the official instructions provided [here](https://github.com/erew123/alltalk_tts/blob/main/README.md#-manual-installation---as-a-standalone-application).
 
-Do not install this inside another existing Python environments folder.
-
-1. Open Command Prompt and navigate to your preferred directory:
+1. Clone the AllTalk repository:
     ```bash
-    cd /d C:\path\to\your\preferred\directory
+    git clone https://github.com/erew123/alltalk_tts.git
+    cd alltalk_tts
     ```
     
-2. Clone the AllTalk repository:
+2. Create conda environment and activated it:
     ```bash
-    git clone -b alltalkbeta https://github.com/erew123/alltalk_tts
+    conda create --name alltalkenv python=3.11.5
+    conda activate alltalkenv
     ```
 
-3. Navigate to the AllTalk directory:
+3. Install the required dependencies:
     ```bash
-    cd alltalk_tts
+    pip install -r system/requirements/requirements_standalone.txt
     ```
 
-4. Run the setup script:
+4. Run the AllTalk server:
     ```bash
-    atsetup.bat
+    python script.py
     ```
 
-5. Follow the on-screen prompts:
-* Select Standalone Installation and then Option 1.
-* Follow any additional instructions to install required files.
-* Known installation Errors & fixes are in the [Error-Messages-List Wiki](https://github.com/erew123/alltalk_tts/wiki/Error-Messages-List)
+5. Access the server at `localhost:7851`.
 
-### Linux Instructions
+### Method 2: Setup via Docker
 
-1. Open a terminal and navigate to your preferred directory:
+1. Pull the AllTalk Docker image:
     ```bash
-    cd /path/to/your/preferred/directory
+    docker pull flukexp/alltalkenv
     ```
 
-2. Clone the AllTalk repository:s
+2. Run the AllTalk Docker container:
     ```bash
-    git clone -b alltalkbeta https://github.com/erew123/alltalk_tts
+    docker run -d -p 7851:7851 --name alltalk-server flukexp/alltalkenv
     ```
 
-3. Navigate to the AllTalk directory:
-    ```bash
-    cd alltalk_tts
-    ```
-
-4. Run the setup script:
-    ```bash
-    ./atsetup.bat
-    ```
-
-5. Follow the on-screen prompts:
-* Select Standalone Installation and then Option 1.
-* Follow any additional instructions to install required files.
-* Known installation Errors & fixes are in the [Error-Messages-List Wiki](https://github.com/erew123/alltalk_tts/wiki/Error-Messages-List)
+3. The server will be available at `localhost:7851`.
 
 ## Make sure AllTalk is enabled for TTS:
 
