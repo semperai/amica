@@ -436,14 +436,14 @@ export default function Home() {
               disabled={!isVRSupported}
               onClick={() => toggleXR('immersive-vr')}
               label="Virtual Reality"
-            />
+            />*/}
 
             <MenuButton
               large={isVRHeadset}
               icon={CodeBracketSquareIcon}
               onClick={() => setShowDebug(true)}
               label="debug"
-            />*/}
+            />
 
             { showChatMode ? (
               <MenuButton
