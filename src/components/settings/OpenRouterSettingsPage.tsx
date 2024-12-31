@@ -47,7 +47,7 @@ export function OpenRouterSettings({
           </FormRow>
         </li>
         <li className="py-4">
-          <FormRow label="OpenAI URL">
+          <FormRow label="OpenRouter URL">
             <TextInput
               value={openRouterUrl}
               onChange={(event: React.ChangeEvent<any>) => {
@@ -59,7 +59,7 @@ export function OpenRouterSettings({
           </FormRow>
         </li>
         <li className="py-4">
-          <FormRow label="OpenAI Model">
+          <FormRow label="OpenRouter Model">
             <TextInput
               value={openRouterModel}
               onChange={(event: React.ChangeEvent<any>) => {
