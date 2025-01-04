@@ -26,6 +26,7 @@ import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
 import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
+import isDev from '@/utils/isDev';
 
 
 type Speak = {
@@ -336,7 +337,11 @@ export class Chat {
     if (!amicaLife) {
       console.log('receiveMessageFromUser', message);
 
-      let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
+      const baseUrl = isDev
+        ? "http://localhost:3000"
+        : "https://amica.arbius.ai";
+      
+      let dataHandlerUrl = new URL("/api/dataHandler", baseUrl);
       dataHandlerUrl.searchParams.append('type', 'userInputMessages');
       fetch(dataHandlerUrl, {
         method: "POST",

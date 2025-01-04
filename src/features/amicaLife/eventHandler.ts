@@ -11,6 +11,7 @@ import { functionCalling } from "@/features/functionCalling/functionCalling";
 import { AmicaLife } from "./amicaLife";
 import { Viewer } from "../vrmViewer/viewer";
 import { config } from "@/utils/config";
+import isDev from "@/utils/isDev";
 
 export const idleEvents = [
   "VRMA",
@@ -48,7 +49,11 @@ export type TimestampedPrompt = {
 // Placeholder for storing compressed subconscious prompts
 export let storedSubconcious: TimestampedPrompt[] = [];
 
-let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
+const baseUrl = isDev
+  ? "http://localhost:3000"
+  : "https://amica.arbius.ai";
+
+let dataHandlerUrl = new URL("/api/dataHandler", baseUrl);
 dataHandlerUrl.searchParams.append('type', 'subconscious');
 
 let previousAnimation = "";

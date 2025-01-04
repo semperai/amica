@@ -2,7 +2,7 @@ import { openaiWhisper } from '@/features/openaiWhisper/openaiWhisper';
 import { whispercpp } from '@/features/whispercpp/whispercpp';
 import { askVisionLLM } from '@/utils/askLlm';
 import { TimestampedPrompt } from '@/features/amicaLife/eventHandler';
-import { config as configs} from '@/utils/config';
+import { config as configs, fetchServerConfig} from '@/utils/config';
 // import { logs } from './amicaHandler';
 
 import { randomBytes } from 'crypto';
@@ -62,6 +62,9 @@ async function handleRequest(sessionId: string, timestamp: string, fields: any, 
 
   const inputType =  fields.inputType[0];
   const payload = files?.payload[0] ;
+  
+  // Syncing config to be accessible from server side
+  await fetchServerConfig();
 
   try {
     switch (inputType) {

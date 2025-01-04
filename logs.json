@@ -1,3 +1,116 @@
 [
-    
+  {
+    "type": "warn",
+    "ts": 1736014069964,
+    "arguments": {
+      "0": "THREE.WebGLRenderer: Property .outputEncoding has been removed. Use .outputColorSpace instead."
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1736014069927,
+    "arguments": {
+      "0": "Starting Amica Life"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1736014070523,
+    "arguments": {
+      "0": "[Fast Refresh] rebuilding"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1736014071838,
+    "arguments": {
+      "0": "vrm loaded"
+    }
+  },
+  {
+    "type": "debug",
+    "ts": 1736014072216,
+    "arguments": {
+      "0": "[VAD]",
+      "1": "initializing vad"
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072889,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.888400 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '140'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072895,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.894799 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '131'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072896,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.895900 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '139'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072898,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.897099 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '136'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072905,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.902500 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '134'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072908,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.906700 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '628'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072913,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.912799 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '625'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072915,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.914400 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '623'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072917,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.916400 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '629'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1736014072919,
+    "arguments": {
+      "0": "2025-01-05 01:07:52.918299 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '620'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "debug",
+    "ts": 1736014073014,
+    "arguments": {
+      "0": "[VAD]",
+      "1": "vad is initialized"
+    }
+  }
 ]

@@ -4,7 +4,8 @@ import { randomBytes } from "crypto";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { twitterClientInstance as twitterClient } from "@/features/socialMedia/twitterClient";
 import { telegramClientInstance as telegramCLient } from "@/features/socialMedia/telegramClient";
-import { config } from "@/utils/config";
+import { config, fetchServerConfig } from "@/utils/config";
+import isDev from "@/utils/isDev";
 
 interface ApiResponse {
   sessionId?: string;
@@ -24,13 +25,18 @@ interface LogEntry {
 
 const logs: LogEntry[] = [];
 const clients: Array<{ res: NextApiResponse }> = [];
-let subconsciousUrl = new URL("http://localhost:3000/api/dataHandler");
+
+const baseUrl = isDev
+  ? "http://localhost:3000"
+  : "https://amica.arbius.ai";
+
+let subconsciousUrl = new URL("/api/dataHandler", baseUrl);
 subconsciousUrl.searchParams.append("type", "subconscious");
 
-let logsUrl = new URL("http://localhost:3000/api/dataHandler");
+let logsUrl = new URL("/api/dataHandler", baseUrl);
 logsUrl.searchParams.append("type", "logs");
 
-let userInputMessagesUrl = new URL("http://localhost:3000/api/dataHandler");
+let userInputMessagesUrl = new URL("/api/dataHandler", baseUrl);
 userInputMessagesUrl.searchParams.append("type", "userInputMessages");
 
 // Helper Functions
@@ -176,6 +182,8 @@ const processRequest = async (
   inputType: string,
   payload: any
 ): Promise<{ response: any; outputType: string }> => {
+  // Syncing config to be accessible from server side
+  await fetchServerConfig();
   switch (inputType) {
     case "Normal Chat Message":
       return { response: await processNormalChat(payload), outputType: "Complete stream" };

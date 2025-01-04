@@ -1,3 +1,5 @@
+import isDev from "./isDev";
+
 const defaults = {
   autosend_from_mic: 'true',
   wake_word_enabled: 'false',
@@ -15,7 +17,7 @@ const defaults = {
   youtube_videoid: '',
   animation_url: process.env.NEXT_PUBLIC_ANIMATION_URL ?? '/animations/idle_loop.vrma',
   voice_url: process.env.NEXT_PUBLIC_VOICE_URL ?? '',
-  chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'openai',
+  chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'chatgpt',
   openai_apikey: process.env.NEXT_PUBLIC_OPENAI_APIKEY ?? 'default',
   openai_url: process.env.NEXT_PUBLIC_OPENAI_URL ?? 'https://i-love-amica.com',
   openai_model: process.env.NEXT_PUBLIC_OPENAI_MODEL ?? 'mlabonne/NeuralDaredevil-8B-abliterated',
@@ -98,10 +100,13 @@ function prefixed(key: string) {
 // Fetch configuration from the server
 let serverConfig: Record<string, string> | null = null;
 
-let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
+const baseUrl = isDev
+  ? "http://localhost:3000"
+  : "https://amica.arbius.ai";
+let dataHandlerUrl = new URL("/api/dataHandler", baseUrl);
 dataHandlerUrl.searchParams.append('type', 'config');
 
-async function fetchServerConfig() {
+export async function fetchServerConfig() {
   try {
     const response = await fetch(dataHandlerUrl);
     if (response.ok) {
@@ -114,19 +119,36 @@ async function fetchServerConfig() {
 
 // Call this function at the beginning of your application to load the server config and sync to localStorage if needed.
 async function initializeConfig() {
-  await fetchServerConfig(); // Load server config into serverConfig variable
+  // await fetchServerConfig(); // Load server config into serverConfig variable
 
-  // Sync server config to localStorage if it's missing there
-  if (serverConfig) {
-    for (const [key, value] of Object.entries(serverConfig)) {
-      const localKey = prefixed(key);
-      if (typeof localStorage !== "undefined" && !localStorage.hasOwnProperty(localKey)) {
-        localStorage.setItem(localKey, value);
-      }
+  // Merge with serverConfig
+  let localStorageData: Record<string, string> = {};
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith("chatvrm_")) {
+      const trimmedKey = key.replace("chatvrm_", "");
+      localStorageData[trimmedKey] = localStorage.getItem(key)!;
     }
-  }
+  });
+
+  // Sync update to server config
+  await fetch(dataHandlerUrl.toString(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(localStorageData),
+  });
+
 }
-initializeConfig();
+
+// Ensure syncLocalStorage runs only on the server side and once
+if (typeof window !== "undefined") {
+  (async () => {
+    await initializeConfig();
+  })();
+} else {
+  (async () => {
+    await fetchServerConfig();
+  })();
+}
 
 
 export function config(key: string): string {
@@ -194,4 +216,3 @@ export async function resetConfig() {
     await updateConfig(key, value);
   }
 }
-

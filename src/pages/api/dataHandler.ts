@@ -91,22 +91,40 @@ const handlePostRequest = (type: string, req: NextApiRequest, res: NextApiRespon
 
 // Sub-functions
 const updateConfig = (body: any, res: NextApiResponse) => {
-  const { key, value } = body;
-
-  if (!key || value === undefined) {
-    return res.status(400).json({ error: 'Key and value are required to update the config.' });
+  if (!body || (typeof body !== 'object' && !Array.isArray(body))) {
+    return res.status(400).json({ error: 'Body must be an object or array of key-value pairs.' });
   }
 
   const config = readFile(configFilePath);
 
-  if (!config.hasOwnProperty(key)) {
-    return res.status(400).json({ error: `Config key "${key}" not found.` });
+  // Handle single key-value update
+  if (body.key && body.value !== undefined) {
+    const { key, value } = body;
+    if (!config.hasOwnProperty(key)) {
+      return res.status(400).json({ error: `Config key "${key}" not found.` });
+    }
+
+    config[key] = value;
+    writeFile(configFilePath, config);
+    return res.status(200).json({ message: 'Config updated successfully.' });
   }
 
-  config[key] = value;
-  writeFile(configFilePath, config);
-  res.status(200).json({ message: 'Config updated successfully.' });
+  // Handle multiple key-value updates
+  if (typeof body === 'object' && !Array.isArray(body)) {
+    for (const [key, value] of Object.entries(body)) {
+      if (!config.hasOwnProperty(key)) {
+        console.log("body : ",key,config)
+        return res.status(400).json({ error: `Config key "${key}" not found.` });
+      }
+      config[key] = value;
+    }
+    writeFile(configFilePath, config);
+    return res.status(200).json({ message: 'Config updated successfully.' });
+  }
+
+  return res.status(400).json({ error: 'Invalid body format. Please provide either a key-value pair or an object with multiple key-value pairs.' });
 };
+
 
 const updateSubconscious = (body: any, res: NextApiResponse) => {
   const { subconscious } = body;
