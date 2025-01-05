@@ -141,13 +141,9 @@ async function initializeConfig() {
 
 // Ensure syncLocalStorage runs only on the server side and once
 if (typeof window !== "undefined") {
-  (async () => {
-    await initializeConfig();
-  })();
+  initializeConfig();
 } else {
-  (async () => {
-    await fetchServerConfig();
-  })();
+  fetchServerConfig();
 }
 
 
