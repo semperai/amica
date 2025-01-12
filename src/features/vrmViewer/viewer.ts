@@ -241,31 +241,32 @@ export class Viewer {
       renderer.xr.setFoveation(0);
     }
 
+    // Temp Disable : WebXR
     // initialize phyics
     // we have this weird construct because ammo is loaded globally
     // and things get funny with hot reloading
-    if (typeof window.Ammo === 'undefined') {
-      console.error("Ammo not found");
-    } else if (typeof window.Ammo === 'function') {
-      this.ammo = await window.Ammo();
-    } else {
-      this.ammo = window.Ammo;
-    }
-    if (this.ammo) {
-      this.collisionConfiguration = new this.ammo.btDefaultCollisionConfiguration();
-      this.dispatcher = new this.ammo.btCollisionDispatcher(this.collisionConfiguration);
-      this.broadphase = new this.ammo.btDbvtBroadphase();
-      this.solver = new this.ammo.btSequentialImpulseConstraintSolver();
-      this.physicsWorld = new this.ammo.btDiscreteDynamicsWorld(
-        this.dispatcher,
-        this.broadphase,
-        this.solver,
-        this.collisionConfiguration
-      );
-      this.physicsWorld.setGravity(new this.ammo.btVector3(0, -7.8, 0));
-      this.transformAux1 = new this.ammo.btTransform();
-      this.tempBtVec3_1 = new this.ammo.btVector3(0, 0, 0);
-    }
+    // if (typeof window.Ammo === 'undefined') {
+    //   console.error("Ammo not found");
+    // } else if (typeof window.Ammo === 'function') {
+    //   this.ammo = await window.Ammo();
+    // } else {
+    //   this.ammo = window.Ammo;
+    // }
+    // if (this.ammo) {
+    //   this.collisionConfiguration = new this.ammo.btDefaultCollisionConfiguration();
+    //   this.dispatcher = new this.ammo.btCollisionDispatcher(this.collisionConfiguration);
+    //   this.broadphase = new this.ammo.btDbvtBroadphase();
+    //   this.solver = new this.ammo.btSequentialImpulseConstraintSolver();
+    //   this.physicsWorld = new this.ammo.btDiscreteDynamicsWorld(
+    //     this.dispatcher,
+    //     this.broadphase,
+    //     this.solver,
+    //     this.collisionConfiguration
+    //   );
+    //   this.physicsWorld.setGravity(new this.ammo.btVector3(0, -7.8, 0));
+    //   this.transformAux1 = new this.ammo.btTransform();
+    //   this.tempBtVec3_1 = new this.ammo.btVector3(0, 0, 0);
+    // }
 
     const scene = new THREE.Scene();
     this.scene = scene;
@@ -478,6 +479,7 @@ export class Viewer {
       new Stats.Panel("stats_ms", "#8f8", "#212"),
     );
 
+    // Temp Disable : WebXR
     const statsMesh = new HTMLMesh(stats.dom);
     this.statsMesh = statsMesh;
 
@@ -490,61 +492,62 @@ export class Viewer {
     this.bvhWorker = new GenerateMeshBVHWorker();
     this.raycaster.firstHitOnly = true;
 
+    // Temp Disable : WebXR
     // add joint / hand meshes
-    {
-      const geometry = new THREE.BoxGeometry(0.005, 0.005, 0.005);
-      const material = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        roughness: 1.0,
-        metalness: 0.0,
-      });
+    // {
+    //   const geometry = new THREE.BoxGeometry(0.005, 0.005, 0.005);
+    //   const material = new THREE.MeshStandardMaterial({
+    //     color: 0xffffff,
+    //     roughness: 1.0,
+    //     metalness: 0.0,
+    //   });
 
-      const mesh = new THREE.Mesh(geometry, material);
+    //   const mesh = new THREE.Mesh(geometry, material);
 
-      const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, -1, 0),
-      ]);
+    //   const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+    //     new THREE.Vector3(0, 0, 0),
+    //     new THREE.Vector3(0, -1, 0),
+    //   ]);
 
-      const line = new THREE.Line(lineGeometry);
-      line.scale.z = 5;
+    //   const line = new THREE.Line(lineGeometry);
+    //   line.scale.z = 5;
 
-      for (const _ of joints) {
-        // Make joint mesh invisible
-        const clonedMesh = mesh.clone();
-        clonedMesh.visible = false; 
+    //   for (const _ of joints) {
+    //     // Make joint mesh invisible
+    //     const clonedMesh = mesh.clone();
+    //     clonedMesh.visible = false; 
 
-        this.jointMeshes1.push(clonedMesh);
-        this.jointMeshes2.push(clonedMesh);
-        // this.jointMeshes1[this.jointMeshes1.length - 1].add(line.clone());
-        // this.jointMeshes2[this.jointMeshes2.length - 1].add(line.clone());
+    //     this.jointMeshes1.push(clonedMesh);
+    //     this.jointMeshes2.push(clonedMesh);
+    //     // this.jointMeshes1[this.jointMeshes1.length - 1].add(line.clone());
+    //     // this.jointMeshes2[this.jointMeshes2.length - 1].add(line.clone());
 
-        this.handGroup.add(this.jointMeshes1[this.jointMeshes1.length - 1]);
-        this.handGroup.add(this.jointMeshes2[this.jointMeshes2.length - 1]);
-      }
+    //     this.handGroup.add(this.jointMeshes1[this.jointMeshes1.length - 1]);
+    //     this.handGroup.add(this.jointMeshes2[this.jointMeshes2.length - 1]);
+    //   }
 
-      this.handGroup.visible = false;
-      scene.add(this.handGroup);
-    }
+    //   this.handGroup.visible = false;
+    //   scene.add(this.handGroup);
+    // }
 
-    {
-      const geometry = new THREE.SphereGeometry(1, 16, 16);
-      const material = new THREE.MeshBasicMaterial({
-        color: 0xffff00,
-        transparent: true,
-        opacity: 0.5,
-      });
-      const mesh = new THREE.Mesh(geometry, material);
-      this.closestPart1 = mesh.clone();
-      this.closestPart2 = mesh.clone();
-      this.closestPart1.visible = false;
-      this.closestPart2.visible = false;
-      scene.add(this.closestPart1);
-      scene.add(this.closestPart2);
-    }
+    // {
+    //   const geometry = new THREE.SphereGeometry(1, 16, 16);
+    //   const material = new THREE.MeshBasicMaterial({
+    //     color: 0xffff00,
+    //     transparent: true,
+    //     opacity: 0.5,
+    //   });
+    //   const mesh = new THREE.Mesh(geometry, material);
+    //   this.closestPart1 = mesh.clone();
+    //   this.closestPart2 = mesh.clone();
+    //   this.closestPart1.visible = false;
+    //   this.closestPart2.visible = false;
+    //   scene.add(this.closestPart1);
+    //   scene.add(this.closestPart2);
+    // }
 
-    this.particleRenderer = new BatchedParticleRenderer();
-    scene.add(this.particleRenderer);
+    // this.particleRenderer = new BatchedParticleRenderer();
+    // scene.add(this.particleRenderer);
 
     // Temp Disable : WebXR
     // new QuarksLoader().load('particles/cartoon_star_field', (obj) => {
@@ -1247,14 +1250,15 @@ export class Viewer {
     //   console.error("scenario update error", e);
     // }
     // this.scenarioMsPanel.update(performance.now() - ptime, 100);
-
-    ptime = performance.now();
-    try {
-      this.physicsWorld.stepSimulation(delta, 10);
-    } catch (e) {
-      console.error("physics update error", e);
-    }
-    this.physicsMsPanel.update(performance.now() - ptime, 100);
+    
+    // Temp Disable : WebXR
+    // ptime = performance.now();
+    // try {
+    //   this.physicsWorld.stepSimulation(delta, 10);
+    // } catch (e) {
+    //   console.error("physics update error", e);
+    // }
+    // this.physicsMsPanel.update(performance.now() - ptime, 100);
 
     ptime = performance.now();
     try {
