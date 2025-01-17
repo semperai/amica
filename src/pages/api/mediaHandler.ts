@@ -2,15 +2,12 @@ import { openaiWhisper } from '@/features/openaiWhisper/openaiWhisper';
 import { whispercpp } from '@/features/whispercpp/whispercpp';
 import { askVisionLLM } from '@/utils/askLlm';
 import { TimestampedPrompt } from '@/features/amicaLife/eventHandler';
-import { config as configs} from '@/utils/config';
-// import { logs } from './amicaHandler';
-
+import { config as configs } from '@/utils/config';
 import { randomBytes } from 'crypto';
 import sharp from 'sharp';
-import formidable from 'formidable';
-import fs from 'fs';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiResponse } from 'next';
 import { handleConfig } from '@/features/externalAPI/externalAPI';
+import { NextRequest } from 'next/server';
 
 interface ApiResponse {
   sessionId?: string;
@@ -21,11 +18,10 @@ interface ApiResponse {
 
 // Configure body parsing: disable only for multipart/form-data
 export const config = {
-    api: {
-      bodyParser: false
-    },
+  api: {
+    bodyParser: false,
+  },
 };
-  
 
 const generateSessionId = (sessionId?: string) => sessionId || randomBytes(8).toString('hex');
 
@@ -34,80 +30,90 @@ const sendError = (res: NextApiResponse<ApiResponse>, sessionId: string, message
   res.status(status).json({ sessionId, error: message });
 
 // Main API handler
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
-  if (configs("external_api_enabled") !== "true") {
-    return sendError(res, "", "API is currently disabled.", 503);
+export default async function handler(req: NextRequest, res: NextApiResponse<ApiResponse>) {
+  if (configs('external_api_enabled') !== 'true') {
+    return sendError(res, '', 'API is currently disabled.', 503);
   }
 
-  const currentSessionId = generateSessionId(req.body?.sessionId);
+  const currentSessionId = generateSessionId();
   const timestamp = new Date().toISOString();
 
-  if (req.headers['content-type']?.includes('multipart/form-data')) {
-    // Handle form-data
-    const form = formidable({});
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        console.error("Form parsing error:", err);
-        return sendError(res, currentSessionId, "Failed to parse form data.");
+  const contentType = req.headers.get('content-type');
+  
+  if (contentType?.includes('multipart/form-data')) {
+    // Handle form-data using NextRequest.formData() method
+    const formData = await req.formData();
+    
+    const fields: any = {};
+    const files: any = {};
+
+    formData.forEach((value, key) => {
+      if (value instanceof File) {
+        files[key] = value;
+      } else {
+        fields[key] = value;
       }
-      handleRequest(currentSessionId, timestamp, fields, files, res);
     });
+
+    handleRequest(currentSessionId, timestamp, fields, files, res);
   } else {
-    return sendError(res, currentSessionId, "Incorrect type");
+    return sendError(res, currentSessionId, 'Incorrect type');
   }
 }
 
-async function handleRequest(sessionId: string, timestamp: string, fields: any, files: any, res: NextApiResponse<ApiResponse>) {
+async function handleRequest(
+  sessionId: string,
+  timestamp: string,
+  fields: any,
+  files: any,
+  res: NextApiResponse<ApiResponse>
+) {
   let response: string | undefined | TimestampedPrompt[];
   let outputType: string | undefined;
 
-  const inputType =  fields.inputType[0];
-  const payload = files?.payload[0] ;
-  
+  const inputType = fields.inputType[0];
+  const payload = files?.payload;
+
   // Syncing config to be accessible from server side
-  await handleConfig("fetch");
+  await handleConfig('fetch');
 
   try {
     switch (inputType) {
-      case "Voice":
-        if (files?.payload[0]) {
-          const filePath = payload.filepath;
-          const fileBuffer = fs.readFileSync(filePath);
-          const audioFile = new File([fileBuffer], "input.wav", { type: "audio/wav" });
+      case 'Voice':
+        if (payload) {
+          const audioFile = new File([payload], 'input.wav', { type: 'audio/wav' });
           response = await transcribeVoice(audioFile);
-          outputType = "Text";
+          outputType = 'Text';
         } else {
-          throw new Error("Voice input file missing.");
+          throw new Error('Voice input file missing.');
         }
         break;
 
-      case "Image":
-        if (files?.payload[0]) {
-          const imageBuffer = fs.readFileSync(payload.filepath);
+      case 'Image':
+        if (payload) {
+          const imageBuffer = Buffer.from(await payload.arrayBuffer());
           response = await processImage(imageBuffer);
-          outputType = "Text";
+          outputType = 'Text';
         } else {
-          throw new Error("Image input file missing.");
+          throw new Error('Image input file missing.');
         }
         break;
 
       default:
-        return sendError(res, sessionId, "Unknown input type.");
+        return sendError(res, sessionId, 'Unknown input type.');
     }
 
-    // logs.push({ sessionId: sessionId, timestamp, inputType, outputType, response });
     res.status(200).json({ sessionId, outputType, response });
   } catch (error) {
-    console.error("Handler error:", error);
-    // logs.push({ sessionId: sessionId, timestamp, inputType, outputType: "Error", error: String(error) });
-    return sendError(res, sessionId, "An error occurred while processing the request.", 500);
+    console.error('Handler error:', error);
+    return sendError(res, sessionId, 'An error occurred while processing the request.', 500);
   }
 }
 
 // Transcribe voice input to text
 async function transcribeVoice(audio: File): Promise<string> {
   try {
-    switch (configs("stt_backend")) {
+    switch (configs('stt_backend')) {
       case 'whisper_openai': {
         const result = await openaiWhisper(audio);
         return result?.text; // Assuming the transcription is in result.text
@@ -117,11 +123,11 @@ async function transcribeVoice(audio: File): Promise<string> {
         return result?.text; // Assuming the transcription is in result.text
       }
       default:
-        throw new Error("Invalid STT backend configuration.");
+        throw new Error('Invalid STT backend configuration.');
     }
   } catch (error) {
-    console.error("Transcription error:", error);
-    throw new Error("Failed to transcribe audio.");
+    console.error('Transcription error:', error);
+    throw new Error('Failed to transcribe audio.');
   }
 }
 
@@ -129,7 +135,7 @@ async function transcribeVoice(audio: File): Promise<string> {
 async function processImage(payload: Buffer): Promise<string> {
   const jpegImg = await convertToJpeg(payload);
   if (!jpegImg) {
-    throw new Error("Failed to process image");
+    throw new Error('Failed to process image');
   }
   return await askVisionLLM(jpegImg);
 }
@@ -140,10 +146,7 @@ async function convertToJpeg(payload: Buffer): Promise<string | null> {
     const jpegBuffer = await sharp(payload).jpeg().toBuffer();
     return jpegBuffer.toString('base64');
   } catch (error) {
-    console.error("Error converting image to .jpeg:", error);
+    console.error('Error converting image to .jpeg:', error);
     return null;
   }
 }
-
-
-
