@@ -67,6 +67,7 @@ export const defaults = {
   coqui_voice_id: process.env.NEXT_PUBLIC_COQUI_VOICEID ?? "71c6c3eb-98ca-4a05-8d6b-f8c2b5f9f3a3",
   amica_life_enabled: process.env.NEXT_PUBLIC_AMICA_LIFE_ENABLED ?? 'true',
   external_api_enabled: process.env.NEXT_PUBLIC_EXTERNAL_API_ENABLED ?? 'false',
+  development_base_url: 'http://localhost:3000',
   reasoning_engine_enabled: 'false',
   min_time_interval_sec: '10',
   max_time_interval_sec: '20',
@@ -121,7 +122,6 @@ export function config(key: string): string {
 
     // Fallback to serverConfig if localStorage is unavailable or missing
     if (serverConfig && serverConfig.hasOwnProperty(key)) {
-      console.log("serverConfig", key,serverConfig[key])
       return serverConfig[key];
     }
   } catch (e) {

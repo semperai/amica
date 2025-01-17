@@ -49,11 +49,7 @@ export type TimestampedPrompt = {
 // Placeholder for storing compressed subconscious prompts
 export let storedSubconcious: TimestampedPrompt[] = [];
 
-const baseUrl = isDev
-  ? "http://localhost:3000"
-  : "https://amica.arbius.ai";
-
-let dataHandlerUrl = new URL("/api/dataHandler", baseUrl);
+let dataHandlerUrl = new URL("/api/dataHandler", `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
 dataHandlerUrl.searchParams.append('type', 'subconscious');
 
 let previousAnimation = "";

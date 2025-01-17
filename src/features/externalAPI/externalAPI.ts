@@ -1,14 +1,13 @@
 import { config, defaults, prefixed } from "@/utils/config";
 import isDev from "@/utils/isDev";
-import { keyboard } from "telegraf/typings/markup";
 
-export const configUrl = new URL(`http://localhost:3000/api/dataHandler`);
+export const configUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
 configUrl.searchParams.append("type", "config");
 
-export const userInputUrl = new URL(`http://localhost:3000/api/dataHandler`);
+export const userInputUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
 userInputUrl.searchParams.append("type", "userInputMessages");
 
-export const subconsciousUrl = new URL(`http://localhost:3000/api/dataHandler`);
+export const subconsciousUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
 subconsciousUrl.searchParams.append('type', 'subconscious');
 
 // Cached server config

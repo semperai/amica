@@ -27,7 +27,7 @@ interface LogEntry {
 const logs: LogEntry[] = [];
 const clients: Array<{ res: NextApiResponse }> = [];
 
-let logsUrl = new URL("http://localhost:3000/api/dataHandler");
+let logsUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
 logsUrl.searchParams.append("type", "logs");
 
 // Helper Functions

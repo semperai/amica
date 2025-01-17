@@ -16,7 +16,7 @@ if (typeof window !== "undefined") {
           };
           window.error_handler_logs.push(logEntry);
 
-          const logsUrl = new URL(`http://localhost:3000/api/dataHandler`);
+          const logsUrl = new URL(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/dataHandler`);
           logsUrl.searchParams.append("type", "logs");
           if (window.location.hostname === "localhost") {
             fetch(logsUrl, {
