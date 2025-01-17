@@ -8,6 +8,7 @@ describe("Process Response Tests", () => {
     const aiTextLog = "";
     const receivedMessage = "";
     const tag = "";
+    const rolePlay = "";
 
     let cbTriggered = false;
 
@@ -16,6 +17,7 @@ describe("Process Response Tests", () => {
       aiTextLog,
       receivedMessage,
       tag,
+      rolePlay,
       callback: (aiTalks: Screenplay[]) => {
         cbTriggered = true;
         expect(aiTalks).toEqual([]);
@@ -26,6 +28,7 @@ describe("Process Response Tests", () => {
     expect(proc.aiTextLog).toBe("");
     expect(proc.receivedMessage).toBe("");
     expect(proc.tag).toBe("");
+    expect(proc.rolePlay).toBe("");
     expect(proc.shouldBreak).toBe(false);
     expect(cbTriggered).toBe(false);
   });
