@@ -3,10 +3,10 @@ import fs from 'fs';
 import path from 'path';
 
 // Define file paths
-const configFilePath = path.resolve('config.json');
-const subconsciousFilePath = path.resolve('src/features/amicaLife/subconscious.json');
-const logsFilePath = path.resolve('logs.json');
-const userInputMessagesFilePath = path.resolve('src/features/chat/userInputMessages.json');
+const configFilePath = path.resolve('src/features/externalAPI/config.json');
+const subconsciousFilePath = path.resolve('src/features/externalAPI/subconscious.json');
+const logsFilePath = path.resolve('src/features/externalAPI/logs.json');
+const userInputMessagesFilePath = path.resolve('src/features/externalAPI//userInputMessages.json');
 
 // Utility functions for file operations
 const readFile = (filePath: string): any => {
@@ -28,7 +28,7 @@ const writeFile = (filePath: string, content: any): void => {
   }
 };
 
-// Clear subconscious data on startup
+// Clear data on startup
 writeFile(subconsciousFilePath, []);
 writeFile(logsFilePath, []);
 writeFile(userInputMessagesFilePath, []);
@@ -112,12 +112,9 @@ const updateConfig = (body: any, res: NextApiResponse) => {
   // Handle multiple key-value updates
   if (typeof body === 'object' && !Array.isArray(body)) {
     for (const [key, value] of Object.entries(body)) {
-      if (!config.hasOwnProperty(key)) {
-        console.log("body : ",key,config)
-        return res.status(400).json({ error: `Config key "${key}" not found.` });
-      }
       config[key] = value;
     }
+
     writeFile(configFilePath, config);
     return res.status(200).json({ message: 'Config updated successfully.' });
   }

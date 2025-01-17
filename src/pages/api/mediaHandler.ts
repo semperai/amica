@@ -2,7 +2,7 @@ import { openaiWhisper } from '@/features/openaiWhisper/openaiWhisper';
 import { whispercpp } from '@/features/whispercpp/whispercpp';
 import { askVisionLLM } from '@/utils/askLlm';
 import { TimestampedPrompt } from '@/features/amicaLife/eventHandler';
-import { config as configs, fetchServerConfig} from '@/utils/config';
+import { config as configs} from '@/utils/config';
 // import { logs } from './amicaHandler';
 
 import { randomBytes } from 'crypto';
@@ -10,6 +10,7 @@ import sharp from 'sharp';
 import formidable from 'formidable';
 import fs from 'fs';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { handleConfig } from '@/features/externalAPI/externalAPI';
 
 interface ApiResponse {
   sessionId?: string;
@@ -34,7 +35,7 @@ const sendError = (res: NextApiResponse<ApiResponse>, sessionId: string, message
 
 // Main API handler
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
-  if (process.env.API_ENABLED !== 'true') {
+  if (configs("external_api_enabled") !== "true") {
     return sendError(res, "", "API is currently disabled.", 503);
   }
 
@@ -64,7 +65,7 @@ async function handleRequest(sessionId: string, timestamp: string, fields: any, 
   const payload = files?.payload[0] ;
   
   // Syncing config to be accessible from server side
-  await fetchServerConfig();
+  await handleConfig("fetch");
 
   try {
     switch (inputType) {

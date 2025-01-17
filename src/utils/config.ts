@@ -1,6 +1,6 @@
-import isDev from "./isDev";
+import { handleConfig, serverConfig } from "@/features/externalAPI/externalAPI";
 
-const defaults = {
+export const defaults = {
   autosend_from_mic: 'true',
   wake_word_enabled: 'false',
   wake_word: 'Hello',
@@ -66,6 +66,7 @@ const defaults = {
   coqui_apikey: process.env.NEXT_PUBLIC_COQUI_APIKEY ?? "",
   coqui_voice_id: process.env.NEXT_PUBLIC_COQUI_VOICEID ?? "71c6c3eb-98ca-4a05-8d6b-f8c2b5f9f3a3",
   amica_life_enabled: process.env.NEXT_PUBLIC_AMICA_LIFE_ENABLED ?? 'true',
+  external_api_enabled: process.env.NEXT_PUBLIC_EXTERNAL_API_ENABLED ?? 'false',
   reasoning_engine_enabled: 'false',
   min_time_interval_sec: '10',
   max_time_interval_sec: '20',
@@ -92,58 +93,20 @@ Here are some examples to guide your responses:
 Remember, each message you provide should be coherent and reflect the complexity of your thoughts combined with your emotional unpredictability. Let’s engage in a conversation that's as intellectually stimulating as it is emotionally dynamic!`,
 };
 
-function prefixed(key: string) {
+
+export function prefixed(key: string) {
   return `chatvrm_${key}`;
-}
-
-
-// Fetch configuration from the server
-let serverConfig: Record<string, string> | null = null;
-
-const baseUrl = isDev
-  ? "http://localhost:3000"
-  : "https://amica.arbius.ai";
-let dataHandlerUrl = new URL("/api/dataHandler", baseUrl);
-dataHandlerUrl.searchParams.append('type', 'config');
-
-export async function fetchServerConfig() {
-  try {
-    const response = await fetch(dataHandlerUrl);
-    if (response.ok) {
-      serverConfig = await response.json();
-    }
-  } catch (error) {
-    console.error("Failed to fetch server config:", error);
-  }
-}
-
-// Call this function at the beginning of your application to load the server config and sync to localStorage if needed.
-async function initializeConfig() {
-  // await fetchServerConfig(); // Load server config into serverConfig variable
-
-  // Merge with serverConfig
-  let localStorageData: Record<string, string> = {};
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith("chatvrm_")) {
-      const trimmedKey = key.replace("chatvrm_", "");
-      localStorageData[trimmedKey] = localStorage.getItem(key)!;
-    }
-  });
-
-  // Sync update to server config
-  await fetch(dataHandlerUrl.toString(), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(localStorageData),
-  });
-
 }
 
 // Ensure syncLocalStorage runs only on the server side and once
 if (typeof window !== "undefined") {
-  initializeConfig();
+  (async () => {
+    await handleConfig("init");
+  })();
 } else {
-  fetchServerConfig();
+  (async () => {
+    await handleConfig("fetch");
+  })();
 }
 
 
@@ -158,6 +121,7 @@ export function config(key: string): string {
 
     // Fallback to serverConfig if localStorage is unavailable or missing
     if (serverConfig && serverConfig.hasOwnProperty(key)) {
+      console.log("serverConfig", key,serverConfig[key])
       return serverConfig[key];
     }
   } catch (e) {
@@ -183,16 +147,8 @@ export async function updateConfig(key: string, value: string) {
     }
 
     // Sync update to server config
-    await fetch(dataHandlerUrl.toString(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, value }),
-    });
+    await handleConfig("update",{ key, value });
 
-    // Update in-memory serverConfig for consistency
-    if (serverConfig) {
-      serverConfig[key] = value;
-    }
   } catch (e) {
     console.error(`Error updating config for key "${key}": ${e}`);
   }

@@ -9,22 +9,23 @@ if (typeof window !== "undefined") {
         }
 
         function logf() {
-          window.error_handler_logs.push({
+          const logEntry = {
             type: name,
-            ts: +new Date,
+            ts: +new Date(),
             arguments,
-          });
-          const baseUrl = window.location.hostname === "localhost"
-            ? "http://localhost:3000"
-            : "https://amica.arbius.ai";
+          };
+          window.error_handler_logs.push(logEntry);
 
-          let dataHandlerUrl = new URL("/api/dataHandler", baseUrl);
-          dataHandlerUrl.searchParams.append('type', 'logs');
-          fetch(dataHandlerUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({type: name,ts: +new Date,arguments,}),
-          });
+          const logsUrl = new URL(`http://localhost:3000/api/dataHandler`);
+          logsUrl.searchParams.append("type", "logs");
+          if (window.location.hostname === "localhost") {
+            fetch(logsUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(logEntry),
+            });
+          }
+
           passf.apply(null, arguments);
         }
 
