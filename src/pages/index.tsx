@@ -6,7 +6,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
-import { clsx } from "clsx";
+// import { clsx } from "clsx";
 import { useTranslation, Trans } from 'react-i18next';
 import {
   ChatBubbleLeftIcon,
@@ -59,6 +59,7 @@ import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
 import { ChatModeText } from "@/components/chatModeText";
 
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
+import { VerticalSwitchBox } from "@/components/switchBox";
 
 function detectVRHeadset() {
   const userAgent = navigator.userAgent.toLowerCase();
@@ -445,7 +446,8 @@ export default function Home() {
               label="debug"
             />
 
-            { showChatMode ? (
+            {/* Temp Disable : WebXR */}
+            {/* { showChatMode ? (
               <MenuButton
                 large={isVRHeadset}
                 icon={Squares2X2Icon}
@@ -461,7 +463,16 @@ export default function Home() {
                 onClick={toggleChatMode}
                 label="show chat mode"
               />
-            )}
+            )} */}
+
+            <div className="flex flex-row items-center space-x-2">
+                <VerticalSwitchBox
+                  value={showChatMode}
+                  label={""}
+                  onChange={toggleChatMode}
+                />
+            </div>
+            
           </div>
         </div>    
       </div>
