@@ -1,4 +1,6 @@
-const defaults = {
+import { handleConfig, serverConfig } from "@/features/externalAPI/externalAPI";
+
+export const defaults = {
   // AllTalk TTS specific settings
   localXTTS_url: process.env.NEXT_PUBLIC_LOCALXTTS_URL ?? 'http://127.0.0.1:7851',
   alltalk_version: process.env.NEXT_PUBLIC_ALLTALK_VERSION ?? 'v2',
@@ -105,13 +107,29 @@ Here are some examples to guide your responses:
 Remember, each message you provide should be coherent and reflect the complexity of your thoughts combined with your emotional unpredictability. Let’s engage in a conversation that's as intellectually stimulating as it is emotionally dynamic!`,
 };
 
-function prefixed(key: string) {
+export function prefixed(key: string) {
   return `chatvrm_${key}`;
+}
+
+// Ensure syncLocalStorage runs only on the server side and once
+if (typeof window !== "undefined") {
+  (async () => {
+    await handleConfig("init");
+  })();
+} else {
+  (async () => {
+    await handleConfig("fetch");
+  })();
 }
 
 export function config(key: string): string {
   if (localStorage.hasOwnProperty(prefixed(key))) {
     return (<any>localStorage).getItem(prefixed(key));
+  }
+
+  // Fallback to serverConfig if localStorage is unavailable or missing
+  if (serverConfig && serverConfig.hasOwnProperty(key)) {
+    return serverConfig[key];
   }
 
   if (defaults.hasOwnProperty(key)) {
@@ -121,11 +139,14 @@ export function config(key: string): string {
   throw new Error(`config key not found: ${key}`);
 }
 
-export function updateConfig(key: string, value: string) {
+export async function updateConfig(key: string, value: string) {
   if (defaults.hasOwnProperty(key)) {
     localStorage.setItem(prefixed(key), value);
     return;
   }
+
+  // Sync update to server config
+  await handleConfig("update",{ key, value });
 
   throw new Error(`config key not found: ${key}`);
 }
@@ -138,8 +159,8 @@ export function defaultConfig(key: string): string {
   throw new Error(`config key not found: ${key}`);
 }
 
-export function resetConfig() {
-  Object.entries(defaults).forEach(([key, value]) => {
-    updateConfig(key, value);
-  });
+export async function resetConfig() {
+  for (const [key, value] of Object.entries(defaults)) {
+    await updateConfig(key, value);
+  }
 }
