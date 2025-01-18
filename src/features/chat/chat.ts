@@ -26,6 +26,7 @@ import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
 import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
 import { getOpenRouterChatResponseStream } from './openRouterChat';
+import { handleUserInput } from '../externalAPI/externalAPI';
 
 
 type Speak = {
@@ -333,6 +334,9 @@ export class Chat {
 
     if (!amicaLife) {
       console.log('receiveMessageFromUser', message);
+
+      // For external API
+      await handleUserInput(message);
 
       this.amicaLife?.receiveMessageFromUser(message);
 
