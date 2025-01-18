@@ -1,10 +1,11 @@
+import { config } from '@/utils/config';
 import { Telegraf } from 'telegraf';
 
 class TelegramClient {
   private bot: Telegraf;
 
   constructor() {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN as string;
+    const botToken = config("telegram_bot_token");
 
     if (!botToken) {
       throw new Error('TELEGRAM_BOT_TOKEN is not defined in the environment variables');
