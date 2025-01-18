@@ -14,6 +14,17 @@ if (typeof window !== "undefined") {
             ts: +new Date,
             arguments,
           });
+
+          const logsUrl = new URL(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/dataHandler`);
+          logsUrl.searchParams.append("type", "logs");
+          if (window.location.hostname === "localhost") {
+            fetch(logsUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(logEntry),
+            });
+          }
+          
           passf.apply(null, arguments);
         }
 
