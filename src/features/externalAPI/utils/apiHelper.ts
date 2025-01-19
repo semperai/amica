@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import type { NextApiResponse } from "next";
 import fs from "fs";
+import { sseClients } from "@/pages/api/amicaHandler";
 
 export interface ApiResponse {
   sessionId?: string;
@@ -28,9 +29,9 @@ export const sendError = (
   status = 400,
 ) => res.status(status).json({ sessionId, error: message });
 
-export const sendToClients = (clients: Array<{ res: NextApiResponse }>, message: { type: string; data: any }) => {
+export const sendToClients = (message: { type: string; data: any }) => {
   const formattedMessage = JSON.stringify(message);
-  clients.forEach((client) => client.res.write(`data: ${formattedMessage}\n\n`));
+  sseClients.forEach((client) => client.res.write(`data: ${formattedMessage}\n\n`));
 };
 
 export const readFile = (filePath: string): any => {

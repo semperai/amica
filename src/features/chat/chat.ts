@@ -127,7 +127,7 @@ export class Chat {
     this.updateAwake();
     this.initialized = true;
 
-    this.serverSentEvent();
+    this.initSSE();
   }
 
   public setMessageList(messages: Message[]) {
@@ -360,21 +360,45 @@ export class Chat {
     ];
     // console.debug('messages', messages);
 
-    await this.makeAndHandleStream(messages);
+    // Extract the system prompt
+    const systemPrompt = messages.find((msg) => msg.role === "system");
+
+    // Extract the rest of the conversation excluding the system prompt
+    const conversationMessages = messages.filter((msg) => msg.role !== "system");
+
+    if (config("reasoning_engine_enabled") === "true") {
+      try {
+          const response = await fetch('https://i-love-amica.com:3000/reasoning/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ systemPrompt: systemPrompt, messages: conversationMessages }), 
+          });
+
+          if (!response.ok) {
+              console.error(`Reasoning server responded with status ${response.status}: ${response.statusText}`);
+              return;
+          }
+
+          const result = await response.json();
+          console.log('Reasoning engine response:', result);
+      } catch (error) {
+          console.error('Error during reasoning engine request:', error);
+      }
+    } else {
+        await this.makeAndHandleStream(messages);
+    }
+    
   }
 
-  public serverSentEvent() {
-    // if (!isDev && config("external_api_enabled") !== "true") {
-    //   return;
-    // }
+  public initSSE() {
+    if (!isDev && config("external_api_enabled") !== "true") {
+      return;
+    }
 
     const eventSource = new EventSource('/api/amicaHandler');
 
-    eventSource.onmessage = async (event) => {
-      const data = JSON.parse(event.data);
-      console.log('Received message:', data);
-      
-    };
     // Listen for incoming messages from the server
     eventSource.onmessage = async (event) => {
       try {

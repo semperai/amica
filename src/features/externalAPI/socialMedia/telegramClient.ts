@@ -5,7 +5,7 @@ class TelegramClient {
   private bot: Telegraf;
 
   constructor() {
-    const botToken = config("telegram_bot_token");
+    const botToken = process.env.TELEGRAM_BOT_TOKEN as string;
 
     if (!botToken) {
       throw new Error('TELEGRAM_BOT_TOKEN is not defined in the environment variables');

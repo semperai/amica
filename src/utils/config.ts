@@ -140,14 +140,20 @@ export function config(key: string): string {
 }
 
 export async function updateConfig(key: string, value: string) {
-  if (typeof localStorage !== "undefined" && defaults.hasOwnProperty(key)) {
-    localStorage.setItem(prefixed(key), value);
+  try {
+    const localKey = prefixed(key);
+
+    // Update localStorage if available
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(localKey, value);
+    }
+
+    // Sync update to server config
+    await handleConfig("update",{ key, value });
+
+  } catch (e) {
+    console.error(`Error updating config for key "${key}": ${e}`);
   }
-
-  // Sync update to server config
-  await handleConfig("update",{ key, value });
-
-  throw new Error(`config key not found: ${key}`);
 }
 
 export function defaultConfig(key: string): string {

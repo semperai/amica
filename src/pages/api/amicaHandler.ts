@@ -3,12 +3,12 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { config } from "@/utils/config";
 import { handleConfig } from "@/features/externalAPI/externalAPI";
 
-import { generateSessionId, sendError, sendToClients, apiLogEntry, ApiResponse } from "@/features/externalAPI/utils/apiHelper";
+import { generateSessionId, sendError, apiLogEntry, ApiResponse } from "@/features/externalAPI/utils/apiHelper";
 import { requestMemory, requestLogs, requestUserInputMessages } from "@/features/externalAPI/utils/requestHandler";
 import { processNormalChat, triggerAmicaActions, updateSystemPrompt } from "@/features/externalAPI/processors/chatProcessor";
 
 export const apiLogs: apiLogEntry[] = [];
-const clients: Array<{ res: NextApiResponse }> = [];
+export const sseClients: Array<{ res: NextApiResponse }> = [];
 
 // Main Amica Handler
 export default async function handler(
@@ -56,12 +56,12 @@ const processRequest = async (inputType: string, payload: any) => {
     case "RPC User Input Messages":
       return { response: await requestUserInputMessages(), outputType: "User Input" };
     case "Update System Prompt":
-      return { response: await updateSystemPrompt(payload, sendToClients), outputType: "Updated system prompt" };
+      return { response: await updateSystemPrompt(payload), outputType: "Updated system prompt" };
     case "Twitter Message":
     case "Brain Message":
       return { response: payload, outputType: "Text" };
     case "Reasoning Server":
-      return { response: await triggerAmicaActions(payload, sendToClients), outputType: "Actions" };
+      return { response: await triggerAmicaActions(payload), outputType: "Actions" };
     default:
       throw new Error("Invalid input type");
   }
@@ -78,11 +78,11 @@ const handleSSEConnection = (
   res.setHeader("Connection", "keep-alive");
 
   const client = { res };
-  clients.push(client);
+  sseClients.push(client);
 
   req.on("close", () => {
     console.log("Client disconnected");
-    clients.splice(clients.indexOf(client), 1);
+    sseClients.splice(sseClients.indexOf(client), 1);
     res.end();
   });
 };

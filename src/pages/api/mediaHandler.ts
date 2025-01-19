@@ -20,6 +20,9 @@ export const config = {
 
 // Main API handler
 export default async function handler(req: NextRequest, res: NextApiResponse<ApiResponse>) {
+  // Syncing config to be accessible from server side
+  await handleConfig("fetch");
+  
   if (configs('external_api_enabled') !== 'true') {
     return sendError(res, '', 'API is currently disabled.', 503);
   }

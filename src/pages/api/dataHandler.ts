@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { writeFile } from '@/features/externalAPI/utils/apiHelper';
-import { handleGetConfig, handleGetLogs, handleGetSubconscious, handleGetUserInputMessages, handlePostConfig, handlePostLogs, handlePostSubconscious, handlePostUserInputMessages, logsFilePath, subconsciousFilePath, userInputMessagesFilePath } from '@/features/externalAPI/dataHelper';
+import { configFilePath, handleGetConfig, handleGetLogs, handleGetSubconscious, handleGetUserInputMessages, handlePostConfig, handlePostLogs, handlePostSubconscious, handlePostUserInputMessages, logsFilePath, subconsciousFilePath, userInputMessagesFilePath } from '@/features/externalAPI/dataHelper';
 
 // Clear data on startup
 writeFile(subconsciousFilePath, []);

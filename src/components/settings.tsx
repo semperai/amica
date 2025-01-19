@@ -159,12 +159,6 @@ export const Settings = ({
   const [idleTextPrompt, setIdleTextPrompt] = useState(config("idle_text_prompt"));
 
   const [externalApiEnabled,setExternalApiEnabled] = useState<boolean>(config("external_api_enabled") === 'true' ? true : false);
-  const [xApiKey, setXApiKey] = useState(config("x_api_key"));
-  const [xApiSecret, setXApiSecret] = useState(config("x_api_secret"));
-  const [xAccessSecret, setXAccessSecret] = useState(config("x_access_secret"));
-  const [xAccessToken, setXAccessToken] = useState(config("x_access_token"));
-  const [xBearerToken, setXBearerToken] = useState(config("x_bearer_token"));
-  const [tgBotToken, setTgBotToken] = useState(config("telegram_bot_token"));
 
   const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
@@ -274,7 +268,7 @@ export const Settings = ({
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
     amicaLifeEnabled, timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
-    externalApiEnabled, xApiKey, xApiSecret, xAccessSecret, xAccessToken, xBearerToken, tgBotToken,
+    externalApiEnabled,
     name,
     systemPrompt,
     sttWakeWordEnabled, sttWakeWord,
@@ -624,19 +618,7 @@ export const Settings = ({
     case 'external_api':
       return <ExternalAPIPage
         externalApiEnabled={externalApiEnabled}
-        xApiKey={xApiKey}
-        xApiSecret={xApiSecret}
-        xAccessSecret={xAccessSecret}
-        xAccessToken={xAccessToken}
-        xBearerToken={xBearerToken}
-        tgBotToken={tgBotToken}
         setExternalApiEnabled={setExternalApiEnabled}
-        setXApiKey={setXApiKey}
-        setXApiSecret={setXApiSecret}
-        setXAccessSecret={setXAccessSecret}
-        setXAccessToken={setXAccessToken}
-        setXBearerToken={setXBearerToken}
-        setTgBotToken={setTgBotToken}
         setSettingsUpdated={setSettingsUpdated}
         />
 
