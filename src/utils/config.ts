@@ -123,8 +123,8 @@ if (typeof window !== "undefined") {
 }
 
 export function config(key: string): string {
-  if (localStorage.hasOwnProperty(prefixed(key))) {
-    return (<any>localStorage).getItem(prefixed(key));
+  if (typeof localStorage !== "undefined" && localStorage.hasOwnProperty(prefixed(key))) {
+    return (<any>localStorage).getItem(prefixed(key))!;
   }
 
   // Fallback to serverConfig if localStorage is unavailable or missing
@@ -140,9 +140,8 @@ export function config(key: string): string {
 }
 
 export async function updateConfig(key: string, value: string) {
-  if (defaults.hasOwnProperty(key)) {
+  if (typeof localStorage !== "undefined" && defaults.hasOwnProperty(key)) {
     localStorage.setItem(prefixed(key), value);
-    return;
   }
 
   // Sync update to server config

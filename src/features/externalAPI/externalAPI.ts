@@ -1,14 +1,24 @@
 import { config, defaults, prefixed } from "@/utils/config";
 import isDev from "@/utils/isDev";
+import { TimestampedPrompt } from "../amicaLife/eventHandler";
 
-export const configUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
+export const configUrl = new URL(
+  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
+);
 configUrl.searchParams.append("type", "config");
 
-export const userInputUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
+export const userInputUrl = new URL(
+  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
+);
 userInputUrl.searchParams.append("type", "userInputMessages");
 
-export const subconsciousUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
-subconsciousUrl.searchParams.append('type', 'subconscious');
+export const subconsciousUrl = new URL(
+  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
+);
+subconsciousUrl.searchParams.append("type", "subconscious");
+
+export const logsUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
+logsUrl.searchParams.append("type", "logs");
 
 // Cached server config
 export let serverConfig: Record<string, string> = {};
@@ -103,3 +113,39 @@ export async function handleUserInput(message: string) {
     }),
   });
 }
+
+export async function handleSubconscious(
+    timestampedPrompt: TimestampedPrompt,
+    MAX_STORAGE_TOKENS: number
+  ): Promise<TimestampedPrompt[]> {
+    const data = await fetch(subconsciousUrl);
+    if (!data.ok) {
+      throw new Error("Failed to get subconscious data");
+    }
+  
+    const currentStoredSubconscious: TimestampedPrompt[] = await data.json();
+    currentStoredSubconscious.push(timestampedPrompt);
+  
+    let totalStorageTokens = currentStoredSubconscious.reduce(
+      (totalTokens, prompt) => totalTokens + prompt.prompt.length,
+      0
+    );
+    while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+      const removed = currentStoredSubconscious.shift();
+      totalStorageTokens -= removed!.prompt.length;
+    }
+  
+    const response = await fetch(subconsciousUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ subconscious: currentStoredSubconscious }),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Failed to update subconscious data");
+    }
+  
+    return currentStoredSubconscious;
+  }

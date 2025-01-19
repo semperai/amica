@@ -28,6 +28,7 @@ import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isId
 import { getOpenRouterChatResponseStream } from './openRouterChat';
 import { handleUserInput } from '../externalAPI/externalAPI';
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
+import isDev from '@/utils/isDev';
 
 
 type Speak = {
@@ -363,7 +364,10 @@ export class Chat {
   }
 
   public serverSentEvent() {
-    // Client-side code in a React component or elsewhere
+    // if (!isDev && config("external_api_enabled") !== "true") {
+    //   return;
+    // }
+
     const eventSource = new EventSource('/api/amicaHandler');
 
     eventSource.onmessage = async (event) => {

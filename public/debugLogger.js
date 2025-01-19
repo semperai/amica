@@ -9,11 +9,12 @@ if (typeof window !== "undefined") {
         }
 
         function logf() {
-          window.error_handler_logs.push({
+          const logEntry = {
             type: name,
-            ts: +new Date,
+            ts: +new Date(),
             arguments,
-          });
+          };
+          window.error_handler_logs.push(logEntry);
 
           const logsUrl = new URL(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/dataHandler`);
           logsUrl.searchParams.append("type", "logs");
@@ -24,7 +25,7 @@ if (typeof window !== "undefined") {
               body: JSON.stringify(logEntry),
             });
           }
-          
+
           passf.apply(null, arguments);
         }
 

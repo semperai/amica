@@ -12,7 +12,7 @@ import { AmicaLife } from "./amicaLife";
 import { Viewer } from "../vrmViewer/viewer";
 import { config } from "@/utils/config";
 import isDev from "@/utils/isDev";
-import { subconsciousUrl } from "../externalAPI/externalAPI";
+import { handleSubconscious } from "../externalAPI/externalAPI";
 
 export const idleEvents = [
   "VRMA",
@@ -202,39 +202,13 @@ export async function handleSubconsciousEvent(
 
     // External API feature
     if (isDev && config("external_api_enabled") === "true") {
-      // Get the current stored subconscious and add the new entry
-      const data = await fetch(subconsciousUrl);
-      if (!data.ok) {
-        throw new Error('Failed to get subconscious data');
+      try {
+        storedSubconcious = await handleSubconscious(timestampedPrompt, MAX_STORAGE_TOKENS);
+      } catch (error) {
+        console.error("Error handling external API:", error);
       }
-
-      const currentStoredSubconscious: TimestampedPrompt[] = await data.json();
-      currentStoredSubconscious.push(timestampedPrompt);
-
-      let totalStorageTokens = currentStoredSubconscious.reduce(
-        (totalTokens, prompt) => totalTokens + prompt.prompt.length,
-        0,
-      );
-      while (totalStorageTokens > MAX_STORAGE_TOKENS) {
-        const removed = currentStoredSubconscious.shift();
-        totalStorageTokens -= removed!.prompt.length;
-      }
-
-      // Save updated subconscious data back to file
-      const response = await fetch(subconsciousUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ subconscious: currentStoredSubconscious }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update subconscious data');
-      }
-
-      // Update in-memory store
-      storedSubconcious = currentStoredSubconscious;
-    } else { // External API Off or Isn't development case
+    // External API Off or Isn't development case
+    } else { 
       storedSubconcious.push(timestampedPrompt);
       let totalStorageTokens = storedSubconcious.reduce(
         (totalTokens, prompt) => totalTokens + prompt.prompt.length,
