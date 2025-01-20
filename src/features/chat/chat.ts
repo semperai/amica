@@ -20,12 +20,15 @@ import { localXTTSTTS} from "@/features/localXTTS/localXTTS";
 
 import { AmicaLife } from '@/features/amicaLife/amicaLife';
 
-import { config } from "@/utils/config";
+import { config, updateConfig } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
 import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
 import { getOpenRouterChatResponseStream } from './openRouterChat';
+import { handleUserInput } from '../externalAPI/externalAPI';
+import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
+import isDev from '@/utils/isDev';
 
 
 type Speak = {
@@ -123,6 +126,8 @@ export class Chat {
 
     this.updateAwake();
     this.initialized = true;
+
+    this.initSSE();
   }
 
   public setMessageList(messages: Message[]) {
@@ -334,6 +339,9 @@ export class Chat {
     if (!amicaLife) {
       console.log('receiveMessageFromUser', message);
 
+      // For external API
+      await handleUserInput(message);
+
       this.amicaLife?.receiveMessageFromUser(message);
 
       if (!/\[.*?\]/.test(message)) {
@@ -352,7 +360,128 @@ export class Chat {
     ];
     // console.debug('messages', messages);
 
-    await this.makeAndHandleStream(messages);
+    // Extract the system prompt
+    const systemPrompt = messages.find((msg) => msg.role === "system");
+
+    // Extract the rest of the conversation excluding the system prompt
+    const conversationMessages = messages.filter((msg) => msg.role !== "system");
+
+    if (config("reasoning_engine_enabled") === "true") {
+      try {
+          const response = await fetch('https://i-love-amica.com:3000/reasoning/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ systemPrompt: systemPrompt, messages: conversationMessages }), 
+          });
+
+          if (!response.ok) {
+              console.error(`Reasoning server responded with status ${response.status}: ${response.statusText}`);
+              return;
+          }
+
+          const result = await response.json();
+          console.log('Reasoning engine response:', result);
+      } catch (error) {
+          console.error('Error during reasoning engine request:', error);
+      }
+    } else {
+        await this.makeAndHandleStream(messages);
+    }
+    
+  }
+
+  public initSSE() {
+    if (!isDev && config("external_api_enabled") !== "true") {
+      return;
+    }
+
+    const eventSource = new EventSource('/api/amicaHandler');
+
+    // Listen for incoming messages from the server
+    eventSource.onmessage = async (event) => {
+      try {
+        // Parse the incoming JSON message
+        const message = JSON.parse(event.data);
+
+        console.log(message);
+
+        // Destructure to get the message type and data
+        const { type, data } = message;
+
+        // Handle the message based on its type
+        switch (type) {
+          case 'normal':
+            console.log('Normal message received:', data);
+            const messages: Message[] = [
+              { role: "system", content: config("system_prompt") },
+              ...this.messageList!,
+              { role: "user", content: data},
+            ];
+            let stream = await getEchoChatResponseStream(messages);
+            this.streams.push(stream);
+            this.handleChatResponseStream();
+            break;
+          
+          case 'animation':
+            console.log('Animation data received:', data);
+            const animation = await loadVRMAnimation(`/animations/${data}`);
+            if (!animation) {
+              throw new Error("Loading animation failed");
+            }
+            this.viewer?.model?.playAnimation(animation,data);
+            requestAnimationFrame(() => { this.viewer?.resetCameraLerp(); });
+            break;
+
+          case 'playback':
+            console.log('Playback flag received:', data);
+            this.viewer?.startRecording();
+            // Automatically stop recording after 10 seconds
+            setTimeout(() => {
+              this.viewer?.stopRecording((videoBlob) => {
+                // Log video blob to console
+                console.log("Video recording finished", videoBlob);
+
+                // Create a download link for the video file
+                const url = URL.createObjectURL(videoBlob!);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "recording.webm"; // Set the file name for download
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Revoke the URL to free up memory
+                URL.revokeObjectURL(url);
+              });
+            }, data); // Stop recording after 10 seconds
+            break;
+
+          case 'systemPrompt':
+            console.log('System Prompt data received:', data);
+            updateConfig("system_prompt",data);
+            break;
+
+          default:
+            console.warn('Unknown message type:', type);
+        }
+      } catch (error) {
+        console.error('Error parsing SSE message:', error);
+      }
+    };
+
+
+    eventSource.addEventListener('end', () => {
+      console.log('SSE session ended');
+      eventSource.close();
+    });
+
+    eventSource.onerror = (error) => {
+      console.error('Error in SSE connection:', error);
+      eventSource.close();
+    };
+
   }
 
 

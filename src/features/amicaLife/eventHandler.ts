@@ -11,6 +11,8 @@ import { functionCalling } from "@/features/functionCalling/functionCalling";
 import { AmicaLife } from "./amicaLife";
 import { Viewer } from "../vrmViewer/viewer";
 import { config } from "@/utils/config";
+import isDev from "@/utils/isDev";
+import { handleSubconscious } from "../externalAPI/externalAPI";
 
 export const idleEvents = [
   "VRMA",
@@ -46,7 +48,7 @@ export type TimestampedPrompt = {
 }
 
 // Placeholder for storing compressed subconscious prompts
-export let storedPrompts: TimestampedPrompt[] = [];
+export let storedSubconcious: TimestampedPrompt[] = [];
 
 let previousAnimation = "";
 
@@ -198,17 +200,28 @@ export async function handleSubconsciousEvent(
       timestamp: new Date().toISOString(),
     };
 
-    storedPrompts.push(timestampedPrompt);
-    let totalStorageTokens = storedPrompts.reduce(
-      (totalTokens, prompt) => totalTokens + prompt.prompt.length,
-      0,
-    );
-    while (totalStorageTokens > MAX_STORAGE_TOKENS) {
-      const removed = storedPrompts.shift();
-      totalStorageTokens -= removed!.prompt.length;
+    // External API feature
+    if (isDev && config("external_api_enabled") === "true") {
+      try {
+        storedSubconcious = await handleSubconscious(timestampedPrompt, MAX_STORAGE_TOKENS);
+      } catch (error) {
+        console.error("Error handling external API:", error);
+      }
+    // External API Off or Isn't development case
+    } else { 
+      storedSubconcious.push(timestampedPrompt);
+      let totalStorageTokens = storedSubconcious.reduce(
+        (totalTokens, prompt) => totalTokens + prompt.prompt.length,
+        0,
+      );
+      while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+        const removed = storedSubconcious.shift();
+        totalStorageTokens -= removed!.prompt.length;
+      }
     }
-    console.log("Stored subconcious prompts:", storedPrompts);
-    amicaLife.setSubconciousLogs!(storedPrompts);
+    
+    console.log("Stored subconcious prompts:", storedSubconcious);
+    amicaLife.setSubconciousLogs!(storedSubconcious);
 
     amicaLife.eventProcessing = false;
     console.timeEnd(`processing_event Subconcious`);

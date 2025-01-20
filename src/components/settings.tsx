@@ -66,6 +66,8 @@ import { SystemPromptPage } from './settings/SystemPromptPage';
 import { AmicaLifePage } from "./settings/AmicaLifePage";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
+import { ExternalAPIPage } from "./settings/ExternalAPIPage";
+
 
 export const Settings = ({
   onClickClose,
@@ -155,6 +157,8 @@ export const Settings = ({
   const [maxTimeInterval, setMaxTimeInterval] = useState<number>(parseInt(config("max_time_interval_sec")));
   const [timeToSleep, setTimeToSleep] = useState<number>(parseInt(config("time_to_sleep_sec")));
   const [idleTextPrompt, setIdleTextPrompt] = useState(config("idle_text_prompt"));
+
+  const [externalApiEnabled,setExternalApiEnabled] = useState<boolean>(config("external_api_enabled") === 'true' ? true : false);
 
   const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
@@ -264,6 +268,7 @@ export const Settings = ({
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
     amicaLifeEnabled, timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
+    externalApiEnabled,
     name,
     systemPrompt,
     sttWakeWordEnabled, sttWakeWord,
@@ -279,7 +284,7 @@ export const Settings = ({
     switch(page) {
     case 'main_menu':
       return <MenuPage
-        keys={["appearance",  "amica_life", "chatbot", "tts", "stt", "vision", "reset_settings", "community"]}
+        keys={["appearance",  "amica_life", "chatbot", "tts", "stt", "vision", "external_api", "reset_settings", "community"]}
         menuClick={handleMenuClick} />;
 
     case 'appearance':
@@ -607,6 +612,13 @@ export const Settings = ({
         setMaxTimeInterval={setMaxTimeInterval}
         setTimeToSleep={setTimeToSleep}
         setIdleTextPrompt={setIdleTextPrompt}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'external_api':
+      return <ExternalAPIPage
+        externalApiEnabled={externalApiEnabled}
+        setExternalApiEnabled={setExternalApiEnabled}
         setSettingsUpdated={setSettingsUpdated}
         />
 
