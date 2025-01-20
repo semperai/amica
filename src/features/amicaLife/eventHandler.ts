@@ -39,7 +39,7 @@ export type AmicaLifeEvents = {
 };
 
 // Define a constant for max subconcious storage tokens
-const MAX_STORAGE_TOKENS = 3000;
+export const MAX_STORAGE_TOKENS = 3000;
 
 // Define the interface for a timestamped prompt
 export type TimestampedPrompt = {
@@ -203,7 +203,7 @@ export async function handleSubconsciousEvent(
     // External API feature
     if (isDev && config("external_api_enabled") === "true") {
       try {
-        storedSubconcious = await handleSubconscious(timestampedPrompt, MAX_STORAGE_TOKENS);
+        storedSubconcious = await handleSubconscious(timestampedPrompt);
       } catch (error) {
         console.error("Error handling external API:", error);
       }

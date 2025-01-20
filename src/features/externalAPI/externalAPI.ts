@@ -1,6 +1,6 @@
 import { config, defaults, prefixed } from "@/utils/config";
 import isDev from "@/utils/isDev";
-import { TimestampedPrompt } from "../amicaLife/eventHandler";
+import { MAX_STORAGE_TOKENS, TimestampedPrompt } from "../amicaLife/eventHandler";
 
 export const configUrl = new URL(
   `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
@@ -116,7 +116,6 @@ export async function handleUserInput(message: string) {
 
 export async function handleSubconscious(
     timestampedPrompt: TimestampedPrompt,
-    MAX_STORAGE_TOKENS: number
   ): Promise<TimestampedPrompt[]> {
     const data = await fetch(subconsciousUrl);
     if (!data.ok) {
