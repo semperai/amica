@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { config } from "@/utils/config";
-import { handleConfig } from "@/features/externalAPI/externalAPI";
+import { handleConfig, handleSubconscious } from "@/features/externalAPI/externalAPI";
 
 import { generateSessionId, sendError, apiLogEntry, ApiResponse } from "@/features/externalAPI/utils/apiHelper";
 import { requestMemory, requestLogs, requestUserInputMessages } from "@/features/externalAPI/utils/requestHandler";
@@ -57,9 +57,8 @@ const processRequest = async (inputType: string, payload: any) => {
       return { response: await requestUserInputMessages(), outputType: "User Input" };
     case "Update System Prompt":
       return { response: await updateSystemPrompt(payload), outputType: "Updated system prompt" };
-    case "Twitter Message":
     case "Brain Message":
-      return { response: payload, outputType: "Text" };
+      return { response: await handleSubconscious(payload), outputType: "Added subconscious stored prompt" };
     case "Reasoning Server":
       return { response: await triggerAmicaActions(payload), outputType: "Actions" };
     default:
