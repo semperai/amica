@@ -36,7 +36,7 @@ const defaults = {
   tts_muted: 'false',
   tts_backend: process.env.NEXT_PUBLIC_TTS_BACKEND ?? 'piper',
   stt_backend: process.env.NEXT_PUBLIC_STT_BACKEND ?? 'whisper_browser',
-  vision_backend: process.env.NEXT_PUBLIC_VISION_BACKEND ?? 'openai',
+  vision_backend: process.env.NEXT_PUBLIC_VISION_BACKEND ?? 'vision_openai',
   vision_system_prompt: process.env.NEXT_PUBLIC_VISION_SYSTEM_PROMPT ?? `Look at the image as you would if you are a human, be concise, witty and charming.`,
   vision_openai_apikey: process.env.NEXT_PUBLIC_VISION_OPENAI_APIKEY ?? 'default',
   vision_openai_url: process.env.NEXT_PUBLIC_VISION_OPENAI_URL ?? 'https://api-01.heyamica.com',
