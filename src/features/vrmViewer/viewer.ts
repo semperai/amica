@@ -271,7 +271,8 @@ export class Viewer {
     const scene = new THREE.Scene();
     this.scene = scene;
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    // Temp Disable : WebXR -> 1.2
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(1.0, 1.0, 1.0).normalize();
     directionalLight.castShadow = false;
     scene.add(directionalLight);
@@ -285,14 +286,16 @@ export class Viewer {
     const camera = new THREE.PerspectiveCamera(20.0, width / height, 0.1, 20.0);
     this.camera = camera;
 
-    camera.position.set(0, -3, 3.5);
+    // Temp Disable : WebXR y -> -3
+    camera.position.set(0, 8.5, 3.5);
 
     const cameraControls = new OrbitControls(camera, renderer.domElement);
     this.cameraControls = cameraControls;
 
     cameraControls.screenSpacePanning = true;
     cameraControls.minDistance = 0.5;
-    cameraControls.maxDistance = 8;
+    // Temp Disable : WebXR max -> 8
+    cameraControls.maxDistance = 4;
     cameraControls.update();
 
     const igroup = new InteractiveGroup();
