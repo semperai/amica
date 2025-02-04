@@ -56,9 +56,9 @@ export const ChatLog = ({
             bot.setMessageList(parsedChat.slice(0, parsedChat.length - 1));
 
             if (lastMessage.role === "user") {
-              bot.receiveMessageFromUser(lastMessage.content,false);
+              bot.receiveMessageFromUser(lastMessage.content as string, false);
             } else {
-              bot.bubbleMessage(lastMessage.role, lastMessage.content);
+              bot.bubbleMessage(lastMessage.role, lastMessage.content as string);
             }
           } 
           console.error("Please attach the correct file format.");
@@ -132,7 +132,7 @@ export const ChatLog = ({
               <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
                 <Chat
                   role={msg.role}
-                  message={msg.content.replace(/\[(.*?)\]/g, "")}
+                  message={(msg.content as string).replace(/\[(.*?)\]/g, "")}
                   num={i}
                   onClickResumeButton={handleResumeButtonClick}
                 />

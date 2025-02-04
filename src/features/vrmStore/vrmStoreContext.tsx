@@ -30,7 +30,9 @@ export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Eleme
     const [loadedVrmList, vrmListDispatch] = useReducer(vrmStoreReducer, vrmInitList);
     const vrmListAddFile = (file: File, viewer: Viewer) => {
         vrmListDispatch({ type: VrmStoreActionType.addItem, itemFile: file, callback: (callbackProp: AddItemCallbackType) => {
-            viewer.loadVrm(callbackProp.url)
+            viewer.loadVrm(callbackProp.url, (progress: string) => {
+              // TODO handle loading progress
+            })
               .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
               .then(() => {
                 updateConfig("vrm_url", callbackProp.url);

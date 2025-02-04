@@ -11,9 +11,13 @@ const defaults = {
   wake_word: 'Hello',
   time_before_idle_sec: '20',
   debug_gfx: 'false',
-  language: 'en',
-  show_introduction: 'true',
-  show_add_to_homescreen: 'true',
+  use_webgpu: 'false',
+  mtoon_debug_mode: 'none',
+  mtoon_material_type: 'mtoon',
+  language: process.env.NEXT_PUBLIC_LANGUAGE ?? 'en',
+  show_introduction: process.env.NEXT_PUBLIC_SHOW_INTRODUCTION ?? 'true',
+  show_arbius_introduction: process.env.NEXT_PUBLIC_SHOW_ARBIUS_INTRODUCTION ?? 'false',
+  show_add_to_homescreen: process.env.NEXT_PUBLIC_SHOW_ADD_TO_HOMESCREEN ?? 'true',
   bg_color: process.env.NEXT_PUBLIC_BG_COLOR ?? '',
   bg_url: process.env.NEXT_PUBLIC_BG_URL ?? '/bg/bg-room2.jpg',
   vrm_url: process.env.NEXT_PUBLIC_VRM_HASH ?? '/vrm/AvatarSample_A.vrm',
@@ -21,8 +25,10 @@ const defaults = {
   vrm_save_type: 'web',
   youtube_videoid: '',
   animation_url: process.env.NEXT_PUBLIC_ANIMATION_URL ?? '/animations/idle_loop.vrma',
+  animation_procedural: process.env.NEXT_PUBLIC_ANIMATION_PROCEDURAL ?? 'false',
   voice_url: process.env.NEXT_PUBLIC_VOICE_URL ?? '',
   chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'openai',
+  arbius_llm_model_id: process.env.NEXT_PUBLIC_ARBIUS_LLM_MODEL_ID ?? 'default',
   openai_apikey: process.env.NEXT_PUBLIC_OPENAI_APIKEY ?? 'default',
   openai_url: process.env.NEXT_PUBLIC_OPENAI_URL ?? 'https://i-love-amica.com',
   openai_model: process.env.NEXT_PUBLIC_OPENAI_MODEL ?? 'mlabonne/NeuralDaredevil-8B-abliterated',
@@ -33,6 +39,7 @@ const defaults = {
   koboldai_url: process.env.NEXT_PUBLIC_KOBOLDAI_URL ?? 'http://localhost:5001',
   koboldai_use_extra: process.env.NEXT_PUBLIC_KOBOLDAI_USE_EXTRA ?? 'false',
   koboldai_stop_sequence: process.env.NEXT_PUBLIC_KOBOLDAI_STOP_SEQUENCE ?? '(End)||[END]||Note||***||You:||User:||</s>',
+  moshi_url: process.env.NEXT_PUBLIC_MOSHI_URL ?? 'https://runpod.proxy.net',
   openrouter_apikey: process.env.NEXT_PUBLIC_OPENROUTER_APIKEY ?? '',
   openrouter_url: process.env.NEXT_PUBLIC_OPENROUTER_URL ?? 'https://openrouter.ai/api/v1',
   openrouter_model: process.env.NEXT_PUBLIC_OPENROUTER_MODEL ?? 'openai/gpt-3.5-turbo',
@@ -139,3 +146,4 @@ export function resetConfig() {
     updateConfig(key, value);
   });
 }
+

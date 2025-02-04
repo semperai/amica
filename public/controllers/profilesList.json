@@ -1,0 +1,114 @@
+{
+  "generic-button": {
+    "path": "generic-button/profile.json"
+  },
+  "generic-fixed-hand": {
+    "path": "generic-fixed-hand/profile.json"
+  },
+  "generic-hand": {
+    "path": "generic-hand/profile.json"
+  },
+  "generic-touchpad": {
+    "path": "generic-touchpad/profile.json"
+  },
+  "generic-trigger-squeeze-thumbstick": {
+    "path": "generic-trigger-squeeze-thumbstick/profile.json"
+  },
+  "generic-trigger-squeeze-touchpad-thumbstick": {
+    "path": "generic-trigger-squeeze-touchpad-thumbstick/profile.json"
+  },
+  "generic-trigger-squeeze-touchpad": {
+    "path": "generic-trigger-squeeze-touchpad/profile.json"
+  },
+  "generic-trigger-squeeze": {
+    "path": "generic-trigger-squeeze/profile.json"
+  },
+  "generic-trigger-thumbstick": {
+    "path": "generic-trigger-thumbstick/profile.json"
+  },
+  "generic-trigger-touchpad-thumbstick": {
+    "path": "generic-trigger-touchpad-thumbstick/profile.json"
+  },
+  "generic-trigger-touchpad": {
+    "path": "generic-trigger-touchpad/profile.json"
+  },
+  "generic-trigger": {
+    "path": "generic-trigger/profile.json"
+  },
+  "google-daydream": {
+    "path": "google-daydream/profile.json"
+  },
+  "hp-mixed-reality": {
+    "path": "hp-mixed-reality/profile.json"
+  },
+  "htc-vive-cosmos": {
+    "path": "htc-vive-cosmos/profile.json"
+  },
+  "htc-vive-focus-3": {
+    "path": "htc-vive-focus-3/profile.json"
+  },
+  "htc-vive-focus-plus": {
+    "path": "htc-vive-focus-plus/profile.json"
+  },
+  "htc-vive-focus": {
+    "path": "htc-vive-focus/profile.json"
+  },
+  "htc-vive": {
+    "path": "htc-vive/profile.json"
+  },
+  "logitech-mx-ink": {
+    "path": "logitech-mx-ink/profile.json"
+  },
+  "magicleap-one": {
+    "path": "magicleap-one/profile.json"
+  },
+  "meta-quest-touch-plus": {
+    "path": "meta-quest-touch-plus/profile.json"
+  },
+  "meta-quest-touch-pro": {
+    "path": "meta-quest-touch-pro/profile.json"
+  },
+  "microsoft-mixed-reality": {
+    "path": "microsoft-mixed-reality/profile.json"
+  },
+  "windows-mixed-reality": {
+    "path": "microsoft-mixed-reality/profile.json",
+    "deprecated": true
+  },
+  "oculus-go": {
+    "path": "oculus-go/profile.json"
+  },
+  "oculus-touch-v2": {
+    "path": "oculus-touch-v2/profile.json"
+  },
+  "oculus-touch-v3": {
+    "path": "oculus-touch-v3/profile.json"
+  },
+  "oculus-touch": {
+    "path": "oculus-touch/profile.json"
+  },
+  "pico-4": {
+    "path": "pico-4/profile.json"
+  },
+  "pico-g2": {
+    "path": "pico-g2/profile.json"
+  },
+  "pico-neo2": {
+    "path": "pico-neo2/profile.json"
+  },
+  "pico-neo3": {
+    "path": "pico-neo3/profile.json"
+  },
+  "samsung-gearvr": {
+    "path": "samsung-gearvr/profile.json"
+  },
+  "samsung-odyssey": {
+    "path": "samsung-odyssey/profile.json"
+  },
+  "valve-index": {
+    "path": "valve-index/profile.json"
+  },
+  "yvr-touch": {
+    "path": "yvr-touch/profile.json"
+  }
+}

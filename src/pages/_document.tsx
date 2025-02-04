@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { buildUrl } from "@/utils/buildUrl";
 import { Html, Head, Main, NextScript } from "next/document";
+import { GoogleAnalytics } from '@next/third-parties/google';
 import Script from 'next/script'
 
 export default function Document() {
@@ -43,11 +44,18 @@ export default function Document() {
           src="/debugLogger.js"
           strategy="beforeInteractive"
         />
+        <Script
+          src="/ammo.wasm.js"
+          strategy="beforeInteractive"
+        />
       </Head>
       <body>
         <Main />
         <NextScript />
       </body>
+      {process.env.NODE_ENV === "production" && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID!} />
+      )}
     </Html>
   );
 }

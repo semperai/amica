@@ -49,6 +49,7 @@
 ## 🔧 Other Guides
 
 * [Using Window.ai](./guides/using-windowai.md)
+* [Using Moshi (Voice to Voice)](./guides/using-moshi.md)
 
 ## 🧩 Plugin System 
 

@@ -4,7 +4,9 @@ import {
   AdjustmentsHorizontalIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   IdentificationIcon,
+  LanguageIcon,
   UsersIcon,
+  CommandLineIcon,
   RocketLaunchIcon,
   FaceSmileIcon,
   MusicalNoteIcon,
@@ -138,10 +140,12 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'appearance':          return <FaceSmileIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'amica_life':          return <SunIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatbot':             return <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'language':            return <LanguageIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'tts':                 return <MusicalNoteIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'stt':                 return <PencilIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'vision':              return <EyeIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'reset_settings':      return <PowerIcon className="h-5 w-5 flex-none text-red-500" aria-hidden="true" />;
+    case 'developer':           return <CommandLineIcon className="h-5 w-5 flex-none text-green-500" aria-hidden="true" />;
     case 'community':           return <RocketLaunchIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'background_img':      return <PhotoIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -151,10 +155,12 @@ export function getIconFromPage(page: string): JSX.Element {
     case 'character_animation': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
 
     case 'chatbot_backend':     return <Cog6ToothIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'arbius_llm_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'chatgpt_settings':    return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'llamacpp_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'ollama_settings':     return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'koboldai_settings':   return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
+    case 'moshi_settings':      return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'openrouter_settings': return <AdjustmentsHorizontalIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'name':                return <IdentificationIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
     case 'system_prompt':       return <DocumentTextIcon className="h-5 w-5 flex-none text-gray-800" aria-hidden="true" />;
@@ -189,10 +195,12 @@ function getLabelFromPage(page: string): string {
     case 'appearance':          return t('Appearance');
     case 'amica_life':          return t('Amica Life');
     case 'chatbot':             return t('ChatBot');
+    case 'language':            return t('Language');
     case 'tts':                 return t('Text-to-Speech');
     case 'stt':                 return t('Speech-to-text');
     case 'vision':              return t('Vision');
     case 'reset_settings':      return t('Reset Settings');
+    case 'developer':           return t('Developer');
     case 'community':           return t('Community');
 
     case 'background_img':      return t('Background Image');
@@ -202,10 +210,12 @@ function getLabelFromPage(page: string): string {
     case 'character_animation': return t('Character Animation');
 
     case 'chatbot_backend':     return t('ChatBot Backend');
+    case 'arbius_llm_settings': return t('Arbius');
     case 'chatgpt_settings':    return t('ChatGPT');
     case 'llamacpp_settings':   return t('LLama.cpp');
     case 'ollama_settings':     return t('Ollama');
     case 'koboldai_settings':   return t('KoboldAI');
+    case 'moshi_settings':      return t('Moshi');
     case 'openrouter_settings': return t('OpenRouter');
     case 'name'         :       return t('Name');
     case 'system_prompt':       return t('System Prompt');

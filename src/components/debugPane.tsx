@@ -137,7 +137,7 @@ export function DebugPane({ onClickClose }: {
             </div>
           ))}
           <div ref={scrollRef} className="my-20" />
-          <div className="my-40" />
+          <div className="my-20 h-40 md:my-2 md:h-0" />
         </div>
       </div>
     </div>

@@ -1,0 +1,359 @@
+{
+  "profileId": "logitech-mx-ink",
+  "fallbackProfileIds": [
+    "generic-trigger"
+  ],
+  "layouts": {
+    "left": {
+      "selectComponentId": "xr-standard-trigger",
+      "components": {
+        "xr-standard-trigger": {
+          "type": "trigger",
+          "gamepadIndices": {
+            "button": 0
+          },
+          "rootNodeName": "xr_standard_trigger",
+          "visualResponses": {
+            "xr_standard_trigger_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "xr_standard_trigger_pressed_value",
+              "minNodeName": "xr_standard_trigger_pressed_min",
+              "maxNodeName": "xr_standard_trigger_pressed_max"
+            }
+          }
+        },
+        "xr-standard-squeeze": {
+          "type": "squeeze",
+          "gamepadIndices": {
+            "button": 1
+          },
+          "rootNodeName": "xr_standard_squeeze",
+          "visualResponses": {
+            "xr_standard_squeeze_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "xr_standard_squeeze_pressed_value",
+              "minNodeName": "xr_standard_squeeze_pressed_min",
+              "maxNodeName": "xr_standard_squeeze_pressed_max"
+            }
+          }
+        },
+        "touch-pad": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 4
+          },
+          "rootNodeName": "touch_pad",
+          "visualResponses": {
+            "touch_pad_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "touch_pad_pressed_value",
+              "minNodeName": "touch_pad_pressed_min",
+              "maxNodeName": "touch_pad_pressed_max"
+            }
+          }
+        },
+        "tip-force": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 5
+          },
+          "rootNodeName": "tip_force",
+          "visualResponses": {
+            "tip_force_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "tip_force_pressed_value",
+              "minNodeName": "tip_force_pressed_min",
+              "maxNodeName": "tip_force_pressed_max"
+            }
+          }
+        },
+        "docked": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 6
+          },
+          "rootNodeName": "docked",
+          "visualResponses": {
+            "docked_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "docked_pressed_value",
+              "minNodeName": "docked_pressed_min",
+              "maxNodeName": "docked_pressed_max"
+            }
+          }
+        }
+      },
+      "gamepadMapping": "xr-standard",
+      "rootNodeName": "logitech_mx_ink_none",
+      "assetPath": "none.glb"
+    },
+    "right": {
+      "selectComponentId": "xr-standard-trigger",
+      "components": {
+        "xr-standard-trigger": {
+          "type": "trigger",
+          "gamepadIndices": {
+            "button": 0
+          },
+          "rootNodeName": "xr_standard_trigger",
+          "visualResponses": {
+            "xr_standard_trigger_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "xr_standard_trigger_pressed_value",
+              "minNodeName": "xr_standard_trigger_pressed_min",
+              "maxNodeName": "xr_standard_trigger_pressed_max"
+            }
+          }
+        },
+        "xr-standard-squeeze": {
+          "type": "squeeze",
+          "gamepadIndices": {
+            "button": 1
+          },
+          "rootNodeName": "xr_standard_squeeze",
+          "visualResponses": {
+            "xr_standard_squeeze_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "xr_standard_squeeze_pressed_value",
+              "minNodeName": "xr_standard_squeeze_pressed_min",
+              "maxNodeName": "xr_standard_squeeze_pressed_max"
+            }
+          }
+        },
+        "touch-pad": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 4
+          },
+          "rootNodeName": "touch_pad",
+          "visualResponses": {
+            "touch_pad_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "touch_pad_pressed_value",
+              "minNodeName": "touch_pad_pressed_min",
+              "maxNodeName": "touch_pad_pressed_max"
+            }
+          }
+        },
+        "tip-force": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 5
+          },
+          "rootNodeName": "tip_force",
+          "visualResponses": {
+            "tip_force_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "tip_force_pressed_value",
+              "minNodeName": "tip_force_pressed_min",
+              "maxNodeName": "tip_force_pressed_max"
+            }
+          }
+        },
+        "docked": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 6
+          },
+          "rootNodeName": "docked",
+          "visualResponses": {
+            "docked_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "docked_pressed_value",
+              "minNodeName": "docked_pressed_min",
+              "maxNodeName": "docked_pressed_max"
+            }
+          }
+        }
+      },
+      "gamepadMapping": "xr-standard",
+      "rootNodeName": "logitech_mx_ink_none",
+      "assetPath": "none.glb"
+    },
+    "none": {
+      "selectComponentId": "xr-standard-trigger",
+      "components": {
+        "xr-standard-trigger": {
+          "type": "trigger",
+          "gamepadIndices": {
+            "button": 0
+          },
+          "rootNodeName": "xr_standard_trigger",
+          "visualResponses": {
+            "xr_standard_trigger_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "xr_standard_trigger_pressed_value",
+              "minNodeName": "xr_standard_trigger_pressed_min",
+              "maxNodeName": "xr_standard_trigger_pressed_max"
+            }
+          }
+        },
+        "xr-standard-squeeze": {
+          "type": "squeeze",
+          "gamepadIndices": {
+            "button": 1
+          },
+          "rootNodeName": "xr_standard_squeeze",
+          "visualResponses": {
+            "xr_standard_squeeze_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "xr_standard_squeeze_pressed_value",
+              "minNodeName": "xr_standard_squeeze_pressed_min",
+              "maxNodeName": "xr_standard_squeeze_pressed_max"
+            },
+            "xr_standard_squeeze_pressed_mirror": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "xr_standard_squeeze_pressed_mirror_value",
+              "minNodeName": "xr_standard_squeeze_pressed_mirror_min",
+              "maxNodeName": "xr_standard_squeeze_pressed_mirror_max"
+            }
+          }
+        },
+        "touch-pad": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 4
+          },
+          "rootNodeName": "touch_pad",
+          "visualResponses": {
+            "touch_pad_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "touch_pad_pressed_value",
+              "minNodeName": "touch_pad_pressed_min",
+              "maxNodeName": "touch_pad_pressed_max"
+            }
+          }
+        },
+        "tip-force": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 5
+          },
+          "rootNodeName": "tip_force",
+          "visualResponses": {
+            "tip_force_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "tip_force_pressed_value",
+              "minNodeName": "tip_force_pressed_min",
+              "maxNodeName": "tip_force_pressed_max"
+            }
+          }
+        },
+        "docked": {
+          "type": "button",
+          "gamepadIndices": {
+            "button": 6
+          },
+          "rootNodeName": "docked",
+          "visualResponses": {
+            "docked_pressed": {
+              "componentProperty": "button",
+              "states": [
+                "default",
+                "touched",
+                "pressed"
+              ],
+              "valueNodeProperty": "transform",
+              "valueNodeName": "docked_pressed_value",
+              "minNodeName": "docked_pressed_min",
+              "maxNodeName": "docked_pressed_max"
+            }
+          }
+        }
+      },
+      "gamepadMapping": "xr-standard",
+      "rootNodeName": "logitech-mx-ink-none",
+      "assetPath": "none.glb"
+    }
+  }
+}
