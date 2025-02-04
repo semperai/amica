@@ -5,8 +5,9 @@
 ## 🌸 Overview
 
 * [How Amica Works](./overview/how-amica-works.md)
-* [Core Concepts](./overview/core-concepts.md)
+* [Core Features](./overview/core-features.md)
 * [Amica Life](./overview/amica-life.md)
+* [Emotion System](./overview/emotion-system.md)
 * [Other Features](./overview/other-features.md)
 * [Use Cases](./overview/use-cases.md)
 * [Amica vs Other Tools](./overview/amica-vs-other-tools.md)
@@ -25,6 +26,7 @@
 * [Using KoboldCpp](./guides/using-koboldcpp.md)
 * [Using OpenAI](./guides/using-openai.md)
 * [Using Oobabooga](./guides/using-oobabooga.md)
+* [Using OpenRouter](./guides/using-openrouter.md)
 
 ## 🔊 Connecting Speech Options (TTS)
 
@@ -52,6 +54,7 @@
 ## 🧩 Plugin System 
 
 * [Plugins Intro](./plugin-system/plugin-intro.md)
+* [Getting Real World News on Amica](./plugin-system/news-example.md)
 
 
 ## 🌻 Tutorials

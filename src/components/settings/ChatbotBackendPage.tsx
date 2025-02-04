@@ -14,6 +14,7 @@ const chatbotBackends = [
   {key: "ollama",     label: "Ollama"},
   {key: "koboldai",   label: "KoboldAI"},
   {key: "moshi",      label: "Moshi"},
+  {key: "openrouter", label: "OpenRouter"},
 ];
 
 function idToTitle(id: string): string {

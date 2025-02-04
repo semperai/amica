@@ -3,6 +3,7 @@ import { Message, Role, Screenplay, Talk, textsToScreenplay } from "./messages";
 import { Viewer } from "@/features/vrmViewer/viewer";
 import { Alert } from "@/features/alert/alert";
 
+
 import { getEchoChatResponseStream } from "./echoChat";
 import {
   getArbiusChatResponseStream,
@@ -36,11 +37,10 @@ import { config } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
-import {
-  isCharacterIdle,
-  characterIdleTime,
-  resetIdleTimer,
-} from "@/utils/isIdle";
+
+import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
+import { getOpenRouterChatResponseStream } from './openRouterChat';
+
 
 type Speak = {
   audioBuffer: ArrayBuffer | null;
@@ -579,6 +579,8 @@ export class Chat {
         return getOllamaChatResponseStream(messages);
       case "koboldai":
         return getKoboldAiChatResponseStream(messages);
+      case 'openrouter':
+        return getOpenRouterChatResponseStream(messages);
     }
 
     return getEchoChatResponseStream(messages);
