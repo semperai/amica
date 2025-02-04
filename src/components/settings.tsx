@@ -103,7 +103,6 @@ export const Settings = ({
   const [openRouterUrl, setOpenRouterUrl] = useState(config("openrouter_url"));
   const [openRouterModel, setOpenRouterModel] = useState(config("openrouter_model"));
 
-
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
   const [elevenlabsVoiceId, setElevenlabsVoiceId] = useState(config("elevenlabs_voiceid"));
@@ -350,7 +349,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'language':
@@ -495,11 +494,12 @@ export const Settings = ({
         setSettingsUpdated={setSettingsUpdated}
         />
 
-
     case 'moshi_settings':
       return <MoshiSettingsPage
         moshiUrl={moshiUrl}
         setMoshiUrl={setMoshiUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
 
     case 'openrouter_settings':
       return <OpenRouterSettings
@@ -515,7 +515,7 @@ export const Settings = ({
     case 'tts_backend':
       return <TTSBackendPage
         ttsBackend={ttsBackend}
-        setTTSBackend={skeys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "openrouter_settings"]}etTTSBackend}
+        setTTSBackend={setTTSBackend}
         setSettingsUpdated={setSettingsUpdated}
         setPage={setPage}
         breadcrumbs={breadcrumbs}
