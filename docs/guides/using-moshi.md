@@ -4,69 +4,66 @@ order: 3
 ---
 
 
-To test Moshi, you need to set up and run **two servers** on Runpod (Or your running it on your own computer): **Amica** and **Moshi**. Follow these steps to get started:
+To test Moshi, you need to set up and run the Moshi Server on Runpod (Or your running it on your own computer/server):
 
 ---
 
-### **Step 1: Set Up Working Environment**
-1. Once you’ve logged into your Runpod instance, navigate to the working directory:
+### **Step 1: Set Up and Running Moshi Server for Amica**
+1. Login to the Terminal on your instance, whether it is your own server or a Runpod instance (If you don't have a good GPU)
+1. **Clone the Moshi Server**  
    ```bash
-   cd /home
-   ```
-2. You will see two folders: `/amica` and `/moshi`.
+   git clone https://github.com/flukexp/moshi_server.git moshi && cd moshi
+   ```  
+
+2. **Create a virtual environment**  
+   ```bash
+   python -m venv venv
+   ```  
+
+3. **Activate the virtual environment**  
+   - On macOS/Linux:  
+     ```bash
+     source venv/bin/activate
+     ```  
+   - On Windows (Command Prompt):  
+     ```bash
+     venv\Scripts\activate
+     ```  
+   - On Windows (PowerShell):  
+     ```powershell
+     .\venv\Scripts\Activate
+     ```  
 
 ---
 
-### **Step 2: Open Two Terminals**
-You will need two bash terminals to run the servers simultaneously:
-- **Terminal 1**: To run the Amica server.
-- **Terminal 2**: To run the Moshi server.
+### **Step 2: Run the Moshi Server**  
+
+Start the Moshi server (For Runpod):  
+```bash
+uvicorn moshi_service:app --host 0.0.0.0 --port 8000 
+```  
+Start the Moshi server (For your own computer):  
+```bash
+uvicorn moshi_service:app --host 127.0.0.1 --port 8000 
+```  
 
 ---
 
-### **Step 3: Run Amica Server**
-1. In **Terminal 1**, navigate to the **Amica** directory:
-   ```bash
-   cd /home/amica
-   ```
-2. Install `npm` using the following commands:
-   ```bash
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-   nvm install node
-   ```
-3. Install dependencies and start the server:
-   ```bash
-   npm install .
-   npm run dev
-   ```
-4. The Amica server will start on **port 3000**.
+### **Step 3: Change Settings on Amica to Use Moshi**  
+
+Open Settings > Chatbot Backend , and select Moshi.
+
+Then go to Settings > Chatbot Backend > Moshi, and then insert the correct URL for accessing Moshi server. (E.g. http://localhost:8000 for local server and a runpod proxy URL, which is on your runpod instance and looks like : https://rn8xojhvb-8000.proxy.runpod.net, the URL has the runpod instance identifier and the port)
+
+*There is no difference whether you are running locally or off the Amica demo.*
+
 
 ---
 
-### **Step 4: Run Moshi Server**
-1. In **Terminal 2**, navigate to the **Moshi** directory:
-   ```bash
-   cd /home/moshi
-   ```
-2. Activate the Python virtual environment:
-   ```bash
-   source env/bin/activate
-   ```
-3. Start the Moshi server:
-   ```bash
-   uvicorn moshi_service:app --host 0.0.0.0 --port 8000
-   ```
-4. Wait for the server to download and load the required model. This may take a few minutes.
-
+#### **Notes:**  
+- Ensure that **Python and pip** are installed before proceeding. **Edit the model URLs in the main python script if you want to use a different model from Kyutai.** 
 ---
 
-### **Step 5: Access the Servers**
-You can access the servers via Runpod's proxy URLs:
-- **Amica server**:  
-  `https://rnk7xoszvjhybh-3000.proxy.runpod.net/`
-- **Moshi server**:  
-  `https://rnk7xoszvjhybh-8000.proxy.runpod.net/`
-
-Replace the `{port-number}` in the URL with the actual port number (3000 for Amica and 8000 for Moshi).
+Replace the `{port-number}` in the URL with the actual port number (e.g 3000 for Amica and 8000 for Moshi).
 
 ---
