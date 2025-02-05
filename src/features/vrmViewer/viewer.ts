@@ -10,11 +10,12 @@ import {
 } from "three-mesh-bvh";
 import { GenerateMeshBVHWorker } from "@/workers/bvh/GenerateMeshBVHWorker";
 import { WorkerBase } from "@/workers/bvh/utils/WorkerBase";
-import {
-    BatchedParticleRenderer,
-    QuarksLoader,
-    QuarksUtil,
-} from 'three.quarks';
+// Temp Disable : WebXR
+// import {
+//     BatchedParticleRenderer,
+//     QuarksLoader,
+//     QuarksUtil,
+// } from 'three.quarks';
 
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
 import GUI from "lil-gui";
@@ -181,8 +182,9 @@ export class Viewer {
 
   private mouse = new THREE.Vector2();
 
-  private particleRenderer = new BatchedParticleRenderer();
-  private particleCartoonStarField: THREE.Object3D | null = null;
+  // Temp Disable : WebXR
+  // private particleRenderer = new BatchedParticleRenderer();
+  // private particleCartoonStarField: THREE.Object3D | null = null;
 
   private ammo: any;
   private collisionConfiguration: any;
@@ -569,21 +571,21 @@ export class Viewer {
     });
   }
 
+  // Temp Disable : WebXR
+  // public newParticleInstance() {
+  //   function listener(event: any) {
+  //     console.log(event.type);
+  //   }
 
-  public newParticleInstance() {
-    function listener(event: any) {
-      console.log(event.type);
-    }
-
-    const effect = this.particleCartoonStarField!.clone(true);
-    QuarksUtil.runOnAllParticleEmitters(effect, (emitter) => {
-        emitter.system.addEventListener("emitEnd", listener);
-    })
-    QuarksUtil.setAutoDestroy(effect, true);
-    QuarksUtil.addToBatchRenderer(effect, this.particleRenderer);
-    QuarksUtil.play(effect);
-    this.scene!.add(effect);
-  }
+  //   const effect = this.particleCartoonStarField!.clone(true);
+  //   QuarksUtil.runOnAllParticleEmitters(effect, (emitter) => {
+  //       emitter.system.addEventListener("emitEnd", listener);
+  //   })
+  //   QuarksUtil.setAutoDestroy(effect, true);
+  //   QuarksUtil.addToBatchRenderer(effect, this.particleRenderer);
+  //   QuarksUtil.play(effect);
+  //   this.scene!.add(effect);
+  // }
 
   public getCanvas() {
     return this.renderer?.domElement?.parentElement?.getElementsByTagName(

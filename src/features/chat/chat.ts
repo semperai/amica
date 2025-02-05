@@ -433,7 +433,6 @@ export class Chat {
           break;
         }
         const { done, value } = await reader.read();
-        console.log("monkey", value);
         if (!firstTokenEncountered) {
           console.timeEnd("performance_time_to_first_token");
           firstTokenEncountered = true;
