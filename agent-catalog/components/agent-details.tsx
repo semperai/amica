@@ -32,7 +32,10 @@ export function AgentDetails({ agent }: AgentDetailsProps) {
           </div>
           <div className="space-y-8">
             <div className="flex justify-center space-x-4 mb-8">
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white font-roboto-mono">
+              <Button
+                className="bg-blue-500 hover:bg-blue-600 text-white font-roboto-mono"
+                onClick={() => window.open(`http://localhost:3000/agent/${agent.id}`, "_blank", "noopener,noreferrer")}
+              >
                 <MessageSquare className="mr-2 h-4 w-4" /> Chat
               </Button>
               <Button className="bg-pink-500 hover:bg-pink-600 text-white font-roboto-mono">
