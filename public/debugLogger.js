@@ -18,7 +18,8 @@ if (typeof window !== "undefined") {
 
           const logsUrl = new URL(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/dataHandler`);
           logsUrl.searchParams.append("type", "logs");
-          if (window.location.hostname === "localhost") {
+          const apiEnabled = localStorage.getItem("chatvrm_external_api_enabled");
+          if (window.location.hostname === "localhost" && apiEnabled === "true") {
             fetch(logsUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },

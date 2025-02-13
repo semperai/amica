@@ -1,4 +1,4 @@
-import { subconsciousUrl, userInputUrl, logsUrl } from "@/features/externalAPI/externalAPI";
+import { subconsciousUrl, userInputUrl, logsUrl, chatLogsUrl } from "@/features/externalAPI/externalAPI";
 
 export const requestMemory = async () => {
   const response = await fetch(subconsciousUrl);
@@ -12,5 +12,10 @@ export const requestLogs = async () => {
 
 export const requestUserInputMessages = async () => {
   const response = await fetch(userInputUrl);
+  return response.json();
+};
+
+export const requestChatHistory = async () => {
+  const response = await fetch(chatLogsUrl);
   return response.json();
 };

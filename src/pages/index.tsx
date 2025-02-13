@@ -54,6 +54,7 @@ import { ChatModeText } from "@/components/chatModeText";
 
 import { VerticalSwitchBox } from "@/components/switchBox"
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
+import { handleChatLogs } from "@/features/externalAPI/externalAPI";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -185,6 +186,10 @@ export default function Home() {
       chatSpeaking,
     );
   }, [amicaLife, bot, viewer]);
+
+  useEffect(() => {
+    handleChatLogs(chatLog);
+  }, [chatLog]);
 
   // this exists to prevent build errors with ssr
   useEffect(() => setShowContent(true), []);

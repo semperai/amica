@@ -4,7 +4,7 @@ import { config } from "@/utils/config";
 import { handleConfig, handleSubconscious } from "@/features/externalAPI/externalAPI";
 
 import { generateSessionId, sendError, apiLogEntry, ApiResponse } from "@/features/externalAPI/utils/apiHelper";
-import { requestMemory, requestLogs, requestUserInputMessages } from "@/features/externalAPI/utils/requestHandler";
+import { requestMemory, requestLogs, requestUserInputMessages, requestChatHistory } from "@/features/externalAPI/utils/requestHandler";
 import { processNormalChat, triggerAmicaActions, updateSystemPrompt } from "@/features/externalAPI/processors/chatProcessor";
 
 export const apiLogs: apiLogEntry[] = [];
@@ -59,6 +59,8 @@ const processRequest = async (inputType: string, payload: any) => {
       return { response: await updateSystemPrompt(payload), outputType: "Updated system prompt" };
     case "Brain Message":
       return { response: await handleSubconscious(payload), outputType: "Added subconscious stored prompt" };
+    case "Chat History":
+      return { response: await requestChatHistory(), outputType: "Chat History" };
     case "Reasoning Server":
       return { response: await triggerAmicaActions(payload), outputType: "Actions" };
     default:

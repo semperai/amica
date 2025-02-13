@@ -1,17 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { writeFile } from '@/features/externalAPI/utils/apiHelper';
-import { handleGetConfig, handleGetLogs, handleGetSubconscious, handleGetUserInputMessages, handlePostConfig, handlePostLogs, handlePostSubconscious, handlePostUserInputMessages, logsFilePath, subconsciousFilePath, userInputMessagesFilePath } from '@/features/externalAPI/dataHelper';
+import { chatLogsFilePath, handleGetChatLogs, handleGetConfig, handleGetLogs, handleGetSubconscious, handleGetUserInputMessages, handlePostChatLogs, handlePostConfig, handlePostLogs, handlePostSubconscious, handlePostUserInputMessages, logsFilePath, subconsciousFilePath, userInputMessagesFilePath } from '@/features/externalAPI/dataHelper';
 
 // Clear data on startup
 writeFile(subconsciousFilePath, []);
 writeFile(logsFilePath, []);
 writeFile(userInputMessagesFilePath, []);
+writeFile(chatLogsFilePath, []);
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { type } = req.query;
 
-  if (!['config', 'subconscious', 'logs', 'userInputMessages'].includes(type as string)) {
-    return res.status(400).json({ error: 'Invalid type parameter. Use "config" or "subconscious."' });
+  if (!['config', 'subconscious', 'logs', 'userInputMessages', 'chatLogs'].includes(type as string)) {
+    return res.status(400).json({ error: 'Invalid type parameter' });
   }
 
   try {
@@ -44,6 +45,9 @@ const handleGetRequest = (type: string, res: NextApiResponse) => {
       case 'userInputMessages':
         data = handleGetUserInputMessages();
         break;
+      case 'chatLogs':
+        data = handleGetChatLogs();
+        break;
       default:
         return res.status(400).json({ error: 'Invalid type' });
     }
@@ -66,6 +70,9 @@ const handleGetRequest = (type: string, res: NextApiResponse) => {
         break;
       case 'logs':
         response = handlePostLogs(body);
+        break;
+      case 'chatLogs':
+        response = handlePostChatLogs(body);
         break;
       default:
         return res.status(400).json({ error: 'Invalid type' });

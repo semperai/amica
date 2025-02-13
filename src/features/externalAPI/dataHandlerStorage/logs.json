@@ -1,1 +1,161 @@
-[]
+[
+  {
+    "type": "log",
+    "ts": 1739472642107,
+    "arguments": {
+      "0": "[Fast Refresh] rebuilding"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1739472642107,
+    "arguments": {
+      "0": "[Fast Refresh] rebuilding"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1739472642161,
+    "arguments": {
+      "0": "vrm loaded"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1739472642342,
+    "arguments": {
+      "0": "[Fast Refresh] rebuilding"
+    }
+  },
+  {
+    "type": "debug",
+    "ts": 1739472642733,
+    "arguments": {
+      "0": "[VAD]",
+      "1": "initializing vad"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1739472642934,
+    "arguments": {
+      "0": "[Fast Refresh] rebuilding"
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643801,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.800500 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '131'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643802,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.801000 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '136'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643801,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.800800 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '139'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643802,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.801400 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '134'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643800,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.799300 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '140'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643802,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.801900 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '628'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643803,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.802100 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '625'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643804,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.803300 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '629'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643804,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.803500 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '620'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "warn",
+    "ts": 1739472643803,
+    "arguments": {
+      "0": "2025-02-14 01:50:43.802600 [W:onnxruntime:, graph.cc:3490 CleanUnusedInitializersAndNodeArgs] Removing initializer '623'. It is not used by any node and should be removed from the model."
+    }
+  },
+  {
+    "type": "debug",
+    "ts": 1739472643870,
+    "arguments": {
+      "0": "[VAD]",
+      "1": "vad is initialized"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1739472644053,
+    "arguments": {
+      "0": "[Fast Refresh] rebuilding"
+    }
+  },
+  {
+    "type": "error",
+    "ts": 1739472943592,
+    "arguments": {
+      "0": "Error in SSE connection:",
+      "1": {
+        "isTrusted": true
+      }
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1739472943700,
+    "arguments": {
+      "0": "[Fast Refresh] rebuilding"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1739472944257,
+    "arguments": {
+      "0": "[Fast Refresh] done in 557ms"
+    }
+  },
+  {
+    "type": "log",
+    "ts": 1739472944283,
+    "arguments": {
+      "0": "[Fast Refresh] rebuilding"
+    }
+  }
+]

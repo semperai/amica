@@ -1,6 +1,10 @@
 import { config, defaults, prefixed } from "@/utils/config";
 import isDev from "@/utils/isDev";
-import { MAX_STORAGE_TOKENS, TimestampedPrompt } from "../amicaLife/eventHandler";
+import {
+  MAX_STORAGE_TOKENS,
+  TimestampedPrompt,
+} from "../amicaLife/eventHandler";
+import { Message } from "../chat/messages";
 
 export const configUrl = new URL(
   `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
@@ -17,8 +21,15 @@ export const subconsciousUrl = new URL(
 );
 subconsciousUrl.searchParams.append("type", "subconscious");
 
-export const logsUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
+export const logsUrl = new URL(
+  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
+);
 logsUrl.searchParams.append("type", "logs");
+
+export const chatLogsUrl = new URL(
+  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
+);
+chatLogsUrl.searchParams.append("type", "chatLogs");
 
 // Cached server config
 export let serverConfig: Record<string, string> = {};
@@ -100,7 +111,7 @@ export async function handleConfig(
 }
 
 export async function handleUserInput(message: string) {
-  if (!isDev) {
+  if (!isDev || config("external_api_enabled") !== "true") {
     return;
   }
 
@@ -114,37 +125,53 @@ export async function handleUserInput(message: string) {
   });
 }
 
-export async function handleSubconscious(
-    timestampedPrompt: TimestampedPrompt,
-  ): Promise<TimestampedPrompt[]> {
-    const data = await fetch(subconsciousUrl);
-    if (!data.ok) {
-      throw new Error("Failed to get subconscious data");
-    }
-  
-    const currentStoredSubconscious: TimestampedPrompt[] = await data.json();
-    currentStoredSubconscious.push(timestampedPrompt);
-  
-    let totalStorageTokens = currentStoredSubconscious.reduce(
-      (totalTokens, prompt) => totalTokens + prompt.prompt.length,
-      0
-    );
-    while (totalStorageTokens > MAX_STORAGE_TOKENS) {
-      const removed = currentStoredSubconscious.shift();
-      totalStorageTokens -= removed!.prompt.length;
-    }
-  
-    const response = await fetch(subconsciousUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ subconscious: currentStoredSubconscious }),
-    });
-  
-    if (!response.ok) {
-      throw new Error("Failed to update subconscious data");
-    }
-  
-    return currentStoredSubconscious;
+export async function handleChatLogs(messages: Message[]) {
+  if (!isDev || config("external_api_enabled") !== "true") {
+    return;
   }
+
+  fetch(chatLogsUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(messages),
+  });
+}
+
+export async function handleSubconscious(
+  timestampedPrompt: TimestampedPrompt,
+): Promise<any> {
+  if (!isDev || config("external_api_enabled") !== "true") {
+    return;
+  }
+
+  const data = await fetch(subconsciousUrl);
+  if (!data.ok) {
+    throw new Error("Failed to get subconscious data");
+  }
+
+  const currentStoredSubconscious: TimestampedPrompt[] = await data.json();
+  currentStoredSubconscious.push(timestampedPrompt);
+
+  let totalStorageTokens = currentStoredSubconscious.reduce(
+    (totalTokens, prompt) => totalTokens + prompt.prompt.length,
+    0,
+  );
+  while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+    const removed = currentStoredSubconscious.shift();
+    totalStorageTokens -= removed!.prompt.length;
+  }
+
+  const response = await fetch(subconsciousUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ subconscious: currentStoredSubconscious }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update subconscious data");
+  }
+
+  return currentStoredSubconscious;
+}
