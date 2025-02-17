@@ -111,7 +111,7 @@ import {
         async function getCharacter() {
           const { data, error } = await supabase
             .from('agent-storage')
-            .select(`name, system_prompt, vision_system_prompt, bg_url, youtube_videoid, vrm_url, animation_url, voice_url`)
+            .select(`name, config`)
             .eq('agentid', router.query.id)
             .single();
     
@@ -123,24 +123,16 @@ import {
           // If any value in data is null or undefined, it will automatically be set to an empty string.
           const {
             name,
-            system_prompt,
-            vision_system_prompt,
-            bg_url,
-            youtube_videoid,
-            vrm_url,
-            animation_url,
-            voice_url
+            config
           } = data;
 
-          // if (config("bg_color") !== '') {
-          //   document.body.style.backgroundColor = config("bg_color");
-          // } else {
-          //   document.body.style.backgroundImage = `url(${bg_url})`;
-          // }
-          
-          document.body.style.backgroundImage = `url(${bg_url})`;
+          if (config.bg_color !== '') {
+            document.body.style.backgroundColor = config.bg_color;
+          } else {
+            document.body.style.backgroundImage = `url(${config.bg_url})`;
+          }
     
-          syncAgentConfig(data);
+          syncAgentConfig(config);
     
           setLoaded(true);
         }
