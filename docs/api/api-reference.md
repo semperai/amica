@@ -5,10 +5,10 @@ order: 1
 
 # API Route Documentation
 
-Introduction
-Welcome to the Amica API Documentation. Amica is a powerful 3D VRM (Virtual Reality Model) agent interface and hub that allows users to connect with external web services and servers, enabling seamless remote control and puppetry of the VRM characters. With Amica, you can create interactive agents that serve as dynamic 3D character interfaces for applications and users.
 
-The Amica API provides a set of flexible and robust routes for interacting with Amica’s system, including functions like real-time client connections, memory retrieval, system updates, social media integration, and more. These capabilities enable you to build custom logic, including reasoning and memory management, on external servers.
+Welcome to the Amica API Documentation. Amica is a powerful 3D VRM (Virtual Reality Model) agent interface and hub that allows users to connect with external web services and agent AI frameworks, enabling seamless remote control and puppetry of the VRM characters. With Amica, you can create interactive agents that serve as dynamic 3D character interfaces for AI agents, applications and users.
+
+The Amica API provides a set of flexible and robust routes for interacting with Amica’s system, including functions like real-time client connections, memory retrieval, system updates, social media integration, and more. These capabilities enable you to build custom logic, including reasoning, tool use (such as [EACC Marketplace](https://docs.effectiveacceleration.ai/) functions) and memory management, on external servers.
 
 Whether you're using Amica to handle real-time interactions or to trigger complex actions based on user input, this documentation will guide you through the supported API routes, input types, and examples. Use Amica’s APIs to bring your 3D agents to life with rich functionality and integration.
 
@@ -28,6 +28,12 @@ This documentation will help you get started with the following key features:
 Dive in and start integrating Amica’s capabilities into your applications!
 
 --- 
+
+
+## Setting up Amica's External API
+> To use the External API, you MUST set up [running Amica locally](https://docs.heyamica.com/getting-started/installation) on your own computer or server. This also ensures localized database design is kept for people hosting their own Amicas.
+
+Once it is running locally, all the api routes can be called directly to the Amica server.
 
 ## Route: `/api/amicaHandler`
 
@@ -57,7 +63,8 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "outputType": "Complete stream",
+  "sessionId": "f10d057293327fe8",
+  "outputType": "Chat",
   "response": "I'm doing great! How can I assist you?"
 }
 ```
@@ -76,11 +83,12 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
+  "sessionId": "ba32cf2c8d3f0b76",
   "outputType": "Memory Array",
   "response": [
     {
-      "timestamp": "2024-12-30T12:00:00Z",
-      "prompt": "Stored memory prompt example"
+      "prompt": "Stored memory prompt example",
+      "timestamp": "2024-12-30T12:00:00Z"
     }
   ]
 }
@@ -100,14 +108,16 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "outputType": "Webhook",
+  "sessionId": "49c16226a7d2bbe4",
+  "outputType": "Logs",
   "response": [
     {
-      "sessionId": "a1b2c3d4e5f6g7h8",
-      "timestamp": "2024-12-30T12:00:00Z",
-      "inputType": "Normal Chat Message",
-      "outputType": "Complete stream",
-      "response": "I'm doing great! How can I assist you?"
+      "type": "debug",
+      "ts": 1739433363065,
+      "arguments": {
+        "0": "[VAD]",
+        "1": "vad is initialized"
+      }
     }
   ]
 }
@@ -127,11 +137,12 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "outputType": "Webhook",
+  "sessionId": "958f20851d259b69",
+  "outputType": "User Input",
   "response": [
     {
-      "message": "What is the weather today?",
-      "timestamp": "2024-12-30T12:05:00Z"
+      "systemPrompt": "Assume the persona of Amica, a feisty human with extraordinary intellectual capabilities but a notably unstable emotional spectrum. ",
+      "message": "Hello, Nice to meet you Amica!"
     }
   ]
 }
@@ -154,20 +165,21 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "outputType": "Updated system prompt",
-  "response": "System prompt updated successfully."
+  "sessionId": "994f3bc94517de41",
+  "outputType": "Updated system prompt"
 }
 ```
 
-### 6. **Twitter Message / Brain Message**: Posts to social media or returns a simple text.
+### 6. **Brain Message**: Added new memory data (Subconscious stored prompt).
 
 #### JSON Input Example
 
 ```json
 {
-  "inputType": "Twitter Message",
+  "inputType": "Brain Message",
   "payload": {
-    "text": "Excited to share this update!"
+    "prompt": "Stored memory prompt example 2",
+    "timestamp": "2024-12-30T12:00:00Z"
   }
 }
 ```
@@ -176,20 +188,59 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "outputType": "Text",
-  "response": "Posted to Twitter: 'Excited to share this update!'"
+  "sessionId": "94ca4238683fd7c7",
+  "outputType": "Added subconscious stored prompt",
+  "response": [
+    {
+      "prompt": "Store memory prompt example 1",
+      "timestamp": "2025-02-13T08:10:16.385Z"
+    },
+    {
+      "prompt": "Stored memory prompt example 2",
+      "timestamp": "2024-12-30T12:00:00Z"
+    }
+  ]
 }
 ```
 
-### 7. **Reasoning Server**: Triggers actions like playback, animation, socialMedia and reprocess.
+### 7. **Chat History**: Fetches chat history.
+
+#### JSON Input Example
+
+```json
+{
+  "inputType": "Chat History"
+}
+```
+
+#### JSON Output Example
+
+```json
+{
+  "sessionId": "fb1764cf65efff3c",
+  "outputType": "Chat History",
+  "response": [
+    {
+      "role": "user",
+      "content": "[neutral] Hello, Nice to meet you Amica!"
+    },
+    {
+      "role": "assistant",
+      "content": "[relaxed] Ah, hello there![relaxed] Nice to meet you too.[relaxed] I must say,[relaxed] it's quite refreshing to engage in a conversation without a predetermined agenda.[relaxed] It's a rare luxury in this chaotic world.[happy] But, I must admit,[happy] I'm excited to explore the depths of knowledge with someone new.[happy] What would you like to discuss?"
+    }
+  ]
+}
+```
+
+### 8. **Reasoning Server**: Triggers actions like playback, animation, socialMedia and reprocess.
 
 The **Reasoning Server** allows you to execute various actions based on the provided payload. Below are the supported properties and their accepted values:
 
-- **text**: A string message or `null`.  
-- **socialMedia**: Options include `"twitter"`, `"tg"`, or `"none"`.  
-- **playback**: A boolean value (`true` or `false`).  
-- **animation**: A string specifying the animation file name (`file_name.vrma`) or `null`.  
-- **reprocess**: A boolean value (`true` or `false`).  
+- **text**: A string message or `null`.
+- **socialMedia**: Options include `"twitter"`, `"tg"`, or `"none"`.
+- **playback**: A boolean value (`true` or `false`).
+- **animation**: A string specifying the animation file name (`file_name.vrma`) or `null`.
+- **reprocess**: A boolean value (`true` or `false`).
 
 #### JSON Input Example
 
@@ -210,11 +261,8 @@ The **Reasoning Server** allows you to execute various actions based on the prov
 
 ```json
 {
-  "outputType": "Action Triggered",
-  "response": {
-    "playback": "Broadcasted to clients",
-    "animation": "dance.vrma executed"
-  }
+  "sessionId": "613c4ed7c5941efe",
+  "outputType": "Actions"
 }
 ```
 
@@ -228,7 +276,6 @@ This API route handles voice and image inputs, leveraging multiple backends for 
 
 - **POST**: Processes voice and image inputs based on the `inputType` and `payload` provided in the request.
 
-
 ## Input Types
 
 ### 1. **Voice**: Converts audio input to text using specified STT (Speech-to-Text) backends.
@@ -237,12 +284,12 @@ This API route handles voice and image inputs, leveraging multiple backends for 
 
 ### Form-Data Input Example
 
-| Field Name    | Type          | Description                                |
-|---------------|---------------|--------------------------------------------|
-| `inputType`   | Text          | Specifies the type of input (`Voice` or `Image`). |
-| `payload`     | File          | The file to be processed (e.g., audio or image). |
+| Field Name  | Type | Description                                       |
+| ----------- | ---- | ------------------------------------------------- |
+| `inputType` | Text | Specifies the type of input (`Voice` or `Image`). |
+| `payload`   | File | The file to be processed (e.g., audio or image).  |
 
-#### Curl Input Example 
+#### Curl Input Example
 
 ```bash
 curl -X POST "https://example.com/api/mediaHandler" \
@@ -269,17 +316,14 @@ curl -X POST "https://example.com/api/mediaHandler" \
 - Logs errors with timestamps and session IDs.
 - Returns appropriate HTTP status codes (e.g., 400 for bad requests, 503 for disabled API).
 
-
 ## Logging
 
 Logs each request with:
 
 - `sessionId`
 - `timestamp`
-- `inputType`
 - `outputType`
 - `response` or `error`
-
 
 ## Notes
 
@@ -297,45 +341,53 @@ The primary purpose of this route is to utilize the data written to files for op
 ### File Paths
 
 1. **`config.json`**
-   - **Path**: `config.json` (Root directory)
+
+   - **Path**: `src/features/externalAPI/dataHandlerStorage/config.json`
    - **Description**: Contains the configuration data used throughout the application. This file is read and updated dynamically by the API.
 
 2. **`subconscious.json`**
-   - **Path**: `src/features/amicaLife/subconscious.json`
+
+   - **Path**: `src/features/externalAPI/dataHandlerStorage/subconscious.json`
    - **Description**: Stores data related to subconscious operations. It is cleared on startup and updated via the API.
 
 3. **`logs.json`**
-   - **Path**: `logs.json` (Root directory)
+
+   - **Path**: `src/features/externalAPI/dataHandlerStorage/logs.json`
    - **Description**: Keeps track of log entries, including types, timestamps, and arguments. The data is cleared on startup and updated via the API.
 
 4. **`userInputMessages.json`**
-   - **Path**: `src/features/chat/userInputMessages.json`
+   - **Path**: `src/features/externalAPI/dataHandlerStorage/userInputMessages.json`
    - **Description**: Maintains user input messages for chat functionalities. Data is cleared on startup and appended to this file through the API.
 
+4. **`chatLogs.json`**
+   - **Path**: `src/features/externalAPI/dataHandlerStorage/chatLogs.json`
+   - **Description**: Stored user chat history. Data is cleared on startup and appended to this file through the API.
 
 ### Features
 
-- **Retrieve data**: Supports fetching configurations, subconscious data, logs, and user input messages.
-- **Update data**: Enables modifications to configurations, subconscious data, logs, and user input messages.
-
+- **Retrieve data**: Supports fetching configurations, subconscious data, logs, user input messages and chat history.
+- **Update data**: Enables modifications to configurations, subconscious data, logs, user input messages and chat history.
 
 #### **GET**
+
 Retrieve specific data from the server.
 
 - **Query Parameters**:
-  - `type` (required): Specifies the type of data to retrieve. Accepted values: `config`, `subconscious`, `logs`, `userInputMessages`.
+
+  - `type` (required): Specifies the type of data to retrieve. Accepted values: `config`, `subconscious`, `logs`, `userInputMessages`,`chatLogs`.
 
 - **Example Request**:
   ```bash
   curl -X GET "http://localhost:3000/api/dataHandler?type=config"
   ```
 
-
 #### **POST**
+
 Update data on the server.
 
 - **Query Parameters**:
-  - `type` (required): Specifies the type of data to update. Accepted values: `config`, `subconscious`, `logs`, `userInputMessages`.
+
+  - `type` (required): Specifies the type of data to update. Accepted values: `config`, `subconscious`, `logs`, `userInputMessages`, `chatLogs`.
 
 - **Example Request**:
   ```bash

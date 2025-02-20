@@ -56,7 +56,7 @@
 
 ## 🔌 API System
 
-* [API Documentation](./api/api-reference.md)
+* [External API for Agents](./api/api-reference.md)
 
 
 ## 🌻 Tutorials
