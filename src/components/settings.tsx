@@ -252,7 +252,7 @@ export const Settings = ({
 
   useEffect(() => {
     // Change the chatbot to 'llamacpp' if Amica Life is enabled and previous chatbot was 'echo'
-    if (amicaLifeEnabled && chatbotBackend === "echo") {
+    if (amicaLifeEnabled && ["echo", "moshi"].includes(config("chatbot_backend"))) {
       setAmicaLifeEnabled(false);
     }
   }, [chatbotBackend, amicaLifeEnabled]);

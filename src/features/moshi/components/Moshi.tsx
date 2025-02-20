@@ -5,23 +5,16 @@ import { useWebSocket } from "@/features/moshi/hooks/useWebsocket";
 import { useAudioDecoder } from "@/features/moshi/hooks/useAudioDecoder";
 import { useAudioPlayback } from "@/features/moshi/hooks/useAudioPlayback";
 import { getBaseURL } from "@/features/moshi/utils/socketUtils";
-import AudioControl from "@/features/moshi/components/AudioControls";
+import { AudioControlsContext } from "./audioControlsContext";
 import Recorder from 'opus-recorder'
 
-export interface Recorder {
-    start: () => Promise<void>;
-    stop: () => void;
-    ondataavailable: (arrayBuffer: ArrayBuffer) => void;
-    setRecordingGain: (gain: number) => void;
-}
-
 export function Moshi({ setAssistantText }: {setAssistantText: (message: string) => void }) {
-    const [recorder, setRecorder] = useState<Recorder | null>(null);
     const [pendingSentence, setPendingSentence] = useState<string>("");
     const [completedSentences, setCompletedSentences] = useState<string[]>([]);
 
     const { chat: bot } = useContext(ChatContext);
     const { viewer } = useContext(ViewerContext);
+    const { audioControls } = useContext(AudioControlsContext);
 
     const [audioContext] = useState<AudioContext>(() => new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 48000 }));
     const decoderRef = useAudioDecoder();
@@ -95,15 +88,15 @@ export function Moshi({ setAssistantText }: {setAssistantText: (message: string)
 
         recorder.start().then(() => {
             console.log("Recording started");
-            setRecorder(recorder);
+            audioControls.setRecorder(recorder);
         });
 
     }
 
     const stopAllAction = async () => {
         // Stop recorder
-        recorder?.stop();
-        setRecorder(null);
+        audioControls.getRecorder()?.stop();
+        audioControls.setRecorder(null);
 
         // Disconnect audio source
         if (sourceNodeRef.current) {
@@ -133,5 +126,5 @@ export function Moshi({ setAssistantText }: {setAssistantText: (message: string)
         }
     }, [pendingSentence]);
 
-    return <AudioControl recorder={recorder} />;
+    return <></>;
 };
