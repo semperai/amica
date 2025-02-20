@@ -28,14 +28,16 @@ registerPlugin(
 async function hashFile(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
   const hashValue = createHash('sha256')
-    .update(Buffer.from(buffer))
+    .update(new Uint8Array(buffer))
     .digest('hex');
   return hashValue;
 }
 
 async function updateVrmAvatar(viewer: any, url: string) {
   try {
-    await viewer.loadVrm(url);
+    await viewer.loadVrm(url, (progress: string) => {
+      // TODO handle loading progress
+    });
   } catch (e) {
     console.error(e);
   }

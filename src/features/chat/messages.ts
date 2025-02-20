@@ -3,7 +3,7 @@ export type Role = "assistant" | "system" | "user";
 // ChatGPT API
 export type Message = {
   role: Role;
-  content: string;
+  content: string; // this can be a string or like {type: "image", image_url: {url: "https://example.com/image.jpg"} } but the typing for it sucks
 };
 
 const talkStyles = [
@@ -23,7 +23,6 @@ export type Talk = {
 
 //Name of all the expression in the vrm 
 export const emotionNames: string[] = [];
-console.log("All emotion names, ",emotionNames);
 
 export const emotions = 
 ["neutral", "happy", "angry", "sad", "relaxed", "Surprised", 

@@ -25,7 +25,9 @@ import { config, updateConfig } from "@/utils/config";
 import { Link } from "./settings/common";
 
 import { MenuPage } from './settings/MenuPage';
+import { LanguagePage } from './settings/LanguagePage';
 import { ResetSettingsPage } from './settings/ResetSettingsPage';
+import { DeveloperPage } from './settings/DeveloperPage';
 import { CommunityPage } from './settings/CommunityPage';
 
 import { BackgroundImgPage } from './settings/BackgroundImgPage';
@@ -35,10 +37,12 @@ import { CharacterModelPage } from './settings/CharacterModelPage';
 import { CharacterAnimationPage } from './settings/CharacterAnimationPage';
 
 import { ChatbotBackendPage } from './settings/ChatbotBackendPage';
+import { ArbiusLLMSettingsPage } from './settings/ArbiusLLMSettingsPage';
 import { ChatGPTSettingsPage } from './settings/ChatGPTSettingsPage';
 import { LlamaCppSettingsPage } from './settings/LlamaCppSettingsPage';
 import { OllamaSettingsPage } from './settings/OllamaSettingsPage';
 import { KoboldAiSettingsPage } from './settings/KoboldAiSettingsPage';
+import { MoshiSettingsPage } from './settings/MoshiSettingsPage';
 
 import { TTSBackendPage } from './settings/TTSBackendPage';
 import { ElevenLabsSettingsPage } from './settings/ElevenLabsSettingsPage';
@@ -59,6 +63,7 @@ import { WhisperCppSettingsPage } from './settings/WhisperCppSettingsPage';
 import { VisionBackendPage } from './settings/VisionBackendPage';
 import { VisionLlamaCppSettingsPage } from './settings/VisionLlamaCppSettingsPage';
 import { VisionOllamaSettingsPage } from './settings/VisionOllamaSettingsPage';
+import { VisionOpenAISettingsPage } from './settings/VisionOpenAISettingsPage';
 import { VisionSystemPromptPage } from './settings/VisionSystemPromptPage';
 
 import { NamePage } from './settings/NamePage';
@@ -84,6 +89,7 @@ export const Settings = ({
   const [settingsUpdated, setSettingsUpdated] = useState(false);
 
   const [chatbotBackend, setChatbotBackend] = useState(config("chatbot_backend"));
+  const [arbiusLLMModelId, setArbiusLLMModelId] = useState(config("arbius_llm_model_id"));
   const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
   const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
@@ -94,6 +100,7 @@ export const Settings = ({
   const [koboldAiUrl, setKoboldAiUrl] = useState(config("koboldai_url"));
   const [koboldAiUseExtra, setKoboldAiUseExtra] = useState<boolean>(config("koboldai_use_extra") === 'true' ? true : false);
   const [koboldAiStopSequence, setKoboldAiStopSequence] = useState(config("koboldai_stop_sequence"));
+  const [moshiUrl, setMoshiUrl] = useState(config("moshi_url"));
   const [openRouterApiKey, setOpenRouterApiKey] = useState(config("openrouter_apikey"));
   const [openRouterUrl, setOpenRouterUrl] = useState(config("openrouter_url"));
   const [openRouterModel, setOpenRouterModel] = useState(config("openrouter_model"));
@@ -132,6 +139,9 @@ export const Settings = ({
   const [visionLlamaCppUrl, setVisionLlamaCppUrl] = useState(config("vision_llamacpp_url"));
   const [visionOllamaUrl, setVisionOllamaUrl] = useState(config("vision_ollama_url"));
   const [visionOllamaModel, setVisionOllamaModel] = useState(config("vision_ollama_model"));
+  const [visionOpenAIApiKey, setVisionOpenAIApiKey] = useState(config("vision_openai_apikey"));
+  const [visionOpenAIUrl, setVisionOpenAIUrl] = useState(config("vision_openai_url"));
+  const [visionOpenAIModel, setVisionOpenAIModel] = useState(config("vision_openai_model"));
   const [visionSystemPrompt, setVisionSystemPrompt] = useState(config("vision_system_prompt"));
 
   const [bgUrl, setBgUrl] = useState(config("bg_url"));
@@ -141,6 +151,7 @@ export const Settings = ({
   const [vrmSaveType, setVrmSaveType] = useState(config('vrm_save_type'));
   const [youtubeVideoID, setYoutubeVideoID] = useState(config("youtube_videoid"));
   const [animationUrl, setAnimationUrl] = useState(config("animation_url"));
+  const [animationProcedural, setAnimationProcedural] = useState<boolean>(config("animation_procedural") === 'true' ? true : false);
 
   const [sttBackend, setSTTBackend] = useState(config("stt_backend"));
   const [sttWakeWordEnabled, setSTTWakeWordEnabled] = useState<boolean>(config("wake_word_enabled") === 'true' ? true : false);
@@ -163,6 +174,11 @@ export const Settings = ({
   const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
 
+  const [debugGfx, setDebugGfx] = useState<boolean>(config("debug_gfx") === 'true' ? true : false);
+  const [mtoonDebugMode, setMtoonDebugMode] = useState(config("mtoon_debug_mode"));
+  const [mtoonMaterialType, setMtoonMaterialType] = useState(config('mtoon_material_type'));
+  const [useWebGPU, setUseWebGPU] = useState<boolean>(config("use_webgpu") === 'true' ? true : false);
+
   const vrmFileInputRef = useRef<HTMLInputElement>(null);
   const handleClickOpenVrmFile = useCallback(() => {
     vrmFileInputRef.current?.click();
@@ -172,6 +188,11 @@ export const Settings = ({
   const handleClickOpenBgImgFile = useCallback(() => {
     bgImgFileInputRef.current?.click();
   }, []);
+
+  const topMenuRef = useRef<HTMLDivElement>(null);
+  const backButtonRef = useRef<HTMLDivElement>(null);
+  const mainMenuRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
   const handleChangeVrmFile = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -245,10 +266,12 @@ export const Settings = ({
     return () => clearTimeout(timeOutId);
   }, [
     chatbotBackend,
+    arbiusLLMModelId,
     openAIApiKey, openAIUrl, openAIModel,
     llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
+    moshiUrl,
     openRouterApiKey, openRouterUrl, openRouterModel,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
@@ -261,9 +284,10 @@ export const Settings = ({
     visionBackend,
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
+    visionOpenAIApiKey, visionOpenAIUrl, visionOpenAIModel,
     visionSystemPrompt,
     bgColor,
-    bgUrl, vrmHash, vrmUrl, youtubeVideoID, animationUrl,
+    bgUrl, vrmHash, vrmUrl, youtubeVideoID, animationUrl, animationProcedural,
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
@@ -271,9 +295,45 @@ export const Settings = ({
     externalApiEnabled,
     name,
     systemPrompt,
+    debugGfx, mtoonDebugMode, mtoonMaterialType, useWebGPU,
     sttWakeWordEnabled, sttWakeWord,
   ]);
 
+  useEffect(() => {
+    function click(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      // console.log('click', target);
+      if (mainMenuRef.current?.contains(target)) {
+        // console.log('mainMenuRef click');
+        return;
+      }
+      if (backButtonRef.current?.contains(target)) {
+        // console.log('backButtonRef click');
+        return;
+      }
+      if (topMenuRef.current?.contains(target)) {
+        // console.log('topMenuRef click');
+        return;
+      }
+      if (notificationsRef.current?.contains(target)) {
+        // console.log('notificationsRef click');
+        return;
+      }
+
+      // console.log('click outside to close');
+      onClickClose();
+    }
+    document.addEventListener('click', click, { capture: true });
+
+    return () => {
+      document.removeEventListener('click', click, { capture: true });
+    };
+  }, [
+    topMenuRef,
+    backButtonRef,
+    mainMenuRef,
+    notificationsRef
+  ]);
 
   function handleMenuClick(link: Link) {
     setPage(link.key)
@@ -284,7 +344,7 @@ export const Settings = ({
     switch(page) {
     case 'main_menu':
       return <MenuPage
-        keys={["appearance",  "amica_life", "chatbot", "tts", "stt", "vision", "external_api", "reset_settings", "community"]}
+        keys={["appearance", "amica_life", "chatbot", "language", "tts", "stt", "vision", "developer", "external_api", "reset_settings", "community"]}
         menuClick={handleMenuClick} />;
 
     case 'appearance':
@@ -294,8 +354,13 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "openrouter_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings"]}
         menuClick={handleMenuClick} />;
+
+    case 'language':
+      return <LanguagePage
+        setSettingsUpdated={setSettingsUpdated}
+      />;
 
     case 'tts':
       return <MenuPage
@@ -309,11 +374,24 @@ export const Settings = ({
 
     case 'vision':
       return <MenuPage
-        keys={["vision_backend", "vision_llamacpp_settings", "vision_ollama_settings", "vision_system_prompt"]}
+        keys={["vision_backend", "vision_llamacpp_settings", "vision_ollama_settings", "vision_openai_settings", "vision_system_prompt"]}
         menuClick={handleMenuClick} />;
 
     case 'reset_settings':
       return <ResetSettingsPage />;
+
+    case 'developer':
+      return <DeveloperPage
+        debugGfx={debugGfx}
+        setDebugGfx={setDebugGfx}
+        mtoonDebugMode={mtoonDebugMode}
+        setMtoonDebugMode={setMtoonDebugMode}
+        mtoonMaterialType={mtoonMaterialType}
+        setMtoonMaterialType={setMtoonMaterialType}
+        useWebGPU={useWebGPU}
+        setUseWebGPU={setUseWebGPU}
+        setSettingsUpdated={setSettingsUpdated}
+      />;
 
     case 'community':
       return <CommunityPage />
@@ -359,6 +437,8 @@ export const Settings = ({
         viewer={viewer}
         animationUrl={animationUrl}
         setAnimationUrl={setAnimationUrl}
+        animationProcedural={animationProcedural}
+        setAnimationProcedural={setAnimationProcedural}
         setSettingsUpdated={setSettingsUpdated}
         />
 
@@ -370,6 +450,13 @@ export const Settings = ({
         setPage={setPage}
         breadcrumbs={breadcrumbs}
         setBreadcrumbs={setBreadcrumbs}
+        />
+
+    case 'arbius_llm_settings':
+      return <ArbiusLLMSettingsPage
+        arbiusLLMModelId={arbiusLLMModelId}
+        setArbiusLLMModelId={setArbiusLLMModelId}
+        setSettingsUpdated={setSettingsUpdated}
         />
 
     case 'chatgpt_settings':
@@ -409,6 +496,13 @@ export const Settings = ({
         setKoboldAiUseExtra={setKoboldAiUseExtra}
         koboldAiStopSequence={koboldAiStopSequence}
         setKoboldAiStopSequence={setKoboldAiStopSequence}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'moshi_settings':
+      return <MoshiSettingsPage
+        moshiUrl={moshiUrl}
+        setMoshiUrl={setMoshiUrl}
         setSettingsUpdated={setSettingsUpdated}
         />
 
@@ -577,6 +671,17 @@ export const Settings = ({
         setSettingsUpdated={setSettingsUpdated}
         />
 
+    case 'vision_openai_settings':
+      return <VisionOpenAISettingsPage
+        visionOpenAIApiKey={visionOpenAIApiKey}
+        setVisionOpenAIApiKey={setVisionOpenAIApiKey}
+        visionOpenAIUrl={visionOpenAIUrl}
+        setVisionOpenAIUrl={setVisionOpenAIUrl}
+        visionOpenAIModel={visionOpenAIModel}
+        setVisionOpenAIModel={setVisionOpenAIModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
     case 'vision_system_prompt':
       return <VisionSystemPromptPage
         visionSystemPrompt={visionSystemPrompt}
@@ -628,11 +733,16 @@ export const Settings = ({
   }
 
   return (
-    <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20 overflow-y-auto backdrop-blur">
+    <div
+      className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20 overflow-y-auto backdrop-blur"
+    >
       <div
-        className="absolute top-0 left-0 w-full h-full bg-violet-700 opacity-10 z-index-50"
+        className="absolute top-0 left-0 w-full h-full bg-gray-700 opacity-10 z-index-50"
       ></div>
-      <div className="fixed w-full top-0 left-0 z-50 p-2 bg-white">
+      <div
+        className="fixed w-full top-0 left-0 z-50 p-2 bg-white"
+        ref={topMenuRef}
+      >
 
         <nav aria-label="Breadcrumb" className="inline-block ml-4">
           <ol role="list" className="flex items-center space-x-4">
@@ -684,29 +794,36 @@ export const Settings = ({
 
       <div className="h-screen overflow-auto opacity-95 backdrop-blur">
         <div className="mx-auto max-w-2xl py-16 text-text1">
-          <div className="mt-16">
-            <TextButton
-              className="rounded-b-none text-lg ml-4 px-8 shadow-sm"
-              onClick={() => {
-                if (breadcrumbs.length === 0) {
-                  onClickClose();
-                  return;
-                }
-                if (breadcrumbs.length === 1) {
-                  setPage('main_menu');
-                  setBreadcrumbs([]);
-                  return;
-                }
-
-                const prevPage = breadcrumbs[breadcrumbs.length - 2];
-                setPage(prevPage.key);
-                setBreadcrumbs(breadcrumbs.slice(0, -1));
-              }}
+          <div className="mt-12">
+            <div
+              className="inline-block pt-4 pr-4"
+              ref={backButtonRef}
             >
-              <ArrowUturnLeftIcon className="h-5 w-5 flex-none text-white" aria-hidden="true" />
-            </TextButton>
+              <TextButton
+                className="rounded-b-none text-lg ml-4 px-8 shadow-sm"
+                onClick={() => {
+                  if (breadcrumbs.length === 0) {
+                    onClickClose();
+                    return;
+                  }
+                  if (breadcrumbs.length === 1) {
+                    setPage('main_menu');
+                    setBreadcrumbs([]);
+                    return;
+                  }
 
-            { renderPage() }
+                  const prevPage = breadcrumbs[breadcrumbs.length - 2];
+                  setPage(prevPage.key);
+                  setBreadcrumbs(breadcrumbs.slice(0, -1));
+                }}
+              >
+                <ArrowUturnLeftIcon className="h-5 w-5 flex-none text-white" aria-hidden="true" />
+              </TextButton>
+            </div>
+
+            <div ref={mainMenuRef}>
+              { renderPage() }
+            </div>
           </div>
         </div>
       </div>
@@ -714,6 +831,7 @@ export const Settings = ({
       <div
         aria-live="assertive"
         className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6 mt-2"
+        ref={notificationsRef}
       >
         <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
 

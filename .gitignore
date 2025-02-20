@@ -12,6 +12,10 @@
 /.next/
 /out/
 
+# parcel
+/.parcel-cache/
+/dist/
+
 # production
 /build
 
@@ -34,3 +38,6 @@ next-env.d.ts
 
 working/*
 !working/.gitkeep
+
+# Sentry Config File
+.env.sentry-build-plugin
