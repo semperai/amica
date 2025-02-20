@@ -169,6 +169,9 @@ export const Settings = ({
   const [timeToSleep, setTimeToSleep] = useState<number>(parseInt(config("time_to_sleep_sec")));
   const [idleTextPrompt, setIdleTextPrompt] = useState(config("idle_text_prompt"));
 
+  const [reasoningEngineEnabled,setReasoningEngineEnabled] = useState<boolean>(config("reasoning_engine_enabled") === 'true' ? true : false);
+  const [reasoningEngineUrl,setReasoningEngineUrl] = useState(config("reasoning_engine_url") );
+
   const [externalApiEnabled,setExternalApiEnabled] = useState<boolean>(config("external_api_enabled") === 'true' ? true : false);
 
   const [name, setName] = useState(config("name"));
@@ -291,7 +294,8 @@ export const Settings = ({
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
-    amicaLifeEnabled, timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
+    amicaLifeEnabled ,timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
+    reasoningEngineEnabled, reasoningEngineUrl,
     externalApiEnabled,
     name,
     systemPrompt,
@@ -706,12 +710,16 @@ export const Settings = ({
     case 'amica_life':
       return <AmicaLifePage
         amicaLifeEnabled={amicaLifeEnabled}
+        reasoningEngineEnabled={reasoningEngineEnabled}
+        reasoningEngineUrl={reasoningEngineUrl}
         timeBeforeIdle={timeBeforeIdle}
         minTimeInterval={minTimeInterval}
         maxTimeInterval={maxTimeInterval}
         timeToSleep={timeToSleep}
         idleTextPrompt={idleTextPrompt}
         setAmicaLifeEnabled={setAmicaLifeEnabled}
+        setReasoningEngineEnabled={setReasoningEngineEnabled}
+        setReasoningEngineUrl={setReasoningEngineUrl}
         setTimeBeforeIdle={setTimeBeforeIdle}
         setMinTimeInterval={setMinTimeInterval}
         setMaxTimeInterval={setMaxTimeInterval}
