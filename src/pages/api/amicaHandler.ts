@@ -5,6 +5,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { twitterClientInstance as twitterClient } from "@/features/socialMedia/twitterClient";
 import { telegramClientInstance as telegramCLient } from "@/features/socialMedia/telegramClient";
 import { config } from "@/utils/config";
+import isDev from "@/utils/isDev";
+import { handleConfig, subconsciousUrl, userInputUrl } from "@/features/externalAPI/externalAPI";
 
 interface ApiResponse {
   sessionId?: string;
@@ -24,14 +26,9 @@ interface LogEntry {
 
 const logs: LogEntry[] = [];
 const clients: Array<{ res: NextApiResponse }> = [];
-let subconsciousUrl = new URL("http://localhost:3000/api/dataHandler");
-subconsciousUrl.searchParams.append("type", "subconscious");
 
-let logsUrl = new URL("http://localhost:3000/api/dataHandler");
+let logsUrl = new URL(`${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
 logsUrl.searchParams.append("type", "logs");
-
-let userInputMessagesUrl = new URL("http://localhost:3000/api/dataHandler");
-userInputMessagesUrl.searchParams.append("type", "userInputMessages");
 
 // Helper Functions
 const generateSessionId = (sessionId?: string): string =>
@@ -64,7 +61,7 @@ const requestLogs = async (): Promise<[]> => {
 };
 
 const requestUserInputMessages = async (): Promise<[]> => {
-  const response = await fetch(userInputMessagesUrl);
+  const response = await fetch(userInputUrl);
   return response.json();
 };
 
@@ -120,13 +117,16 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse>
 ) {
-  if (process.env.API_ENABLED !== "true") {
-    return sendError(res, "", "API is currently disabled.", 503);
-  }
+  // Syncing config to be accessible from server side
+  await handleConfig("fetch");
 
   if (req.method === "GET") {
     handleSSEConnection(req, res);
     return;
+  }
+
+  if (config("external_api_enabled") !== "true") {
+    return sendError(res, "", "API is currently disabled.", 503);
   }
 
   const { sessionId, inputType, payload, noProcessChat = false } = req.body;
@@ -176,6 +176,7 @@ const processRequest = async (
   inputType: string,
   payload: any
 ): Promise<{ response: any; outputType: string }> => {
+  
   switch (inputType) {
     case "Normal Chat Message":
       return { response: await processNormalChat(payload), outputType: "Complete stream" };

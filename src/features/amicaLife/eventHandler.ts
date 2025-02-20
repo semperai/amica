@@ -11,6 +11,7 @@ import { functionCalling } from "@/features/functionCalling/functionCalling";
 import { AmicaLife } from "./amicaLife";
 import { Viewer } from "../vrmViewer/viewer";
 import { config } from "@/utils/config";
+import isDev from "@/utils/isDev";
 
 export const idleEvents = [
   "VRMA",
@@ -37,7 +38,7 @@ export type AmicaLifeEvents = {
 };
 
 // Define a constant for max subconscious storage tokens
-const MAX_STORAGE_TOKENS = 3000;
+export const MAX_STORAGE_TOKENS = 3000;
 
 // Define the interface for a timestamped prompt
 export type TimestampedPrompt = {
@@ -48,7 +49,7 @@ export type TimestampedPrompt = {
 // Placeholder for storing compressed subconscious prompts
 export let storedSubconcious: TimestampedPrompt[] = [];
 
-let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
+let dataHandlerUrl = new URL("/api/dataHandler", `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`);
 dataHandlerUrl.searchParams.append('type', 'subconscious');
 
 let previousAnimation = "";
@@ -201,39 +202,52 @@ export async function handleSubconsciousEvent(
       timestamp: new Date().toISOString(),
     };
 
-    // Get the current stored subconscious and add the new entry
-    const data = await fetch(dataHandlerUrl);
-    if (!data.ok) {
-      throw new Error('Failed to get subconscious data');
+    // External API feature
+    if (isDev && config("external_api_enabled") === "true") {
+      // Get the current stored subconscious and add the new entry
+      const data = await fetch(dataHandlerUrl);
+      if (!data.ok) {
+        throw new Error('Failed to get subconscious data');
+      }
+
+      const currentStoredSubconscious: TimestampedPrompt[] = await data.json();
+      currentStoredSubconscious.push(timestampedPrompt);
+
+      let totalStorageTokens = currentStoredSubconscious.reduce(
+        (totalTokens, prompt) => totalTokens + prompt.prompt.length,
+        0,
+      );
+      while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+        const removed = currentStoredSubconscious.shift();
+        totalStorageTokens -= removed!.prompt.length;
+      }
+
+      // Save updated subconscious data back to file
+      const response = await fetch(dataHandlerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ subconscious: currentStoredSubconscious }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update subconscious data');
+      }
+
+      // Update in-memory store
+      storedSubconcious = currentStoredSubconscious;
+    } else { // External API Off or Isn't development case
+      storedSubconcious.push(timestampedPrompt);
+      let totalStorageTokens = storedSubconcious.reduce(
+        (totalTokens, prompt) => totalTokens + prompt.prompt.length,
+        0,
+      );
+      while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+        const removed = storedSubconcious.shift();
+        totalStorageTokens -= removed!.prompt.length;
+      }
     }
-
-    const currentStoredSubconscious: TimestampedPrompt[] = await data.json();
-    currentStoredSubconscious.push(timestampedPrompt);
-
-    let totalStorageTokens = currentStoredSubconscious.reduce(
-      (totalTokens, prompt) => totalTokens + prompt.prompt.length,
-      0,
-    );
-    while (totalStorageTokens > MAX_STORAGE_TOKENS) {
-      const removed = currentStoredSubconscious.shift();
-      totalStorageTokens -= removed!.prompt.length;
-    }
-
-    // Save updated subconscious data back to file
-    const response = await fetch(dataHandlerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ subconscious: currentStoredSubconscious }),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update subconscious data');
-    }
-
-    // Update in-memory store
-    storedSubconcious = currentStoredSubconscious;
-
+    
     console.log("Stored subconscious prompts:", storedSubconcious);
     amicaLife.setSubconciousLogs!(storedSubconcious);
 

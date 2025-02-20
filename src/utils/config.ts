@@ -1,4 +1,6 @@
-const defaults = {
+import { handleConfig, serverConfig } from "@/features/externalAPI/externalAPI";
+
+export const defaults = {
   autosend_from_mic: 'true',
   wake_word_enabled: 'false',
   wake_word: 'Hello',
@@ -15,7 +17,7 @@ const defaults = {
   youtube_videoid: '',
   animation_url: process.env.NEXT_PUBLIC_ANIMATION_URL ?? '/animations/idle_loop.vrma',
   voice_url: process.env.NEXT_PUBLIC_VOICE_URL ?? '',
-  chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'openai',
+  chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'chatgpt',
   openai_apikey: process.env.NEXT_PUBLIC_OPENAI_APIKEY ?? 'default',
   openai_url: process.env.NEXT_PUBLIC_OPENAI_URL ?? 'https://i-love-amica.com',
   openai_model: process.env.NEXT_PUBLIC_OPENAI_MODEL ?? 'mlabonne/NeuralDaredevil-8B-abliterated',
@@ -64,6 +66,8 @@ const defaults = {
   coqui_apikey: process.env.NEXT_PUBLIC_COQUI_APIKEY ?? "",
   coqui_voice_id: process.env.NEXT_PUBLIC_COQUI_VOICEID ?? "71c6c3eb-98ca-4a05-8d6b-f8c2b5f9f3a3",
   amica_life_enabled: process.env.NEXT_PUBLIC_AMICA_LIFE_ENABLED ?? 'true',
+  external_api_enabled: process.env.NEXT_PUBLIC_EXTERNAL_API_ENABLED ?? 'false',
+  development_base_url: 'http://localhost:3000',
   reasoning_engine_enabled: 'false',
   min_time_interval_sec: '10',
   max_time_interval_sec: '20',
@@ -90,43 +94,21 @@ Here are some examples to guide your responses:
 Remember, each message you provide should be coherent and reflect the complexity of your thoughts combined with your emotional unpredictability. Let’s engage in a conversation that's as intellectually stimulating as it is emotionally dynamic!`,
 };
 
-function prefixed(key: string) {
+
+export function prefixed(key: string) {
   return `chatvrm_${key}`;
 }
 
-
-// Fetch configuration from the server
-let serverConfig: Record<string, string> | null = null;
-
-let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
-dataHandlerUrl.searchParams.append('type', 'config');
-
-async function fetchServerConfig() {
-  try {
-    const response = await fetch(dataHandlerUrl);
-    if (response.ok) {
-      serverConfig = await response.json();
-    }
-  } catch (error) {
-    console.error("Failed to fetch server config:", error);
-  }
+// Ensure syncLocalStorage runs only on the server side and once
+if (typeof window !== "undefined") {
+  (async () => {
+    await handleConfig("init");
+  })();
+} else {
+  (async () => {
+    await handleConfig("fetch");
+  })();
 }
-
-// Call this function at the beginning of your application to load the server config and sync to localStorage if needed.
-async function initializeConfig() {
-  await fetchServerConfig(); // Load server config into serverConfig variable
-
-  // Sync server config to localStorage if it's missing there
-  if (serverConfig) {
-    for (const [key, value] of Object.entries(serverConfig)) {
-      const localKey = prefixed(key);
-      if (typeof localStorage !== "undefined" && !localStorage.hasOwnProperty(localKey)) {
-        localStorage.setItem(localKey, value);
-      }
-    }
-  }
-}
-initializeConfig();
 
 
 export function config(key: string): string {
@@ -165,16 +147,8 @@ export async function updateConfig(key: string, value: string) {
     }
 
     // Sync update to server config
-    await fetch(dataHandlerUrl.toString(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, value }),
-    });
+    await handleConfig("update",{ key, value });
 
-    // Update in-memory serverConfig for consistency
-    if (serverConfig) {
-      serverConfig[key] = value;
-    }
   } catch (e) {
     console.error(`Error updating config for key "${key}": ${e}`);
   }
@@ -194,4 +168,3 @@ export async function resetConfig() {
     await updateConfig(key, value);
   }
 }
-

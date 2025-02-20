@@ -26,6 +26,8 @@ import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
 import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
+import isDev from '@/utils/isDev';
+import { handleUserInput } from '../externalAPI/externalAPI';
 
 
 type Speak = {
@@ -336,13 +338,8 @@ export class Chat {
     if (!amicaLife) {
       console.log('receiveMessageFromUser', message);
 
-      let dataHandlerUrl = new URL("http://localhost:3000/api/dataHandler");
-      dataHandlerUrl.searchParams.append('type', 'userInputMessages');
-      fetch(dataHandlerUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({systemPrompt: config("system_prompt"),message: message}),
-      });
+      // For external API
+      await handleUserInput(message);
 
       this.amicaLife?.receiveMessageFromUser(message);
 
