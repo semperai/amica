@@ -26,6 +26,7 @@
 * [Using KoboldCpp](./guides/using-koboldcpp.md)
 * [Using OpenAI](./guides/using-openai.md)
 * [Using Oobabooga](./guides/using-oobabooga.md)
+* [Using OpenRouter](./guides/using-openrouter.md)
 
 ## 🔊 Connecting Speech Options (TTS)
 
@@ -48,6 +49,7 @@
 ## 🔧 Other Guides
 
 * [Using Window.ai](./guides/using-windowai.md)
+* [Using Moshi (Voice to Voice)](./guides/using-moshi.md)
 
 ## 🧩 Plugin System 
 
