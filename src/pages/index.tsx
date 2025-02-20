@@ -2,11 +2,13 @@ import {
   Fragment,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import Link from "next/link";
 import { Menu, Transition } from '@headlessui/react'
-// import { clsx } from "clsx";
+import { clsx } from "clsx";
+import { M_PLUS_2, Montserrat } from "next/font/google";
 import { useTranslation, Trans } from 'react-i18next';
 import {
   ChatBubbleLeftIcon,
@@ -24,6 +26,7 @@ import {
   VideoCameraIcon,
   VideoCameraSlashIcon,
   WrenchScrewdriverIcon,
+  SignalIcon,
   AcademicCapIcon,
 } from "@heroicons/react/24/outline";
 import { IconBrain } from '@tabler/icons-react';
@@ -59,7 +62,20 @@ import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
 import { ChatModeText } from "@/components/chatModeText";
 
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
+import { handleChatLogs } from "@/features/externalAPI/externalAPI";
 import { VerticalSwitchBox } from "@/components/switchBox";
+
+const m_plus_2 = M_PLUS_2({
+  variable: "--font-m-plus-2",
+  display: "swap",
+  preload: false,
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  display: "swap",
+  subsets: ["latin"],
+});
 
 function detectVRHeadset() {
   const userAgent = navigator.userAgent.toLowerCase();
@@ -130,6 +146,9 @@ export default function Home() {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
+  const [showStreamWindow, setShowStreamWindow] = useState(false);
+  const videoRef = useRef(null);
+
   const [isARSupported, setIsARSupported] = useState(false);
   const [isVRSupported, setIsVRSupported] = useState(false);
 
@@ -168,6 +187,13 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    if (viewer && videoRef.current && showStreamWindow) {
+      viewer.startStreaming(videoRef.current);
+    } else {
+      viewer.stopStreaming();
+    }
+  }, [viewer, videoRef, showStreamWindow]);
 
   function toggleTTSMute() {
     updateConfig('tts_muted', config('tts_muted') === 'true' ? 'false' : 'true')
@@ -298,12 +324,31 @@ export default function Home() {
     );
   }, [amicaLife, bot, viewer]);
 
+  useEffect(() => {
+    handleChatLogs(chatLog);
+  }, [chatLog]);
+
   // this exists to prevent build errors with ssr
   useEffect(() => setShowContent(true), []);
   if (!showContent) return <></>;
 
   return (
-    <div>
+    <div className={clsx(
+      m_plus_2.variable,
+      montserrat.variable,
+    )}>
+      {showStreamWindow && 
+
+      <div className="fixed top-4 right-4 w-[200px] h-[150px] z-20">
+        <video
+          ref={videoRef} 
+          autoPlay
+          muted
+          playsInline
+          className="w-full h-full object-cover rounded-lg shadow-lg outline outline-2 outline-red-500"
+        />
+      </div> }
+
       { config("youtube_videoid") !== '' && (
         <div className="fixed video-container w-full h-full z-0">
           <iframe
@@ -471,6 +516,22 @@ export default function Home() {
                   label={""}
                   onChange={toggleChatMode}
                 />
+            </div>
+
+            <div className="flex flex-row items-center space-x-2">
+              { showStreamWindow ? (
+                <SignalIcon
+                  className="h-7 w-7 text-white opacity-100 hover:opacity-50 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setShowStreamWindow(false)}
+                />
+              ) : (
+                <SignalIcon
+                  className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => setShowStreamWindow(true)}
+                />
+              )}
             </div>
             
           </div>

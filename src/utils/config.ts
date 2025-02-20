@@ -1,4 +1,6 @@
-const defaults = {
+import { handleConfig, serverConfig } from "@/features/externalAPI/externalAPI";
+
+export const defaults = {
   // AllTalk TTS specific settings
   localXTTS_url: process.env.NEXT_PUBLIC_LOCALXTTS_URL ?? 'http://127.0.0.1:7851',
   alltalk_version: process.env.NEXT_PUBLIC_ALLTALK_VERSION ?? 'v2',
@@ -83,6 +85,15 @@ const defaults = {
   coqui_apikey: process.env.NEXT_PUBLIC_COQUI_APIKEY ?? "",
   coqui_voice_id: process.env.NEXT_PUBLIC_COQUI_VOICEID ?? "71c6c3eb-98ca-4a05-8d6b-f8c2b5f9f3a3",
   amica_life_enabled: process.env.NEXT_PUBLIC_AMICA_LIFE_ENABLED ?? 'true',
+  reasoning_engine_enabled: process.env.NEXT_PUBLIC_REASONING_ENGINE_ENABLED ?? 'false',
+  reasoning_engine_url: process.env.NEXT_PUBLIC_REASONING_ENGINE_URL ?? 'https://i-love-amica.com:3000/reasoning/v1/chat/completions',
+  external_api_enabled: process.env.NEXT_PUBLIC_EXTERNAL_API_ENABLED ?? 'false',
+  x_api_key: process.env.NEXT_PUBLIC_X_API_KEY ?? '',
+  x_api_secret: process.env.NEXT_PUBLIC_X_API_SECRET ?? '',
+  x_access_token: process.env.NEXT_PUBLIC_X_ACCESS_TOKEN ?? '',
+  x_access_secret: process.env.NEXT_PUBLIC_X_ACCESS_SECRET ?? '',
+  x_bearer_token: process.env.NEXT_PUBLIC_X_BEARER_TOKEN ?? '',
+  telegram_bot_token: process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN ?? '',
   min_time_interval_sec: '10',
   max_time_interval_sec: '20',
   time_to_sleep_sec: '90',
@@ -108,13 +119,29 @@ Here are some examples to guide your responses:
 Remember, each message you provide should be coherent and reflect the complexity of your thoughts combined with your emotional unpredictability. Let’s engage in a conversation that's as intellectually stimulating as it is emotionally dynamic!`,
 };
 
-function prefixed(key: string) {
+export function prefixed(key: string) {
   return `chatvrm_${key}`;
 }
 
+// Ensure syncLocalStorage runs only on the server side and once
+if (typeof window !== "undefined") {
+  (async () => {
+    await handleConfig("init");
+  })();
+} else {
+  (async () => {
+    await handleConfig("fetch");
+  })();
+}
+
 export function config(key: string): string {
-  if (localStorage.hasOwnProperty(prefixed(key))) {
-    return (<any>localStorage).getItem(prefixed(key));
+  if (typeof localStorage !== "undefined" && localStorage.hasOwnProperty(prefixed(key))) {
+    return (<any>localStorage).getItem(prefixed(key))!;
+  }
+
+  // Fallback to serverConfig if localStorage is unavailable or missing
+  if (serverConfig && serverConfig.hasOwnProperty(key)) {
+    return serverConfig[key];
   }
 
   if (defaults.hasOwnProperty(key)) {
@@ -124,13 +151,21 @@ export function config(key: string): string {
   throw new Error(`config key not found: ${key}`);
 }
 
-export function updateConfig(key: string, value: string) {
-  if (defaults.hasOwnProperty(key)) {
-    localStorage.setItem(prefixed(key), value);
-    return;
-  }
+export async function updateConfig(key: string, value: string) {
+  try {
+    const localKey = prefixed(key);
 
-  throw new Error(`config key not found: ${key}`);
+    // Update localStorage if available
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(localKey, value);
+    }
+
+    // Sync update to server config
+    await handleConfig("update",{ key, value });
+
+  } catch (e) {
+    console.error(`Error updating config for key "${key}": ${e}`);
+  }
 }
 
 export function defaultConfig(key: string): string {
@@ -141,9 +176,8 @@ export function defaultConfig(key: string): string {
   throw new Error(`config key not found: ${key}`);
 }
 
-export function resetConfig() {
-  Object.entries(defaults).forEach(([key, value]) => {
-    updateConfig(key, value);
-  });
+export async function resetConfig() {
+  for (const [key, value] of Object.entries(defaults)) {
+    await updateConfig(key, value);
+  }
 }
-

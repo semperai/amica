@@ -71,6 +71,8 @@ import { SystemPromptPage } from './settings/SystemPromptPage';
 import { AmicaLifePage } from "./settings/AmicaLifePage";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
+import { ExternalAPIPage } from "./settings/ExternalAPIPage";
+
 
 export const Settings = ({
   onClickClose,
@@ -166,6 +168,11 @@ export const Settings = ({
   const [maxTimeInterval, setMaxTimeInterval] = useState<number>(parseInt(config("max_time_interval_sec")));
   const [timeToSleep, setTimeToSleep] = useState<number>(parseInt(config("time_to_sleep_sec")));
   const [idleTextPrompt, setIdleTextPrompt] = useState(config("idle_text_prompt"));
+
+  const [reasoningEngineEnabled,setReasoningEngineEnabled] = useState<boolean>(config("reasoning_engine_enabled") === 'true' ? true : false);
+  const [reasoningEngineUrl,setReasoningEngineUrl] = useState(config("reasoning_engine_url") );
+
+  const [externalApiEnabled,setExternalApiEnabled] = useState<boolean>(config("external_api_enabled") === 'true' ? true : false);
 
   const [name, setName] = useState(config("name"));
   const [systemPrompt, setSystemPrompt] = useState(config("system_prompt"));
@@ -287,7 +294,9 @@ export const Settings = ({
     sttBackend,
     whisperOpenAIApiKey, whisperOpenAIModel, whisperOpenAIUrl,
     whisperCppUrl,
-    amicaLifeEnabled, timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
+    amicaLifeEnabled ,timeBeforeIdle, minTimeInterval, maxTimeInterval, timeToSleep, idleTextPrompt,
+    reasoningEngineEnabled, reasoningEngineUrl,
+    externalApiEnabled,
     name,
     systemPrompt,
     debugGfx, mtoonDebugMode, mtoonMaterialType, useWebGPU,
@@ -339,7 +348,7 @@ export const Settings = ({
     switch(page) {
     case 'main_menu':
       return <MenuPage
-        keys={["appearance", "amica_life", "chatbot", "language", "tts", "stt", "vision", "developer", "reset_settings", "community"]}
+        keys={["appearance", "amica_life", "chatbot", "language", "tts", "stt", "vision", "developer", "external_api", "reset_settings", "community"]}
         menuClick={handleMenuClick} />;
 
     case 'appearance':
@@ -701,17 +710,28 @@ export const Settings = ({
     case 'amica_life':
       return <AmicaLifePage
         amicaLifeEnabled={amicaLifeEnabled}
+        reasoningEngineEnabled={reasoningEngineEnabled}
+        reasoningEngineUrl={reasoningEngineUrl}
         timeBeforeIdle={timeBeforeIdle}
         minTimeInterval={minTimeInterval}
         maxTimeInterval={maxTimeInterval}
         timeToSleep={timeToSleep}
         idleTextPrompt={idleTextPrompt}
         setAmicaLifeEnabled={setAmicaLifeEnabled}
+        setReasoningEngineEnabled={setReasoningEngineEnabled}
+        setReasoningEngineUrl={setReasoningEngineUrl}
         setTimeBeforeIdle={setTimeBeforeIdle}
         setMinTimeInterval={setMinTimeInterval}
         setMaxTimeInterval={setMaxTimeInterval}
         setTimeToSleep={setTimeToSleep}
         setIdleTextPrompt={setIdleTextPrompt}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'external_api':
+      return <ExternalAPIPage
+        externalApiEnabled={externalApiEnabled}
+        setExternalApiEnabled={setExternalApiEnabled}
         setSettingsUpdated={setSettingsUpdated}
         />
 

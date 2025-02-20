@@ -129,6 +129,10 @@ export class Viewer {
   private sendScreenshotToCallback: boolean;
   private screenshotCallback: BlobCallback | undefined;
 
+  private mediaRecorder?: MediaRecorder;
+  private recordedChunks: Blob[] = [];
+  private videoStream: any;
+
   // XR
   public currentSession: XRSession | null = null;
   private hand1: THREE.Group | null = null;
@@ -181,8 +185,9 @@ export class Viewer {
 
   private mouse = new THREE.Vector2();
 
-  private particleRenderer = new BatchedParticleRenderer();
-  private particleCartoonStarField: THREE.Object3D | null = null;
+  // Temp Disable : WebXR
+  // private particleRenderer = new BatchedParticleRenderer();
+  // private particleCartoonStarField: THREE.Object3D | null = null;
 
   private ammo: any;
   private collisionConfiguration: any;
@@ -569,21 +574,21 @@ export class Viewer {
     });
   }
 
+  // Temp Disable : WebXR
+  // public newParticleInstance() {
+  //   function listener(event: any) {
+  //     console.log(event.type);
+  //   }
 
-  public newParticleInstance() {
-    function listener(event: any) {
-      console.log(event.type);
-    }
-
-    const effect = this.particleCartoonStarField!.clone(true);
-    QuarksUtil.runOnAllParticleEmitters(effect, (emitter) => {
-        emitter.system.addEventListener("emitEnd", listener);
-    })
-    QuarksUtil.setAutoDestroy(effect, true);
-    QuarksUtil.addToBatchRenderer(effect, this.particleRenderer);
-    QuarksUtil.play(effect);
-    this.scene!.add(effect);
-  }
+  //   const effect = this.particleCartoonStarField!.clone(true);
+  //   QuarksUtil.runOnAllParticleEmitters(effect, (emitter) => {
+  //       emitter.system.addEventListener("emitEnd", listener);
+  //   })
+  //   QuarksUtil.setAutoDestroy(effect, true);
+  //   QuarksUtil.addToBatchRenderer(effect, this.particleRenderer);
+  //   QuarksUtil.play(effect);
+  //   this.scene!.add(effect);
+  // }
 
   public getCanvas() {
     return this.renderer?.domElement?.parentElement?.getElementsByTagName(
@@ -1327,6 +1332,74 @@ export class Viewer {
     }
 
     this.updateMsPanel.update(performance.now() - utime, 40);
+  }
+
+  public startStreaming(videoElement: HTMLVideoElement) {
+    if (!this.renderer) return;
+  
+    // Create a stream from the renderer's canvas
+    const stream = this.renderer.domElement.captureStream(60); // 60 FPS for smooth streaming
+
+    this.videoStream = stream;
+  
+    // Assign the stream to the provided video element for live view
+    videoElement.srcObject = stream;
+    videoElement.play();
+
+    console.log("Start streaming!")
+  }
+
+  public stopStreaming() {
+    if (!this.videoStream) return;
+
+    // Stop all tracks on the stream to end streaming
+    this.videoStream.getTracks().forEach((track: { stop: () => any; }) => track.stop());
+    this.videoStream = null; // Clear the stream reference
+
+    console.log("Streaming stopped!");
+}
+  
+
+  // Method to start recording
+  public startRecording() {
+    if (!this.renderer) return;
+
+    // Create a stream from the renderer's canvas
+    const stream = this.renderer.domElement.captureStream(60); // 30 FPS
+    
+    // Higher quality and bit rate for better video clarity
+    const options = {
+      mimeType: 'video/webm;codecs=vp9',
+      videoBitsPerSecond: 8000000, // 8 Mbps for higher quality
+    };
+
+    this.mediaRecorder = new MediaRecorder(stream, options);
+
+    // Collect data in chunks
+    this.mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        this.recordedChunks.push(event.data);
+      }
+    };
+
+    // Start recording
+    this.mediaRecorder.start();
+  }
+
+
+  // Method to stop recording and trigger callback
+  public stopRecording(callback: BlobCallback) {
+    if (!this.mediaRecorder) return;
+
+    // Stop recording and create the video blob
+    this.mediaRecorder.onstop = () => {
+      const recordedBlob = new Blob(this.recordedChunks, { type: 'video/webm' });
+      callback(recordedBlob); // Pass the video blob to the callback
+      this.recordedChunks = []; // Clear chunks for the next recording
+    };
+
+    // Stop the recorder
+    this.mediaRecorder.stop();
   }
 
   public getScreenshotBlob = (callback: BlobCallback) => {
