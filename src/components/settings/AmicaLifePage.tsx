@@ -14,12 +14,16 @@ import { AmicaLifeContext } from '@/features/amicaLife/amicaLifeContext';
 
 export function AmicaLifePage({
     amicaLifeEnabled,
+    reasoningEngineEnabled,
+    reasoningEngineUrl,
     timeBeforeIdle,
     minTimeInterval,
     maxTimeInterval,
     timeToSleep,
     idleTextPrompt,
     setAmicaLifeEnabled,
+    setReasoningEngineEnabled,
+    setReasoningEngineUrl,
     setTimeBeforeIdle,
     setMinTimeInterval,
     setMaxTimeInterval,
@@ -28,12 +32,16 @@ export function AmicaLifePage({
     setSettingsUpdated,
 }: {
     amicaLifeEnabled: boolean;
+    reasoningEngineEnabled: boolean;
+    reasoningEngineUrl: string,
     timeBeforeIdle: number;
     minTimeInterval: number;
     maxTimeInterval: number;
     timeToSleep: number;
     idleTextPrompt: string;
     setAmicaLifeEnabled: (amicaLifeEnabled: boolean) => void;
+    setReasoningEngineEnabled: (reasoningEngineEnabled: boolean) => void;
+    setReasoningEngineUrl: (reasoningEngineUrl: string) => void;
     setTimeBeforeIdle: (timeBeforeIdle: number) => void;
     setMinTimeInterval: (minTimeInterval: number) => void;
     setMaxTimeInterval: (maxTimeInterval: number) => void;
@@ -100,6 +108,22 @@ export function AmicaLifePage({
                         />
                     </FormRow>
                 </li>
+
+                <li className="py-4">
+                    <FormRow label={`${t("Use")} ${t("Reasoning Engine")}`}>
+                        <SwitchBox
+                            value={reasoningEngineEnabled}
+                            label={`${t("Reasoning Engine")} ${t("Enabled")} ${t("(Disable to improve performance)")}`}
+                            disabled={config("chatbot_backend") === "echo"}
+                            onChange={(value: boolean) => {
+                                setReasoningEngineEnabled(value);
+                                updateConfig("reasoning_engine_enabled", value.toString());
+                                setSettingsUpdated(true);
+                            }}
+                        />
+                    </FormRow>
+                </li>
+
                 {amicaLifeEnabled && (
                     <>
 
@@ -180,6 +204,23 @@ export function AmicaLifePage({
                             </FormRow>
                         </li>
 
+                    </>
+                )}
+
+                {reasoningEngineEnabled && (
+                    <>
+                        <li className="py-4">
+                            <FormRow label="Reasoning Engine Url">
+                                <TextInput
+                                value={reasoningEngineUrl}
+                                onChange={(event: React.ChangeEvent<any>) => {
+                                    setReasoningEngineUrl(event.target.value);
+                                    updateConfig("reasoning_engine_url", event.target.value);
+                                    setSettingsUpdated(true);
+                                }}
+                                />
+                            </FormRow>
+                        </li>
                     </>
                 )}
             </ul>

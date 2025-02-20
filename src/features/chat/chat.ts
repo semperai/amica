@@ -3,7 +3,6 @@ import { Message, Role, Screenplay, Talk, textsToScreenplay } from "./messages";
 import { Viewer } from "@/features/vrmViewer/viewer";
 import { Alert } from "@/features/alert/alert";
 
-
 import { getEchoChatResponseStream } from "./echoChat";
 import {
   getArbiusChatResponseStream,
@@ -22,6 +21,7 @@ import {
   getOllamaVisionChatResponse,
 } from "./ollamaChat";
 import { getKoboldAiChatResponseStream } from "./koboldAiChat";
+import { getReasoingEngineChatResponseStream } from "./reasoiningEngineChat";
 
 import { rvc } from "@/features/rvc/rvc";
 import { coquiLocal } from "@/features/coquiLocal/coquiLocal";
@@ -43,7 +43,6 @@ import { getOpenRouterChatResponseStream } from './openRouterChat';
 import { handleUserInput } from '../externalAPI/externalAPI';
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
 import isDev from '@/utils/isDev';
-
 
 type Speak = {
   audioBuffer: ArrayBuffer | null;
@@ -92,6 +91,8 @@ export class Chat {
   public messageList: Message[];
 
   public currentStreamIdx: number;
+
+  private eventSource: EventSource | null = null
 
   constructor() {
     this.initialized = false;
@@ -386,47 +387,20 @@ export class Chat {
     ];
     // console.debug('messages', messages);
 
-    // Extract the system prompt
-    const systemPrompt = messages.find((msg) => msg.role === "system");
-
-    // Extract the rest of the conversation excluding the system prompt
-    const conversationMessages = messages.filter((msg) => msg.role !== "system");
-
-    if (config("reasoning_engine_enabled") === "true") {
-      try {
-          const response = await fetch('https://i-love-amica.com:3000/reasoning/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ systemPrompt: systemPrompt, messages: conversationMessages }), 
-          });
-
-          if (!response.ok) {
-              console.error(`Reasoning server responded with status ${response.status}: ${response.statusText}`);
-              return;
-          }
-
-          const result = await response.json();
-          console.log('Reasoning engine response:', result);
-      } catch (error) {
-          console.error('Error during reasoning engine request:', error);
-      }
-    } else {
-        await this.makeAndHandleStream(messages);
-    }
-    
+    await this.makeAndHandleStream(messages);
   }
 
   public initSSE() {
-    if (!isDev && config("external_api_enabled") !== "true") {
+    if (!isDev || config("external_api_enabled") !== "true") {
       return;
-    }
+    }  
+    // Close existing SSE connection if it exists
+    this.closeSSE();
 
-    const eventSource = new EventSource('/api/amicaHandler');
+    this.eventSource = new EventSource('/api/amicaHandler');
 
     // Listen for incoming messages from the server
-    eventSource.onmessage = async (event) => {
+    this.eventSource.onmessage = async (event) => {
       try {
         // Parse the incoming JSON message
         const message = JSON.parse(event.data);
@@ -498,17 +472,25 @@ export class Chat {
     };
 
 
-    eventSource.addEventListener('end', () => {
+    this.eventSource.addEventListener('end', () => {
       console.log('SSE session ended');
-      eventSource.close();
+      this.eventSource?.close();
     });
 
-    eventSource.onerror = (error) => {
+    this.eventSource.onerror = (error) => {
       console.error('Error in SSE connection:', error);
-      eventSource.close();
+      this.eventSource?.close();
+      setTimeout(this.initSSE, 500);
     };
-
   }
+
+  public closeSSE() {
+    if (this.eventSource) {
+        console.log("Closing existing SSE connection...");
+        this.eventSource.close();
+        this.eventSource = null;
+    }
+}
 
   public async makeAndHandleStream(messages: Message[]) {
     try {
@@ -562,7 +544,6 @@ export class Chat {
           break;
         }
         const { done, value } = await reader.read();
-        console.log("monkey", value);
         if (!firstTokenEncountered) {
           console.timeEnd("performance_time_to_first_token");
           firstTokenEncountered = true;
@@ -694,6 +675,14 @@ export class Chat {
   public async getChatResponseStream(messages: Message[]) {
     console.debug("getChatResponseStream", messages);
     const chatbotBackend = config("chatbot_backend");
+
+    // Extract the system prompt and convo messages
+    const systemPrompt = messages.find((msg) => msg.role === "system")!;
+    const conversationMessages = messages.filter((msg) => msg.role !== "system");
+
+    if (config("reasoning_engine_enabled") === "true") {
+      return getReasoingEngineChatResponseStream(systemPrompt, conversationMessages)
+    } 
 
     switch (chatbotBackend) {
       case "arbius_llm":

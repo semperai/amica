@@ -6,6 +6,9 @@ import { SwitchBox } from "@/components/switchBox"
 import isDev from '@/utils/isDev';
 import { IconButton } from '../iconButton';
 import { SecretTextInput } from '../secretTextInput';
+import { useContext, useEffect } from 'react';
+import { ChatContext } from '@/features/chat/chatContext';
+import { AmicaLifeContext } from '@/features/amicaLife/amicaLifeContext';
 
 
 export function ExternalAPIPage({
@@ -19,6 +22,15 @@ export function ExternalAPIPage({
 }) {
 
     const { t } = useTranslation();
+    const { chat: bot } = useContext(ChatContext);
+
+    useEffect(() => {
+        if (externalApiEnabled === true) {
+            bot.initSSE();
+        } else {
+            bot.closeSSE();
+        }
+    }, [externalApiEnabled]);
 
     return (
         <BasicPage
