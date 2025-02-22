@@ -99,7 +99,7 @@ export function AmicaLifePage({
                         <SwitchBox
                             value={amicaLifeEnabled}
                             label={`${t("Amica Life")} ${t("Enabled")} ${t("(Disable to improve performance)")}`}
-                            disabled={config("chatbot_backend") === "echo"}
+                            disabled={["echo", "moshi"].includes(config("chatbot_backend"))                            }
                             onChange={(value: boolean) => {
                                 setAmicaLifeEnabled(value);
                                 updateConfig("amica_life_enabled", value.toString());

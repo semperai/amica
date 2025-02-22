@@ -171,20 +171,20 @@ export default function Home() {
     } else {
       document.body.style.backgroundImage = `url(${config("bg_url")})`;
     }
+    // Temp Disable : WebXR
+    // if (window.navigator.xr && window.navigator.xr.isSessionSupported) {
+    //   let deviceInfo = detectVRHeadset();
+    //   setIsVRHeadset(deviceInfo.isVRDevice);
 
-    if (window.navigator.xr && window.navigator.xr.isSessionSupported) {
-      let deviceInfo = detectVRHeadset();
-      setIsVRHeadset(deviceInfo.isVRDevice);
-
-      window.navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
-        console.log('ar supported', supported);
-        setIsARSupported(supported);
-      });
-      window.navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
-        console.log('vr supported', supported);
-        setIsVRSupported(supported);
-      });
-    }
+    //   window.navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+    //     console.log('ar supported', supported);
+    //     setIsARSupported(supported);
+    //   });
+    //   window.navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+    //     console.log('vr supported', supported);
+    //     setIsVRSupported(supported);
+    //   });
+    // }
   }, []);
 
   useEffect(() => {
@@ -376,7 +376,7 @@ export default function Home() {
         )}
       </VrmStoreProvider>
       
-      { config("chatbot_backend") !== "moshi" && <MessageInputContainer isChatProcessing={chatProcessing} />}
+      <MessageInputContainer isChatProcessing={chatProcessing} />
 
       {/* main menu */}
       <div className="absolute z-10 m-2">
