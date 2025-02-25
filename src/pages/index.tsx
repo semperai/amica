@@ -467,8 +467,7 @@ export default function Home() {
               />
             )}
 
-            {/* Temp Disable : WebXR */}
-            {/*<MenuButton
+            <MenuButton
               large={isVRHeadset}
               icon={CubeTransparentIcon}
               disabled={!isARSupported}
@@ -482,7 +481,7 @@ export default function Home() {
               disabled={!isVRSupported}
               onClick={() => toggleXR('immersive-vr')}
               label="Virtual Reality"
-            />*/}
+            />
 
             <MenuButton
               large={isVRHeadset}
@@ -491,8 +490,7 @@ export default function Home() {
               label="debug"
             />
 
-            {/* Temp Disable : WebXR */}
-            {/* { showChatMode ? (
+            { showChatMode ? (
               <MenuButton
                 large={isVRHeadset}
                 icon={Squares2X2Icon}
@@ -508,7 +506,7 @@ export default function Home() {
                 onClick={toggleChatMode}
                 label="show chat mode"
               />
-            )} */}
+            )}
 
             <div className="flex flex-row items-center space-x-2">
                 <VerticalSwitchBox
