@@ -41,7 +41,7 @@ export async function kokoroVoiceList(
 
   } catch (error) {
 
-    console.error('Error in coquiLocalVoiceIdList:', error);
+    console.error('Error fetching kokoro voice:', error);
     throw error;
   }
 }
