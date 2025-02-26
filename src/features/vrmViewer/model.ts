@@ -140,8 +140,7 @@ export class Model {
       loader.load(
         url,
         async (gltf) => {
-          // Temp Disable : WebXR
-          // setLoadingProgress("Processing VRM");
+          setLoadingProgress("Processing VRM");
 
           /*
           {
@@ -225,10 +224,9 @@ export class Model {
           resolve();
         },
         (xhr) => {
-          // Temp Disable : WebXR
-          // setLoadingProgress(
-          //   `${Math.floor((xhr.loaded / xhr.total) * 10000) / 100}% loaded`,
-          // );
+          setLoadingProgress(
+            `${Math.floor((xhr.loaded / xhr.total) * 10000) / 100}% loaded`,
+          );
         },
         (error) => {
           reject(error);

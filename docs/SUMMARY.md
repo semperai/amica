@@ -56,6 +56,10 @@
 * [Plugins Intro](./plugin-system/plugin-intro.md)
 * [Getting Real World News on Amica](./plugin-system/news-example.md)
 
+## 🔌 API System
+
+* [External API for Agents](./api/api-reference.md)
+
 
 ## 🌻 Tutorials
 
