@@ -72,6 +72,7 @@ import { AmicaLifePage } from "./settings/AmicaLifePage";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
 import { ExternalAPIPage } from "./settings/ExternalAPIPage";
+import { KokoroSettingsPage } from "./settings/KokoroSettingsPage";
 
 
 export const Settings = ({
@@ -134,6 +135,9 @@ export const Settings = ({
   const [coquiLocalVoiceId, setCoquiLocalVoiceId] = useState(config("coquiLocal_voiceid"));
 
   const [localXTTSUrl, setLocalXTTSUrl] = useState(config("localXTTS_url"));
+
+  const [kokoroUrl, setKokoroUrl] = useState(config("kokoro_url"));
+  const [kokoroVoice, setKokoroVoice] = useState(config("kokoro_voice"));
 
   const [visionBackend, setVisionBackend] = useState(config("vision_backend"));
   const [visionLlamaCppUrl, setVisionLlamaCppUrl] = useState(config("vision_llamacpp_url"));
@@ -284,6 +288,7 @@ export const Settings = ({
     rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,,rvcResampleSr,rvcRmsMixRate,rvcProtect,
     coquiLocalUrl,coquiLocalVoiceId,
     localXTTSUrl,
+    kokoroUrl, kokoroVoice,
     visionBackend,
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
@@ -368,7 +373,7 @@ export const Settings = ({
 
     case 'tts':
       return <MenuPage
-        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coquiLocal_settings", "openai_tts_settings", "piper_settings", "localXTTS_settings", "rvc_settings"]}
+        keys={["tts_backend", "elevenlabs_settings", "speecht5_settings", "coquiLocal_settings", "openai_tts_settings", "piper_settings", "localXTTS_settings", "kokoro_settings", "rvc_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'stt':
@@ -580,6 +585,15 @@ export const Settings = ({
       return <LocalXTTSSettingsPage
         localXTTSUrl={localXTTSUrl}
         setLocalXTTSUrl={setLocalXTTSUrl}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'kokoro_settings':
+      return <KokoroSettingsPage
+        kokoroUrl={kokoroUrl}
+        kokoroVoice={kokoroVoice}
+        setKokoroVoice={setKokoroVoice}
+        setKokoroUrl={setKokoroUrl}
         setSettingsUpdated={setSettingsUpdated}
         />
 

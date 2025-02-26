@@ -43,6 +43,7 @@ import { getOpenRouterChatResponseStream } from './openRouterChat';
 import { handleUserInput } from '../externalAPI/externalAPI';
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
 import isDev from '@/utils/isDev';
+import { kokoro } from "../kokoro/kokoro";
 
 type Speak = {
   audioBuffer: ArrayBuffer | null;
@@ -661,6 +662,10 @@ export class Chat {
         }
         case "coquiLocal": {
           const voice = await coquiLocal(talk.message);
+          return voice.audio;
+        }
+        case "kokoro": {
+          const voice = await kokoro(talk.message);
           return voice.audio;
         }
       }

@@ -35,6 +35,7 @@
 * [Using Coqui Local](./guides/using-coqui.md)
 * [Using Piper ](./guides/using-piper.md)
 * [Using Alltalk TTS](./guides/using-alltalk.md)
+* [Using Kokoro TTS](./guides/using-kokoro.md)
 * [Using RVC](./guides/using-rvc.md)
 
 
