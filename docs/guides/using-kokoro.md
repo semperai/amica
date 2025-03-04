@@ -43,6 +43,9 @@ Settings -> Text-to-Speech -> TTS Backend -> Kokoro
 Settings -> Text-to-Speech -> Kokoro -> Voice
 ```
 
+## Using Kokoro with OpenAI TTS
+You can use Kokoro by choosing OpenAI and configuring your Kokoro endpoint and voice.
+
 ### Notes
 - Kokoro TTS can be used as a local text-to-speech backend in your application.
 - If you want to explore more models or functionalities, refer to the official [Kokoro TTS GitHub repository](https://github.com/hexgrad/kokoro).
