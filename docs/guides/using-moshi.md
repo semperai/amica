@@ -8,7 +8,7 @@ To test Moshi, you need to set up and run the Moshi Server on Runpod (Or your ru
 
 ---
 
-### **Step 1: Set Up and Running Moshi Server for Amica**
+### **Step 1: Set Up Moshi Server**
 1. Login to the Terminal on your instance, whether it is your own server or a Runpod instance (If you don't have a good GPU)
 1. **Clone the Moshi Server**  
    ```bash
@@ -34,9 +34,14 @@ To test Moshi, you need to set up and run the Moshi Server on Runpod (Or your ru
      .\venv\Scripts\Activate
      ```  
 
+4. **Install dependencies**
+  ```bash
+  pip install -r requirements.txt
+  ```
+
 ---
 
-### **Step 2: Run the Moshi Server**  
+### **Step 2: Start the Moshi Server**  
 
 Start the Moshi server (For Runpod):  
 ```bash
@@ -64,6 +69,6 @@ Then go to Settings > Chatbot Backend > Moshi, and then insert the correct URL f
 - Ensure that **Python and pip** are installed before proceeding. **Edit the model URLs in the main python script if you want to use a different model from Kyutai.** 
 ---
 
-Replace the `{port-number}` in the URL with the actual port number (e.g 3000 for Amica and 8000 for Moshi).
+Replace the `{port-number}` in the URL with the actual port number.
 
 ---
