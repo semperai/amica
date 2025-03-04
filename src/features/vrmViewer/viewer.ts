@@ -10,11 +10,12 @@ import {
 } from "three-mesh-bvh";
 import { GenerateMeshBVHWorker } from "@/workers/bvh/GenerateMeshBVHWorker";
 import { WorkerBase } from "@/workers/bvh/utils/WorkerBase";
-import {
-    BatchedParticleRenderer,
-    QuarksLoader,
-    QuarksUtil,
-} from 'three.quarks';
+// Temp Disable : WebXR
+// import {
+//     BatchedParticleRenderer,
+//     QuarksLoader,
+//     QuarksUtil,
+// } from 'three.quarks';
 
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
 import GUI from "lil-gui";
