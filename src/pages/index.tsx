@@ -376,7 +376,7 @@ export default function Home() {
         )}
       </VrmStoreProvider>
       
-      <MessageInputContainer isChatProcessing={chatProcessing} />
+      <MessageInputContainer isChatProcessing={chatProcessing} isChatSpeaking={chatSpeaking}/>
 
       {/* main menu */}
       <div className="absolute z-10 m-2">
