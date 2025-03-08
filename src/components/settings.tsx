@@ -67,6 +67,7 @@ import { SystemPromptPage } from './settings/SystemPromptPage';
 import { AmicaLifePage } from "./settings/AmicaLifePage";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export const Settings = ({
   onClickClose,
@@ -638,7 +639,7 @@ export const Settings = ({
       ></div>
       <div className="fixed w-full top-0 left-0 z-50 p-2 bg-white">
 
-        <nav aria-label="Breadcrumb" className="inline-block ml-4">
+        <nav aria-label="Breadcrumb" className="flex ml-4 justify-between items-center">
           <ol role="list" className="flex items-center space-x-4">
             <li className="flex">
               <div className="flex items-center">
@@ -683,6 +684,7 @@ export const Settings = ({
               </li>
             ))}
           </ol>
+          <ConnectButton />
         </nav>
       </div>
 
@@ -714,7 +716,8 @@ export const Settings = ({
           </div>
         </div>
       </div>
-
+      
+      
       <div
         aria-live="assertive"
         className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6 mt-2"
