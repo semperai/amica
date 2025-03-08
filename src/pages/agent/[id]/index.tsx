@@ -100,9 +100,9 @@ import {
     const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
     const supabase = createClient(
-      "https://gixgjknoksmigaxbdlbo.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpeGdqa25va3NtaWdheGJkbGJvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNjgwMzYzMCwiZXhwIjoyMDUyMzc5NjMwfQ.0U9m9c4iq7KI2701XwWcleNOFv-T7mA4bOu0ksk9Ubs",
-    );
+      process.env.NEXT_PUBLIC_TEST_SUPABASE_URL as string,
+      process.env.NEXT_PUBLIC_TEST_SUPABASE_ANON_KEY as string,
+  );
     const router = useRouter()
     const [error, setError] = useState(false);
     const [loaded, setLoaded] = useState(false);
