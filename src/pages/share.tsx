@@ -11,7 +11,6 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import VrmDemo from "@/components/vrmDemo";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 
-
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 
@@ -25,13 +24,25 @@ import schema from '@/utils/backendSchema.json';
 import { RadioBox } from '@/components/radioBox';
 import { FormRow } from '@/components/settings/common';
 import i18n from '@/i18n';
-import { BlobToBase64 } from '@/utils/blobDataUtils';
-
 
 registerPlugin(
   FilePondPluginImagePreview,
   FilePondPluginFileValidateType,
 );
+
+const blobToFile = (blob: Blob, fileName: string): File => {
+  return new File([blob], fileName, { type: blob.type });
+};
+
+async function fetchFileAndHash(url: string) {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+
+  const hashValue = createHash('sha256')
+    .update(Buffer.from(arrayBuffer))
+    .digest('hex');
+  return hashValue;
+}
 
 async function hashFile(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
@@ -65,8 +76,8 @@ function vrmDetector(source: File, type: string): Promise<string> {
 }
 
 const langs = [
-  {key: "en",       label: "English"},
-  {key: "zh",    label: "中文"},
+  {key: "en",   label: "English"},
+  {key: "zh",   label: "中文"},
   {key: "de",   label: "Deutsch"},
 ];
 
@@ -106,11 +117,11 @@ export default function Share() {
   const [title, setTitle] = useState('');
   const [language, setLanguage] = useState('');
   const [agentId, setAgentId] = useState('');
-  const [thumbData, setThumbData] = useState('');
+  const [thumbData, setThumbData] = useState<File | null>(null);
   const [characterCreatorType, setCharacterCreatorType] = useState("Sharing");
   const supabase = createClient(
-    "https://gixgjknoksmigaxbdlbo.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpeGdqa25va3NtaWdheGJkbGJvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNjgwMzYzMCwiZXhwIjoyMDUyMzc5NjMwfQ.0U9m9c4iq7KI2701XwWcleNOFv-T7mA4bOu0ksk9Ubs",
+    process.env.NEXT_PUBLIC_TEST_SUPABASE_URL as string,
+    process.env.NEXT_PUBLIC_TEST_SUPABASE_ANON_KEY as string,
   );
 
   async function uploadVrmFromIndexedDb() {
@@ -139,6 +150,38 @@ export default function Share() {
     setLanguage(config('language'));
   }, []);
 
+  const uploadFile = async (file: File, type: string) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AMICA_API_URL}/api/upload?type=${type}`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || "File upload failed");
+      }
+
+      const hashValue = await hashFile(file);
+      console.log("Upload success: ", data, ` ${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}/${hashValue}`);
+      return data;
+    } catch (error) {
+      console.error("Upload error:", error);
+      return null;
+    }
+  };
+  
+
+  useEffect(() => {
+    if (thumbData) {
+      // uploadFile(thumbData, 'thumbnail');
+    }
+  }, [thumbData]);
+
   useEffect(() => {
     if (vrmLoadedFromIndexedDb) {
       vrmDataProvider.addItemUrl(vrmHash, vrmUrl);
@@ -153,7 +196,7 @@ export default function Share() {
   }, [vrmSaveType, vrmLoadedFromIndexedDb, vrmLoadingFromIndexedDb]);
 
   const [isRegistering, setIsRegistering] = useState(false);
-  function registerCharacter() {
+  async function registerCharacter() {
     setIsRegistering(true);
 
     async function register() {
@@ -297,6 +340,7 @@ export default function Share() {
           ]}
           selectedValue={characterCreatorType}
           onChange={setCharacterCreatorType}
+          disabled={!!sqid || !!agentId}
         />
       </div>
       
@@ -614,7 +658,7 @@ export default function Share() {
                       onScreenShot={
                         async (blob: Blob | null) => {
                           if (blob)
-                            return BlobToBase64(blob).then(data => setThumbData(data));
+                            return setThumbData(blobToFile(blob!, "thumb.jpg")); 
                       }}
                     />
                   )}
