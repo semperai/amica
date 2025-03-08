@@ -119,6 +119,105 @@ export default function Home() {
     setMuted(config('tts_muted') === 'true')
   }
 
+  //TEMPORARY
+  function exportConfigs() {
+    const configs = {
+        localXTTS_url: config("localXTTS_url"),
+        alltalk_version: config("alltalk_version"),
+        alltalk_voice: config("alltalk_voice"),
+        alltalk_language: config("alltalk_language"),
+        alltalk_rvc_voice: config("alltalk_rvc_voice"),
+        alltalk_rvc_pitch: config("alltalk_rvc_pitch"),
+        autosend_from_mic: config("autosend_from_mic"),
+        wake_word_enabled: config("wake_word_enabled"),
+        wake_word: config("wake_word"),
+        time_before_idle_sec: config("time_before_idle_sec"),
+        debug_gfx: config("debug_gfx"),
+        language: config("language"),
+        show_introduction: config("show_introduction"),
+        show_add_to_homescreen: config("show_add_to_homescreen"),
+        bg_color: config("bg_color"),
+        bg_url: config("bg_url"),
+        vrm_url: config("vrm_url"),
+        vrm_hash: config("vrm_hash"),
+        vrm_save_type: config("vrm_save_type"),
+        youtube_videoid: config("youtube_videoid"),
+        animation_url: config("animation_url"),
+        voice_url: config("voice_url"),
+        chatbot_backend: config("chatbot_backend"),
+        openai_apikey: config("openai_apikey"),
+        openai_url: config("openai_url"),
+        openai_model: config("openai_model"),
+        llamacpp_url: config("llamacpp_url"),
+        llamacpp_stop_sequence: config("llamacpp_stop_sequence"),
+        ollama_url: config("ollama_url"),
+        ollama_model: config("ollama_model"),
+        koboldai_url: config("koboldai_url"),
+        koboldai_use_extra: config("koboldai_use_extra"),
+        koboldai_stop_sequence: config("koboldai_stop_sequence"),
+        openrouter_apikey: config("openrouter_apikey"),
+        openrouter_url: config("openrouter_url"),
+        openrouter_model: config("openrouter_model"),
+        tts_muted: config("tts_muted"),
+        tts_backend: config("tts_backend"),
+        stt_backend: config("stt_backend"),
+        vision_backend: config("vision_backend"),
+        vision_system_prompt: config("vision_system_prompt"),
+        vision_openai_apikey: config("vision_openai_apikey"),
+        vision_openai_url: config("vision_openai_url"),
+        vision_openai_model: config("vision_openai_model"),
+        vision_llamacpp_url: config("vision_llamacpp_url"),
+        vision_ollama_url: config("vision_ollama_url"),
+        vision_ollama_model: config("vision_ollama_model"),
+        whispercpp_url: config("whispercpp_url"),
+        openai_whisper_apikey: config("openai_whisper_apikey"),
+        openai_whisper_url: config("openai_whisper_url"),
+        openai_whisper_model: config("openai_whisper_model"),
+        openai_tts_apikey: config("openai_tts_apikey"),
+        openai_tts_url: config("openai_tts_url"),
+        openai_tts_model: config("openai_tts_model"),
+        openai_tts_voice: config("openai_tts_voice"),
+        rvc_url: config("rvc_url"),
+        rvc_enabled: config("rvc_enabled"),
+        rvc_model_name: config("rvc_model_name"),
+        rvc_f0_upkey: config("rvc_f0_upkey"),
+        rvc_f0_method: config("rvc_f0_method"),
+        rvc_index_path: config("rvc_index_path"),
+        rvc_index_rate: config("rvc_index_rate"),
+        rvc_filter_radius: config("rvc_filter_radius"),
+        rvc_resample_sr: config("rvc_resample_sr"),
+        rvc_rms_mix_rate: config("rvc_rms_mix_rate"),
+        rvc_protect: config("rvc_protect"),
+        coquiLocal_url: config("coquiLocal_url"),
+        coquiLocal_voiceid: config("coquiLocal_voiceid"),
+        piper_url: config("piper_url"),
+        elevenlabs_apikey: config("elevenlabs_apikey"),
+        elevenlabs_voiceid: config("elevenlabs_voiceid"),
+        elevenlabs_model: config("elevenlabs_model"),
+        speecht5_speaker_embedding_url: config("speecht5_speaker_embedding_url"),
+        coqui_apikey: config("coqui_apikey"),
+        coqui_voice_id: config("coqui_voice_id"),
+        amica_life_enabled: config("amica_life_enabled"),
+        min_time_interval_sec: config("min_time_interval_sec"),
+        max_time_interval_sec: config("max_time_interval_sec"),
+        time_to_sleep_sec: config("time_to_sleep_sec"),
+        idle_text_prompt: config("idle_text_prompt"),
+        name: config("name"),
+        system_prompt: config("system_prompt"),
+    };
+
+    const jsonBlob = new Blob([JSON.stringify(configs, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(jsonBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "configs.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+
   const toggleState = (
     setFunc: React.Dispatch<React.SetStateAction<boolean>>, 
     deps: React.Dispatch<React.SetStateAction<boolean>>[],
@@ -371,10 +470,23 @@ export default function Home() {
                   onChange={toggleChatMode}
                 />
             </div>
+
+            {/* TEMPORARY */}
+            <div className="flex flex-row items-center space-x-2">
+              <CodeBracketSquareIcon
+                className="h-7 w-7 text-white opacity-50 hover:opacity-100 active:opacity-100 hover:cursor-pointer"
+                aria-hidden="true"
+                onClick={exportConfigs}
+              />
+              <span className="text-white hidden">Export Configs</span> 
+            </div>
             
           </div>
         </div>    
       </div>
+
+      
+
 
       {showChatLog && <ChatLog messages={chatLog} />}
 
