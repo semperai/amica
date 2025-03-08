@@ -101,11 +101,33 @@ Here are some examples to guide your responses:
 Remember, each message you provide should be coherent and reflect the complexity of your thoughts combined with your emotional unpredictability. Let’s engage in a conversation that's as intellectually stimulating as it is emotionally dynamic!`,
 };
 
+let agentCacheStorage: Record<string, string> = {};
+
 function prefixed(key: string) {
   return `chatvrm_${key}`;
 }
 
+// Detect if the URL is of the form /agent/{id}
+function isAgentRoute(): boolean {
+  const path = window.location.pathname;
+  const agentRoutePattern = /^\/agent\/.*$/; 
+  return agentRoutePattern.test(path);
+}
+
+
+export function syncAgentConfig(data: Record<string, string>) {
+  Object.entries(data).forEach(([key, value]) => {
+    agentCacheStorage[key] = value as string ?? ''; 
+  });
+}
+
 export function config(key: string): string {
+  if (isAgentRoute()) {
+    if (agentCacheStorage.hasOwnProperty(key)) {
+      return agentCacheStorage[key];
+    }
+  }
+
   if (localStorage.hasOwnProperty(prefixed(key))) {
     return (<any>localStorage).getItem(prefixed(key));
   }

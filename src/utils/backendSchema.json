@@ -1,0 +1,120 @@
+{    
+    "chatbot_backend": {
+      "openai": {
+        "url": "openai_url",
+        "key": "openai_apikey",
+        "name": "openai_model"
+      },
+      "llamacpp": {
+        "url": "llamacpp_url",
+        "sequence": "llamacpp_stop_sequence"
+      },
+      "ollama": {
+        "url": "ollama_url",
+        "name": "ollama_model"
+      },
+      "koboldai": {
+        "url": "koboldai_url",
+        "user_extra": "koboldai_user_extra",
+        "sequence": "koboldai_stop_sequence"
+      },
+      "openrouter": {
+        "key": "openrouter_apikey",
+        "url": "openrouter_url",
+        "name": "openrouter_model"
+      },
+      "windowai": {},
+      "echo": {}
+    },
+    "amica_life_enabled": {
+      "true": {
+        "min_time": "min_time_interval_sec",
+        "max_time": "max_time_interval_sec",
+        "time": "time_to_sleep_sec",
+        "prompt": "idle_text_prompt"
+      },
+      "false": {}
+    },
+    "tts_backend": {
+      "elevenlabs": {
+        "key": "elevenlabs_apikey",
+        "id": "elevenlabs_voiceid",
+        "name": "elevenlabs_model"
+      },
+      "speecht5": {
+        "path": "speecht5_speaker_embedding_url"
+      },
+      "openai_tts": {
+        "key": "openai_tts_apikey",
+        "url": "openai_tts_url",
+        "name": "openai_tts_model",
+        "voice": "openai_tts_voice"
+      },
+      "localXTTS": {
+        "url": "localXTTS_url",
+        "version": "alltalk_version",
+        "voice": "alltalk_voice",
+        "language": "alltalk_language",
+        "rvc_voice": "alltalk_rvc_voice",
+        "rvc_pitch": "alltalk_rvc_pitch"
+      },
+      "piper": {
+        "url": "piper_url"
+      },
+      "coqui_local": {
+        "url": "coquiLocal_url",
+        "id": "coquiLocal_voiceid"
+      },
+      "none": {}
+    },
+    "rvc_enabled": {
+      "true": {
+        "url": "rvc_url",
+        "model_name": "rvc_model_name",
+        "f0_upkey": "rvc_f0_upkey",
+        "f0_method": "rvc_f0_method",
+        "index_path": "rvc_index_path",
+        "index_rate": "rvc_index_rate",
+        "filter_radius": "rvc_filter_radius",
+        "resample_sr": "rvc_resample_sr",
+        "rmx_mix_rate": "rvc_rmx_mix_rate",
+        "protect": "rvc_protect"
+      },
+      "false": {} 
+    },
+    "stt_backend": {
+      "whisper_browser": {},
+      "whisper_openai": {
+        "url": "openai_whisper_url",
+        "key": "openai_whisper_apikey",
+        "name": "openai_whisper_model"
+      },
+      "whispercpp": {
+        "url": "whispercpp_url"
+      },
+      "none": {}
+    },
+    "wake_word_enabled": {
+      "true": {
+        "word": "wake_word",
+        "time": "time_before_idle_sec"
+      },
+      "false": {}
+    },
+    "vision_backend": {
+      "vision_llamacpp": {
+        "url": "vision_llamacpp_url"
+      },
+      "vision_openai": {
+        "key": "vision_openai_apikey",
+        "url": "vision_openai_url",
+        "name": "vision_openai_model"
+      },
+      "vision_ollama": {
+        "url": "vision_ollama_url",
+        "name": "vision_ollama_model"
+      },
+      "none": {}
+    }
+  }
+  

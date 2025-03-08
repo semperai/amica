@@ -7,7 +7,7 @@ import { isTauri } from "@/utils/isTauri";
 
 const chatbotBackends = [
   {key: "echo",       label: "Echo"},
-  {key: "chatgpt",    label: "ChatGPT"},
+  {key: "openai",    label: "ChatGPT"},
   {key: "llamacpp",   label: "LLama.cpp"},
   ...isTauri() ? [] : [{key: "windowai", label: "Window.ai"}], // Hides Window.ai when using the desktop app
   {key: "ollama",     label: "Ollama"},
@@ -73,7 +73,7 @@ export function ChatbotBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["chatgpt", "llamacpp", "ollama", "koboldai", "openrouter"].includes(chatbotBackend) && (
+        { ["openai", "llamacpp", "ollama", "koboldai", "openrouter"].includes(chatbotBackend) && (
           <li className="py-4">
             <FormRow label={`${t("Configure")} ${t(idToTitle(chatbotBackend))}`}>
               <button

@@ -11,7 +11,6 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import VrmDemo from "@/components/vrmDemo";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 
-
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 
@@ -19,11 +18,31 @@ import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import { vrmDataProvider } from "@/features/vrmStore/vrmDataProvider";
 import { IconButton } from '@/components/iconButton';
+import { createClient } from '@supabase/supabase-js';
+
+import schema from '@/utils/backendSchema.json';
+import { RadioBox } from '@/components/radioBox';
+import { FormRow } from '@/components/settings/common';
+import i18n from '@/i18n';
 
 registerPlugin(
   FilePondPluginImagePreview,
   FilePondPluginFileValidateType,
 );
+
+const blobToFile = (blob: Blob, fileName: string): File => {
+  return new File([blob], fileName, { type: blob.type });
+};
+
+async function fetchFileAndHash(url: string) {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+
+  const hashValue = createHash('sha256')
+    .update(Buffer.from(arrayBuffer))
+    .digest('hex');
+  return hashValue;
+}
 
 async function hashFile(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
@@ -55,6 +74,12 @@ function vrmDetector(source: File, type: string): Promise<string> {
     })();
   })
 }
+
+const langs = [
+  {key: "en",   label: "English"},
+  {key: "zh",   label: "中文"},
+  {key: "de",   label: "Deutsch"},
+];
 
 export default function Share() {
   const { t } = useTranslation();
@@ -89,6 +114,16 @@ export default function Share() {
 
   const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
+  const [title, setTitle] = useState('');
+  const [language, setLanguage] = useState('');
+  const [agentId, setAgentId] = useState('');
+  const [thumbData, setThumbData] = useState<File | null>(null);
+  const [characterCreatorType, setCharacterCreatorType] = useState("Sharing");
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_TEST_SUPABASE_URL as string,
+    process.env.NEXT_PUBLIC_TEST_SUPABASE_ANON_KEY as string,
+  );
+
   async function uploadVrmFromIndexedDb() {
     const blob = await vrmDataProvider.getItemAsBlob(vrmHash);
     if (vrmUploadFilePond.current && blob) {
@@ -112,7 +147,40 @@ export default function Share() {
     setVrmSaveType(config('vrm_save_type'));
     setAnimationUrl(config('animation_url'));
     setVoiceUrl(config('voice_url'));
+    setLanguage(config('language'));
   }, []);
+
+  const uploadFile = async (file: File, type: string) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AMICA_API_URL}/api/upload?type=${type}`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || "File upload failed");
+      }
+
+      const hashValue = await hashFile(file);
+      console.log("Upload success: ", data, ` ${process.env.NEXT_PUBLIC_AMICA_STORAGE_URL}/${hashValue}`);
+      return data;
+    } catch (error) {
+      console.error("Upload error:", error);
+      return null;
+    }
+  };
+  
+
+  useEffect(() => {
+    if (thumbData) {
+      // uploadFile(thumbData, 'thumbnail');
+    }
+  }, [thumbData]);
 
   useEffect(() => {
     if (vrmLoadedFromIndexedDb) {
@@ -128,7 +196,7 @@ export default function Share() {
   }, [vrmSaveType, vrmLoadedFromIndexedDb, vrmLoadingFromIndexedDb]);
 
   const [isRegistering, setIsRegistering] = useState(false);
-  function registerCharacter() {
+  async function registerCharacter() {
     setIsRegistering(true);
 
     async function register() {
@@ -159,6 +227,73 @@ export default function Share() {
     }
 
     register();
+  }
+
+  const [isMinting, setIsMinting] = useState(false);
+  async function mintCharacter() {
+    setIsMinting(true);
+
+    let governance = { "premium_access": true };
+    let staking = { "boost_agent_visibility": true };
+    let configs: Record<string, any> = {}; 
+
+    configs = {
+      ...configs,
+      bg_color: config("bg_color"),
+      language: language,
+      bg_url: bgUrl,
+      youtube_videoid: youtubeVideoId,
+      vrm_url: vrmUrl,
+      animation_url: animationUrl,
+      system_prompt: systemPrompt,
+      vision_system_prompt: visionSystemPrompt,
+    };
+
+    let second: string = "";
+
+    for (const topKey of Object.keys(schema)) {
+      second = config(topKey);
+      const thirdLevel = schema[topKey as keyof typeof schema]?.[second as keyof typeof schema[keyof typeof schema]];
+
+      if (thirdLevel && Object.keys(thirdLevel).length > 0) {
+        Object.assign(configs, 
+          ...Object.keys(thirdLevel).map(midKey => ({
+            [thirdLevel[midKey]]: config(thirdLevel[midKey])
+          }))
+        );
+      }
+    }
+
+    async function mint() {
+      const { data, error } = await supabase
+        .from("agent-storage")
+        .insert({
+          name,
+          title,
+          description,
+          governance,
+          staking,
+          configs
+        })
+        .select("agentid")
+        .single(); 
+    
+      if (error) {
+        console.error("Error inserting agent:", error);
+        return;
+      }
+    
+      if (data && data.agentid) {
+        console.log("Agent ID", data.agentid);
+        setAgentId(data.agentid);
+      } else {
+        console.error("Agent ID not returned");
+      }
+
+      setIsMinting(false);
+    }
+
+    await mint();
   }
 
   const router = useRouter();
@@ -196,12 +331,80 @@ export default function Share() {
               onClick={handleCloseIcon}/>
         </div>
       </div>
+
       <div className="col-span-3 max-w-md rounded-xl mt-4">
-        <h1 className="text-lg">{t("Character Creator")}</h1>
+        <RadioBox
+          options={[
+            { label: "Minting", value: "Minting" },
+            { label: "Sharing", value: "Sharing" },
+          ]}
+          selectedValue={characterCreatorType}
+          onChange={setCharacterCreatorType}
+          disabled={!!sqid || !!agentId}
+        />
+      </div>
+      
+      <div className="col-span-3 max-w-md rounded-xl mt-4">
+        <h1 className="text-lg">{t(`Character Creator for ${characterCreatorType}`)}</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
+
+        { characterCreatorType === "Minting" && (
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
+              {/* <label className="block text-sm font-medium leading-6 text-gray-900">
+                {t("Language")}
+              </label> */}
+              <div className="mt-2">
+                {/* <input
+                  type="text"
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  value={language}
+                  readOnly={!!sqid || !!agentId}
+                  onChange={(e) => {
+                    setLanguage(e.target.value);
+                  }}
+                /> */}
+                <FormRow label={t("Language")}>
+                  <select
+                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    value={language}
+                    onChange={(event: React.ChangeEvent<any>) => {
+                      setLanguage(event.target.value);
+                      updateConfig("language", event.target.value);
+                      i18n.changeLanguage(event.target.value)
+                    }}
+                  >
+                  {langs.map((ln) => (
+                    <option key={ln.key} value={ln.key}>{t(ln.label)}</option>
+                  ))}
+                  </select>
+                </FormRow>
+              </div>
+            </div>
+            
+          )}
+
+          { characterCreatorType === "Minting" && (
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
+              <label className="block text-sm font-medium leading-6 text-gray-900">
+                {t("Title")}
+              </label>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  value={title}
+                  readOnly={!!sqid || !!agentId}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               {t("Description")}
@@ -211,7 +414,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={description}
-                readOnly={!!sqid}
+                readOnly={!!sqid || !!agentId}
                 placeholder={t("Provide a description of the character")}
                 onChange={(e) => {
                   setDescription(e.target.value);
@@ -229,7 +432,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={name}
-                readOnly={!!sqid}
+                readOnly={!!sqid || !!agentId}
                 onChange={(e) => {
                   setName(e.target.value);
                 }}
@@ -246,7 +449,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={systemPrompt}
-                readOnly={!!sqid}
+                readOnly={!!sqid || !!agentId}
                 onChange={(e) => {
                   setSystemPrompt(e.target.value);
                 }}
@@ -263,7 +466,7 @@ export default function Share() {
                 rows={4}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={visionSystemPrompt}
-                readOnly={!!sqid}
+                readOnly={!!sqid || !!agentId}
                 onChange={(e) => {
                   setVisionSystemPrompt(e.target.value);
                 }}
@@ -280,7 +483,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={bgUrl}
-                readOnly={!!sqid}
+                readOnly={!!sqid || !!agentId}
                 onChange={(e) => {
                   setBgUrl(e.target.value);
                 }}
@@ -332,7 +535,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={youtubeVideoId}
-                readOnly={!!sqid}
+                readOnly={!!sqid || !!agentId}
                 onChange={(e) => {
                   setYoutubeVideoId(e.target.value);
                 }}
@@ -373,7 +576,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={vrmUrl}
-                readOnly={!!sqid}
+                readOnly={!!sqid || !!agentId}
                 onChange={(e) => {
                   setVrmUrl(e.target.value);
                   updateVrmAvatar(viewer, e.target.value);
@@ -430,30 +633,35 @@ export default function Share() {
               />
 
               <div className="sm:col-span-3 max-w-md rounded-xl mt-4 bg-gray-100">
-                {vrmUrl && (
-                  <VrmDemo
-                    vrmUrl={vrmUrl}
-                    onLoaded={() => {
-                      setVrmLoaded(true);
-                      (async () => {
-                        try {
-                          const animation = await loadVRMAnimation("/animations/idle_loop.vrma");
-                          if (!animation) {
-                            console.error('loading animation failed');
-                            return;
+                  {vrmUrl && (
+                    <VrmDemo
+                      vrmUrl={vrmUrl}
+                      onLoaded={() => {
+                        setVrmLoaded(true);
+                        (async () => {
+                          try {
+                            const animation = await loadVRMAnimation("/animations/idle_loop.vrma");
+                            if (!animation) {
+                              console.error('loading animation failed');
+                              return;
+                            }
+                            viewer.model!.loadAnimation(animation!);
+                            requestAnimationFrame(() => {
+                              viewer.resetCamera()
+                            });
+                          } catch (e) {
+                            console.error('loading animation failed', e);
                           }
-                          viewer.model!.loadAnimation(animation!);
-                          requestAnimationFrame(() => {
-                            viewer.resetCamera()
-                          });
-                        } catch (e) {
-                          console.error('loading animation failed', e);
-                        }
-                      })();
-                      console.log('vrm demo loaded');
-                    }}
-                  />
-                )}
+                        })();
+                        console.log('vrm demo loaded');
+                      }}
+                      onScreenShot={
+                        async (blob: Blob | null) => {
+                          if (blob)
+                            return setThumbData(blobToFile(blob!, "thumb.jpg")); 
+                      }}
+                    />
+                  )}
               </div>
             </div>
           </div>
@@ -522,7 +730,7 @@ export default function Share() {
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 value={voiceUrl}
-                readOnly={!!sqid}
+                readOnly={!!sqid || !!agentId}
                 onChange={(e) => {
                   setVoiceUrl(e.target.value);
                 }}
@@ -559,12 +767,63 @@ export default function Share() {
 
                   handleFile(file.file as File);
                 }}
-                disabled={!!sqid}
+                disabled={!!sqid || !!agentId}
               />
             </div>
           </div>
 
-          {!sqid && (
+          {characterCreatorType === "Minting" && (
+            <div className="m:col-span-3 max-w-md mt-4">
+              {Object.keys(schema).map((topKey) => {
+                const second = config(topKey);  // Second value
+                const thirdLevel = schema[topKey as keyof typeof schema]?.[second as keyof typeof schema[keyof typeof schema]];
+
+                return thirdLevel && Object.keys(thirdLevel).length > 0 ? (
+                  <div key={topKey}>
+                    {/* Gray line separate from the container */}
+                    <div className="border-t border-gray-300 mb-4 mt-4"></div>
+
+                    <div className="max-w-md rounded-xl mt-4">
+                      {/* Top Key label */}
+                      <label className="block text-sm font-medium leading-6 text-gray-900">
+                        {topKey} {/* Top key as the head label */}
+                      </label>
+                      <div className="mt-2">
+                          <input
+                            type="text"
+                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            value={second}
+                            readOnly={true}
+                          />
+                      </div>
+                      {Object.keys(thirdLevel).map((midKey) => {
+                        const fieldLabel = midKey; // Label based on key name
+                        const fieldValue = config(thirdLevel[midKey]); // Get value from config
+
+                        return (
+                          <div key={midKey} className="max-w-md rounded-xl mt-4">
+                            <label className="block text-sm font-medium leading-6 text-gray-900">
+                              {`${thirdLevel[midKey]}`}
+                            </label>
+                            <div className="mt-2">
+                              <input
+                                type="text"
+                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                value={fieldValue}
+                                readOnly={true}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null;
+              })}
+            </div>
+          )}
+
+          {!sqid && characterCreatorType === "Sharing" && (
             <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
               <button
                 onClick={registerCharacter}
@@ -572,6 +831,18 @@ export default function Share() {
                 disabled={!vrmLoaded || showUploadLocalVrmMessage || vrmLoadingFromIndexedDb || isRegistering}
               >
                 {t("Save Character")}
+              </button>
+            </div>
+          )}
+
+          {!agentId && characterCreatorType === "Minting" && (
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
+              <button
+                onClick={mintCharacter}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-fuchsia-500 hover:bg-fuchsia-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-fuchsia-500 disabled:cursor-not-allowed"
+                disabled={!vrmLoaded || showUploadLocalVrmMessage || vrmLoadingFromIndexedDb || isMinting}
+              >
+                {t("Mint Agent")}
               </button>
             </div>
           )}
@@ -610,6 +881,26 @@ export default function Share() {
               </Link>
             </div>
           )}
+
+          {agentId && (
+            <div className="sm:col-span-3 max-w-md rounded-xl mt-8">
+              <p className="text-sm">{t("Minting succesfully with agentid:")}</p>
+              <input
+                type="text"
+                className="inline-flex items-center px-2 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-fuchsia-600 bg-fuchsia-100 hover:bg-fuchsia-200 focus:outline-transparent focus:border-transparent border-transparent disabled:opacity-50 disabled:hover:bg-fuchsia-50 disabled:cursor-not-allowed hover:cursor-copy"
+                defaultValue={agentId}
+                readOnly
+              />
+
+              <Link href="/">
+                <button
+                  className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none disabled:opacity-50 disabled:hover:bg-emerald-500 disabled:cursor-not-allowed"
+                >
+                  {t("Return Home")}
+                </button>
+              </Link>
+            </div>
+          )}
         </div>
         <div>
           {/* empty column */}
@@ -618,3 +909,4 @@ export default function Share() {
     </div>
   );
 }
+
