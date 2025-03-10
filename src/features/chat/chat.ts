@@ -30,6 +30,7 @@ import { elevenlabs } from "@/features/elevenlabs/elevenlabs";
 import { speecht5 } from "@/features/speecht5/speecht5";
 import { openaiTTS } from "@/features/openaiTTS/openaiTTS";
 import { localXTTSTTS } from "@/features/localXTTS/localXTTS";
+import { kokoro } from "../kokoro/kokoro";
 
 import { AmicaLife } from "@/features/amicaLife/amicaLife";
 
@@ -37,13 +38,12 @@ import { config, updateConfig } from "@/utils/config";
 import { cleanTalk } from "@/utils/cleanTalk";
 import { processResponse } from "@/utils/processResponse";
 import { wait } from "@/utils/wait";
+import isDev from '@/utils/isDev';
 
 import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
 import { getOpenRouterChatResponseStream } from './openRouterChat';
 import { handleUserInput } from '../externalAPI/externalAPI';
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
-import isDev from '@/utils/isDev';
-import { kokoro } from "../kokoro/kokoro";
 
 type Speak = {
   audioBuffer: ArrayBuffer | null;
@@ -69,6 +69,7 @@ export class Chat {
   public setShownMessage?: (role: Role) => void;
   public setChatProcessing?: (processing: boolean) => void;
   public setChatSpeaking?: (speaking: boolean) => void;
+  public setThoughtMessage?: (message: string) => void;
 
   // the message from the user that is currently being processed
   // it can be reset
@@ -86,6 +87,7 @@ export class Chat {
 
   private currentAssistantMessage: string;
   private currentUserMessage: string;
+  private thoughtMessage: string;
 
   private lastAwake: number;
 
@@ -108,6 +110,7 @@ export class Chat {
 
     this.currentAssistantMessage = "";
     this.currentUserMessage = "";
+    this.thoughtMessage = "";
 
     this.messageList = [];
     this.currentStreamIdx = 0;
@@ -122,6 +125,7 @@ export class Chat {
     setChatLog: (messageLog: Message[]) => void,
     setUserMessage: (message: string) => void,
     setAssistantMessage: (message: string) => void,
+    setThoughtMessage: (message: string) => void,
     setShownMessage: (role: Role) => void,
     setChatProcessing: (processing: boolean) => void,
     setChatSpeaking: (speaking: boolean) => void,
@@ -133,6 +137,7 @@ export class Chat {
     this.setUserMessage = setUserMessage;
     this.setAssistantMessage = setAssistantMessage;
     this.setShownMessage = setShownMessage;
+    this.setThoughtMessage = setThoughtMessage;
     this.setChatProcessing = setChatProcessing;
     this.setChatSpeaking = setChatSpeaking;
 
@@ -252,6 +257,21 @@ export class Chat {
       } while (this.speakJobs.size() > 0);
       await wait(50);
     }
+  }
+
+  public thoughtBubbleMessage(isThinking: boolean, thought: string) {
+    // if not thinking, we should clear the thought bubble 
+    if (!isThinking) {
+      this.thoughtMessage = "";
+      this.setThoughtMessage!("");
+      return;
+    }
+
+    if (this.thoughtMessage !== "") {
+      this.thoughtMessage += " ";
+    }
+    this.thoughtMessage += thought;
+    this.setThoughtMessage!(this.thoughtMessage);
   }
 
   public bubbleMessage(role: Role, text: string) {
@@ -530,6 +550,7 @@ export class Chat {
 
     let aiTextLog = "";
     let tag = "";
+    let isThinking = false;
     let rolePlay = "";
     let receivedMessage = "";
 
@@ -559,6 +580,7 @@ export class Chat {
           aiTextLog,
           receivedMessage,
           tag,
+          isThinking,
           rolePlay,
           callback: (aiTalks: Screenplay[]): boolean => {
             // Generate & play audio for each sentence, display responses
@@ -566,11 +588,17 @@ export class Chat {
               console.log("wrong stream idx");
               return true; // should break
             }
-            this.ttsJobs.enqueue({
-              screenplay: aiTalks[0],
-              streamIdx: streamIdx,
-            });
 
+            if (!isThinking) {
+              this.ttsJobs.enqueue({
+                screenplay: aiTalks[0],
+                streamIdx: streamIdx,
+              });
+            } 
+
+            // thought bubble
+            this.thoughtBubbleMessage(isThinking, aiTalks[0].text);
+            
             if (!firstSentenceEncountered) {
               console.timeEnd("performance_time_to_first_sentence");
               firstSentenceEncountered = true;
@@ -584,6 +612,7 @@ export class Chat {
         aiTextLog = proc.aiTextLog;
         receivedMessage = proc.receivedMessage;
         tag = proc.tag;
+        isThinking = proc.isThinking;
         rolePlay = proc.rolePlay;
         if (proc.shouldBreak) {
           break;

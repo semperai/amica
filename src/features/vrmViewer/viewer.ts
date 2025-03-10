@@ -984,13 +984,13 @@ export class Viewer {
     const headNode = this.model?.vrm?.humanoid.getNormalizedBoneNode("head");
 
     if (headNode) {
-      const headWPos = headNode.getWorldPosition(new THREE.Vector3());
+      const headPos = headNode.getWorldPosition(new THREE.Vector3());
       this.camera?.position.set(
         this.camera.position.x,
-        headWPos.y,
+        headPos.y,
         this.camera.position.z,
       );
-      this.cameraControls?.target.set(headWPos.x, headWPos.y, headWPos.z);
+      this.cameraControls?.target.set(headPos.x, headPos.y, headPos.z);
       this.cameraControls?.update();
     }
   }
