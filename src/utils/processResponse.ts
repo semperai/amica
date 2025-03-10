@@ -5,6 +5,7 @@ export type ProcessResponseRetVal = {
   aiTextLog: string;
   receivedMessage: string;
   tag: string;
+  isThinking: boolean;
   rolePlay: string;
   shouldBreak: boolean;
 }
@@ -18,6 +19,7 @@ export function processResponse({
   aiTextLog,
   receivedMessage,
   tag,
+  isThinking,
   rolePlay,
   callback,
 }: {
@@ -25,10 +27,21 @@ export function processResponse({
   aiTextLog: string,
   receivedMessage: string,
   tag: string,
+  isThinking: boolean,
   rolePlay: string,
   callback: (aiTalks: Screenplay[]) => boolean,
 }): ProcessResponseRetVal {
   let shouldBreak = false;
+
+  const thinkTagMatch = receivedMessage.match(/<\/?think>/);
+  if (thinkTagMatch && thinkTagMatch[0]) {
+    if (thinkTagMatch[0] === "</think>") {
+      isThinking = false;
+    } else  {
+      isThinking = true;
+    }
+    receivedMessage = receivedMessage.slice(thinkTagMatch[0].length);
+  }
 
   // Detection of tag part of reply content
   const tagMatch = receivedMessage.match(/^\[(.*?)\]/);
@@ -68,6 +81,7 @@ export function processResponse({
         aiTextLog,
         receivedMessage,
         tag,
+        isThinking,
         rolePlay,
         shouldBreak,
       }
@@ -85,6 +99,7 @@ export function processResponse({
     aiTextLog,
     receivedMessage,
     tag,
+    isThinking,
     rolePlay,
     shouldBreak,
   }

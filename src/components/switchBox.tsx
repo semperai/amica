@@ -110,7 +110,7 @@ export const VerticalSwitchBox = ({
   };
 
   return (
-    <Switch.Group as="div" className="flex flex-col items-center space-y-3">
+    <Switch.Group as="div" className="flex flex-col items-center">
       <Switch
         checked={enabled}
         onChange={handleChange}

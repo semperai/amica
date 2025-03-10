@@ -46,7 +46,6 @@ import { LoadingProgress } from "@/components/loadingProgress";
 import { DebugPane } from "@/components/debugPane";
 import { Settings } from "@/components/settings";
 import { EmbeddedWebcam } from "@/components/embeddedWebcam";
-// import { Moshi } from "@/features/moshi/components/Moshi";
 import { Moshi } from "@/features/moshi/components/Moshi";
 
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
@@ -64,6 +63,7 @@ import { ChatModeText } from "@/components/chatModeText";
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
 import { handleChatLogs } from "@/features/externalAPI/externalAPI";
 import { VerticalSwitchBox } from "@/components/switchBox";
+import { ThoughtText } from "@/components/thoughtText";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -126,6 +126,7 @@ export default function Home() {
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
   const [userMessage, setUserMessage] = useState("");
+  const [thoughtMessage, setThoughtMessage] = useState("");
   const [shownMessage, setShownMessage] = useState<Role>("system");
   const [subconciousLogs, setSubconciousLogs] = useState<TimestampedPrompt[]>([]);
 
@@ -303,6 +304,7 @@ export default function Home() {
       setChatLog,
       setUserMessage,
       setAssistantMessage,
+      setThoughtMessage,
       setShownMessage,
       setChatProcessing,
       setChatSpeaking,
@@ -339,7 +341,7 @@ export default function Home() {
     )}>
       {showStreamWindow && 
 
-      <div className="fixed top-4 right-4 w-[200px] h-[150px] z-20">
+      <div className="fixed top-1/3 right-4 w-[200px] h-[150px] z-0">
         <video
           ref={videoRef} 
           autoPlay
@@ -538,17 +540,6 @@ export default function Home() {
         </div>    
       </div>
 
-      {/*
-      <Moshi
-        workerAddr="https://orcsza38j78yrh-8998.proxy.runpod.net/"
-        workerAuthId="amica"
-        audioContext={null}
-        worklet={null}
-        onConversationEnd={() => {}}
-        isBypass={false}
-      />
-      */}
-
       {showChatLog && <ChatLog messages={chatLog} />}
 
       {/* Normal chat text */}
@@ -562,6 +553,9 @@ export default function Home() {
           )}
         </>
       )}
+
+      {/* Thought text */}
+      {thoughtMessage !== "" && <ThoughtText message={thoughtMessage}/>}
 
       {/* Chat mode text */}
       {showChatMode && <ChatModeText messages={chatLog}/>}
