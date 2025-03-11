@@ -88,6 +88,7 @@ export async function askLLM(
   let sentences = new Array<string>();
   let aiTextLog = "";
   let tag = "";
+  let isThinking = false;
   let rolePlay = "";
   let result = "";
 
@@ -119,6 +120,7 @@ export async function askLLM(
           aiTextLog,
           receivedMessage,
           tag,
+          isThinking,
           rolePlay,
           callback: (aiTalks: Screenplay[]): boolean => {
             // Generate & play audio for each sentence, display responses
@@ -126,10 +128,15 @@ export async function askLLM(
               console.log('wrong stream idx');
               return true; // should break
             }
-            chat.ttsJobs.enqueue({
-              screenplay: aiTalks[0],
-              streamIdx: currentStreamIdx,
-            });
+            if (!isThinking) {
+              chat.ttsJobs.enqueue({
+                screenplay: aiTalks[0],
+                streamIdx: currentStreamIdx,
+              });
+            }
+
+            // thought bubble
+            chat.thoughtBubbleMessage(isThinking, aiTalks[0].text);
   
             if (! firstSentenceEncountered) {
               console.timeEnd('performance_time_to_first_sentence');
@@ -144,6 +151,7 @@ export async function askLLM(
         aiTextLog = proc.aiTextLog;
         receivedMessage = proc.receivedMessage;
         tag = proc.tag;
+        isThinking = proc.isThinking;
         rolePlay = proc.rolePlay;
         if (proc.shouldBreak) {
           break;
