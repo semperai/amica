@@ -534,7 +534,7 @@ export class Chat {
     const chatbotBackend = config("chatbot_backend");
 
     switch (chatbotBackend) {
-      case 'chatgpt':
+      case 'openai':
         return getOpenAiChatResponseStream(messages);
       case 'llamacpp':
         return getLlamaCppChatResponseStream(messages);
