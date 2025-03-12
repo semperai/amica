@@ -20,6 +20,8 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import { vrmDataProvider } from "@/features/vrmStore/vrmDataProvider";
 import { IconButton } from '@/components/iconButton';
 
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+
 registerPlugin(
   FilePondPluginImagePreview,
   FilePondPluginFileValidateType,
@@ -190,12 +192,13 @@ export default function Share() {
       `}
       </style>
       <div className="fixed top-0 left-0 w-full max-h-full text-black text-xs text-left z-20">
-        <div className="p-2 bg-white">
+        <div className="p-2 bg-white flex justify-between items-center">
             <IconButton
               iconName="24/Close"
               isProcessing={false}
               className="bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
               onClick={handleCloseIcon}/>
+            <ConnectButton />
         </div>
       </div>
       <div className="col-span-3 max-w-md rounded-xl mt-4">
