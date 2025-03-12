@@ -74,6 +74,7 @@ import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
 import { ExternalAPIPage } from "./settings/ExternalAPIPage";
 import { KokoroSettingsPage } from "./settings/KokoroSettingsPage";
 
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export const Settings = ({
   onClickClose,
@@ -766,7 +767,7 @@ export const Settings = ({
         ref={topMenuRef}
       >
 
-        <nav aria-label="Breadcrumb" className="inline-block ml-4">
+        <nav aria-label="Breadcrumb" className="flex ml-4 justify-between items-center">
           <ol role="list" className="flex items-center space-x-4">
             <li className="flex">
               <div className="flex items-center">
@@ -811,6 +812,7 @@ export const Settings = ({
               </li>
             ))}
           </ol>
+          <ConnectButton />
         </nav>
       </div>
 
