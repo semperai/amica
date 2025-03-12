@@ -28,7 +28,7 @@ export function ChatGPTSettingsPage({
       title="ChatGPT Settings"
       description={description}
     >
-      { config("chatbot_backend") !== "chatgpt" && (
+      { config("chatbot_backend") !== "openai" && (
         <NotUsingAlert>
           You are not currently using ChatGPT as your ChatBot backend. These settings will not be used.
         </NotUsingAlert>

@@ -153,7 +153,7 @@ export default function Import() {
         )}
         {! error && loaded && (
           <h1 className="text-lg">
-            {t("Import")} {loaded ? (`“${name}”` || 'Amica') : '...'}
+            {t("Import")} {loaded ? (`${name}` || 'Amica') : '...'}
           </h1>
         )}
       </div>

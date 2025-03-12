@@ -1,5 +1,6 @@
 "use client"
 
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { useRef } from "react"
 
@@ -12,10 +13,13 @@ export function Header() {
   const scale = useTransform(scrollY, [0, 300], [1, 0.9])
 
   return (
+    
     <div ref={ref} className="relative h-[40vh] flex items-center justify-center bg-scifi-dark overflow-hidden">
       <div className="absolute inset-0 w-full h-full bg-tech-pattern opacity-50" />
       <div className="absolute inset-0 w-full h-full">
         <div className="absolute inset-0 bg-gradient-to-r from-neon-pink/20 to-neon-blue/20 mix-blend-overlay" />
+      {/* <ConnectButton /> */}
+
       </div>
       <motion.div className="relative z-10 text-center" style={{ y: textY, opacity, scale }}>
         <div className="relative">
