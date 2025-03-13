@@ -32,6 +32,7 @@
     "clsx": "^2.0.0",
     "dexie": "^4.0.4",
     "dexie-react-hooks": "^1.1.7",
+    "ethers": "^6.13.5",
     "file-saver": "^2.0.5",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-type": "^1.2.8",

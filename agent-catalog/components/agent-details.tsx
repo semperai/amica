@@ -16,6 +16,8 @@ interface AgentDetailsProps {
   agent: Agent
 }
 
+const AMICA_URL = "https://amica-git-agent-framework-heyamica.vercel.app/"
+
 export function AgentDetails({ agent }: AgentDetailsProps) {
   return (
     <div className="min-h-screen bg-white text-gray-800">
@@ -34,7 +36,7 @@ export function AgentDetails({ agent }: AgentDetailsProps) {
             <div className="flex justify-center space-x-4 mb-8">
               <Button
                 className="bg-blue-500 hover:bg-blue-600 text-white font-roboto-mono"
-                onClick={() => window.open(`http://localhost:3000/agent/${agent.id}`, "_blank", "noopener,noreferrer")}
+                onClick={() => window.open(`${AMICA_URL}/agent/${agent.id}`, "_blank", "noopener,noreferrer")}
               >
                 <MessageSquare className="mr-2 h-4 w-4" /> Chat
               </Button>
