@@ -294,7 +294,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "openrouter_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "openai_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "openrouter_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'tts':
@@ -372,7 +372,7 @@ export const Settings = ({
         setBreadcrumbs={setBreadcrumbs}
         />
 
-    case 'chatgpt_settings':
+    case 'openai_settings':
       return <ChatGPTSettingsPage
         openAIApiKey={openAIApiKey}
         setOpenAIApiKey={setOpenAIApiKey}

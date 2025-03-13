@@ -15,6 +15,8 @@ interface AgentCardProps {
   index: number
 }
 
+const AMICA_URL = "https://amica-git-agent-framework-heyamica.vercel.app/"
+
 export function AgentCard({ agent, index }: AgentCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const descriptionRef = useRef<HTMLParagraphElement>(null)
@@ -91,7 +93,7 @@ export function AgentCard({ agent, index }: AgentCardProps) {
               variant="outline"
               size="sm"
               className="w-full font-roboto-mono border-neon-blue/50 text-neon-blue hover:bg-neon-blue/20 hover:text-white transition-colors"
-              onClick={() => window.open(`http://localhost:3000/agent/${agent.id}`, "_blank", "noopener,noreferrer")}
+              onClick={() => window.open(`${AMICA_URL}/agent/${agent.id}`, "_blank", "noopener,noreferrer")}
             >
               <MessageSquare className="h-4 w-4 mr-2" />
               Chat
