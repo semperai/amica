@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npm run generate:paths && next dev",
+    "prebuild": "rm -rf agent-catalog",
     "build": "npm run generate:paths && next build",
     "start": "npm run generate:paths && next start",
     "export": "npm run generate:paths && next export",
