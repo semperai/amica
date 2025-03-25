@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import { AgentGrid } from "@/components/agent-grid";
 import { Header } from "@/components/header";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -21,21 +21,21 @@ import {
 const config = getDefaultConfig({
   appName: 'arbius.heyamica.com',
   projectId: "3cecb561af7700e7ff5184b55b39e05a",
-  chains: [sepolia],
+  chains: [arbitrum],
   ssr: true,
 });
 
 const queryClient = new QueryClient();
 
 // Contract address and ABI for fetching metadata
-const CONTRACT_ADDRESS = "0x32E6905962B10E5992BE04Ee49758824Bfa4eE05";
+const CONTRACT_ADDRESS = "0xb11C162D5Ea52c899076B537d0Da9cFCe1489026";
 const CONTRACT_ABI = [
-  "function totalSupply() public view returns (uint256)",
+  "function getTokenIdCounter() external view returns (uint256)",
   "function getMetadata(uint256 tokenId, string[] memory keys) external view returns (string[] memory)"
 ];
 
 // Infura RPC endpoint
-const INFURA_RPC = "https://sepolia.infura.io/v3/7514aa130b2d4452b1a35b5db6342036";
+const INFURA_RPC = "https://arbitrum-mainnet.infura.io/v3/7514aa130b2d4452b1a35b5db6342036";
 
 export default function Home() {
   const { scrollY } = useScroll();
@@ -77,45 +77,28 @@ function HomeContent({ backgroundColor }: { backgroundColor: any }) {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
         // Get actual token count from contract
-        const tokenCounter = await contract.totalSupply();
-        const totalNFTs = parseInt(tokenCounter.toString());
+        const totalNFTs = await contract.getTokenIdCounter();
         const fetchedAgents: Agent[] = [];
 
         // Start from token ID 0 or your preferred starting point
         for (let tokenId = 0; tokenId < totalNFTs; tokenId++) {
           try {
-            const metadataKeys = ["name", "title", "description", "thumbnail_url", "configs"];
-            const metadataValues = await contract.getMetadata(tokenId, metadataKeys);
+            const metadataKeys = ["name", "description", "image"];
+            const metadata = await contract.getMetadata(tokenId, metadataKeys);
 
-            if (!metadataValues || metadataValues.length === 0 || metadataValues[0] === '0x') {
-              console.error(`No metadata found for token ${tokenId}`);
+            if (!metadata || metadata.length === 0 || metadata[0] === '0x') {
+              console.error(`No tokenURI found for token ${tokenId}`);
               continue; // Skip this token if no metadata found
-            }
-
-            const configUrl = metadataValues[4]; // URL from metadata
-            let configData = null;
-
-            if (configUrl) {
-              try {
-                const response = await fetch(configUrl);
-                if (!response.ok) {
-                  throw new Error(`Failed to fetch config: ${response.statusText}`);
-                }
-                configData = await response.json();
-                console.log(`Fetched config for token ${tokenId}:`, configData);
-              } catch (error) {
-                console.error(`Error fetching config for token ${tokenId}:`, error);
-              }
             }
 
             fetchedAgents.push({
               id: `${tokenId}`,
-              name: metadataValues[0] || "Unknown",
-              token: metadataValues[1] || "N/A",
-              description: metadataValues[2] || "No description available",
+              name: metadata[0] || "Unknown",
+              token: "N/A",
+              description: metadata[1] || "No description available",
               price: 0,
               status: "active" as "active" | "inactive",
-              avatar: metadataValues[3] || "/default-avatar.png",
+              avatar: metadata[2] || "/default-avatar.png",
               category: "System",
               tags: ["AI", "Optimization", "Analytics"],
               tier: {
