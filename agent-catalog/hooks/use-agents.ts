@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import type { Agent } from "@/types/agent";
 
-const CONTRACT_ADDRESS = "0xb11C162D5Ea52c899076B537d0Da9cFCe1489026";
+const CONTRACT_ADDRESS = "0x7e42c9d9946bA673415575C3a54dF5b37D68c925";
 const CONTRACT_ABI = [
   "function getTokenIdCounter() external view returns (uint256)",
   "function getMetadata(uint256 tokenId, string[] memory keys) external view returns (string[] memory)",
 ];
-const INFURA_RPC = "https://arbitrum-mainnet.infura.io/v3/7514aa130b2d4452b1a35b5db6342036";
+const INFURA_RPC = "https://arbitrum-sepolia.infura.io/v3/7514aa130b2d4452b1a35b5db6342036";
 
 export function useAgents() {
   const [agents, setAgents] = useState<Agent[]>([]);

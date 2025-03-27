@@ -8,7 +8,7 @@ import type { Agent } from "@/types/agent";
 import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import { sepolia, arbitrum } from 'wagmi/chains';
+import { sepolia, arbitrumSepolia } from 'wagmi/chains';
 import { useAgents } from "@/hooks/use-agents"; 
 import { queryClient } from "@/lib/query-client";
 
@@ -20,7 +20,7 @@ import VRMDemo from "@/components/vrm-demo";
 const config = getDefaultConfig({
   appName: 'arbius.heyamica.com',
   projectId: "3cecb561af7700e7ff5184b55b39e05a",
-  chains: [arbitrum],
+  chains: [arbitrumSepolia],
   ssr: true,
 });
 

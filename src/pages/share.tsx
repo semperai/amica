@@ -110,7 +110,7 @@ export default function Share() {
   const [characterCreatorType, setCharacterCreatorType] = useState("Sharing");
 
   // Contract address and ABI for fetching metadata
-  const CONTRACT_ADDRESS = "0xb11C162D5Ea52c899076B537d0Da9cFCe1489026";
+  const CONTRACT_ADDRESS = "0x7e42c9d9946bA673415575C3a54dF5b37D68c925";
 
   const wagmiContractConfig = {
     address: CONTRACT_ADDRESS,
@@ -657,7 +657,7 @@ export default function Share() {
             </div>
           </div>
 
-          {/*
+          
           <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">
               Animation Url
@@ -710,7 +710,7 @@ export default function Share() {
               />
             </div>
           </div>
-          */}
+         
 
           <div className="sm:col-span-3 max-w-md rounded-xl mt-4">
             <label className="block text-sm font-medium leading-6 text-gray-900">

@@ -70,7 +70,7 @@ const montserrat = Montserrat({
 });
 
 // Contract address and ABI for fetching metadata
-const CONTRACT_ADDRESS = "0xb11C162D5Ea52c899076B537d0Da9cFCe1489026";
+const CONTRACT_ADDRESS = "0x7e42c9d9946bA673415575C3a54dF5b37D68c925";
 
 export default function Agent() {
   const { t, i18n } = useTranslation();
@@ -115,7 +115,7 @@ export default function Agent() {
   const filterKeys = [
     "tts_muted", "autosend_from_mic", "wake_word_enabled", "wake_word",
     "time_before_idle_sec", "debug_gfx", "language", "show_introduction",
-    "show_add_to_homescreen", "animation_url", "voice_url",
+    "show_add_to_homescreen", "voice_url",
     "description", "image"
   ];
 
