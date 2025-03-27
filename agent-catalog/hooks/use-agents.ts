@@ -9,7 +9,7 @@ const CONTRACT_ABI = [
   "function getTokenIdCounter() external view returns (uint256)",
   "function getMetadata(uint256 tokenId, string[] memory keys) external view returns (string[] memory)",
 ];
-const INFURA_RPC = "https://arbitrum-sepolia.infura.io/v3/7514aa130b2d4452b1a35b5db6342036";
+const INFURA_RPC = "https://arbitrum-sepolia.infura.io/v3/2100216e5c5b451091e14246d10deaff";
 
 export function useAgents() {
   const [agents, setAgents] = useState<Agent[]>([]);
