@@ -1,4 +1,4 @@
-const defaults = {
+export const defaults = {
   // AllTalk TTS specific settings
   localXTTS_url: process.env.NEXT_PUBLIC_LOCALXTTS_URL ?? 'http://127.0.0.1:7851',
   alltalk_version: process.env.NEXT_PUBLIC_ALLTALK_VERSION ?? 'v2',
@@ -108,7 +108,7 @@ function prefixed(key: string) {
 }
 
 // Detect if the URL is of the form /agent/{id}
-function isAgentRoute(): boolean {
+export function isAgentRoute(): boolean {
   const path = window.location.pathname;
   const agentRoutePattern = /^\/agent\/.*$/; 
   return agentRoutePattern.test(path);

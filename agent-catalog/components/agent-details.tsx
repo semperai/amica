@@ -1,7 +1,7 @@
 "use client"
 
 import type { Agent } from "@/types/agent"
-import { VRMDemo } from "./vrm-demo"
+import VRMDemo from "./vrm-demo"
 import { PriceChart } from "./price-chart"
 import { TokenData } from "./token-data"
 import { AgentDescription } from "./agent-description"
@@ -11,6 +11,8 @@ import { AgentTiers } from "./agent-tiers"
 import { Button } from "./ui/button"
 import { MessageSquare, ArrowRightLeft } from "lucide-react"
 import { Integrations } from "./integrations"
+import { useContext, useState } from "react"
+import { ViewerContext } from "@/features/vrmViewer/viewerContext"
 
 interface AgentDetailsProps {
   agent: Agent
@@ -19,6 +21,8 @@ interface AgentDetailsProps {
 const AMICA_URL = "https://amica-git-agent-framework-heyamica.vercel.app/"
 
 export function AgentDetails({ agent }: AgentDetailsProps) {
+  const [vrmLoaded, setVrmLoaded] = useState(false);
+
   return (
     <div className="min-h-screen bg-white text-gray-800">
       <div className="container mx-auto px-4 py-12">
@@ -29,7 +33,11 @@ export function AgentDetails({ agent }: AgentDetailsProps) {
         <TokenData />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
           <div className="space-y-12">
-            <VRMDemo />
+              <VRMDemo
+                vrmUrl={agent.vrmUrl}
+                bgUrl={agent.bgUrl}
+                onLoaded={() => setVrmLoaded(true)}
+              />
             <PriceChart />
           </div>
           <div className="space-y-8">

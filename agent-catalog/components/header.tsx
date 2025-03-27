@@ -29,7 +29,7 @@ export function Header() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Amica Agent Catalog
+            Persona Village
             <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-neon-blue text-sm font-noto opacity-75">
               アミカエージェント
             </span>
@@ -41,7 +41,7 @@ export function Header() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          Discover and deploy advanced AI agents for your specific needs
+          Discover and deploy Amica Personas to meet them in our village.
         </motion.p>
       </motion.div>
     </div>

@@ -43,7 +43,7 @@ import { Message, Role } from "@/features/chat/messages";
 import { ChatContext } from "@/features/chat/chatContext";
 import { AlertContext } from "@/features/alert/alertContext";
 
-import { config, syncAgentConfig, updateConfig } from '@/utils/config';
+import { config, defaults, syncAgentConfig, updateConfig } from '@/utils/config';
 import { isTauri } from '@/utils/isTauri';
 import { langs } from '@/i18n/langs';
 import { VrmStoreProvider } from "@/features/vrmStore/vrmStoreContext";
@@ -53,9 +53,9 @@ import { ChatModeText } from "@/components/chatModeText";
 import { VerticalSwitchBox } from "@/components/switchBox"
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
 
-import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/router";
-import { ethers } from "ethers";
+import { useAccount, useWaitForTransactionReceipt, useReadContract} from 'wagmi';
+import { abi } from "@/utils/abi";
 
 const m_plus_2 = M_PLUS_2({
   variable: "--font-m-plus-2",
@@ -70,14 +70,7 @@ const montserrat = Montserrat({
 });
 
 // Contract address and ABI for fetching metadata
-const CONTRACT_ADDRESS = "0x32E6905962B10E5992BE04Ee49758824Bfa4eE05";
-const CONTRACT_ABI = [
-  "function totalSupply() public view returns (uint256)",
-  "function getMetadata(uint256 tokenId, string[] memory keys) external view returns (string[] memory)"
-];
-
-// Infura RPC endpoint
-const INFURA_RPC = "https://sepolia.infura.io/v3/7514aa130b2d4452b1a35b5db6342036";
+const CONTRACT_ADDRESS = "0x7e42c9d9946bA673415575C3a54dF5b37D68c925";
 
 export default function Agent() {
   const { t, i18n } = useTranslation();
@@ -93,7 +86,7 @@ export default function Agent() {
   const [assistantMessage, setAssistantMessage] = useState("");
   const [userMessage, setUserMessage] = useState("");
   const [shownMessage, setShownMessage] = useState<Role>("system");
-  const [subconciousLogs, setSubconciousLogs] = useState<TimestampedPrompt[]>([]);
+  const [subconciousLogs, setSubconciousLogs] = useState<TimestampedPrompt[]>([]);  
 
   // showContent exists to allow ssr
   // otherwise issues from usage of localStorage and window will occur
@@ -107,92 +100,75 @@ export default function Agent() {
   // null indicates havent loaded config yet
   const [muted, setMuted] = useState<boolean | null>(null);
   const [webcamEnabled, setWebcamEnabled] = useState(false);
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_TEST_SUPABASE_URL as string,
-    process.env.NEXT_PUBLIC_TEST_SUPABASE_ANON_KEY as string,
-  );
+
   const router = useRouter()
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  // Fetch agent data from Sepolia testnet contract
+  const { isConnected } = useAccount();
 
+  // Move the contract read outside of the function
+  const tokenId = router.query.id ? parseInt(router.query.id as string, 10) : NaN;
+  
+  // Define the keys to filter
+  const filterKeys = [
+    "tts_muted", "autosend_from_mic", "wake_word_enabled", "wake_word",
+    "time_before_idle_sec", "debug_gfx", "language", "show_introduction",
+    "show_add_to_homescreen", "voice_url",
+    "description", "image"
+  ];
+
+  // Filter and get the relevant defaults
+  const keysList = Object.keys(defaults).filter(key => !filterKeys.includes(key));
+  
+  const { data: agentData, error: readError } = useReadContract({
+    abi,
+    address: CONTRACT_ADDRESS,
+    functionName: 'getMetadata',
+    args: [tokenId, keysList]
+  });
+  
   useEffect(() => {
-    async function getCharacter() {
-      const provider = new ethers.JsonRpcProvider(INFURA_RPC);
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-      const metadataKeys = ["configs"];
-      const metadataValues = await contract.getMetadata(router.query.id, metadataKeys);
-
-      if (!metadataValues || metadataValues.length === 0 || metadataValues[0] === '0x') {
-        console.error(`No metadata found for token ${router.query.id}`);
-        return; // Skip this token if no metadata found
-      }
-
-      const response = await fetch(metadataValues[0]); // URL from metadata
-      const data = await response.json();
-
-      if (error || !data) {
-        setError(true);
+    async function processCharacterData() {
+      if (!isConnected || isNaN(tokenId) || !agentData) {
         return;
       }
-
-      if (data.bg_color !== '') {
-        document.body.style.backgroundColor = data.bg_color;
-      } else {
-        document.body.style.backgroundImage = `url(${data.bg_url})`;
+      
+      try {
+        // Map the fetched data to config
+        const configs: Record<string, string> = keysList.reduce((acc: Record<string, string>, key, index) => {
+          acc[key] = (agentData as any)[index]; 
+          return acc;
+        }, {});
+        
+        // Handle error state
+        if (readError || !configs) {
+          setError(true);
+          return;
+        }
+        
+        // Update document style based on config
+        if (configs.bg_color) {
+          document.body.style.backgroundColor = configs.bg_color;
+        } else if (configs.bg_url) {
+          document.body.style.backgroundImage = `url(${configs.bg_url})`;
+        }
+        
+        // Sync agent configuration
+        syncAgentConfig(configs);
+        
+        // Set loaded state after all is done
+        setLoaded(true);
+      } catch (err) {
+        console.error("Error processing data:", err);
+        setError(true);
       }
-
-      syncAgentConfig(data);
-
-      setLoaded(true);
     }
-
-    // dont allow undefined / first time
-    if (router.query.id && !loaded) {
-      getCharacter();
-    }
-  }, [router.query.id]);
-
-  // Fetch agent data from Supabase
-
-  // useEffect(() => {
-  //   async function getCharacter() {
-  //     const { data, error } = await supabase
-  //       .from('agent-storage')
-  //       .select(`name, config`)
-  //       .eq('agentid', router.query.id)
-  //       .single();
-
-  //     if (error || ! data) {
-  //       setError(true);
-  //       return;
-  //     }
-
-  //     // If any value in data is null or undefined, it will automatically be set to an empty string.
-  //     const {
-  //       name,
-  //       config
-  //     } = data;
-
-  //     if (config.bg_color !== '') {
-  //       document.body.style.backgroundColor = config.bg_color;
-  //     } else {
-  //       document.body.style.backgroundImage = `url(${config.bg_url})`;
-  //     }
-
-  //     syncAgentConfig(config);
-
-  //     setLoaded(true);
-  //   }
-
-  //   // dont allow undefined / first time
-  //   if (router.query.id && !loaded) {
-  //     getCharacter();
-  //   }
-  // }, [router.query.id]);
+    
+    processCharacterData();
+    
+  }, [agentData, isConnected, tokenId, keysList, readError, loaded]);
 
   function toggleTTSMute() {
     updateConfig('tts_muted', config('tts_muted') === 'true' ? 'false' : 'true')

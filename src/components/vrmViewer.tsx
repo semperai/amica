@@ -6,6 +6,7 @@ import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import isTauri from "@/utils/isTauri";
 import { invoke } from "@tauri-apps/api/tauri";
 import { ChatContext } from "@/features/chat/chatContext";
+import { isAgentRoute } from "@/utils/config";
 import clsx from "clsx";
 
 
@@ -17,7 +18,6 @@ export default function VrmViewer({chatMode}:{chatMode: boolean}) {
   const [loadingError, setLoadingError] = useState(false);
   const isVrmLocal = 'local' == config("vrm_save_type");
 
-  
   viewer.resizeChatMode(chatMode); 
   window.addEventListener("resize", () => {
     viewer.resizeChatMode(chatMode);
@@ -31,6 +31,11 @@ export default function VrmViewer({chatMode}:{chatMode: boolean}) {
         (new Promise(async (resolve, reject) => {
           try {
             const currentVrm = getCurrentVrm();
+            if (isAgentRoute()) {
+              await viewer.loadVrm(config("vrm_url"));  
+              resolve(true);
+            }
+
             if (!currentVrm) {
               setIsLoading(true);
               resolve(false);
