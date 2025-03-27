@@ -40,7 +40,7 @@ export function AgentCard({ agent, index }: AgentCardProps) {
       <Card className="overflow-hidden group bg-scifi-dark border-neon-blue/20 hover:border-neon-blue/40 transition-colors h-full flex flex-col">
         <CardHeader className="p-0">
           <div className="relative h-[320px] w-full overflow-hidden">
-            <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.4 }} className="h-full w-full">
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.4 }} className=" relative h-full w-full">
               <Image
                 src={agent.avatar || "/placeholder.svg"}
                 alt={agent.name}
