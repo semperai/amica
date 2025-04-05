@@ -13,5 +13,7 @@ export interface Agent {
     level: number
     stakedAIUS: number
   }
+  vrmUrl: string,
+  bgUrl: string
 }
 

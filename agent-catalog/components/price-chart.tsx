@@ -79,14 +79,18 @@ const timeFrames = [
   { label: "1Y", days: 365 },
 ]
 
-export function PriceChart() {
-  const [selectedTimeFrame, setSelectedTimeFrame] = useState(timeFrames[2]) // Default to 1M
+export function PriceChart({ priceHistory }: { priceHistory: any }) {
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState(timeFrames[2]);
+
+  const filteredData = priceHistory.filter(
+    (d: { x: string | number | Date }) => new Date(d.x) >= new Date(Date.now() - selectedTimeFrame.days * 24 * 60 * 60 * 1000)
+  );
 
   const data = {
     datasets: [
       {
         label: "Price",
-        data: generateMockData(selectedTimeFrame.days),
+        data: filteredData,
         borderColor: "rgb(59, 130, 246)",
         backgroundColor: "rgba(59, 130, 246, 0.5)",
         borderWidth: 2,
@@ -94,12 +98,14 @@ export function PriceChart() {
         tension: 0.1,
       },
     ],
-  }
+  };
 
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
       <div className="flex justify-between items-center mb-4">
-        <div className="text-2xl font-bold font-orbitron text-gray-800">$5,234.56</div>
+        <div className="text-2xl font-bold font-orbitron text-gray-800">
+          {priceHistory.length ? `${priceHistory[priceHistory.length - 1].y.toFixed(4)} AIUS` : "Loading..."}
+        </div>
         <div className="flex space-x-2">
           {timeFrames.map((tf) => (
             <Button
@@ -116,6 +122,5 @@ export function PriceChart() {
       </div>
       <Line options={options} data={data} />
     </div>
-  )
+  );
 }
-
