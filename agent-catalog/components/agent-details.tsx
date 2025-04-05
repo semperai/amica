@@ -18,7 +18,7 @@ interface AgentDetailsProps {
   agent: Agent
 }
 
-const AMICA_URL = process.env.NEXT_PUBLIC_AMICA_UR as string;
+const AMICA_URL = process.env.NEXT_PUBLIC_AMICA_URL as string;
 
 export function AgentDetails({ agent }: AgentDetailsProps) {
   const [vrmLoaded, setVrmLoaded] = useState(false);
