@@ -470,7 +470,7 @@ export default function Home() {
             )} */}
 
             {/* Temp Disable : WebXR */}
-            <MenuButton
+            {/* <MenuButton
               large={isVRHeadset}
               icon={CubeTransparentIcon}
               disabled={!isARSupported}
@@ -491,10 +491,10 @@ export default function Home() {
               icon={CodeBracketSquareIcon}
               onClick={() => setShowDebug(true)}
               label="debug"
-            />
+            /> */}
 
             {/* Temp Disable : WebXR */}
-            { showChatMode ? (
+            {/* { showChatMode ? (
               <MenuButton
                 large={isVRHeadset}
                 icon={Squares2X2Icon}
@@ -510,9 +510,9 @@ export default function Home() {
                 onClick={toggleChatMode}
                 label="show chat mode"
               />
-            )}
+            )} */}
 
-            <div className="flex flex-row items-center space-x-2">
+            {/* <div className="flex flex-row items-center space-x-2">
                 <VerticalSwitchBox
                   value={showChatMode}
                   label={""}
@@ -534,7 +534,7 @@ export default function Home() {
                   onClick={() => setShowStreamWindow(true)}
                 />
               )}
-            </div>
+            </div> */}
             
           </div>
         </div>    
