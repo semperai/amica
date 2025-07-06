@@ -1,4 +1,5 @@
 import { psvSupabase } from "@/utils/supabase";
+import { addClientEvents } from "./externalAPI";
 
 // Session-scoped memory store
 const serverConfig: Record<string, Record<string, string>> = {};
@@ -12,21 +13,49 @@ function ensureSessionMemory(sessionId: string): void {
   }
 }
 
-export async function readStore(sessionId: string, storeName: string): Promise<any> {
+// Helper for plain object detection
+function isPlainObject(val: any): val is object {
+  return (
+    val !== null &&
+    typeof val === "object" &&
+    !Array.isArray(val) &&
+    !(val instanceof Date)
+  );
+}
+
+export async function readStore(
+  sessionId: string,
+  storeName: string
+): Promise<any> {
   try {
     const { data, error, status } = await psvSupabase
       .schema("external-api")
-      .from(`${storeName}`)
-      .select('data')
-      .eq('session_id', sessionId)
-      .maybeSingle(); // returns null if not found, no throw
+      .from(storeName)
+      .select("data")
+      .eq("session_id", sessionId);
 
     if (error && status !== 406) {
       console.error(`Supabase error reading ${storeName}:`, error.message);
       throw new Error(`Failed to read ${storeName} from Supabase.`);
     }
 
-    return data?.data ?? {};
+    if (!data?.length) return {};
+
+    if (data.length === 1) return data[0].data ?? {};
+
+    const allObjects = data.every(row => isPlainObject(row.data));
+    const allArrays = data.every(row => Array.isArray(row.data));
+
+    if (allObjects) return Object.assign({}, ...data.map(row => row.data));
+    if (allArrays) return data.flatMap(row => row.data);
+
+    // fallback: join strings or JSON-stringify others
+    return data
+      .map(row =>
+        typeof row.data === "string" ? row.data : JSON.stringify(row.data)
+      )
+      .join(" ");
+
   } catch (err) {
     console.error(`Unexpected error reading ${storeName}:`, err);
     throw err;
@@ -76,6 +105,10 @@ export async function updateStore(sessionId: string, storeName: string, newData:
       console.error(`Supabase upsert failed for ${storeName}:`, upsertError.message);
       return false;
     }
+
+    if (storeName === "subconscious") {
+      addClientEvents(sessionId,"subconscious", JSON.stringify(mergedData));
+    } 
 
     return true;
   } catch (err) {

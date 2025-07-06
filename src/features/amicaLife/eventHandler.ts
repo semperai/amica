@@ -33,8 +33,6 @@ export type AmicaLifeEvents = {
   events: string;
 };
 
-export let storedSubconcious: TimestampedPrompt[] = [];
-
 // Define a constant for max subconcious storage tokens
 export const MAX_STORAGE_TOKENS = 3000;
 
@@ -201,27 +199,30 @@ export async function handleSubconsciousEvent(
     };
 
     // External API feature
-    storedSubconcious.push(timestampedPrompt);
-    let totalStorageTokens = storedSubconcious.reduce(
-      (totalTokens, prompt) => totalTokens + prompt.prompt.length,
-      0,
-    );
-    while (totalStorageTokens > MAX_STORAGE_TOKENS) {
-      const removed = storedSubconcious.shift();
-      totalStorageTokens -= removed!.prompt.length;
-    }
+    amicaLife.setSubconciousLogs?.((prevLogs) => {
+      const updatedLogs = [...prevLogs, timestampedPrompt];
 
-    if (config("external_api_enabled") === "true") {
-      try {
-        const sessionId = config("session_id");
-        await handleSubconscious(sessionId, storedSubconcious);
-      } catch (error) {
-        console.error("Error handling external API:", error);
+      let totalStorageTokens = updatedLogs.reduce(
+        (total, prompt) => total + prompt.prompt.length,
+        0
+      );
+
+      while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+        const removed = updatedLogs.shift();
+        totalStorageTokens -= removed!.prompt.length;
       }
-    } 
 
-    console.log("Stored subconcious prompts:", storedSubconcious);
-    amicaLife.setSubconciousLogs!(storedSubconcious);
+      // External API call happens after state is updated
+      if (config("external_api_enabled") === "true") {
+        const sessionId = config("session_id");
+        handleSubconscious(sessionId, updatedLogs).catch((error) => {
+          console.error("Error handling external API:", error);
+        });
+      }
+
+      console.log("Stored subconscious prompts:", updatedLogs);
+      return updatedLogs;
+    });
 
     amicaLife.eventProcessing = false;
     console.timeEnd(`processing_event Subconcious`);

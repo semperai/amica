@@ -256,6 +256,7 @@ export default function Home() {
       setShownMessage,
       setChatProcessing,
       setChatSpeaking,
+      setSubconciousLogs,
     );
 
     // TODO remove in future
