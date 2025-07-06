@@ -273,7 +273,7 @@ export default function Agent() {
   const { viewer } = useContext(ViewerContext);
   const { alert } = useContext(AlertContext);
   const { chat: bot } = useContext(ChatContext);
-  const { amicaLife: amicaLife } = useContext(AmicaLifeContext);
+  const { amicaLife } = useContext(AmicaLifeContext);
   useEffect(() => {
     if (!loaded) return ;
     bot.initialize(
@@ -286,6 +286,7 @@ export default function Agent() {
       setShownMessage,
       setChatProcessing,
       setChatSpeaking,
+      setSubconciousLogs,
     );
 
     // TODO remove in future

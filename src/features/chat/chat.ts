@@ -28,9 +28,9 @@ import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isId
 import { getOpenRouterChatResponseStream } from './openRouterChat';
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
 import { handleLogs, handleUserInput } from '../externalAPI/externalAPI';
-import { isAgentRoute } from '@/utils/agentUtils';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { psvSupabase } from '@/utils/supabase';
+import { MAX_STORAGE_TOKENS, TimestampedPrompt } from '../amicaLife/eventHandler';
 
 
 type Speak = {
@@ -51,6 +51,7 @@ export class Chat {
   public viewer?: Viewer;
   public alert?: Alert;
 
+  public setSubconciousLogs?: React.Dispatch<React.SetStateAction<TimestampedPrompt[]>>;
   public setChatLog?: (messageLog: Message[]) => void;
   public setUserMessage?: (message: string) => void;
   public setAssistantMessage?: (message: string) => void;
@@ -114,6 +115,7 @@ export class Chat {
     setShownMessage: (role: Role) => void,
     setChatProcessing: (processing: boolean) => void,
     setChatSpeaking: (speaking: boolean) => void,
+    setSubconciousLogs: React.Dispatch<React.SetStateAction<TimestampedPrompt[]>>
   ) {
     this.amicaLife = amicaLife;
     this.viewer = viewer;
@@ -124,6 +126,7 @@ export class Chat {
     this.setShownMessage = setShownMessage;
     this.setChatProcessing = setChatProcessing;
     this.setChatSpeaking = setChatSpeaking;
+    this.setSubconciousLogs = setSubconciousLogs
 
     // these will run forever
     this.processTtsJobs();
@@ -437,6 +440,31 @@ export class Chat {
                   URL.revokeObjectURL(url);
                 });
               }, Number(data));
+              break;
+            
+            case "subconscious":
+              if (config("amica_life_enabled") === "true") {
+                const prompt = JSON.parse(data) as TimestampedPrompt[];
+
+                if (this.setSubconciousLogs) {
+                  this.setSubconciousLogs((prevLogs: TimestampedPrompt[]) => {
+                    let updatedLogs = [...prompt];
+
+                    // Ensure token count limit is enforced
+                    let totalStorageTokens = updatedLogs.reduce(
+                      (total, entry) => total + entry.prompt.length,
+                      0,
+                    );
+
+                    while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+                      const removed = updatedLogs.shift();
+                      totalStorageTokens -= removed!.prompt.length;
+                    }
+
+                    return updatedLogs;
+                  });
+                }
+              }
               break;
 
             case "systemPrompt":
