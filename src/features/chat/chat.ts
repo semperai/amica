@@ -42,8 +42,11 @@ import isDev from '@/utils/isDev';
 
 import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
 import { getOpenRouterChatResponseStream } from './openRouterChat';
-import { handleUserInput } from '../externalAPI/externalAPI';
+import { handleLogs, handleUserInput } from '../externalAPI/externalAPI';
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
+import { MAX_STORAGE_TOKENS, TimestampedPrompt } from "../amicaLife/eventHandler";
+import { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
+import { getEaiSupabase } from "@/utils/supabase";
 
 type Speak = {
   audioBuffer: ArrayBuffer | null;
@@ -63,6 +66,7 @@ export class Chat {
   public viewer?: Viewer;
   public alert?: Alert;
 
+  public setSubconciousLogs?: React.Dispatch<React.SetStateAction<TimestampedPrompt[]>>;
   public setChatLog?: (messageLog: Message[]) => void;
   public setUserMessage?: (message: string) => void;
   public setAssistantMessage?: (message: string) => void;
@@ -95,7 +99,8 @@ export class Chat {
 
   public currentStreamIdx: number;
 
-  private eventSource: EventSource | null = null
+  private realtimeChannel: RealtimeChannel | null = null
+  private logUploadInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.initialized = false;
@@ -129,6 +134,7 @@ export class Chat {
     setShownMessage: (role: Role) => void,
     setChatProcessing: (processing: boolean) => void,
     setChatSpeaking: (speaking: boolean) => void,
+    setSubconciousLogs: React.Dispatch<React.SetStateAction<TimestampedPrompt[]>>
   ) {
     this.amicaLife = amicaLife;
     this.viewer = viewer;
@@ -140,6 +146,7 @@ export class Chat {
     this.setThoughtMessage = setThoughtMessage;
     this.setChatProcessing = setChatProcessing;
     this.setChatSpeaking = setChatSpeaking;
+    this.setSubconciousLogs = setSubconciousLogs
 
     // these will run forever
     this.processTtsJobs();
@@ -148,7 +155,7 @@ export class Chat {
     this.updateAwake();
     this.initialized = true;
 
-    this.initSSE();
+    this.initRealtime();
   }
 
   public setMessageList(messages: Message[]) {
@@ -387,8 +394,13 @@ export class Chat {
     if (!amicaLife) {
       console.log("receiveMessageFromUser", message);
 
-      // For external API
-      await handleUserInput(message);
+      if (config("external_api_enabled") === "true") {
+        await handleUserInput([
+          { role: "system", content: config("system_prompt") },
+          ...this.messageList!.filter(msg => msg.role === "user"),
+          { role: "user", content: message },
+        ]);
+      }
 
       this.amicaLife?.receiveMessageFromUser(message);
 
@@ -411,107 +423,148 @@ export class Chat {
     await this.makeAndHandleStream(messages);
   }
 
-  public initSSE() {
-    if (!isDev || config("external_api_enabled") !== "true") {
+  public async initRealtime() {
+    if (config("external_api_enabled") !== "true") {
+      console.log("External API Disabled");
       return;
-    }  
-    // Close existing SSE connection if it exists
-    this.closeSSE();
+    }
 
-    this.eventSource = new EventSource('/api/amicaHandler');
+    const sessionId = config("session_id");
+    const eaiSupabase = getEaiSupabase();
+    if (!eaiSupabase) return;
+    // Unsubscribe if already active
+    if (this.realtimeChannel) {
+      console.log("Closing existing Realtime channel...");
+      await eaiSupabase.removeChannel(this.realtimeChannel);
+    }
 
-    // Listen for incoming messages from the server
-    this.eventSource.onmessage = async (event) => {
-      try {
-        // Parse the incoming JSON message
-        const message = JSON.parse(event.data);
+    this.startLogUpload();
 
-        console.log(message);
+    // Subscribe to realtime events for this session
+    this.realtimeChannel = eaiSupabase
+      .channel(`realtime:events:${sessionId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "external-api",
+          table: "events",
+          filter: `session_id=eq.${sessionId}`,
+        },
+        async (payload: { new: { type: any; data: any; }; }) => {
+          const { type, data } = payload.new;
+          console.log("Realtime message received:", type, data);
 
-        // Destructure to get the message type and data
-        const { type, data } = message;
+          switch (type) {
+            case "normal":
+              const messages: Message[] = [
+                { role: "system", content: config("system_prompt") },
+                ...this.messageList!,
+                { role: "user", content: data },
+              ];
+              const stream = await getEchoChatResponseStream(messages);
+              this.streams.push(stream);
+              this.handleChatResponseStream();
+              break;
 
-        // Handle the message based on its type
-        switch (type) {
-          case 'normal':
-            console.log('Normal message received:', data);
-            const messages: Message[] = [
-              { role: "system", content: config("system_prompt") },
-              ...this.messageList!,
-              { role: "user", content: data},
-            ];
-            let stream = await getEchoChatResponseStream(messages);
-            this.streams.push(stream);
-            this.handleChatResponseStream();
-            break;
-          
-          case 'animation':
-            console.log('Animation data received:', data);
-            const animation = await loadVRMAnimation(`/animations/${data}`);
-            if (!animation) {
-              throw new Error("Loading animation failed");
-            }
-            this.viewer?.model?.playAnimation(animation,data);
-            requestAnimationFrame(() => { this.viewer?.resetCameraLerp(); });
-            break;
+            case "animation":
+              const animation = await loadVRMAnimation(`/animations/${data}`);
+              if (!animation) throw new Error("Loading animation failed");
+              this.viewer?.model?.playAnimation(animation, data);
+              requestAnimationFrame(() => this.viewer?.resetCameraLerp());
+              break;
 
-          case 'playback':
-            console.log('Playback flag received:', data);
-            this.viewer?.startRecording();
-            // Automatically stop recording after 10 seconds
-            setTimeout(() => {
-              this.viewer?.stopRecording((videoBlob) => {
-                // Log video blob to console
-                console.log("Video recording finished", videoBlob);
+            case "playback":
+              this.viewer?.startRecording();
+              setTimeout(() => {
+                this.viewer?.stopRecording((videoBlob) => {
+                  const url = URL.createObjectURL(videoBlob!);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "recording.webm";
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                });
+              }, Number(data));
+              break;
+            
+            case "subconscious":
+              if (config("amica_life_enabled") === "true") {
+                const prompt = JSON.parse(data) as TimestampedPrompt[];
 
-                // Create a download link for the video file
-                const url = URL.createObjectURL(videoBlob!);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "recording.webm"; // Set the file name for download
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                if (this.setSubconciousLogs) {
+                  this.setSubconciousLogs((prevLogs: TimestampedPrompt[]) => {
+                    let updatedLogs = [...prompt];
 
-                // Revoke the URL to free up memory
-                URL.revokeObjectURL(url);
-              });
-            }, data); // Stop recording after 10 seconds
-            break;
+                    // Ensure token count limit is enforced
+                    let totalStorageTokens = updatedLogs.reduce(
+                      (total, entry) => total + entry.prompt.length,
+                      0,
+                    );
 
-          case 'systemPrompt':
-            console.log('System Prompt data received:', data);
-            updateConfig("system_prompt",data);
-            break;
+                    while (totalStorageTokens > MAX_STORAGE_TOKENS) {
+                      const removed = updatedLogs.shift();
+                      totalStorageTokens -= removed!.prompt.length;
+                    }
 
-          default:
-            console.warn('Unknown message type:', type);
+                    return updatedLogs;
+                  });
+                }
+              }
+              break;
+
+            case "systemPrompt":
+              updateConfig("system_prompt", data);
+              break;
+
+            default:
+              console.warn("Unknown message type:", type);
+          }
         }
-      } catch (error) {
-        console.error('Error parsing SSE message:', error);
-      }
-    };
-
-
-    this.eventSource.addEventListener('end', () => {
-      console.log('SSE session ended');
-      this.eventSource?.close();
-    });
-
-    this.eventSource.onerror = (error) => {
-      console.error('Error in SSE connection:', error);
-      this.eventSource?.close();
-      setTimeout(this.initSSE, 500);
-    };
+      )
+      .subscribe((status: any) => {
+        console.log(`Realtime subscription session id: ${sessionId} status:`, status);
+      });
   }
 
-  public closeSSE() {
-    if (this.eventSource) {
-        console.log("Closing existing SSE connection...");
-        this.eventSource.close();
-        this.eventSource = null;
+  public async closeRealtime() {
+    if (this.realtimeChannel) {
+      console.log("Closing existing Realtime channel...");
+      const eaiSupabase = getEaiSupabase();
+      await eaiSupabase?.removeChannel(this.realtimeChannel);
+      this.realtimeChannel = null;
     }
-}
+
+    if (this.logUploadInterval) {
+      clearInterval(this.logUploadInterval);
+      this.logUploadInterval = null;
+    }
+  }
+
+  public async startLogUpload() {
+    if (typeof window === "undefined") return;
+
+    if (this.logUploadInterval) {
+      clearInterval(this.logUploadInterval);
+    }
+    
+    this.logUploadInterval = setInterval(async () => {
+      const logs = (window as any).error_handler_logs;
+      const sessionId = config("session_id");
+      const apiEnabled = config("external_api_enabled");
+
+      if (logs?.length && apiEnabled === "true" && sessionId) {
+        try {
+          const last50 = logs.slice(-20)
+          await handleLogs(sessionId, last50);
+        } catch (err) {
+          console.error("Unexpected error during log upload:", err);
+        }
+      }
+    }, 30_000); // every 30 seconds
+  }
 
   public async makeAndHandleStream(messages: Message[]) {
     try {

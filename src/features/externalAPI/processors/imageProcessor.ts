@@ -11,7 +11,7 @@ export async function processImage(payload: Buffer): Promise<string> {
 
 async function convertToJpeg(payload: Buffer): Promise<string | null> {
   try {
-    const jpegBuffer = await sharp(payload).jpeg().toBuffer();
+    const jpegBuffer = await sharp(payload).jpeg({quality: 70}).toBuffer();
     return jpegBuffer.toString('base64');
   } catch (error) {
     console.error('Error converting image to .jpeg:', error);

@@ -1,177 +1,104 @@
 import { config, defaults, prefixed } from "@/utils/config";
-import isDev from "@/utils/isDev";
-import {
-  MAX_STORAGE_TOKENS,
-  TimestampedPrompt,
-} from "../amicaLife/eventHandler";
+import { randomBytes } from "crypto";
 import { Message } from "../chat/messages";
+import { TimestampedPrompt } from "../amicaLife/eventHandler";
+import { getEaiSupabase } from "@/utils/supabase";
 
-export const configUrl = new URL(
-  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
-);
-configUrl.searchParams.append("type", "config");
+const SCHEMA = "external-api";
+const TABLES = ["configs", "user_input_messages", "chat_logs", "subconscious", "logs", "events"];
 
-export const userInputUrl = new URL(
-  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
-);
-userInputUrl.searchParams.append("type", "userInputMessages");
+export const generateSessionId = (sessionId?: string): string =>
+  sessionId || randomBytes(8).toString("hex");
 
-export const subconsciousUrl = new URL(
-  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
-);
-subconsciousUrl.searchParams.append("type", "subconscious");
+// Unified upsert helper
+async function upsertToTable(table: string, payload: Record<string, any>) {
+  if (config("external_api_enabled") !== "true") return;
 
-export const logsUrl = new URL(
-  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
-);
-logsUrl.searchParams.append("type", "logs");
+  const eaiSupabase = getEaiSupabase()
+  if (!eaiSupabase) return;
+  const { error } = await eaiSupabase
+    .schema(SCHEMA)
+    .from(table)
+    .upsert(payload);
 
-export const chatLogsUrl = new URL(
-  `${process.env.NEXT_PUBLIC_DEVELOPMENT_BASE_URL}/api/dataHandler`,
-);
-chatLogsUrl.searchParams.append("type", "chatLogs");
-
-// Cached server config
-export let serverConfig: Record<string, string> = {};
-
-export async function fetcher(method: string, url: URL, data?: any) {
-  let response: any;
-  switch (method) {
-    case "POST":
-      try {
-        response = await fetch(url, {
-          method: method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-      } catch (error) {
-        console.error("Failed to POST server config: ", error);
-      }
-      break;
-
-    case "GET":
-      try {
-        response = await fetch(url);
-        if (response.ok) {
-          serverConfig = await response.json();
-        }
-      } catch (error) {
-        console.error("Failed to fetch server config:", error);
-      }
-      break;
-
-    default:
-      break;
+  if (error) {
+    console.error(`Supabase upsert error in table "${table}":`, error.message);
+    return null;
   }
 }
 
-export async function handleConfig(
-  type: string,
-  data?: Record<string, string>,
-) {
-  if (!isDev) {
-    return;
+// Individual handlers
+export async function handleConfig() {
+  const sessionId = generateSessionId();
+  let data: Record<string, string> = {};
+  
+  for (const key in defaults) {
+    const localKey = prefixed(key);
+    data[key] = localStorage.getItem(localKey) ?? (defaults as any)[key];
   }
 
-  switch (type) {
-    // Call this function at the beginning of your application to load the server config and sync to localStorage if needed.
-    case "init":
-      let localStorageData: Record<string, string> = {};
-
-      for (const key in defaults) {
-        const localKey = prefixed(key);
-        const value = localStorage.getItem(localKey);
-
-        if (value !== null) {
-          localStorageData[key] = value;
-        } else {
-          // Append missing keys with default values
-          localStorageData[key] = (<any>defaults)[key];
-        }
-      }
-
-      // Sync update to server config
-      await fetcher("POST", configUrl, localStorageData);
-
-      break;
-    case "fetch":
-      // Sync update to server config cache
-      await fetcher("GET", configUrl);
-
-      break;
-
-    case "update":
-      await fetcher("POST", configUrl, data);
-
-      break;
-
-    default:
-      break;
-  }
+  await upsertToTable("configs", { session_id: sessionId, data });
+  return sessionId;
 }
 
-export async function handleUserInput(message: string) {
-  if (!isDev || config("external_api_enabled") !== "true") {
-    return;
-  }
-
-  fetch(userInputUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemPrompt: config("system_prompt"),
-      message: message,
-    }),
+export async function handleUserInput(messages: Message[]) {
+  await upsertToTable("user_input_messages", {
+    session_id: config("session_id"),
+    data: messages,
   });
 }
 
 export async function handleChatLogs(messages: Message[]) {
-  if (!isDev || config("external_api_enabled") !== "true") {
-    return;
-  }
-
-  fetch(chatLogsUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(messages),
+  await upsertToTable("chat_logs", {
+    session_id: config("session_id"),
+    data: messages,
   });
 }
 
-export async function handleSubconscious(
-  timestampedPrompt: TimestampedPrompt,
-): Promise<any> {
-  if (!isDev || config("external_api_enabled") !== "true") {
-    return;
-  }
-
-  const data = await fetch(subconsciousUrl);
-  if (!data.ok) {
-    throw new Error("Failed to get subconscious data");
-  }
-
-  const currentStoredSubconscious: TimestampedPrompt[] = await data.json();
-  currentStoredSubconscious.push(timestampedPrompt);
-
-  let totalStorageTokens = currentStoredSubconscious.reduce(
-    (totalTokens, prompt) => totalTokens + prompt.prompt.length,
-    0,
-  );
-  while (totalStorageTokens > MAX_STORAGE_TOKENS) {
-    const removed = currentStoredSubconscious.shift();
-    totalStorageTokens -= removed!.prompt.length;
-  }
-
-  const response = await fetch(subconsciousUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ subconscious: currentStoredSubconscious }),
+export async function handleSubconscious(sessionId: string, data: TimestampedPrompt[]) {
+  await upsertToTable("subconscious", {
+    session_id: sessionId,
+    data,
   });
+}
 
-  if (!response.ok) {
-    throw new Error("Failed to update subconscious data");
+export async function handleLogs(sessionId: string, logs: any[]) {
+  await upsertToTable("logs", {
+    session_id: sessionId,
+    data: logs,
+  });
+}
+
+export async function addClientEvents(sessionId: string, type: string, data: string) {
+  const eaiSupabase = getEaiSupabase();
+  if (!eaiSupabase) return;
+  await eaiSupabase
+    .schema(SCHEMA)
+    .from("events")
+    .insert({ session_id: sessionId, type, data });
+}
+
+// 🔥 New: Delete all rows for a session across all tables
+export async function deleteAllSessionData(sessionId: string) {
+  if (config("external_api_enabled") !== "true") return;
+
+  const errors = [];
+  const eaiSupabase = getEaiSupabase();
+  
+  if(!eaiSupabase) return;
+
+  for (const table of TABLES) {
+    const { error } = await eaiSupabase
+      .schema(SCHEMA)
+      .from(table)
+      .delete()
+      .eq("session_id", sessionId);
+
+    if (error) {
+      console.error(`Failed to delete from "${table}" for session ${sessionId}:`, error.message);
+      errors.push({ table, error });
+    }
   }
 
-  return currentStoredSubconscious;
+  return errors.length ? { success: false, errors } : { success: true };
 }

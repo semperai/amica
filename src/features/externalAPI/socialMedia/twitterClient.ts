@@ -2,17 +2,26 @@ import { config } from '@/utils/config';
 import { TwitterApi, TwitterApiReadWrite, TwitterApiReadOnly, TweetV2PostTweetResult } from 'twitter-api-v2';
 
 class TwitterClient {
-  private twitterClient: TwitterApiReadWrite;
-  private twitterBearer: TwitterApiReadOnly;
+  private twitterClient!: TwitterApiReadWrite;
+  private twitterBearer!: TwitterApiReadOnly;
+  private initialized = false;
 
-  constructor() {
-    const appKey = process.env.X_API_KEY as string;
-    const appSecret = process.env.X_API_SECRET as string;
-    const accessToken = process.env.X_ACCESS_TOKEN as string;
-    const accessSecret = process.env.X_ACCESS_SECRET as string;
-    const bearerToken = process.env.X_BEARER_TOKEN as string;
+  private initialize() {
+    if (this.initialized) return;
 
-    // Initialize the Twitter API client with access tokens
+    const appKey = config('x_api_key');
+    const appSecret = config('x_api_secret');
+    const accessToken = config('x_access_token');
+    const accessSecret = config('x_access_secret');
+    const bearerToken = config('x_bearer_token');
+
+    const keys = { appKey, appSecret, accessToken, accessSecret, bearerToken };
+    const missing = Object.entries(keys).filter(([key, value]) => !value || value.trim() === '');
+
+    if (missing.length > 0) {
+      throw new Error(`Missing or empty Twitter API config: ${missing}`);
+    }
+
     const client = new TwitterApi({
       appKey,
       appSecret,
@@ -20,37 +29,39 @@ class TwitterClient {
       accessSecret,
     });
 
-    // Initialize the bearer token client for read-only access
     const bearer = new TwitterApi(bearerToken);
 
-    // Define specific access modes for clients
     this.twitterClient = client.readWrite;
     this.twitterBearer = bearer.readOnly;
+    this.initialized = true;
   }
 
-  // Method to get the read-write client
   public getReadWriteClient(): TwitterApiReadWrite {
+    this.initialize();
     return this.twitterClient;
   }
 
-  // Method to get the read-only client
   public getReadOnlyClient(): TwitterApiReadOnly {
+    this.initialize();
     return this.twitterBearer;
   }
 
-  // Function to post a tweet
-  public async postTweet(content: string): Promise<TweetV2PostTweetResult | undefined> {
+  public async postTweet(content: string): Promise<TweetV2PostTweetResult | string> {
     try {
+      this.initialize();
       const response = await this.twitterClient.v2.tweet(content);
       return response;
-    } catch (error) {
-      console.error('Error posting tweet:', error);
-      return;
+    } catch (error: any) {
+      return error;
     }
   }
 }
 
-// Export an instance of the TwitterClient class for use
-export const twitterClientInstance = new TwitterClient();
-export const twitterReadWriteClient = twitterClientInstance.getReadWriteClient();
-export const twitterReadOnlyClient = twitterClientInstance.getReadOnlyClient();
+let instance: TwitterClient | null = null;
+
+export function getTwitterClient(): TwitterClient {
+  if (!instance) {
+    instance = new TwitterClient();
+  }
+  return instance;
+}

@@ -1,4 +1,4 @@
-import { handleConfig, serverConfig } from "@/features/externalAPI/externalAPI";
+import { readServerConfig, updateStore } from "@/features/externalAPI/memoryStore";
 
 export const defaults = {
   // AllTalk TTS specific settings
@@ -89,13 +89,15 @@ export const defaults = {
   amica_life_enabled: process.env.NEXT_PUBLIC_AMICA_LIFE_ENABLED ?? 'true',
   reasoning_engine_enabled: process.env.NEXT_PUBLIC_REASONING_ENGINE_ENABLED ?? 'false',
   reasoning_engine_url: process.env.NEXT_PUBLIC_REASONING_ENGINE_URL ?? 'https://i-love-amica.com:3000/reasoning/v1/chat/completions',
-  external_api_enabled: process.env.NEXT_PUBLIC_EXTERNAL_API_ENABLED ?? 'false',
-  x_api_key: process.env.NEXT_PUBLIC_X_API_KEY ?? '',
-  x_api_secret: process.env.NEXT_PUBLIC_X_API_SECRET ?? '',
-  x_access_token: process.env.NEXT_PUBLIC_X_ACCESS_TOKEN ?? '',
-  x_access_secret: process.env.NEXT_PUBLIC_X_ACCESS_SECRET ?? '',
-  x_bearer_token: process.env.NEXT_PUBLIC_X_BEARER_TOKEN ?? '',
-  telegram_bot_token: process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN ?? '',
+  external_api_enabled: process.env.NEXT_PUBLIC_EXTERNAL_API_ENABLED ?? "false",
+  session_id: "",
+  x_api_key: process.env.NEXT_PUBLIC_X_API_KEY ?? "",
+  x_api_secret: process.env.NEXT_PUBLIC_X_API_SECRET ?? "",
+  x_access_token: process.env.NEXT_PUBLIC_X_ACCESS_TOKEN ?? "",
+  x_access_secret: process.env.NEXT_PUBLIC_X_ACCESS_SECRET ?? "",
+  x_bearer_token: process.env.NEXT_PUBLIC_X_BEARER_TOKEN ?? "",
+  telegram_bot_token: process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN ?? "",
+  telegram_chat_id: process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID ?? "",
   min_time_interval_sec: '10',
   max_time_interval_sec: '20',
   time_to_sleep_sec: '90',
@@ -125,25 +127,26 @@ export function prefixed(key: string) {
   return `chatvrm_${key}`;
 }
 
-// Ensure syncLocalStorage runs only on the server side and once
-if (typeof window !== "undefined") {
-  (async () => {
-    await handleConfig("init");
-  })();
-} else {
-  (async () => {
-    await handleConfig("fetch");
-  })();
-}
-
 export function config(key: string): string {
   if (typeof localStorage !== "undefined" && localStorage.hasOwnProperty(prefixed(key))) {
     return (<any>localStorage).getItem(prefixed(key))!;
   }
 
   // Fallback to serverConfig if localStorage is unavailable or missing
-  if (serverConfig && serverConfig.hasOwnProperty(key)) {
-    return serverConfig[key];
+  if (typeof window === "undefined") {
+    let sessionId: string | undefined = undefined;
+    try {
+      const {
+        getServerSessionId,
+      } = require("@/features/externalAPI/serverContext");
+      sessionId = getServerSessionId();
+    } catch (err) {
+      console.warn("Could not load server session ID:", err);
+    }
+    const serverConfig = readServerConfig(sessionId!);
+    if (serverConfig && serverConfig.hasOwnProperty(key)) {
+      return serverConfig[key];
+    }
   }
 
   if (defaults.hasOwnProperty(key)) {
@@ -163,10 +166,11 @@ export async function updateConfig(key: string, value: string) {
     }
 
     // Sync update to server config
-    await handleConfig("update",{ key, value });
-
+    if (config("external_api_enabled") === "true") {
+      await updateStore(config("session_id"), "configs", { [key]: value });
+    }
   } catch (e) {
-    console.error(`Error updating config for key "${key}": ${e}`);
+    console.error(`Config "${key}" not found: ${e}`);
   }
 }
 
