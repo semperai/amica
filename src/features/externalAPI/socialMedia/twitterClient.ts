@@ -4,11 +4,8 @@ import { TwitterApi, TwitterApiReadWrite, TwitterApiReadOnly, TweetV2PostTweetRe
 class TwitterClient {
   private twitterClient!: TwitterApiReadWrite;
   private twitterBearer!: TwitterApiReadOnly;
-  private initialized = false;
 
-  private initialize() {
-    if (this.initialized) return;
-
+  constructor() {
     const appKey = config('x_api_key');
     const appSecret = config('x_api_secret');
     const accessToken = config('x_access_token');
@@ -19,7 +16,7 @@ class TwitterClient {
     const missing = Object.entries(keys).filter(([key, value]) => !value || value.trim() === '');
 
     if (missing.length > 0) {
-      throw new Error(`Missing or empty Twitter API config: ${missing}`);
+      throw new Error(`Missing or empty Twitter API config: ${missing.map(([key]) => key).join(', ')}`);
     }
 
     const client = new TwitterApi({
@@ -33,22 +30,18 @@ class TwitterClient {
 
     this.twitterClient = client.readWrite;
     this.twitterBearer = bearer.readOnly;
-    this.initialized = true;
   }
 
   public getReadWriteClient(): TwitterApiReadWrite {
-    this.initialize();
     return this.twitterClient;
   }
 
   public getReadOnlyClient(): TwitterApiReadOnly {
-    this.initialize();
     return this.twitterBearer;
   }
 
   public async postTweet(content: string): Promise<TweetV2PostTweetResult | string> {
     try {
-      this.initialize();
       const response = await this.twitterClient.v2.tweet(content);
       return response;
     } catch (error: any) {

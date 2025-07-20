@@ -1,5 +1,4 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { config } from './config';
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
@@ -10,12 +9,6 @@ export const supabase = createClient(
 let _eaiSupabase: SupabaseClient | null = null;
 
 export function getEaiSupabase(): SupabaseClient | null {
-  const isEnabled = config('external_api_enabled') === 'true'; // assuming config values are stored as string
-
-  if (!isEnabled) {
-    console.warn("EAI Supabase is disabled in config.");
-    return null;
-  }
 
   if (!_eaiSupabase) {
     const url = process.env.NEXT_PUBLIC_EAI_SUPABASE_URL;
