@@ -44,6 +44,95 @@ After this setup, you can start using the External API endpoints by calling them
 
 ---
 
+### Local Supabase Setup (For Developers)
+
+If you're running Amica locally and want to use the External API feature, you’ll need to configure a Supabase backend with the appropriate schema and credentials.
+
+#### 1. Create a Supabase Project
+
+1. Visit [https://supabase.com](https://supabase.com) and log in.
+2. Click **New Project**.
+3. Select your organization and choose a name, password, and region.
+4. Click **Create project** and wait for provisioning to complete.
+
+#### 2. Create Schema and Tables
+
+Once your project is ready:
+
+1. Navigate to the **SQL Editor** inside your Supabase dashboard.
+2. Paste and run the following SQL:
+
+```sql
+create schema if not exists "external-api";
+
+create table "external-api".events (
+  id uuid primary key default gen_random_uuid(),
+  session_id text not null,
+  type text not null,
+  data text not null,
+  created_at timestamptz default now()
+);
+
+create table "external-api".configs (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+
+create table "external-api".subconscious (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+
+create table "external-api".logs (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+
+create table "external-api".user_input_messages (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+
+create table "external-api".chat_logs (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+```
+
+> 💡 This sets up the full schema needed by the External API to store session-related data.
+
+#### 3. Get Supabase Keys
+
+1. Go to your Supabase dashboard.
+2. Click **Project Settings** → **API** tab.
+3. Copy the following values:
+
+   * **Project URL**
+   * **Anon (public) API Key**
+
+#### 4. Add Keys to `.env.local`
+
+Add the following to your local `.env.local` file:
+
+```env
+NEXT_PUBLIC_EAI_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_EAI_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Replace with your actual project values.
+
+---
+
 ## Route: `/api/amicaHandler`
 
 This API route handles multiple types of requests, including social media integration, system prompt updates, memory requests, and real-time client connections via Supabase Realtime Client. It ensures robust logging and provides error handling for incoming requests.
