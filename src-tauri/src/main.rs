@@ -10,7 +10,10 @@ use futures_util::StreamExt;
 use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex,
+};
 use tauri::api::{dialog, path};
 
 #[derive(serde::Deserialize, Clone)]
@@ -26,11 +29,44 @@ struct Payload {
 
 struct AppState {
     child_process: Mutex<Option<tauri::api::process::Child>>,
+    is_terminating: Arc<AtomicBool>,
 }
 
 fn show_error_and_exit(handle: &tauri::AppHandle, title: &str, message: &str) {
     dialog::message(handle.get_window("main").as_ref(), title, message);
     std::process::exit(1);
+}
+
+fn shutdown_sidecar(handle: &tauri::AppHandle) {
+    let app_state = handle.state::<AppState>();
+
+    // Use compare_exchange to ensure the shutdown logic runs only once.
+    if app_state
+        .is_terminating
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+    {
+        if let Some(mut child) = app_state.child_process.lock().unwrap().take() {
+            // First, try to see if the process has already exited.
+            match child.try_wait() {
+                Ok(Some(_)) => {
+                    // Process already exited, nothing to do.
+                }
+                Ok(None) => {
+                    // Process is still running, so kill it and wait for it to be reaped.
+                    if let Err(e) = child.kill() {
+                        eprintln!("Failed to kill sidecar process: {}", e);
+                    }
+                    if let Err(e) = child.wait() {
+                        eprintln!("Failed to wait for sidecar process to exit: {}", e);
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Error calling try_wait on sidecar process: {}", e);
+                }
+            }
+        }
+    }
 }
 
 fn validate_and_sanitize_path(path: &str) -> Result<String, String> {
@@ -159,6 +195,7 @@ async fn proxy_request_blocking(payload: ProxyRequestPayload) -> Result<serde_js
 fn main() {
     let app_state = AppState {
         child_process: Mutex::new(None),
+        is_terminating: Arc::new(AtomicBool::new(false)),
     };
 
     tauri::Builder::default()
@@ -264,12 +301,8 @@ fn main() {
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
                 "quit" => {
-                    let app_handle = app.app_handle();
-                    let app_state = app_handle.state::<AppState>();
-                    if let Some(child) = app_state.child_process.lock().unwrap().take() {
-                        child.kill().expect("Failed to kill sidecar");
-                    }
-                    app_handle.exit(0);
+                    shutdown_sidecar(&app.app_handle());
+                    app.app_handle().exit(0);
                 }
                 "checkforupdates" => {
                     tauri::api::shell::open(
@@ -292,13 +325,9 @@ fn main() {
             _ => {}
         })
         .on_window_event(|event| {
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event.event() {
-                let app_handle = event.window().app_handle();
-                let app_state = app_handle.state::<AppState>();
-                if let Some(child) = app_state.child_process.lock().unwrap().take() {
-                    child.kill().expect("Failed to kill sidecar");
-                }
-                app_handle.exit(0);
+            if let tauri::WindowEvent::CloseRequested { .. } = event.event() {
+                shutdown_sidecar(&event.window().app_handle());
+                event.window().app_handle().exit(0);
             }
         })
         .invoke_handler(tauri::generate_handler![
@@ -310,10 +339,7 @@ fn main() {
         .expect("error while building tauri application")
         .run(|app_handle, event| {
             if let tauri::RunEvent::ExitRequested { .. } = event {
-                let app_state = app_handle.state::<AppState>();
-                if let Some(child) = app_state.child_process.lock().unwrap().take() {
-                    child.kill().expect("Failed to kill sidecar");
-                }
+                shutdown_sidecar(app_handle);
             }
         });
 }
