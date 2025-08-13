@@ -38,16 +38,35 @@ npm install
 
 #### Step 3: Configure the `text-generation-webui` Path
 
-The application needs to know where to find your `text-generation-webui` executable. This is configured using a `settings.json` file.
+Amica needs to know where to find your `text-generation-webui` executable. This is configured in a `settings.json` file.
 
-1.  In the root of the `amica` project directory, you will find a `settings.json` file. For the final packaged application, you must place this `settings.json` file in the same directory as the Amica executable.
-2.  Open the file. It will look like this:
+##### How Configuration Works
+
+Amica uses a default, bundled configuration file to start. To customize the settings, you must create your own `settings.json` file and place it in the correct application configuration directory for your operating system.
+
+When Amica starts, it looks for `settings.json` in this order:
+1.  **Your Custom `settings.json`:** It checks for the file in your OS's standard application config directory.
+2.  **Default `settings.json`:** If no custom file is found, it falls back to the default settings bundled inside the application. The default has an empty path, so you **must** create a custom file.
+
+##### Creating Your Custom `settings.json`
+
+1.  First, you need to find your application's configuration directory. The paths are typically:
+    *   **Windows:** `%APPDATA%\\com.heyamica.dev\\config` (you can paste this into the Explorer address bar)
+    *   **macOS:** `~/Library/Application Support/com.heyamica.dev`
+    *   **Linux:** `~/.config/com.heyamica.dev`
+
+    *(Note: The `com.heyamica.dev` directory might not exist until you run Amica at least once.)*
+
+2.  Create a new file named `settings.json` inside that directory.
+
+3.  Copy and paste the following content into your new `settings.json` file:
     ```json
     {
       "text_generation_webui_path": ""
     }
     ```
-3.  Add the **full path** to your executable inside the quotes.
+
+4.  Add the **full path** to your `text-generation-webui` executable inside the quotes.
 
     *   **Windows Example:**
         ```json
@@ -64,7 +83,7 @@ The application needs to know where to find your `text-generation-webui` executa
         }
         ```
 
-> **Important Note:** Amica always reads `settings.json` from the **current working directory (CWD)** from which it is launched. It does not use OS-specific configuration paths (e.g., `%APPDATA%` or `~/.config`). This applies to both development runs (`npm run tauri dev`) and when running the final packaged application. For the packaged application, this usually means placing `settings.json` next to the executable file.
+If Amica ever has trouble starting, it will show a dialog box explaining the configuration error. This usually means there's a typo in your `settings.json` file or the path to the executable is incorrect.
 
 ## 3. Building the Application
 

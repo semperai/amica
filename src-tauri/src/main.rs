@@ -5,8 +5,10 @@ use tauri::{
   api::process::{Command, CommandEvent},
   CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
 };
-use std::sync::Mutex;
 use std::fs;
+use std::path::PathBuf;
+use std::sync::Mutex;
+use tauri::api::{dialog, path};
 
 #[derive(serde::Deserialize, Clone)]
 struct Settings {
@@ -21,6 +23,11 @@ struct Payload {
 
 struct AppState {
     child_process: Mutex<Option<tauri::api::process::Child>>,
+}
+
+fn show_error_and_exit(handle: &tauri::AppHandle, title: &str, message: &str) {
+    dialog::message(handle.get_window("main").as_ref(), title, message);
+    std::process::exit(1);
 }
 
 #[tauri::command]
@@ -74,26 +81,77 @@ fn main() {
     tauri::Builder::default()
         .manage(app_state)
         .setup(|app| {
-            let handle = app.handle();
+            let handle = app.handle().clone();
             let app_state = handle.state::<AppState>();
 
-            // Read settings
-            let settings_path = "settings.json";
-            let settings_str = fs::read_to_string(settings_path)
-                .expect("Failed to read settings.json");
-            let settings: Settings = serde_json::from_str(&settings_str)
-                .expect("Failed to parse settings.json");
+            // Load settings
+            let config_dir = match path::app_config_dir(&handle.config()) {
+                Some(dir) => dir,
+                None => {
+                    show_error_and_exit(&handle, "Fatal Error", "Could not determine the application config directory.");
+                    return Ok(()); // Unreachable but needed for type check
+                }
+            };
 
-            if settings.text_generation_webui_path.is_empty() {
-                // In a real app, you'd want to show a dialog to the user
-                panic!("text_generation_webui_path is not set in settings.json");
+            let settings_path_in_config = config_dir.join("settings.json");
+
+            let settings_str = if settings_path_in_config.exists() {
+                match fs::read_to_string(&settings_path_in_config) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        let msg = format!("Failed to read settings.json from config directory ({}): {}", settings_path_in_config.display(), e);
+                        show_error_and_exit(&handle, "Configuration Error", &msg);
+                        return Ok(());
+                    }
+                }
+            } else {
+                let resource_path = match handle.path_resolver().resolve_resource("resources/settings.json") {
+                    Some(path) => path,
+                    None => {
+                        show_error_and_exit(&handle, "Fatal Error", "Could not resolve bundled settings.json path.");
+                        return Ok(());
+                    }
+                };
+                match fs::read_to_string(resource_path) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        let msg = format!("Failed to read bundled settings.json: {}", e);
+                        show_error_and_exit(&handle, "Fatal Error", &msg);
+                        return Ok(());
+                    }
+                }
+            };
+
+            let settings: Settings = match serde_json::from_str(&settings_str) {
+                Ok(s) => s,
+                Err(e) => {
+                    let msg = format!("Failed to parse settings.json: {}. Please check for syntax errors.", e);
+                    show_error_and_exit(&handle, "Configuration Error", &msg);
+                    return Ok(());
+                }
+            };
+
+            // Validate path
+            let executable_path = PathBuf::from(&settings.text_generation_webui_path);
+            if settings.text_generation_webui_path.is_empty() || !executable_path.is_file() {
+                let msg = format!("The path specified in settings.json is either empty or does not point to a valid file: '{}'", settings.text_generation_webui_path);
+                show_error_and_exit(&handle, "Configuration Error", &msg);
+                return Ok(());
             }
 
             // Launch the external process
             tauri::async_runtime::spawn(async move {
-                let (mut rx, child) = Command::new(settings.text_generation_webui_path)
-                    .spawn()
-                    .expect("Failed to spawn external process");
+                let (mut rx, child) = match Command::new(&settings.text_generation_webui_path).spawn() {
+                    Ok(c) => c,
+                    Err(e) => {
+                        let msg = format!("Failed to spawn the external process at '{}': {}", settings.text_generation_webui_path, e);
+                        show_error_and_exit(&handle, "Process Error", &msg);
+                        // This exit is in a spawned thread, so it won't kill the main app directly
+                        // The main app will continue, but the child process won't be running.
+                        // The dialog is the most important part.
+                        return;
+                    }
+                };
 
                 *app_state.child_process.lock().unwrap() = Some(child);
 
