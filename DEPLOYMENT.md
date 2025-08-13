@@ -52,7 +52,7 @@ When Amica starts, it looks for `settings.json` in this order:
 ##### Creating Your Custom `settings.json`
 
 1.  First, you need to find your application's configuration directory. The paths are typically:
-    *   **Windows:** `%APPDATA%\\com.heyamica.dev\\config` (you can paste this into the Explorer address bar)
+    *   **Windows:** `%APPDATA%\\com.heyamica.dev` (you can paste this into the Explorer address bar)
     *   **macOS:** `~/Library/Application Support/com.heyamica.dev`
     *   **Linux:** `~/.config/com.heyamica.dev`
 
