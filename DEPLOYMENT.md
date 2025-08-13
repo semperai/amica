@@ -9,9 +9,11 @@ Before you begin, you need to have the following software installed on your syst
 *   **Node.js:** Amica's user interface is built with Node.js. You will need version `18.18.0` or newer. You can download it from the [official Node.js website](https://nodejs.org/).
 *   **Rust:** The new backend is written in Rust. The easiest way to install Rust is by using `rustup`. You can find instructions at the [official Rust website](https://www.rust-lang.org/tools/install).
 *   **`text-generation-webui`:** You must have a working, pre-compiled version of `text-generation-webui`. You can find releases and setup instructions on its [GitHub repository](https://github.com/oobabooga/text-generation-webui). Make sure you can run it successfully on its own before integrating it with Amica.
-*   **(Windows Only) Build Tools:** Install the MSVC toolchain (e.g., “Desktop development with C++” via Visual Studio or the standalone Build Tools) and the Windows 10/11 SDK.
-*   **(macOS Only) Build Tools:** Install Xcode Command Line Tools (`xcode-select --install`). You may also need Homebrew for common libraries.
 *   **(Linux Only) Build Dependencies:** On Linux, you will need to install a few extra packages for Tauri to build correctly. You can install them with the following command:
+    ```bash
+    sudo apt-get update
+    sudo apt-get install -y libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+    ```
 
 ## 2. Installation and Configuration
 

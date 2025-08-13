@@ -6,6 +6,8 @@ use tauri::{
   CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
 };
 use futures_util::StreamExt;
+use futures_util::StreamExt;
+use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -29,6 +31,28 @@ struct AppState {
 fn show_error_and_exit(handle: &tauri::AppHandle, title: &str, message: &str) {
     dialog::message(handle.get_window("main").as_ref(), title, message);
     std::process::exit(1);
+}
+
+fn validate_and_sanitize_path(path: &str) -> Result<String, String> {
+    // Reject any input that contains "://" or starts with "http" or contains ".." or null bytes
+    if path.contains("://") || path.contains("..") || path.contains('\0') || path.trim().to_lowercase().starts_with("http") {
+        return Err(format!("Invalid path '{}': contains malicious patterns.", path));
+    }
+
+    // Normalize/removing leading slashes
+    let sanitized_path = path.trim_start_matches('/').to_string();
+
+    // Enforce an allowlist of known good endpoints
+    let allowlist: HashSet<&str> = [
+        "api/v1/generate",
+        "api/extra/generate/stream",
+    ].iter().cloned().collect();
+
+    if !allowlist.contains(sanitized_path.as_str()) {
+        return Err(format!("Invalid path '{}': not in allowlist.", path));
+    }
+
+    Ok(sanitized_path)
 }
 
 #[tauri::command]
@@ -62,8 +86,9 @@ async fn proxy_request_streaming(
     handle: tauri::AppHandle,
     payload: ProxyRequestPayload,
 ) -> Result<(), String> {
+    let sanitized_path = validate_and_sanitize_path(&payload.path)?;
     let client = reqwest::Client::new();
-    let url = format!("http://127.0.0.1:5000/{}", payload.path);
+    let url = format!("http://127.0.0.1:5000/{}", sanitized_path);
 
     let res = client
         .post(&url)
@@ -105,9 +130,10 @@ async fn proxy_request_streaming(
 
 #[tauri::command]
 async fn proxy_request_blocking(payload: ProxyRequestPayload) -> Result<serde_json::Value, String> {
+    let sanitized_path = validate_and_sanitize_path(&payload.path)?;
     let client = reqwest::Client::new();
     // This port should be configurable in the future.
-    let url = format!("http://127.0.0.1:5000/{}", payload.path);
+    let url = format!("http://127.0.0.1:5000/{}", sanitized_path);
 
     let res = client
         .post(&url)
