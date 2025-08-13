@@ -14,6 +14,7 @@ Before you begin, you need to have the following software installed on your syst
     sudo apt-get update
     sudo apt-get install -y libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
     ```
+    > **Note:** This project uses Tauri v1, which requires `libwebkit2gtk-4.0-dev`. If you are working on a project with Tauri v2 or newer, you will need to use `libwebkit2gtk-4.1-dev` instead.
 
 ## 2. Installation and Configuration
 
