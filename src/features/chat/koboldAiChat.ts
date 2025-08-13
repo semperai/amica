@@ -1,6 +1,7 @@
 import { Message } from "./messages";
 import { buildPrompt } from "@/utils/buildPrompt";
 import { config } from '@/utils/config';
+import { invoke } from "@tauri-apps/api/tauri";
 
 export async function getKoboldAiChatResponseStream(messages: Message[]) {
   if (config("koboldai_use_extra") === 'true') {
@@ -79,23 +80,21 @@ async function getExtra(messages: Message[]) {
 
 // koboldai / no stream support
 async function getNormal(messages: Message[]) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
   const prompt = buildPrompt(messages);
   const stop_sequence: string[] = [`${config("name")}:`, ...`${config("koboldai_stop_sequence")}`.split("||")];
 
-  const res = await fetch(`${config("koboldai_url")}/api/v1/generate`, {
-    headers: headers,
-    method: "POST",
-    body: JSON.stringify({
-      prompt,
-      stop_sequence
-    }),
+  const body = {
+    prompt,
+    stop_sequence,
+  };
+
+  const json: any = await invoke("proxy_request", {
+    payload: {
+      path: "api/v1/generate",
+      body: body,
+    },
   });
 
-  const json = await res.json();
   if (json.results.length === 0) {
     throw new Error(`KoboldAi result length 0`);
   }
