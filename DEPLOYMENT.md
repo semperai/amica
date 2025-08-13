@@ -96,7 +96,10 @@ Run the following command in your terminal. This process will compile the Rust b
 npm run tauri build
 ```
 
-Once the build is complete, you will find the final application inside the `src-tauri/target/release/` directory. It will be a `.exe` file on Windows, a `.AppImage` on Linux, or a `.app` file inside a `.dmg` on macOS.
+Once the build is complete, you will find the final application inside the `src-tauri/target/release/bundle/` directory, organized by platform and package type:
+*   **Windows:** The installer can be found under the `msi/` subdirectory, and the portable `.exe` under the `nsis/` subdirectory (or a similar name).
+*   **Linux:** The `.AppImage` can be found under the `appimage/` subdirectory, and the `.deb` package under the `deb/` subdirectory.
+*   **macOS:** The `.app` file is under the `macos/` subdirectory, and the `.dmg` installer is under the `dmg/` subdirectory.
 
 ## 4. Running Amica
 
