@@ -6,7 +6,6 @@ use tauri::{
   CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
 };
 use futures_util::StreamExt;
-use futures_util::StreamExt;
 use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
@@ -89,6 +88,12 @@ fn validate_and_sanitize_path(path: &str) -> Result<String, String> {
     }
 
     Ok(sanitized_path)
+}
+
+#[tauri::command]
+async fn quit_app(handle: tauri::AppHandle) {
+    shutdown_sidecar(&handle);
+    handle.exit(0);
 }
 
 #[tauri::command]
@@ -301,8 +306,7 @@ fn main() {
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
                 "quit" => {
-                    shutdown_sidecar(&app.app_handle());
-                    app.app_handle().exit(0);
+                    app.app_handle().emit_all("confirm-close", ()).unwrap();
                 }
                 "checkforupdates" => {
                     tauri::api::shell::open(
@@ -325,15 +329,16 @@ fn main() {
             _ => {}
         })
         .on_window_event(|event| {
-            if let tauri::WindowEvent::CloseRequested { .. } = event.event() {
-                shutdown_sidecar(&event.window().app_handle());
-                event.window().app_handle().exit(0);
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event.event() {
+                api.prevent_close();
+                event.window().emit("confirm-close", ()).unwrap();
             }
         })
         .invoke_handler(tauri::generate_handler![
             close_splashscreen,
             proxy_request_blocking,
-            proxy_request_streaming
+            proxy_request_streaming,
+            quit_app
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
