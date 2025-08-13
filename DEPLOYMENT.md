@@ -27,7 +27,7 @@ Open your terminal, navigate to where you want to store the project, and run the
 
 Amica needs to know where to find your `text-generation-webui` executable. This is configured in a `settings.json` file.
 
-##### How Configuration Works
+#### How Configuration Works
 
 Amica uses a default, bundled configuration file to start. To customize the settings, you must create your own `settings.json` file and place it in the correct application configuration directory for your operating system.
 
@@ -35,7 +35,7 @@ When Amica starts, it looks for `settings.json` in this order:
 1.  **Your Custom `settings.json`:** It checks for the file in your OS's standard application config directory.
 2.  **Default `settings.json`:** If no custom file is found, it falls back to the default settings bundled inside the application. The default has an empty path, so you **must** create a custom file.
 
-##### Creating Your Custom `settings.json`
+#### Creating Your Custom `settings.json`
 
 1.  First, you need to find your application's configuration directory. The paths are typically:
     *   **Windows:** `%APPDATA%\\com.heyamica.dev` (you can paste this into the Explorer address bar)
