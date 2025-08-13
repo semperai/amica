@@ -279,11 +279,14 @@ fn main() {
                 let (mut rx, child) = match Command::new(&settings.text_generation_webui_path).spawn() {
                     Ok(c) => c,
                     Err(e) => {
-                        let msg = format!("Failed to spawn the external process at '{}': {}", settings.text_generation_webui_path, e);
-                        show_error_and_exit(&handle, "Process Error", &msg);
-                        // This exit is in a spawned thread, so it won't kill the main app directly
-                        // The main app will continue, but the child process won't be running.
-                        // The dialog is the most important part.
+                        let msg = format!(
+                            "Failed to spawn the external process at '{}': {}",
+                            settings.text_generation_webui_path, e
+                        );
+                        // Show a user-facing dialog.
+                        dialog::message(handle.get_window("main").as_ref(), "Process Error", &msg);
+                        // And gracefully exit the app.
+                        handle.exit(1);
                         return;
                     }
                 };
