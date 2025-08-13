@@ -14,13 +14,12 @@ export async function getKoboldAiChatResponseStream(messages: Message[]) {
 
 // koboldcpp / stream support
 function getExtra(messages: Message[]) {
+  let cleanup = () => {};
+
   const stream = new ReadableStream({
     async start(controller: ReadableStreamDefaultController) {
       const onChunk = await listen("stream-chunk", (event: Event<any>) => {
         const chunk = event.payload.chunk;
-        // The original stream sends data like `data: {"token": "..."}\n\n`
-        // The Rust backend now sends the raw string content of the `data:` part.
-        // We need to re-wrap it to match the expected format.
         const data = `data: ${chunk}\n\n`;
         controller.enqueue(data);
       });
@@ -36,13 +35,12 @@ function getExtra(messages: Message[]) {
         cleanup();
       });
 
-      const cleanup = () => {
+      cleanup = () => {
         onChunk();
         onError();
         onEnd();
       };
 
-      // Trigger the streaming request on the backend
       invoke("proxy_request_streaming", {
         payload: {
           path: "api/extra/generate/stream",
@@ -55,6 +53,10 @@ function getExtra(messages: Message[]) {
         controller.error(new Error(`Failed to invoke streaming request: ${e}`));
         cleanup();
       });
+    },
+    cancel(reason) {
+      console.log("Stream cancelled:", reason);
+      cleanup();
     },
   });
 

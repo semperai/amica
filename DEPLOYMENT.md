@@ -20,14 +20,28 @@ Before you begin, you need to have the following software installed on your syst
 
 Follow these steps to get the Amica project set up.
 
-### Step 1: Clone the Amica Repository
+#### Step 1: Clone the Amica Repository
 
 Open your terminal, navigate to where you want to store the project, and run the following command:
 
+```bash
+git clone https://github.com/semperai/amica
+cd amica
+```
+
+#### Step 2: Install JavaScript Dependencies
+
+Once you are in the `amica` directory, run this command to install all the necessary frontend packages:
+
+```bash
+npm install
+```
+
+#### Step 3: Configure the `text-generation-webui` Path
 
 Amica needs to know where to find your `text-generation-webui` executable. This is configured in a `settings.json` file.
 
-#### How Configuration Works
+##### How Configuration Works
 
 Amica uses a default, bundled configuration file to start. To customize the settings, you must create your own `settings.json` file and place it in the correct application configuration directory for your operating system.
 
@@ -35,7 +49,7 @@ When Amica starts, it looks for `settings.json` in this order:
 1.  **Your Custom `settings.json`:** It checks for the file in your OS's standard application config directory.
 2.  **Default `settings.json`:** If no custom file is found, it falls back to the default settings bundled inside the application. The default has an empty path, so you **must** create a custom file.
 
-#### Creating Your Custom `settings.json`
+##### Creating Your Custom `settings.json`
 
 1.  First, you need to find your application's configuration directory. The paths are typically:
     *   **Windows:** `%APPDATA%\\com.heyamica.dev` (you can paste this into the Explorer address bar)
