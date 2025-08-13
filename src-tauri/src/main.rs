@@ -154,16 +154,19 @@ async fn proxy_request_streaming(
             match chunk_result {
                 Ok(chunk) => {
                     let s = String::from_utf8_lossy(&chunk).to_string();
-                    handle.emit_all("stream-chunk", StreamChunkPayload { chunk: s }).unwrap();
+                    if let Err(e) = handle.emit_all("stream-chunk", StreamChunkPayload { chunk: s }) {
+                        eprintln!("Failed to emit stream chunk: {}", e);
+                        break;
+                    }
                 }
                 Err(e) => {
                     let error_message = format!("Error reading stream: {}", e);
-                    handle.emit_all("stream-error", StreamErrorPayload { error: error_message }).unwrap();
+                    let _ = handle.emit_all("stream-error", StreamErrorPayload { error: error_message });
                     break;
                 }
             }
         }
-        handle.emit_all("stream-end", ()).unwrap();
+        let _ = handle.emit_all("stream-end", ());
     });
 
     Ok(())
