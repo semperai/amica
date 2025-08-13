@@ -218,7 +218,6 @@ fn main() {
         .manage(app_state)
         .setup(|app| {
             let handle = app.handle().clone();
-            let app_state = handle.state::<AppState>();
 
             // Load settings
             let config_dir = match path::app_config_dir(&handle.config()) {
@@ -289,6 +288,8 @@ fn main() {
                     }
                 };
 
+                // Reacquire state inside the async task to prevent lifetime issues
+                let app_state = handle.state::<AppState>();
                 *app_state.child_process.lock().unwrap() = Some(child);
 
                 while let Some(event) = rx.recv().await {
