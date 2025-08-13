@@ -104,6 +104,6 @@ You can now run this executable file directly! There is no need for any further 
 
 On the first run, be sure to open the in-app settings and configure the following:
 *   **Chatbot Backend:** Select **KoboldAI**.
-*   **Streaming/Extra Option:** If you see an option for streaming, make sure it is **disabled**.
+*   **Use Extra (enables streaming):** This toggle defaults to off, so no change is required for the standard behavior. Enable this only if you want to use the streaming response feature from KoboldAI.
 
 That's it! Your self-contained, Rust-powered Amica application is now ready to use.
