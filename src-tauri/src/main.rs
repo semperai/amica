@@ -79,8 +79,7 @@ fn validate_and_sanitize_path(path: &str) -> Result<String, String> {
 
     // Enforce an allowlist of known good endpoints
     let allowlist: HashSet<&str> = [
-        "api/v1/generate",
-        "api/extra/generate/stream",
+        "v1/chat/completions",
     ].iter().cloned().collect();
 
     if !allowlist.contains(sanitized_path.as_str()) {
@@ -110,6 +109,7 @@ async fn close_splashscreen(window: tauri::Window) {
 struct ProxyRequestPayload {
     path: String,
     body: serde_json::Value,
+    authorization: Option<String>,
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -131,8 +131,12 @@ async fn proxy_request_streaming(
     let client = reqwest::Client::new();
     let url = format!("http://127.0.0.1:5000/{}", sanitized_path);
 
-    let res = client
-        .post(&url)
+    let mut request_builder = client.post(&url);
+    if let Some(auth) = payload.authorization {
+        request_builder = request_builder.header("Authorization", format!("Bearer {}", auth));
+    }
+
+    let res = request_builder
         .json(&payload.body)
         .send()
         .await
@@ -179,8 +183,12 @@ async fn proxy_request_blocking(payload: ProxyRequestPayload) -> Result<serde_js
     // This port should be configurable in the future.
     let url = format!("http://127.0.0.1:5000/{}", sanitized_path);
 
-    let res = client
-        .post(&url)
+    let mut request_builder = client.post(&url);
+    if let Some(auth) = payload.authorization {
+        request_builder = request_builder.header("Authorization", format!("Bearer {}", auth));
+    }
+
+    let res = request_builder
         .json(&payload.body)
         .send()
         .await

@@ -1,5 +1,7 @@
 import { Message } from "./messages";
 import { config } from '@/utils/config';
+import { invoke } from "@tauri-apps/api/tauri";
+import { listen, Event } from "@tauri-apps/api/event";
 
 function getApiKey(configKey: string) {
   const apiKey = config(configKey);
@@ -9,87 +11,76 @@ function getApiKey(configKey: string) {
   return apiKey;
 }
 
-async function getResponseStream(
+function getResponseStream(
   messages: Message[],
-  url: string,
+  _url: string, // url is now handled by the proxy
   model: string,
   apiKey: string,
 ) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${apiKey}`,
-    "HTTP-Referer": "https://amica.arbius.ai",
-    "X-Title": "Amica",
-  };
-
-  const res = await fetch(`${url}/v1/chat/completions`, {
-    headers: headers,
-    method: "POST",
-    body: JSON.stringify({
-      model,
-      messages,
-      stream: true,
-      max_tokens: 200,
-    }),
-  });
-
-  const reader = res.body?.getReader();
-  if (res.status !== 200 || ! reader) {
-    if (res.status === 401) {
-      throw new Error('Invalid OpenAI authentication');
-    }
-    if (res.status === 402) {
-      throw new Error('Payment required');
-    }
-
-    throw new Error(`OpenAI chat error (${res.status})`);
-  }
+  let cleanup = () => {};
 
   const stream = new ReadableStream({
     async start(controller: ReadableStreamDefaultController) {
-      const decoder = new TextDecoder("utf-8");
-      try {
-        // sometimes the response is chunked, so we need to combine the chunks
-        let combined = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const data = decoder.decode(value);
-          const chunks = data
-            .split("data:")
-            .filter((val) => !!val && val.trim() !== "[DONE]");
-
-          for (const chunk of chunks) {
-            // skip comments
-            if (chunk.length > 0 && chunk[0] === ":") {
-              continue;
+      const onChunk = await listen("stream-chunk", (event: Event<any>) => {
+        // The OpenAI stream sends data like `data: {"id":...,"choices":[{"delta":{"content":"..."}}]}\n\n`
+        // We need to parse this and extract the content.
+        const chunk = event.payload.chunk;
+        const lines = chunk.split('\n').filter((line: string) => line.startsWith('data: '));
+        for (const line of lines) {
+          const data = line.substring(6);
+          if (data.trim() === '[DONE]') {
+            return;
+          }
+          try {
+            const json = JSON.parse(data);
+            const messagePiece = json.choices[0].delta.content;
+            if (messagePiece) {
+              controller.enqueue(messagePiece);
             }
-            combined += chunk;
-
-            try {
-              const json = JSON.parse(combined);
-              const messagePiece = json.choices[0].delta.content;
-              combined = "";
-              if (!!messagePiece) {
-                controller.enqueue(messagePiece);
-              }
-            } catch (error) {
-              console.error(error);
-            }
+          } catch (error) {
+            console.error("Failed to parse stream chunk:", error, "in chunk:", data);
           }
         }
-      } catch (error) {
-        console.error(error);
-        controller.error(error);
-      } finally {
-        reader.releaseLock();
+      });
+
+      const onError = await listen("stream-error", (event: Event<any>) => {
+        console.error("Stream error from backend:", event.payload.error);
+        controller.error(new Error(event.payload.error));
+        cleanup();
+      });
+
+      const onEnd = await listen("stream-end", () => {
         controller.close();
-      }
+        cleanup();
+      });
+
+      cleanup = () => {
+        onChunk();
+        onError();
+        onEnd();
+      };
+
+      // Trigger the streaming request on the backend
+      invoke("proxy_request_streaming", {
+        payload: {
+          path: "v1/chat/completions",
+          authorization: apiKey,
+          body: {
+            model,
+            messages,
+            stream: true,
+            max_tokens: 200,
+          }
+        }
+      }).catch(e => {
+        controller.error(new Error(`Failed to invoke streaming request: ${e}`));
+        cleanup();
+      });
     },
-    async cancel() {
-      await reader?.cancel();
-      reader.releaseLock();
-    }
+    cancel(reason) {
+      console.log("Stream cancelled:", reason);
+      cleanup();
+    },
   });
 
   return stream;
@@ -102,20 +93,27 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
   return getResponseStream(messages, url, model, apiKey);
 }
 
-export async function getOpenAiVisionChatResponse(messages: Message[],) {
+export async function getOpenAiVisionChatResponse(messages: Message[]) {
   const apiKey = getApiKey("vision_openai_apikey");
-  const url = config("vision_openai_url");
   const model = config("vision_openai_model");
 
-  const stream = await getResponseStream(messages, url, model, apiKey);
-  const sreader = await stream.getReader();
+  // This is a non-streaming request.
+  const json: any = await invoke("proxy_request_blocking", {
+    payload: {
+      path: "v1/chat/completions",
+      authorization: apiKey,
+      body: {
+        model,
+        messages,
+        stream: false,
+        max_tokens: 200,
+      }
+    }
+  });
 
-  let combined = "";
-  while (true) {
-    const { done, value } = await sreader.read();
-    if (done) break;
-    combined += value;
+  if (json.choices && json.choices.length > 0 && json.choices[0].message) {
+    return json.choices[0].message.content;
   }
 
-  return combined;
+  throw new Error("Invalid response structure from OpenAI compatible API");
 }

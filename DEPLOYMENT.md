@@ -8,7 +8,8 @@ Before you begin, you need to have the following software installed on your syst
 
 *   **Node.js:** Amica's user interface is built with Node.js. You will need version `18.18.0` or newer. You can download it from the [official Node.js website](https://nodejs.org/).
 *   **Rust:** The new backend is written in Rust. The easiest way to install Rust is by using `rustup`. You can find instructions at the [official Rust website](https://www.rust-lang.org/tools/install).
-*   **`text-generation-webui`:** You must have a working, pre-compiled version of `text-generation-webui`. You can find releases and setup instructions on its [GitHub repository](https://github.com/oobabooga/text-generation-webui). Make sure you can run it successfully on its own before integrating it with Amica.
+*   **`text-generation-webui`:** You must have a working, pre-compiled version of `text-generation-webui`. You can find releases and setup instructions on its [GitHub repository](https://github.com/oobabooga/text-generation-webui).
+    > **Important:** When you launch `text-generation-webui`, you must enable the API with the `--api` flag. For example: `./start_linux.sh --api`.
 *   **(Linux Only) Build Dependencies:** On Linux, you will need to install a few extra packages for Tauri to build correctly. You can install them with the following command:
     ```bash
     sudo apt-get update
@@ -106,7 +107,7 @@ Once the build is complete, you will find the final application inside the `src-
 You can now run this executable file directly! There is no need for any further commands.
 
 On the first run, be sure to open the in-app settings and configure the following:
-*   **Chatbot Backend:** Select **KoboldAI**.
-*   **Use Extra (enables streaming):** This toggle defaults to off, so no change is required for the standard behavior. Enable this only if you want to use the streaming response feature from KoboldAI.
+*   **Chatbot Backend:** Select **ChatGPT**.
+*   In the ChatGPT settings, you may need to enter a dummy API key (e.g., "123") for the UI to proceed, but the key itself is not used by the proxy.
 
 That's it! Your self-contained, Rust-powered Amica application is now ready to use.
