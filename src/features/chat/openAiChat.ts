@@ -3,6 +3,16 @@ import { config } from '@/utils/config';
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen, Event } from "@tauri-apps/api/event";
 
+interface OpenAIChoice {
+  message: {
+    content: string;
+  };
+}
+
+interface OpenAIResponse {
+  choices: OpenAIChoice[];
+}
+
 function getApiKey(configKey: string) {
   const apiKey = config(configKey);
   if (!apiKey) {
@@ -61,21 +71,24 @@ function getResponseStream(
       };
 
       // Trigger the streaming request on the backend
-      invoke("proxy_request_streaming", {
-        payload: {
-          path: "v1/chat/completions",
-          authorization: apiKey,
-          body: {
-            model,
-            messages,
-            stream: true,
-            max_tokens: 200,
+      try {
+        await invoke("proxy_request_streaming", {
+          payload: {
+            path: "v1/chat/completions",
+            authorization: apiKey,
+            body: {
+              model,
+              messages,
+              stream: true,
+              max_tokens: 200,
+            }
           }
-        }
-      }).catch(e => {
-        controller.error(new Error(`Failed to invoke streaming request: ${e}`));
+        });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        controller.error(new Error(`Failed to invoke streaming request: ${msg}`));
         cleanup();
-      });
+      }
     },
     cancel(reason) {
       console.log("Stream cancelled:", reason);
@@ -93,27 +106,34 @@ export async function getOpenAiChatResponseStream(messages: Message[]) {
   return getResponseStream(messages, url, model, apiKey);
 }
 
-export async function getOpenAiVisionChatResponse(messages: Message[]) {
+export async function getOpenAiVisionChatResponse(messages: Message[]): Promise<string> {
   const apiKey = getApiKey("vision_openai_apikey");
   const model = config("vision_openai_model");
 
-  // This is a non-streaming request.
-  const json: any = await invoke("proxy_request_blocking", {
-    payload: {
-      path: "v1/chat/completions",
-      authorization: apiKey,
-      body: {
-        model,
-        messages,
-        stream: false,
-        max_tokens: 200,
+  let json: OpenAIResponse;
+  try {
+    // This is a non-streaming request.
+    json = await invoke<OpenAIResponse>("proxy_request_blocking", {
+      payload: {
+        path: "v1/chat/completions",
+        authorization: apiKey,
+        body: {
+          model,
+          messages,
+          stream: false,
+          max_tokens: 200,
+        }
       }
-    }
-  });
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`OpenAI proxy request failed: ${msg}`);
+  }
 
-  if (json.choices && json.choices.length > 0 && json.choices[0].message) {
+
+  if (json.choices && json.choices.length > 0 && json.choices[0].message && json.choices[0].message.content) {
     return json.choices[0].message.content;
   }
 
-  throw new Error("Invalid response structure from OpenAI compatible API");
+  throw new Error("Invalid response structure from OpenAI-compatible API");
 }
