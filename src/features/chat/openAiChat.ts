@@ -31,47 +31,41 @@ function getResponseStream(
 
   const stream = new ReadableStream({
     async start(controller: ReadableStreamDefaultController) {
-      const onChunk = await listen("stream-chunk", (event: Event<any>) => {
-        // The OpenAI stream sends data like `data: {"id":...,"choices":[{"delta":{"content":"..."}}]}\n\n`
-        // We need to parse this and extract the content.
-        const chunk = event.payload.chunk;
-        const lines = chunk.split('\n').filter((line: string) => line.startsWith('data: '));
-        for (const line of lines) {
-          const data = line.substring(6);
-          if (data.trim() === '[DONE]') {
-            return;
-          }
-          try {
-            const json = JSON.parse(data);
-            const messagePiece = json.choices[0].delta.content;
-            if (messagePiece) {
-              controller.enqueue(messagePiece);
-            }
-          } catch (error) {
-            console.error("Failed to parse stream chunk:", error, "in chunk:", data);
-          }
-        }
-      });
+      const unlistens: Array<() => void> = [];
+      cleanup = () => unlistens.forEach(fn => fn());
 
-      const onError = await listen("stream-error", (event: Event<any>) => {
-        console.error("Stream error from backend:", event.payload.error);
-        controller.error(new Error(event.payload.error));
-        cleanup();
-      });
-
-      const onEnd = await listen("stream-end", () => {
-        controller.close();
-        cleanup();
-      });
-
-      cleanup = () => {
-        onChunk();
-        onError();
-        onEnd();
-      };
-
-      // Trigger the streaming request on the backend
       try {
+        unlistens.push(await listen("stream-chunk", (event: Event<any>) => {
+          const chunk = event.payload.chunk;
+          const lines = chunk.split('\n').filter((line: string) => line.startsWith('data: '));
+          for (const line of lines) {
+            const data = line.substring(6);
+            if (data.trim() === '[DONE]') {
+              return;
+            }
+            try {
+              const json = JSON.parse(data);
+              const messagePiece = json.choices[0].delta.content;
+              if (messagePiece) {
+                controller.enqueue(messagePiece);
+              }
+            } catch (error) {
+              console.error("Failed to parse stream chunk:", error, "in chunk:", data);
+            }
+          }
+        }));
+
+        unlistens.push(await listen("stream-error", (event: Event<any>) => {
+          console.error("Stream error from backend:", event.payload.error);
+          controller.error(new Error(event.payload.error));
+          cleanup();
+        }));
+
+        unlistens.push(await listen("stream-end", () => {
+          controller.close();
+          cleanup();
+        }));
+
         await invoke("proxy_request_streaming", {
           payload: {
             path: "v1/chat/completions",
