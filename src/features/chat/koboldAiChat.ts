@@ -2,6 +2,7 @@ import { Message } from "./messages";
 import { buildPrompt } from "@/utils/buildPrompt";
 import { config } from '@/utils/config';
 import { invoke } from "@tauri-apps/api/tauri";
+import { listen, Event } from "@tauri-apps/api/event";
 
 export async function getKoboldAiChatResponseStream(messages: Message[]) {
   if (config("koboldai_use_extra") === 'true') {
@@ -12,67 +13,49 @@ export async function getKoboldAiChatResponseStream(messages: Message[]) {
 }
 
 // koboldcpp / stream support
-async function getExtra(messages: Message[]) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  const prompt = buildPrompt(messages);
-  const stop_sequence: string[] = [`${config("name")}:`, ...`${config("koboldai_stop_sequence")}`.split("||")];
-
-  const res = await fetch(`${config("koboldai_url")}/api/extra/generate/stream`, {
-    headers: headers,
-    method: "POST",
-    body: JSON.stringify({
-      prompt,
-      stop_sequence
-    }),
-  });
-
-  const reader = res.body?.getReader();
-  if (res.status !== 200 || ! reader) {
-    throw new Error(`KoboldAi chat error (${res.status})`);
-  }
-
+function getExtra(messages: Message[]) {
   const stream = new ReadableStream({
     async start(controller: ReadableStreamDefaultController) {
-      const decoder = new TextDecoder("utf-8");
-      try {
-        let buffer = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value);
+      const onChunk = await listen("stream-chunk", (event: Event<any>) => {
+        const chunk = event.payload.chunk;
+        // The original stream sends data like `data: {"token": "..."}\n\n`
+        // The Rust backend now sends the raw string content of the `data:` part.
+        // We need to re-wrap it to match the expected format.
+        const data = `data: ${chunk}\n\n`;
+        controller.enqueue(data);
+      });
 
-          let eolIndex;
-          while ((eolIndex = buffer.indexOf('\n')) >= 0) {
-            const line = buffer.substring(0, eolIndex).trim();
-            buffer = buffer.substring(eolIndex + 1);
+      const onError = await listen("stream-error", (event: Event<any>) => {
+        console.error("Stream error:", event.payload.error);
+        controller.error(new Error(event.payload.error));
+        cleanup();
+      });
 
-            if (line.startsWith('data:')) {
-              try {
-                const json = JSON.parse(line.substring(5));
-                const messagePiece = json.token;
-                if (messagePiece) {
-                  controller.enqueue(messagePiece);
-                }
-              } catch (error) {
-                console.error("JSON parsing error:", error, "in line:", line);
-              }
-            }
+      const onEnd = await listen("stream-end", () => {
+        controller.close();
+        cleanup();
+      });
+
+      const cleanup = () => {
+        onChunk();
+        onError();
+        onEnd();
+      };
+
+      // Trigger the streaming request on the backend
+      invoke("proxy_request_streaming", {
+        payload: {
+          path: "api/extra/generate/stream",
+          body: {
+            prompt: buildPrompt(messages),
+            stop_sequence: [`${config("name")}:`, ...`${config("koboldai_stop_sequence")}`.split("||")]
           }
         }
-      } catch (error) {
-        console.error("Stream error:", error);
-        controller.error(error);
-      } finally {
-        reader.releaseLock();
-        controller.close();
-      }
+      }).catch(e => {
+        controller.error(new Error(`Failed to invoke streaming request: ${e}`));
+        cleanup();
+      });
     },
-    async cancel() {
-      await reader?.cancel();
-      reader.releaseLock();
-    }
   });
 
   return stream;
@@ -88,7 +71,7 @@ async function getNormal(messages: Message[]) {
     stop_sequence,
   };
 
-  const json: any = await invoke("proxy_request", {
+  const json: any = await invoke("proxy_request_blocking", {
     payload: {
       path: "api/v1/generate",
       body: body,

@@ -5,6 +5,7 @@ use tauri::{
   api::process::{Command, CommandEvent},
   CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
 };
+use futures_util::StreamExt;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -46,8 +47,64 @@ struct ProxyRequestPayload {
     body: serde_json::Value,
 }
 
+#[derive(Clone, serde::Serialize)]
+struct StreamChunkPayload {
+    chunk: String,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct StreamErrorPayload {
+    error: String,
+}
+
 #[tauri::command]
-async fn proxy_request(payload: ProxyRequestPayload) -> Result<serde_json::Value, String> {
+async fn proxy_request_streaming(
+    handle: tauri::AppHandle,
+    payload: ProxyRequestPayload,
+) -> Result<(), String> {
+    let client = reqwest::Client::new();
+    let url = format!("http://127.0.0.1:5000/{}", payload.path);
+
+    let res = client
+        .post(&url)
+        .json(&payload.body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if !res.status().is_success() {
+        let status = res.status();
+        let text = res.text().await.map_err(|e| e.to_string())?;
+        return Err(format!(
+            "API request to {} failed with status {}: {}",
+            url, status, text
+        ));
+    }
+
+    let mut stream = res.bytes_stream();
+
+    tauri::async_runtime::spawn(async move {
+        while let Some(chunk_result) = stream.next().await {
+            match chunk_result {
+                Ok(chunk) => {
+                    let s = String::from_utf8_lossy(&chunk).to_string();
+                    handle.emit_all("stream-chunk", StreamChunkPayload { chunk: s }).unwrap();
+                }
+                Err(e) => {
+                    let error_message = format!("Error reading stream: {}", e);
+                    handle.emit_all("stream-error", StreamErrorPayload { error: error_message }).unwrap();
+                    break;
+                }
+            }
+        }
+        handle.emit_all("stream-end", ()).unwrap();
+    });
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn proxy_request_blocking(payload: ProxyRequestPayload) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::new();
     // This port should be configurable in the future.
     let url = format!("http://127.0.0.1:5000/{}", payload.path);
@@ -220,7 +277,8 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             close_splashscreen,
-            proxy_request
+            proxy_request_blocking,
+            proxy_request_streaming
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

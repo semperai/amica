@@ -18,8 +18,8 @@ tauri-build = { version = "1.5.5", features = [] }
 serde_json = "1.0.128"
 serde = { version = "1.0.210", features = ["derive"] }
 tauri = { version = "1.8.0", features = [ "macos-private-api", "system-tray", "shell-open"] }
-reqwest = { version = "0.12.5", features = ["json"] }
-tokio = { version = "1.39.2", features = ["full"] }
+reqwest = { version = "0.12.5", default-features = false, features = ["json", "rustls-tls"] }
+futures-util = "0.3.30"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
