@@ -38,10 +38,10 @@ npm install
 
 #### Step 3: Configure the `text-generation-webui` Path
 
-The application needs to know where to find your `text-generation-webui` executable.
+The application needs to know where to find your `text-generation-webui` executable. This is configured using a `settings.json` file.
 
-1.  Find the `settings.json` file in the root of the `amica` directory.
-2.  Open it and you will see:
+1.  In the root of the `amica` project directory, you will find a `settings.json` file. For the final packaged application, you must place this `settings.json` file in the same directory as the Amica executable.
+2.  Open the file. It will look like this:
     ```json
     {
       "text_generation_webui_path": ""
@@ -63,6 +63,8 @@ The application needs to know where to find your `text-generation-webui` executa
           "text_generation_webui_path": "/home/youruser/text-generation-webui/start.sh"
         }
         ```
+
+> **Important Note:** Amica always reads `settings.json` from the **current working directory (CWD)** from which it is launched. It does not use OS-specific configuration paths (e.g., `%APPDATA%` or `~/.config`). This applies to both development runs (`npm run tauri dev`) and when running the final packaged application. For the packaged application, this usually means placing `settings.json` next to the executable file.
 
 ## 3. Building the Application
 
