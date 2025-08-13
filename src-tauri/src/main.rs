@@ -285,11 +285,10 @@ fn main() {
 
                 while let Some(event) = rx.recv().await {
                     if let CommandEvent::Stdout(line) = event {
-                        // Here you can log the output from the sidecar
-                        // Or send it to the frontend
-                        handle
-                            .emit_all("sidecar-output", Payload { message: line.into() })
-                            .unwrap();
+                        if let Err(e) = handle.emit_all("sidecar-output", Payload { message: line.into() }) {
+                            eprintln!("Failed to emit sidecar output: {}", e);
+                            break;
+                        }
                     }
                 }
             });
