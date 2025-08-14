@@ -71,8 +71,8 @@
   },
   "devDependencies": {
     "@gltf-transform/core": "^4.0.10",
-    "@tauri-apps/api": "^1.6.0",
-    "@tauri-apps/cli": "^1.6.2",
+    "@tauri-apps/api": "2.0.0-beta.13",
+    "@tauri-apps/cli": "2.0.0-beta.8",
     "@types/dom-speech-recognition": "^0.0.4",
     "@types/file-saver": "^2.0.7",
     "@types/formidable": "^3.4.5",

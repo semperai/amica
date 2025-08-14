@@ -323,20 +323,14 @@ fn main() {
                     app.app_handle().emit_all("confirm-close", ()).unwrap();
                 }
                 "checkforupdates" => {
-                    tauri::api::shell::open(
-                        &app.shell_scope(),
-                        "https://github.com/semperai/amica/releases/latest",
-                        None,
-                    )
-                    .expect("failed to open url");
+                    app.shell()
+                        .open("https://github.com/semperai/amica/releases/latest", None)
+                        .expect("failed to open url");
                 }
                 "help" => {
-                    tauri::api::shell::open(
-                        &app.shell_scope(),
-                        "https://docs.heyamica.com",
-                        None,
-                    )
-                    .expect("failed to open url");
+                    app.shell()
+                        .open("https://docs.heyamica.com", None)
+                        .expect("failed to open url");
                 }
                 _ => {}
             },
