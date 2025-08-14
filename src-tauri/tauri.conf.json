@@ -3,63 +3,24 @@
   "build": {
     "beforeBuildCommand": "export NEXT_OUTPUT=\"export\" && npm run build && npm run splash",
     "beforeDevCommand": "npm run dev",
-    "devPath": "http://localhost:3000",
-    "distDir": "../out"
+    "devUrl": "http://localhost:3000",
+    "frontendDist": "../out"
   },
-  "package": {
+  "app": {
     "productName": "amica",
-    "version": "0.2.1"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "open": true
-      }
-    },
-    "bundle": {
-      "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "com.heyamica.dev",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": "Release.entitlements",
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "macOSPrivateApi": true,
+    "version": "0.2.1",
+    "identifier": "com.heyamica.dev",
     "security": {
-      "csp": null
+      "csp": null,
+      "allowlist": {
+        "shell": {
+          "open": true
+        }
+      }
     },
     "systemTray": {
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true
-    },
-    "updater": {
-      "active": false
     },
     "windows": [
       {
@@ -83,5 +44,40 @@
         "label": "splashscreen"
       }
     ]
+  },
+  "bundle": {
+    "active": true,
+    "category": "DeveloperTool",
+    "copyright": "",
+    "deb": {
+      "depends": []
+    },
+    "externalBin": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "longDescription": "",
+    "macOS": {
+      "entitlements": "Release.entitlements",
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null,
+      "usePrivateApi": true
+    },
+    "resources": [
+      "resources"
+    ],
+    "shortDescription": "",
+    "targets": "all",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
   }
 }
