@@ -1,0 +1,8 @@
+{
+  "name": "amica-rust-lib",
+  "version": "0.1.0",
+  "private": true,
+  "napi": {
+    "name": "amica-rust-lib"
+  }
+}

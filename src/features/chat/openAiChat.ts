@@ -1,7 +1,5 @@
 import { Message } from "./messages";
 import { config } from '@/utils/config';
-import { invoke } from "@tauri-apps/api/tauri";
-import { listen, Event } from "@tauri-apps/api/event";
 
 interface OpenAIChoice {
   message: {
@@ -34,50 +32,47 @@ function getResponseStream(
       const unlistens: Array<() => void> = [];
       cleanup = () => unlistens.forEach(fn => fn());
 
+      const onChunk = (chunk: string) => {
+        const lines = chunk.split('\n').filter((line: string) => line.startsWith('data: '));
+        for (const line of lines) {
+          const data = line.substring(6);
+          if (data.trim() === '[DONE]') {
+            return;
+          }
+          try {
+            const json = JSON.parse(data);
+            const messagePiece = json.choices[0].delta.content;
+            if (messagePiece) {
+              controller.enqueue(messagePiece);
+            }
+          } catch (error) {
+            console.error("Failed to parse stream chunk:", error, "in chunk:", data);
+          }
+        }
+      };
+
+      const onEnd = () => {
+        controller.close();
+        cleanup();
+      };
+
+      const onError = (error: string) => {
+        console.error("Stream error from backend:", error);
+        controller.error(new Error(error));
+        cleanup();
+      };
+
       try {
-        unlistens.push(await listen("stream-chunk", (event: Event<any>) => {
-          const chunk = event.payload.chunk;
-          const lines = chunk.split('\n').filter((line: string) => line.startsWith('data: '));
-          for (const line of lines) {
-            const data = line.substring(6);
-            if (data.trim() === '[DONE]') {
-              return;
-            }
-            try {
-              const json = JSON.parse(data);
-              const messagePiece = json.choices[0].delta.content;
-              if (messagePiece) {
-                controller.enqueue(messagePiece);
-              }
-            } catch (error) {
-              console.error("Failed to parse stream chunk:", error, "in chunk:", data);
-            }
-          }
-        }));
-
-        unlistens.push(await listen("stream-error", (event: Event<any>) => {
-          console.error("Stream error from backend:", event.payload.error);
-          controller.error(new Error(event.payload.error));
-          cleanup();
-        }));
-
-        unlistens.push(await listen("stream-end", () => {
-          controller.close();
-          cleanup();
-        }));
-
-        await invoke("proxy_request_streaming", {
-          payload: {
-            path: "v1/chat/completions",
-            authorization: apiKey,
-            body: {
-              model,
-              messages,
-              stream: true,
-              max_tokens: 200,
-            }
-          }
-        });
+        window.electronAPI.proxyRequestStreaming({
+          path: "v1/chat/completions",
+          authorization: apiKey,
+          body: JSON.stringify({
+            model,
+            messages,
+            stream: true,
+            max_tokens: 200,
+          }),
+        }, onChunk, onEnd, onError);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         controller.error(new Error(`Failed to invoke streaming request: ${msg}`));
@@ -107,18 +102,17 @@ export async function getOpenAiVisionChatResponse(messages: Message[]): Promise<
   let json: OpenAIResponse;
   try {
     // This is a non-streaming request.
-    json = await invoke<OpenAIResponse>("proxy_request_blocking", {
-      payload: {
-        path: "v1/chat/completions",
-        authorization: apiKey,
-        body: {
-          model,
-          messages,
-          stream: false,
-          max_tokens: 200,
-        }
-      }
+    const res = await window.electronAPI.proxyRequestBlocking({
+      path: "v1/chat/completions",
+      authorization: apiKey,
+      body: JSON.stringify({
+        model,
+        messages,
+        stream: false,
+        max_tokens: 200,
+      }),
     });
+    json = JSON.parse(res);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     throw new Error(`OpenAI proxy request failed: ${msg}`);
