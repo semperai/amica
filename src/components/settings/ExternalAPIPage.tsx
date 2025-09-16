@@ -8,7 +8,6 @@ import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/features/chat/chatContext';
 import { deleteAllSessionData, handleConfig } from '@/features/externalAPI/externalAPI';
 import { SecretTextInput } from '../secretTextInput';
-import isDev from '@/utils/isDev';
 import { AlertContext } from '@/features/alert/alertContext';
 
 export function ExternalAPIPage({
@@ -54,9 +53,7 @@ export function ExternalAPIPage({
     const { alert } = useContext(AlertContext);
     const [sessionId, setSessionId] = useState(localStorage.getItem(prefixed("session_id")))
 
-    const canEnableExternalApi = isDev &&
-        process.env.NEXT_PUBLIC_EAI_SUPABASE_URL &&
-        process.env.NEXT_PUBLIC_EAI_SUPABASE_ANON_KEY;
+    const canEnableExternalApi = process.env.NEXT_PUBLIC_EAI_SUPABASE_URL && process.env.NEXT_PUBLIC_EAI_SUPABASE_ANON_KEY;
 
     useEffect(() => {
         if (externalApiEnabled === true) {
