@@ -69,7 +69,7 @@ export async function handleLogs(sessionId: string, logs: any[]) {
   });
 }
 
-export async function addClientEvents(sessionId: string, type: string, data: string) {
+export async function addClientEvents(sessionId: string, type: string, data: any) {
   const eaiSupabase = getEaiSupabase();
   if (!eaiSupabase) return;
   await eaiSupabase

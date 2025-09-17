@@ -3,6 +3,8 @@ import { config } from "@/utils/config";
 import { handleSocialMediaActions } from "@/features/externalAPI/utils/socialMediaHandler";
 import { NextApiRequest } from "next";
 import { addClientEvents } from "../externalAPI";
+import { v4 as uuidv4 } from "uuid";
+import { getEaiSupabase } from "@/utils/supabase";
 
 export const processNormalChat = async (message: string): Promise<string> => {
   return await askLLM(config("system_prompt"), message, null);
@@ -28,19 +30,49 @@ export const triggerAmicaActions = async (
       );
     }
 
+    let recordingData: any = false;
     if (playback) {
-      addClientEvents(sessionId,"playback", "10000");
+      const uuid = uuidv4().split("-")[0];
+      const fileName = `${sessionId}-${uuid}`
+      const eaiSupabase = getEaiSupabase();
+      addClientEvents(sessionId,"playback", {time:"10000", "uuid": uuid});
+      if (animation) {
+        addClientEvents(sessionId, "animation", animation);
+      }
+      const maxAttempts = 20;
+      const delayMs = 1000; // 1 second
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const { data, error } = await eaiSupabase!
+          .from("recordings")
+          .select("file_path")
+          .eq("session_id", sessionId)
+          .eq("id", fileName)
+          .limit(1)
+          .order("created_at", { ascending: false });
+
+        if (error) throw new Error(`Supabase query failed: ${error.message}`);
+
+        if (data && data.length > 0) {
+          recordingData = data[0].file_path;
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+      if (!recordingData) {
+        throw new Error("Timeout waiting for recording to be uploaded");
+      }
+    } else {
+      if (animation) {
+        addClientEvents(sessionId, "animation", animation);
+      }
     }
 
-    if (animation) {
-      addClientEvents(sessionId, "animation", animation);
-    }
     return {
       success: true,
       message: "Actions triggered successfully",
       data: {
         socialMedia: socialRes,
-        playback: !!playback,
+        playback: recordingData,
         animation: animation || null,
       },
     };

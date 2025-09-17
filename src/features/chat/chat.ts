@@ -474,20 +474,47 @@ export class Chat {
               requestAnimationFrame(() => this.viewer?.resetCameraLerp());
               break;
 
-            case "playback":
+            case "playback": 
               this.viewer?.startRecording();
-              setTimeout(() => {
-                this.viewer?.stopRecording((videoBlob) => {
-                  const url = URL.createObjectURL(videoBlob!);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = "recording.webm";
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
+              const payload = JSON.parse(data);
+              const recordingTimeout = Number(payload.time);
+              const fileId = `${sessionId}-${payload.uuid}`;
+              const fileName = `${fileId}.webm`;
+
+              setTimeout(async () => {
+                this.viewer?.stopRecording(async (videoBlob) => {
+                  if (!videoBlob) {
+                    console.error("No video blob available to upload.");
+                    return;
+                  }
+
+                  try {
+                    const { error: uploadError } = await eaiSupabase.storage
+                      .from("files")
+                      .upload(fileName, videoBlob, { contentType: "video/webm" });
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: urlData } = eaiSupabase.storage
+                      .from("files")
+                      .getPublicUrl(fileName);
+
+                    if (!urlData?.publicUrl) throw new Error("Failed to get public URL for recording.");
+
+                    const { error: dbError } = await eaiSupabase
+                      .from("recordings")
+                      .insert({
+                        id: fileId,
+                        session_id: sessionId,
+                        file_path: urlData.publicUrl,
+                      });
+
+                    if (dbError) throw dbError;
+                  } catch (err) {
+                    console.error("Failed to upload recording:", err);
+                  }
                 });
-              }, Number(data));
+              }, recordingTimeout);
               break;
             
             case "subconscious":
