@@ -22,7 +22,7 @@ export class AmicaLife {
   public viewer?: Viewer;
   public chat?: Chat;
 
-  public setSubconciousLogs?: (subconciousLogs: TimestampedPrompt[]) => void;
+  public setSubconciousLogs?: React.Dispatch<React.SetStateAction<TimestampedPrompt[]>>;
   public isChatSpeaking?: boolean;
 
   public triggerMessage: boolean;
@@ -48,7 +48,7 @@ export class AmicaLife {
     this.isProcessingIdleRunning = false;
   }
 
-  public initialize(viewer: Viewer, chat: Chat, setSubconciousLogs: (subconciousLogs: TimestampedPrompt[]) => void, isChatSpeaking: boolean) {
+  public initialize(viewer: Viewer, chat: Chat, setSubconciousLogs: React.Dispatch<React.SetStateAction<TimestampedPrompt[]>>, isChatSpeaking: boolean) {
     this.viewer = viewer;
     this.chat = chat;
 

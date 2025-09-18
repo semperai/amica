@@ -2,7 +2,7 @@ import { Message, Screenplay } from "@/features/chat/messages";
 import { Chat } from "@/features/chat/chat";
 
 import { getEchoChatResponseStream } from "@/features/chat/echoChat";
-import { getOpenAiChatResponseStream } from "@/features/chat/openAiChat";
+import { getOpenAiChatResponseStream, getOpenAiVisionChatResponse } from "@/features/chat/openAiChat";
 import { getLlamaCppChatResponseStream, getLlavaCppChatResponse } from "@/features/chat/llamaCppChat";
 import { getWindowAiChatResponseStream } from "@/features/chat/windowAiChat";
 import { getOllamaChatResponseStream, getOllamaVisionChatResponse } from "@/features/chat/ollamaChat";
@@ -196,6 +196,27 @@ export async function askVisionLLM(
       res = await getLlavaCppChatResponse(messages, imageData);
     } else if (visionBackend === "vision_ollama") {
       res = await getOllamaVisionChatResponse(messages, imageData);
+    } else if (visionBackend === "vision_openai") {
+      const message: Message[] = [
+          { role: "user", content: config("vision_system_prompt") },
+          {
+            role: "user",
+            // @ts-ignore normally this is a string
+            content: [
+              {
+                type: "text",
+                text: "Describe the image as accurately as possible",
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${imageData}`,
+                },
+              },
+            ],
+          },
+        ];
+      res = await getOpenAiVisionChatResponse(message);
     } else {
       console.warn("vision_backend not supported", visionBackend);
       return "vision_backend not supported";

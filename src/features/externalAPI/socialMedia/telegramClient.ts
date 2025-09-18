@@ -5,24 +5,27 @@ class TelegramClient {
   private bot: Telegraf;
 
   constructor() {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN as string;
+    const botToken = config('telegram_bot_token');
 
-    if (!botToken) {
-      throw new Error('TELEGRAM_BOT_TOKEN is not defined in the environment variables');
+    if (!botToken || botToken.trim() === '') {
+      throw new Error(`Missing or empty Telegram API Bot Token`);
     }
 
-    // Initialize the Telegraf bot with the bot token
     this.bot = new Telegraf(botToken);
   }
 
-  // Method to send a message to a specific chat
-  public async postMessage(content: string): Promise<void> {
-    const chatId = process.env.TELEGRAM_CHAT_ID as string;
+  public async postMessage(content: string): Promise<any> {
+    const chatId = config('telegram_chat_id');
+    
+    if (!chatId || chatId.trim() === '') {
+      throw new Error(`Missing or empty Telegram API Chat ID`);
+    }
+
     try {
-      await this.bot.telegram.sendMessage(chatId, content);
-      console.log('Message posted successfully');
+      const response = await this.bot.telegram.sendMessage(chatId, content);
+      return response;
     } catch (error) {
-      console.error('Error posting message to Telegram:', error);
+      return 'Error posting message to Telegram' + error;
     }
   }
 
@@ -31,6 +34,11 @@ class TelegramClient {
   }
 }
 
-// Export an instance of the TelegramClient class for use
-export const telegramClientInstance = new TelegramClient();
+let instance: TelegramClient | null = null;
 
+export function getTelegramClient(): TelegramClient {
+  if (!instance) {
+    instance = new TelegramClient();
+  }
+  return instance;
+}

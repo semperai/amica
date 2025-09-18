@@ -29,15 +29,113 @@ Dive in and start integrating Amica’s capabilities into your applications!
 
 --- 
 
-
 ## Setting up Amica's External API
-> To use the External API, you MUST set up [running Amica locally](https://docs.heyamica.com/getting-started/installation) on your own computer or server. This also ensures localized database design is kept for people hosting their own Amicas.
 
-Once it is running locally, all the api routes can be called directly to the Amica server.
+### Enabling External API Access
+
+1. Open **Settings** in the Amica interface.
+2. Navigate to **External API** and toggle it to **Enabled**.
+3. Once enabled, additional fields will appear:
+
+   * **Session ID**: This must be copied and included in **every API call** across all routes.
+   * **X and TG Credentials**: These are required for APIs using the **Reasoning** type.
+
+After this setup, you can start using the External API endpoints by calling them directly to your locally running Amica server.
+
+---
+
+### Local Supabase Setup (For Developers)
+
+If you're running Amica locally and want to use the External API feature, you’ll need to configure a Supabase backend with the appropriate schema and credentials.
+
+#### 1. Create a Supabase Project
+
+1. Visit [https://supabase.com](https://supabase.com) and log in.
+2. Click **New Project**.
+3. Select your organization and choose a name, password, and region.
+4. Click **Create project** and wait for provisioning to complete.
+
+#### 2. Create Schema and Tables
+
+Once your project is ready:
+
+1. Navigate to the **SQL Editor** inside your Supabase dashboard.
+2. Paste and run the following SQL:
+
+```sql
+create schema if not exists "external-api";
+
+create table "external-api".events (
+  id uuid primary key default gen_random_uuid(),
+  session_id text not null,
+  type text not null,
+  data text not null,
+  created_at timestamptz default now()
+);
+
+create table "external-api".configs (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+
+create table "external-api".subconscious (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+
+create table "external-api".logs (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+
+create table "external-api".user_input_messages (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+
+create table "external-api".chat_logs (
+  session_id text not null,
+  data jsonb not null,
+  created_at timestamptz default now(),
+  primary key (session_id)
+);
+```
+
+> 💡 This sets up the full schema needed by the External API to store session-related data.
+
+#### 3. Get Supabase Keys
+
+1. Go to your Supabase dashboard.
+2. Click **Project Settings** → **API** tab.
+3. Copy the following values:
+
+   * **Project URL**
+   * **Anon (public) API Key**
+
+#### 4. Add Keys to `.env.local`
+
+Add the following to your local `.env.local` file:
+
+```env
+NEXT_PUBLIC_EAI_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_EAI_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Replace with your actual project values.
+
+---
 
 ## Route: `/api/amicaHandler`
 
-This API route handles multiple types of requests, including social media integration, system prompt updates, memory requests, and real-time client connections via Server-Sent Events (SSE). It ensures robust logging and provides error handling for incoming requests.
+This API route handles multiple types of requests, including social media integration, system prompt updates, memory requests, and real-time client connections via Supabase Realtime Client. It ensures robust logging and provides error handling for incoming requests.
 
 ### Supported HTTP Methods:
 
@@ -54,6 +152,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
+  "sessionId": "5ae3f803b231be4d",
   "inputType": "Normal Chat Message",
   "payload": {
     "message": "Hello, how are you?"
@@ -65,7 +164,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "sessionId": "f10d057293327fe8",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "Chat",
   "response": "I'm doing great! How can I assist you?"
 }
@@ -79,6 +178,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
+  "sessionId": "5ae3f803b231be4d",
   "inputType": "Memory Request"
 }
 ```
@@ -87,7 +187,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "sessionId": "ba32cf2c8d3f0b76",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "Memory Array",
   "response": [
     {
@@ -106,6 +206,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
+  "sessionId": "5ae3f803b231be4d",
   "inputType": "RPC Logs"
 }
 ```
@@ -114,7 +215,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "sessionId": "49c16226a7d2bbe4",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "Logs",
   "response": [
     {
@@ -137,6 +238,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
+  "sessionId": "5ae3f803b231be4d",
   "inputType": "RPC User Input Messages"
 }
 ```
@@ -145,7 +247,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "sessionId": "958f20851d259b69",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "User Input",
   "response": [
     {
@@ -164,6 +266,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
+  "sessionId": "5ae3f803b231be4d",
   "inputType": "Update System Prompt",
   "payload": {
     "prompt": "This is the new system prompt."
@@ -175,7 +278,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "sessionId": "994f3bc94517de41",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "Updated system prompt"
 }
 ```
@@ -188,6 +291,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
+  "sessionId": "5ae3f803b231be4d",
   "inputType": "Brain Message",
   "payload": {
     "prompt": "Stored memory prompt example 2",
@@ -200,7 +304,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "sessionId": "94ca4238683fd7c7",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "Added subconscious stored prompt",
   "response": [
     {
@@ -223,6 +327,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
+  "sessionId": "5ae3f803b231be4d",
   "inputType": "Chat History"
 }
 ```
@@ -231,7 +336,7 @@ This API route handles multiple types of requests, including social media integr
 
 ```json
 {
-  "sessionId": "fb1764cf65efff3c",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "Chat History",
   "response": [
     {
@@ -262,7 +367,7 @@ The **Reasoning Server** allows you to execute various actions based on the prov
 
 ```json
 {
-  "inputType": "Reasoning Server",
+  "sessionId": "5ae3f803b231be4d",
   "payload": {
     "text": "Let's begin the presentation.",
     "socialMedia": "twitter",
@@ -277,7 +382,7 @@ The **Reasoning Server** allows you to execute various actions based on the prov
 
 ```json
 {
-  "sessionId": "613c4ed7c5941efe",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "Actions"
 }
 ```
@@ -304,6 +409,7 @@ This API route handles voice and image inputs, leveraging multiple backends for 
 
 | Field Name  | Type | Description                                       |
 | ----------- | ---- | ------------------------------------------------- |
+| `sessionId` | Text | Specifies the session id (e.g.`5ae3f803b231be4d`) |
 | `inputType` | Text | Specifies the type of input (`Voice` or `Image`). |
 | `payload`   | File | The file to be processed (e.g., audio or image).  |
 
@@ -312,6 +418,7 @@ This API route handles voice and image inputs, leveraging multiple backends for 
 ```bash
 curl -X POST "https://example.com/api/mediaHandler" \
   -H "Content-Type: multipart/form-data" \
+  -F "sessionId=5ae3f803b231be4d" \
   -F "inputType=Voice" \
   -F "payload=@input.wav"
 ```
@@ -320,7 +427,7 @@ curl -X POST "https://example.com/api/mediaHandler" \
 
 ```json
 {
-  "sessionId": "a1b2c3d4e5f6g7h8",
+  "sessionId": "5ae3f803b231be4d",
   "outputType": "Text",
   "response": "Transcription of the audio."
 }
@@ -330,7 +437,7 @@ curl -X POST "https://example.com/api/mediaHandler" \
 
 ## Error Handling
 
-- Validates essential fields (`inputType`, `payload`).
+- Validates essential fields (`sessionId` ,`inputType` ,`payload`).
 - Logs errors with timestamps and session IDs.
 - Returns appropriate HTTP status codes (e.g., 400 for bad requests, 503 for disabled API).
 
@@ -346,72 +453,5 @@ Logs each request with:
 ## Notes
 
 - Ensure environment variable `API_ENABLED` is set to `true` for the API to function.
-- The SSE connection remains active until the client disconnects.
-
----
-
-## Route: `/api/dataHandler`
-
-This API route is used to retrieve and update client-side information through server-side operations. Since the application cannot directly update or retrieve data from the server side, these operations involve writing and reading data from static files that are continuously updated.
-
-The primary purpose of this route is to utilize the data written to files for operations performed in the /api/mediaHandler and /api/amicaHandler routes.
-
-### File Paths
-
-1. **`config.json`**
-
-   - **Path**: `src/features/externalAPI/dataHandlerStorage/config.json`
-   - **Description**: Contains the configuration data used throughout the application. This file is read and updated dynamically by the API.
-
-2. **`subconscious.json`**
-
-   - **Path**: `src/features/externalAPI/dataHandlerStorage/subconscious.json`
-   - **Description**: Stores data related to subconscious operations. It is cleared on startup and updated via the API.
-
-3. **`logs.json`**
-
-   - **Path**: `src/features/externalAPI/dataHandlerStorage/logs.json`
-   - **Description**: Keeps track of log entries, including types, timestamps, and arguments. The data is cleared on startup and updated via the API.
-
-4. **`userInputMessages.json`**
-   - **Path**: `src/features/externalAPI/dataHandlerStorage/userInputMessages.json`
-   - **Description**: Maintains user input messages for chat functionalities. Data is cleared on startup and appended to this file through the API.
-
-4. **`chatLogs.json`**
-   - **Path**: `src/features/externalAPI/dataHandlerStorage/chatLogs.json`
-   - **Description**: Stored user chat history. Data is cleared on startup and appended to this file through the API.
-
-### Features
-
-- **Retrieve data**: Supports fetching configurations, subconscious data, logs, user input messages and chat history.
-- **Update data**: Enables modifications to configurations, subconscious data, logs, user input messages and chat history.
-
-#### **GET**
-
-Retrieve specific data from the server.
-
-- **Query Parameters**:
-
-  - `type` (required): Specifies the type of data to retrieve. Accepted values: `config`, `subconscious`, `logs`, `userInputMessages`,`chatLogs`.
-
-- **Example Request**:
-  ```bash
-  curl -X GET "http://localhost:3000/api/dataHandler?type=config"
-  ```
-
-#### **POST**
-
-Update data on the server.
-
-- **Query Parameters**:
-
-  - `type` (required): Specifies the type of data to update. Accepted values: `config`, `subconscious`, `logs`, `userInputMessages`, `chatLogs`.
-
-- **Example Request**:
-  ```bash
-  curl -X POST "http://localhost:3000/api/dataHandler?type=config" \
-    -H "Content-Type: application/json" \
-    -d '{"key": "exampleKey", "value": "exampleValue"}'
-  ```
 
 ---

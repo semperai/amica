@@ -15,18 +15,6 @@ if (typeof window !== "undefined") {
             arguments,
           };
           window.error_handler_logs.push(logEntry);
-
-          const logsUrl = new URL(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/dataHandler`);
-          logsUrl.searchParams.append("type", "logs");
-          const apiEnabled = localStorage.getItem("chatvrm_external_api_enabled");
-          if (window.location.hostname === "localhost" && apiEnabled === "true") {
-            fetch(logsUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(logEntry),
-            });
-          }
-
           passf.apply(null, arguments);
         }
 
