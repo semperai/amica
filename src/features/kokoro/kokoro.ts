@@ -14,7 +14,12 @@ const apiConfigs: Record<KokoroApiType, {
     ttsBody: (message, voice) => ({ text: message, voice }),
     voicesEndpoint: (url) => `${url}/voices`,
     voicesAccept: "application/text",
-    parseVoiceList: (data) => data,
+    parseVoiceList: (data) => {
+      if (data?.voices && Array.isArray(data.voices)) {
+        return data;
+      }
+      return { voices: [] };
+    },
   },
   fastapi: {
     ttsEndpoint: (url) => `${url}/v1/audio/speech`,
@@ -30,7 +35,7 @@ const apiConfigs: Record<KokoroApiType, {
       if (data?.data && Array.isArray(data.data)) {
         return { voices: data.data.map((voice: any) => voice.id) };
       }
-      return data;
+      return { voices: [] };
     },
   },
 };
