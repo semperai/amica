@@ -73,6 +73,7 @@ import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
 import { ExternalAPIPage } from "./settings/ExternalAPIPage";
 import { KokoroSettingsPage } from "./settings/KokoroSettingsPage";
+import type { KokoroApiType } from "@/features/kokoro/kokoro";
 
 
 export const Settings = ({
@@ -137,7 +138,9 @@ export const Settings = ({
   const [localXTTSUrl, setLocalXTTSUrl] = useState(config("localXTTS_url"));
 
   const [kokoroUrl, setKokoroUrl] = useState(config("kokoro_url"));
-  const [kokoroApiType, setKokoroApiType] = useState(config("kokoro_api_type"));
+  const [kokoroApiType, setKokoroApiType] = useState<KokoroApiType>(
+    config("kokoro_api_type") === "fastapi" ? "fastapi" : "standard"
+  );
   const [kokoroVoice, setKokoroVoice] = useState(config("kokoro_voice"));
 
   const [visionBackend, setVisionBackend] = useState(config("vision_backend"));
