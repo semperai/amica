@@ -286,10 +286,10 @@ export const Settings = ({
     speechT5SpeakerEmbeddingsUrl,
     openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
     piperUrl,
-    rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,,rvcResampleSr,rvcRmsMixRate,rvcProtect,
+    rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,rvcResampleSr,rvcRmsMixRate,rvcProtect,
     coquiLocalUrl,coquiLocalVoiceId,
     localXTTSUrl,
-    kokoroUrl, kokoroVoice,
+    kokoroUrl, kokoroVoice, kokoroApiType,
     visionBackend,
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
@@ -307,6 +307,7 @@ export const Settings = ({
     systemPrompt,
     debugGfx, mtoonDebugMode, mtoonMaterialType, useWebGPU,
     sttWakeWordEnabled, sttWakeWord,
+    settingsUpdated,
   ]);
 
   useEffect(() => {

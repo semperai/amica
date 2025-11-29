@@ -1,6 +1,6 @@
 import { config } from '@/utils/config';
 
-type ApiType = 'standard' | 'fastapi';
+export type ApiType = 'standard' | 'fastapi';
 
 const apiConfigs: Record<ApiType, {
   ttsEndpoint: (url: string) => string;
@@ -36,7 +36,8 @@ const apiConfigs: Record<ApiType, {
 };
 
 async function fetchAudio(message: string): Promise<ArrayBuffer> {
-  const apiType = config("kokoro_api_type") as ApiType;
+  const rawType = config("kokoro_api_type");
+  const apiType: ApiType = rawType === "fastapi" ? "fastapi" : "standard";
   const apiConfig = apiConfigs[apiType];
   const url = config("kokoro_url");
   const voice = config("kokoro_voice");
@@ -56,7 +57,8 @@ async function fetchAudio(message: string): Promise<ArrayBuffer> {
 }
 
 async function fetchVoiceList(): Promise<{ voices: string[] }> {
-  const apiType = config("kokoro_api_type") as ApiType;
+  const rawType = config("kokoro_api_type");
+  const apiType: ApiType = rawType === "fastapi" ? "fastapi" : "standard";
   const apiConfig = apiConfigs[apiType];
   const url = config("kokoro_url");
 
@@ -64,6 +66,11 @@ async function fetchVoiceList(): Promise<{ voices: string[] }> {
     method: 'GET',
     headers: { 'Accept': apiConfig.voicesAccept },
   });
+
+  if (!response.ok) {
+    console.error(response);
+    throw new Error("Kokoro TTS API Error");
+  }
 
   const data = await response.json();
   return apiConfig.parseVoiceList(data);
