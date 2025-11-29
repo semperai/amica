@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { TextInput } from "@/components/textInput";
 import { config, updateConfig } from "@/utils/config";
-import { kokoroVoiceList, type ApiType } from '@/features/kokoro/kokoro';
+import { kokoroVoiceList, type KokoroApiType } from '@/features/kokoro/kokoro';
 
 export function KokoroSettingsPage({
   kokoroUrl,
@@ -16,11 +16,11 @@ export function KokoroSettingsPage({
 }: {
   kokoroUrl: string;
   kokoroVoice: string;
-  kokoroApiType: ApiType;
+  kokoroApiType: KokoroApiType;
   setKokoroUrl: (key: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
   setKokoroVoice: (key: string) => void;
-  setKokoroApiType: (key: ApiType) => void;
+  setKokoroApiType: (key: KokoroApiType) => void;
 }) {
   const { t } = useTranslation();
   const [voiceList, setVoiceList] = useState<{ key: string; label: string }[]>([]);
