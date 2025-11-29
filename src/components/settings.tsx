@@ -73,6 +73,7 @@ import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
 import { ExternalAPIPage } from "./settings/ExternalAPIPage";
 import { KokoroSettingsPage } from "./settings/KokoroSettingsPage";
+import type { KokoroApiType } from "@/features/kokoro/kokoro";
 
 
 export const Settings = ({
@@ -137,6 +138,9 @@ export const Settings = ({
   const [localXTTSUrl, setLocalXTTSUrl] = useState(config("localXTTS_url"));
 
   const [kokoroUrl, setKokoroUrl] = useState(config("kokoro_url"));
+  const [kokoroApiType, setKokoroApiType] = useState<KokoroApiType>(
+    config("kokoro_api_type") === "fastapi" ? "fastapi" : "standard"
+  );
   const [kokoroVoice, setKokoroVoice] = useState(config("kokoro_voice"));
 
   const [visionBackend, setVisionBackend] = useState(config("vision_backend"));
@@ -285,10 +289,10 @@ export const Settings = ({
     speechT5SpeakerEmbeddingsUrl,
     openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
     piperUrl,
-    rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,,rvcResampleSr,rvcRmsMixRate,rvcProtect,
+    rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,rvcResampleSr,rvcRmsMixRate,rvcProtect,
     coquiLocalUrl,coquiLocalVoiceId,
     localXTTSUrl,
-    kokoroUrl, kokoroVoice,
+    kokoroUrl, kokoroVoice, kokoroApiType,
     visionBackend,
     visionLlamaCppUrl,
     visionOllamaUrl, visionOllamaModel,
@@ -306,6 +310,7 @@ export const Settings = ({
     systemPrompt,
     debugGfx, mtoonDebugMode, mtoonMaterialType, useWebGPU,
     sttWakeWordEnabled, sttWakeWord,
+    settingsUpdated,
   ]);
 
   useEffect(() => {
@@ -591,9 +596,11 @@ export const Settings = ({
     case 'kokoro_settings':
       return <KokoroSettingsPage
         kokoroUrl={kokoroUrl}
+        kokoroApiType={kokoroApiType}
         kokoroVoice={kokoroVoice}
         setKokoroVoice={setKokoroVoice}
         setKokoroUrl={setKokoroUrl}
+        setKokoroApiType={setKokoroApiType}
         setSettingsUpdated={setSettingsUpdated}
         />
 
