@@ -18,6 +18,9 @@ const apiConfigs: Record<KokoroApiType, {
       if (data?.voices && Array.isArray(data.voices)) {
         return data;
       }
+      if (Array.isArray(data)) {
+        return { voices: data };
+      }
       return { voices: [] };
     },
   },
@@ -34,6 +37,9 @@ const apiConfigs: Record<KokoroApiType, {
     parseVoiceList: (data) => {
       if (data?.data && Array.isArray(data.data)) {
         return { voices: data.data.map((voice: any) => voice.id) };
+      }
+      if (data?.voices && Array.isArray(data.voices)) {
+        return { voices: data.voices };
       }
       return { voices: [] };
     },
