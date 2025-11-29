@@ -36,10 +36,18 @@ const apiConfigs: Record<KokoroApiType, {
     voicesAccept: "application/json",
     parseVoiceList: (data) => {
       if (data?.data && Array.isArray(data.data)) {
-        return { voices: data.data.map((voice: any) => voice.id) };
+        const validVoices = data.data
+          .filter((voice: any) => voice?.id && typeof voice.id === 'string')
+          .map((voice: any) => voice.id);
+        if (validVoices.length > 0) {
+          return { voices: validVoices };
+        }
       }
       if (data?.voices && Array.isArray(data.voices)) {
-        return { voices: data.voices };
+        const validVoices = data.voices.filter((voice: any) => typeof voice === 'string');
+        if (validVoices.length > 0) {
+          return { voices: validVoices };
+        }
       }
       return { voices: [] };
     },
@@ -64,7 +72,7 @@ async function fetchAudio(message: string): Promise<ArrayBuffer> {
     throw new Error("Kokoro TTS API Error");
   }
 
-  return (await res.arrayBuffer()) as any;
+  return await res.arrayBuffer();
 }
 
 async function fetchVoiceList(): Promise<{ voices: string[] }> {
@@ -93,7 +101,7 @@ export async function kokoro(message: string) {
     return { audio };
   } catch (e) {
     console.error('ERROR', e);
-    throw new Error("Kokoro TTS API Error");
+    throw new Error(`Kokoro TTS API Error: ${e instanceof Error ? e.message : String(e)}`);
   }
 }
 
