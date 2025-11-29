@@ -137,6 +137,7 @@ export const Settings = ({
   const [localXTTSUrl, setLocalXTTSUrl] = useState(config("localXTTS_url"));
 
   const [kokoroUrl, setKokoroUrl] = useState(config("kokoro_url"));
+  const [kokoroApiType, setKokoroApiType] = useState(config("kokoro_api_type"));
   const [kokoroVoice, setKokoroVoice] = useState(config("kokoro_voice"));
 
   const [visionBackend, setVisionBackend] = useState(config("vision_backend"));
@@ -591,9 +592,11 @@ export const Settings = ({
     case 'kokoro_settings':
       return <KokoroSettingsPage
         kokoroUrl={kokoroUrl}
+        kokoroApiType={kokoroApiType}
         kokoroVoice={kokoroVoice}
         setKokoroVoice={setKokoroVoice}
         setKokoroUrl={setKokoroUrl}
+        setKokoroApiType={setKokoroApiType}
         setSettingsUpdated={setSettingsUpdated}
         />
 
