@@ -9,19 +9,37 @@ function getApiKey(configKey: string) {
   return apiKey;
 }
 
+function getMaxOutputTokens(thinkingLevel: string, isPro: boolean, isGemini3: boolean): number {
+  const effectiveLevel = isGemini3 && thinkingLevel === "off" ? "low" : thinkingLevel;
+
+  if (effectiveLevel === "off") {
+    return 400;
+  }
+
+  const baseTokens = 400;
+  const reasoningMultiplier = effectiveLevel === "high" ? 12 : 3.75;
+  const proMultiplier = isPro ? 1.2 : 1;
+
+  // Token allocation:
+  // - off: 400 (baseline, proven stable)
+  // - low: 1500 (400 × 3.75, reasoning ~600-800 tokens)
+  // - high: 4800 (400 × 12, reasoning 2000+ tokens)
+  // - Pro models: +20% multiplier
+  return Math.round(baseTokens * reasoningMultiplier * proMultiplier);
+}
+
 function buildRequestBody(messages: Message[], model: string) {
   const systemMessage = messages.find((msg) => msg.role === "system");
   const conversationMessages = messages.filter((msg) => msg.role !== "system");
 
-  const generationConfig: any = {
-    maxOutputTokens: 400,
-  };
-
   // Model version detection: check if model name contains "gemini-3"
   const isGemini3 = model.includes("gemini-3");
+  const isPro = model.includes("pro");
   const thinkingLevel = config("gemini_thinking_level");
 
-  console.log("Gemini thinkingLevel config:", thinkingLevel, "isGemini3:", isGemini3);
+  const generationConfig: any = {
+    maxOutputTokens: getMaxOutputTokens(thinkingLevel, isPro, isGemini3),
+  };
 
   if (isGemini3) {
     // Gemini 3.0 only supports "low" or "high", cannot disable thinking
@@ -32,8 +50,6 @@ function buildRequestBody(messages: Message[], model: string) {
     };
   } else {
     // Gemini 2.5 uses thinkingBudget nested in thinkingConfig
-    const isPro = model.includes("pro");
-
     let thinkingBudget: number;
     if (thinkingLevel === "off") {
       // Pro requires thinking (min 128), others can be 0
@@ -77,7 +93,6 @@ async function getResponseStream(messages: Message[]) {
   };
 
   const requestBody = buildRequestBody(messages, model);
-  console.log("Gemini request body:", JSON.stringify(requestBody, null, 2));
 
   // @todo: v1beta endpoint is subject to change, but required to support both 2.5 and 3.0 model at this time (30.11.2025)
   const res = await fetch(
