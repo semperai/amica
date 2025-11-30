@@ -22,6 +22,7 @@ import {
 } from "./ollamaChat";
 import { getKoboldAiChatResponseStream } from "./koboldAiChat";
 import { getReasoingEngineChatResponseStream } from "./reasoiningEngineChat";
+import { getGeminiChatResponseStream } from "./geminiChat";
 
 import { rvc } from "@/features/rvc/rvc";
 import { coquiLocal } from "@/features/coquiLocal/coquiLocal";
@@ -733,6 +734,8 @@ export class Chat {
         return getKoboldAiChatResponseStream(messages);
       case 'openrouter':
         return getOpenRouterChatResponseStream(messages);
+      case 'gemini':
+        return getGeminiChatResponseStream(messages);
     }
 
     return getEchoChatResponseStream(messages);

@@ -43,6 +43,7 @@ import { LlamaCppSettingsPage } from './settings/LlamaCppSettingsPage';
 import { OllamaSettingsPage } from './settings/OllamaSettingsPage';
 import { KoboldAiSettingsPage } from './settings/KoboldAiSettingsPage';
 import { MoshiSettingsPage } from './settings/MoshiSettingsPage';
+import { GeminiSettingsPage } from './settings/GeminiSettingsPage';
 
 import { TTSBackendPage } from './settings/TTSBackendPage';
 import { ElevenLabsSettingsPage } from './settings/ElevenLabsSettingsPage';
@@ -105,6 +106,9 @@ export const Settings = ({
   const [openRouterApiKey, setOpenRouterApiKey] = useState(config("openrouter_apikey"));
   const [openRouterUrl, setOpenRouterUrl] = useState(config("openrouter_url"));
   const [openRouterModel, setOpenRouterModel] = useState(config("openrouter_model"));
+  const [geminiApiKey, setGeminiApiKey] = useState(config("gemini_apikey"));
+  const [geminiModel, setGeminiModel] = useState(config("gemini_model"));
+  const [geminiThinkingLevel, setGeminiThinkingLevel] = useState(config("gemini_thinking_level"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -280,6 +284,7 @@ export const Settings = ({
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
     moshiUrl,
     openRouterApiKey, openRouterUrl, openRouterModel,
+    geminiApiKey, geminiModel, geminiThinkingLevel,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -363,7 +368,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings", "gemini_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'language':
@@ -523,6 +528,17 @@ export const Settings = ({
         setOpenRouterApiKey={setOpenRouterApiKey}
         openRouterModel={openRouterModel}
         setOpenRouterModel={setOpenRouterModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'gemini_settings':
+      return <GeminiSettingsPage
+        geminiApiKey={geminiApiKey}
+        setGeminiApiKey={setGeminiApiKey}
+        geminiModel={geminiModel}
+        setGeminiModel={setGeminiModel}
+        geminiThinkingLevel={geminiThinkingLevel}
+        setGeminiThinkingLevel={setGeminiThinkingLevel}
         setSettingsUpdated={setSettingsUpdated}
         />
 

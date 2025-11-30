@@ -147,5 +147,17 @@
   "Use": "გამოყენება",
   "Set": "დაყენება",
   "Enabled": "ჩართულია",
-  "STOP SEQUENCE": "STOP SEQUENCE"
+  "STOP SEQUENCE": "STOP SEQUENCE",
+  "Gemini": "Gemini",
+  "Gemini Settings": "Gemini პარამეტრები",
+  "gemini_desc": "Gemini პარამეტრების კონფიგურირება. მიიღეთ API გასაღები Google AI Studio-ს დან. უფრო მაღალი მსჯელობის დონე გაზრდის ტოკენის გამოყენებას და დაყოვნებას.",
+  "Gemini API Key": "Gemini API გასაღები",
+  "Reasoning Level": "მსჯელობის დონე",
+  "Gemini 2.5 Flash (recommended)": "Gemini 2.5 Flash (რეკომენდირებული)",
+  "Gemini 2.5 Flash Lite": "Gemini 2.5 Flash Lite",
+  "Gemini 2.5 Pro": "Gemini 2.5 Pro",
+  "Gemini 3 Pro (preview)": "Gemini 3 Pro (გადახედვა)",
+  "Disabled": "გამორთული",
+  "Low": "დაბალი",
+  "High": "მაღალი"
 }

@@ -147,5 +147,17 @@
   "Use": "Use",
   "Set": "Set",
   "Enabled": "Enabled",
-  "STOP SEQUENCE": " STOP SEQUENCE"
+  "STOP SEQUENCE": " STOP SEQUENCE",
+  "Gemini": "Gemini",
+  "Gemini Settings": "Gemini Settings",
+  "gemini_desc": "Configure Gemini settings. Get an API key from Google AI Studio. Higher reasoning levels will increase token usage and latency.",
+  "Gemini API Key": "Gemini API Key",
+  "Reasoning Level": "Reasoning Level",
+  "Gemini 2.5 Flash (recommended)": "Gemini 2.5 Flash (recommended)",
+  "Gemini 2.5 Flash Lite": "Gemini 2.5 Flash Lite",
+  "Gemini 2.5 Pro": "Gemini 2.5 Pro",
+  "Gemini 3 Pro (preview)": "Gemini 3 Pro (preview)",
+  "Disabled": "Disabled",
+  "Low": "Low",
+  "High": "High"
 }

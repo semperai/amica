@@ -135,5 +135,17 @@
   "Copy URL": "复制 URL",
   "Preview": "预览",
   "None": "无",
-  "STOP SEQUENCE": "停止順序"
+  "STOP SEQUENCE": "停止順序",
+  "Gemini": "Gemini",
+  "Gemini Settings": "Gemini 设置",
+  "gemini_desc": "配置 Gemini 设置。从 Google AI Studio 获取 API 密钥。更高的推理级别会增加令牌使用和延迟。",
+  "Gemini API Key": "Gemini API 密钥",
+  "Reasoning Level": "推理级别",
+  "Gemini 2.5 Flash (recommended)": "Gemini 2.5 Flash（推荐）",
+  "Gemini 2.5 Flash Lite": "Gemini 2.5 Flash Lite",
+  "Gemini 2.5 Pro": "Gemini 2.5 Pro",
+  "Gemini 3 Pro (preview)": "Gemini 3 Pro（预览版）",
+  "Disabled": "已禁用",
+  "Low": "低",
+  "High": "高"
 }
