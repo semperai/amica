@@ -57,6 +57,7 @@ The various features of Amica mainly use and support the following technologies:
   - [KoboldCpp](https://github.com/LostRuins/koboldcpp)
   - [Oobabooga](https://github.com/oobabooga/text-generation-webui/wiki)
   - [OpenRouter](https://openrouter.ai/) (access to multiple AI models)
+  - [Gemini API](https://ai.google.dev/) (Google's multimodal AI with reasoning)
 - Text-to-Speech
   - [Eleven Labs API](https://elevenlabs.io/)
   - [Speech T5](https://huggingface.co/microsoft/speecht5_tts)
