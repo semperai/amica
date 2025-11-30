@@ -17,18 +17,19 @@ function buildRequestBody(messages: Message[], model: string) {
     maxOutputTokens: 400,
   };
 
-  // Model version detection: check if model name contains "-3-"
-  const isGemini3 = model.includes("-3-");
+  // Model version detection: check if model name contains "gemini-3"
+  const isGemini3 = model.includes("gemini-3");
   const thinkingLevel = config("gemini_thinking_level");
 
   console.log("Gemini thinkingLevel config:", thinkingLevel, "isGemini3:", isGemini3);
 
   if (isGemini3) {
-    if (thinkingLevel !== "off") {
-      generationConfig.thinkingConfig = {
-        thinkingLevel: thinkingLevel, // "low" or "high"
-      };
-    }
+    // Gemini 3.0 only supports "low" or "high", cannot disable thinking
+    const effectiveLevel = thinkingLevel === "off" ? "low" : thinkingLevel
+
+    generationConfig.thinkingConfig = {
+      thinkingLevel: effectiveLevel, // "low" or "high"
+    };
   } else {
     // Gemini 2.5 uses thinkingBudget nested in thinkingConfig
     const isPro = model.includes("pro");
@@ -71,14 +72,16 @@ async function getResponseStream(messages: Message[]) {
   const model = config("gemini_model");
 
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    "x-goog-api-key": apiKey,
+    "Content-Type": "application/json"
   };
 
   const requestBody = buildRequestBody(messages, model);
   console.log("Gemini request body:", JSON.stringify(requestBody, null, 2));
 
+  // @todo: v1beta endpoint is subject to change, but required to support both 2.5 and 3.0 model at this time (30.11.2025)
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       headers,
       method: "POST",
@@ -91,8 +94,18 @@ async function getResponseStream(messages: Message[]) {
     if (res.status === 401) {
       throw new Error("Invalid Gemini API key");
     }
+    if (res.status === 400) {
+      const errorBody = await res.text();
+      throw new Error(`Invalid request to Gemini API: ${errorBody}`);
+    }
+    if (res.status === 403) {
+      throw new Error("Gemini API access forbidden - check API key permissions");
+    }
     if (res.status === 429) {
       throw new Error("Gemini API rate limit exceeded");
+    }
+    if (res.status >= 500) {
+      throw new Error("Gemini API server error - please try again later");
     }
 
     throw new Error(`Gemini chat error (${res.status})`);

@@ -43,7 +43,7 @@ export function GeminiSettingsPage({
     if (!storedThinkingLevel) {
       updateConfig('gemini_thinking_level', geminiThinkingLevel);
     }
-  }, []);
+  }, []); // Intentionally using initial prop values only, not reactive to prop changes
 
   const description = <>Configure Gemini settings. Get an API key from <a href="https://ai.google.dev" target="_blank" rel="noopener noreferrer">Google AI Studio</a>. Higher reasoning levels will increase token usage and latency.</>;
 
