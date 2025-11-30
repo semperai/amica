@@ -1,6 +1,46 @@
 import { Message } from "./messages";
 import { config } from '@/utils/config';
 
+type ThinkingLevel = "off" | "low" | "high";
+
+interface ThinkingConfigGemini3 {
+  thinkingLevel: "low" | "high";
+}
+
+interface ThinkingConfigGemini25 {
+  thinkingBudget: number;
+}
+
+type ThinkingConfig = ThinkingConfigGemini3 | ThinkingConfigGemini25;
+
+interface GenerationConfig {
+  maxOutputTokens: number;
+  thinkingConfig?: ThinkingConfig;
+}
+
+interface Part {
+  text: string;
+}
+
+interface Content {
+  role: "user" | "model";
+  parts: Part[];
+}
+
+interface SystemInstruction {
+  parts: Part[];
+}
+
+interface RequestBody {
+  contents: Content[];
+  generationConfig: GenerationConfig;
+  systemInstruction?: SystemInstruction;
+}
+
+function isValidThinkingLevel(value: unknown): value is ThinkingLevel {
+  return value === "off" || value === "low" || value === "high";
+}
+
 function getApiKey(configKey: string) {
   const apiKey = config(configKey);
   if (!apiKey) {
@@ -9,6 +49,12 @@ function getApiKey(configKey: string) {
   return apiKey;
 }
 
+/**
+ * Calculates the maximum output tokens for Gemini API requests.
+ * When reasoning is enabled, the tokens consumed by internal reasoning
+ * count towards the output token limit. The multipliers account for
+ * this combined budget (reasoning + text output).
+ */
 function getMaxOutputTokens(thinkingLevel: string, isPro: boolean, isGemini3: boolean): number {
   const effectiveLevel = isGemini3 && thinkingLevel === "off" ? "low" : thinkingLevel;
 
@@ -28,26 +74,35 @@ function getMaxOutputTokens(thinkingLevel: string, isPro: boolean, isGemini3: bo
   return Math.round(baseTokens * reasoningMultiplier * proMultiplier);
 }
 
-function buildRequestBody(messages: Message[], model: string) {
+function buildRequestBody(messages: Message[], model: string): RequestBody {
   const systemMessage = messages.find((msg) => msg.role === "system");
   const conversationMessages = messages.filter((msg) => msg.role !== "system");
+
+  // Validate thinking level early
+  const rawThinkingLevel = config("gemini_thinking_level");
+  if (!isValidThinkingLevel(rawThinkingLevel)) {
+    throw new Error(
+      `Invalid gemini_thinking_level: "${rawThinkingLevel}". Must be one of: "off", "low", "high"`
+    );
+  }
 
   // Model version detection: check if model name contains "gemini-3"
   const isGemini3 = model.includes("gemini-3");
   const isPro = model.includes("pro");
-  const thinkingLevel = config("gemini_thinking_level");
+  const thinkingLevel: ThinkingLevel = rawThinkingLevel;
 
-  const generationConfig: any = {
+  const generationConfig: GenerationConfig = {
     maxOutputTokens: getMaxOutputTokens(thinkingLevel, isPro, isGemini3),
   };
 
   if (isGemini3) {
     // Gemini 3.0 only supports "low" or "high", cannot disable thinking
-    const effectiveLevel = thinkingLevel === "off" ? "low" : thinkingLevel
+    const effectiveLevel: "low" | "high" = thinkingLevel === "off" ? "low" : thinkingLevel;
 
-    generationConfig.thinkingConfig = {
-      thinkingLevel: effectiveLevel, // "low" or "high"
+    const thinkingConfig: ThinkingConfigGemini3 = {
+      thinkingLevel: effectiveLevel,
     };
+    generationConfig.thinkingConfig = thinkingConfig;
   } else {
     // Gemini 2.5 uses thinkingBudget nested in thinkingConfig
     let thinkingBudget: number;
@@ -61,23 +116,27 @@ function buildRequestBody(messages: Message[], model: string) {
       thinkingBudget = 1024;
     }
 
-    generationConfig.thinkingConfig = {
+    const thinkingConfig: ThinkingConfigGemini25 = {
       thinkingBudget,
     };
+    generationConfig.thinkingConfig = thinkingConfig;
   }
 
-  const body: any = {
-    contents: conversationMessages.map((msg) => ({
-      role: msg.role === "assistant" ? "model" : "user",
-      parts: [{ text: msg.content }],
-    })),
+  const contents: Content[] = conversationMessages.map((msg) => ({
+    role: msg.role === "assistant" ? "model" : "user",
+    parts: [{ text: msg.content }],
+  }));
+
+  const body: RequestBody = {
+    contents,
     generationConfig,
   };
 
   if (systemMessage) {
-    body.systemInstruction = {
+    const systemInstruction: SystemInstruction = {
       parts: [{ text: systemMessage.content }],
     };
+    body.systemInstruction = systemInstruction;
   }
 
   return body;
@@ -161,13 +220,16 @@ async function getResponseStream(messages: Message[]) {
         console.error(error);
         controller.error(error);
       } finally {
-        reader.releaseLock();
+        if (reader) {
+          reader.releaseLock();
+        }
         controller.close();
       }
     },
     async cancel() {
-      await reader?.cancel();
-      reader.releaseLock();
+      if (reader) {
+        await reader.cancel();
+      }
     },
   });
 
