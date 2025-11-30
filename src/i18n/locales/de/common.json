@@ -77,7 +77,7 @@
   "Settings": "Einstellungen",
   "piper_desc": "Configure Piper",
   "coqui_desc": "Configure Coqui",
-  "not_using_alert": "You are not currently using {{name}} as your {{what}} backend. These settings will not be used.",
+  "not_using_alert": "Sie verwenden derzeit nicht {{name}} als Ihr {{what}} Backend. Diese Einstellungen werden nicht verwendet.",
   "API Key": "API Key",
   "Voice ID": "Voice ID",
   "elevenLabs_desc": "Konfigurieren ElevenLabs",
@@ -135,5 +135,17 @@
   "Copy URL": "URL kopieren",
   "Preview": "Vorschau",
   "None": "Keiner",
-  "STOP SEQUENCE": "STOPPSEQUENZ"
+  "STOP SEQUENCE": "STOPPSEQUENZ",
+  "Gemini": "Gemini",
+  "Gemini Settings": "Gemini-Einstellungen",
+  "gemini_desc": "Konfigurieren Sie die Gemini-Einstellungen. Rufen Sie einen API-Schlüssel von Google AI Studio ab. Höhere Reasoning-Level erhöhen die Token-Nutzung und Latenz.",
+  "Gemini API Key": "Gemini API-Schlüssel",
+  "Reasoning Level": "Reasoning-Level",
+  "Gemini 2.5 Flash (recommended)": "Gemini 2.5 Flash (empfohlen)",
+  "Gemini 2.5 Flash Lite": "Gemini 2.5 Flash Lite",
+  "Gemini 2.5 Pro": "Gemini 2.5 Pro",
+  "Gemini 3 Pro (preview)": "Gemini 3 Pro (Vorschau)",
+  "Disabled": "Deaktiviert",
+  "Low": "Niedrig",
+  "High": "Hoch"
 }

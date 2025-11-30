@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BasicPage, FormRow, NotUsingAlert } from './common';
 import { SecretTextInput } from '@/components/secretTextInput';
 import { config, updateConfig } from "@/utils/config";
@@ -33,6 +34,8 @@ export function GeminiSettingsPage({
   setGeminiThinkingLevel: (level: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
 }) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     const storedModel = localStorage.getItem('chatvrm_gemini_model');
     const storedThinkingLevel = localStorage.getItem('chatvrm_gemini_thinking_level');
@@ -45,21 +48,21 @@ export function GeminiSettingsPage({
     }
   }, []); // Intentionally using initial prop values only, not reactive to prop changes
 
-  const description = <>Configure Gemini settings. Get an API key from <a href="https://ai.google.dev" target="_blank" rel="noopener noreferrer">Google AI Studio</a>. Higher reasoning levels will increase token usage and latency.</>;
+  const description = <>{t('gemini_desc')} <a href="https://ai.google.dev" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.</>;
 
   return (
     <BasicPage
-      title="Gemini Settings"
+      title={t('Gemini Settings')}
       description={description}
     >
       { config("chatbot_backend") !== "gemini" && (
         <NotUsingAlert>
-          You are not currently using Gemini as your ChatBot backend. These settings will not be used.
+          {t("not_using_alert", "You are not currently using {{name}} as your {{what}} backend. These settings will not be used.", {name: t("Gemini"), what: t("ChatBot")})}
         </NotUsingAlert>
       ) }
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
-          <FormRow label="Gemini API Key">
+          <FormRow label={t('Gemini API Key')}>
             <SecretTextInput
               value={geminiApiKey}
               onChange={(event: React.ChangeEvent<any>) => {
@@ -71,7 +74,7 @@ export function GeminiSettingsPage({
           </FormRow>
         </li>
         <li className="py-4">
-          <FormRow label="Model">
+          <FormRow label={t('Model')}>
             <select
               className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
               value={geminiModel}
@@ -82,13 +85,13 @@ export function GeminiSettingsPage({
               }}
             >
               {GEMINI_MODELS.map((model) => (
-                <option key={model.value} value={model.value}>{model.label}</option>
+                <option key={model.value} value={model.value}>{t(model.label)}</option>
               ))}
             </select>
           </FormRow>
         </li>
         <li className="py-4">
-          <FormRow label="Reasoning Level">
+          <FormRow label={t('Reasoning Level')}>
             <select
               className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
               value={geminiThinkingLevel}
@@ -99,7 +102,7 @@ export function GeminiSettingsPage({
               }}
             >
               {THINKING_LEVELS.map((level) => (
-                <option key={level.value} value={level.value}>{level.label}</option>
+                <option key={level.value} value={level.value}>{t(level.label)}</option>
               ))}
             </select>
           </FormRow>
