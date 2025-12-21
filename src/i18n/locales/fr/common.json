@@ -121,7 +121,7 @@
   "GitHub": "GitHub",
   "llama.cpp": "llama.cpp",
   "AllTalk TTS": "AllTalk TTS",
-  "AllTalk TTS Settings": "Paramètres AllTalk TTS"
+  "AllTalk TTS Settings": "Paramètres AllTalk TTS",
   "Loading...": "Chargement...",
   "Refresh": "Rafraîchir",
   "Server URL": "URL du serveur",
@@ -206,7 +206,7 @@
   "Save Character": "Sauvegarder le personnage",
   "Share this code (click to copy):": "Partagez ce code (cliquez pour copier) :",
   "Or, you can share this direct link:": "Ou vous pouvez partager ce lien direct :",
-  "Return Home": "Retourner à l'accueil"
+  "Return Home": "Retourner à l'accueil",
   "Idle text prompt": "Invite texte au repos",
   "Select the animation to play": "Sélectionnez l'animation à jouer",
   "Echo": "Écho",
