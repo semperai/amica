@@ -94,7 +94,7 @@
   "OpenAI_tts_desc": "Configurer OpenAI TTS",
   "Voice": "Voix",
   "Reset All Settings": "Réinitialiser tous les paramètres",
-  "SpeechT5": "SpeechT5",
+  "SpeechT5_desc": "Configure SpeechT5",
   "STT": "STT",
   "STT_desc": "Sélectionnez le backend STT à utiliser",
   "System_Prompt_desc": "Configurer l'invite système. Modifiez l'invite pour changer la personnalité de votre personnage. Vous pouvez partager la personnalité de votre personnage en utilisant le bouton de partage !",
@@ -147,5 +147,5 @@
   "Use": "Utiliser",
   "Set": "Définir",
   "Enabled": "Activé",
-  "STOP SEQUENCE": "SÉQUENCE D'ARRÊT",
+  "STOP SEQUENCE": "SÉQUENCE D'ARRÊT"
 }
