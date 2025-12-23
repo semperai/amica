@@ -3,7 +3,7 @@ title: Using Whisper.cpp
 order: 6
 ---
 
-You can find the full whisper.cpp documentation [here](https://github.com/ggml-org/whisper.cpp/blob/master/README.md).
+You can find the full whisper.cpp documentation [in the Whisper.cpp README](https://github.com/ggml-org/whisper.cpp/blob/master/README.md).
 
 
 ## Step 1 - Clone the repo
