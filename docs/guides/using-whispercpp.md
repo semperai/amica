@@ -31,5 +31,5 @@ cd whisper.cpp
 ## Step 4 - Enable the server in the client
 
 ```md
-settings -> Speech-to-text -> STT Backend -> Whisper.cpp
+Settings -> Speech-to-text -> STT Backend -> Whisper.cpp
 ```
