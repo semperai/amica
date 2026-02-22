@@ -20,6 +20,8 @@ import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { TextButton } from "@/components/textButton";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { config, updateConfig } from "@/utils/config";
+import { hashCodeLarge } from "./settings/common";
+import { vrmDataProvider } from "@/features/vrmStore/vrmDataProvider";
 
 
 import { Link } from "./settings/common";
@@ -81,7 +83,7 @@ export const Settings = ({
   onClickClose: () => void;
 }) => {
   const { viewer } = useContext(ViewerContext);
-  const { vrmList, vrmListAddFile } = useVrmStoreContext();
+  const { vrmList, vrmListAddFile, addVrmFromStored } = useVrmStoreContext();
   useKeyboardShortcut("Escape", onClickClose);
 
   const [page, setPage] = useState('main_menu');
@@ -187,9 +189,62 @@ export const Settings = ({
   const [useWebGPU, setUseWebGPU] = useState<boolean>(config("use_webgpu") === 'true' ? true : false);
 
   const vrmFileInputRef = useRef<HTMLInputElement>(null);
-  const handleClickOpenVrmFile = useCallback(() => {
-    vrmFileInputRef.current?.click();
-  }, []);
+
+  const processVrmFile = useCallback(
+    (file: File) => {
+      if (!file?.name.toLowerCase().endsWith(".vrm")) {
+        console.warn("[VRM] Неверное расширение (ожидается .vrm)");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        if (typeof dataUrl !== "string") return;
+        const hash = hashCodeLarge(dataUrl);
+        const exists = vrmList.some((v) => v.getHash() === hash);
+        if (exists) {
+          viewer.loadVrm(dataUrl, () => {}).catch((e) => console.error("[VRM]", e));
+          updateConfig("vrm_save_type", "local");
+          updateConfig("vrm_hash", hash);
+          updateConfig("vrm_url", dataUrl);
+          return;
+        }
+        vrmDataProvider
+          .addItem(hash, "local", dataUrl)
+          .then(() => {
+            updateConfig("vrm_save_type", "local");
+            updateConfig("vrm_hash", hash);
+            updateConfig("vrm_url", dataUrl);
+            addVrmFromStored(hash, dataUrl);
+            return viewer.loadVrm(dataUrl, () => {});
+          })
+          .then(() => {
+            viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
+              if (thumbBlob) {
+                import("@/utils/blobDataUtils").then(({ BlobToBase64 }) => {
+                  BlobToBase64(thumbBlob).then((thumbData) => {
+                    vrmDataProvider.updateItemThumb(hash, thumbData);
+                  });
+                });
+              }
+            });
+          })
+          .catch((e) => console.error("[VRM] Ошибка загрузки VRM:", e));
+      };
+      reader.onerror = () => console.error("[VRM] FileReader ошибка:", reader.error);
+      reader.readAsDataURL(file);
+    },
+    [viewer, vrmList, addVrmFromStored]
+  );
+
+  const handleChangeVrmFile = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) processVrmFile(file);
+      event.target.value = "";
+    },
+    [processVrmFile]
+  );
 
   const bgImgFileInputRef = useRef<HTMLInputElement>(null);
   const handleClickOpenBgImgFile = useCallback(() => {
@@ -200,25 +255,6 @@ export const Settings = ({
   const backButtonRef = useRef<HTMLDivElement>(null);
   const mainMenuRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
-
-  const handleChangeVrmFile = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (!files) return;
-
-      const file = files[0];
-      if (!file) return;
-
-      const file_type = file.name.split(".").pop();
-
-      if (file_type === "vrm") {
-        vrmListAddFile(file, viewer);
-      }
-
-      event.target.value = "";
-    },
-    [viewer]
-  );
 
   function handleChangeBgImgFile(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
@@ -438,7 +474,7 @@ export const Settings = ({
         setVrmUrl={setVrmUrl}
         setVrmSaveType={setVrmSaveType}
         setSettingsUpdated={setSettingsUpdated}
-        handleClickOpenVrmFile={handleClickOpenVrmFile}
+        onPickVrmFile={processVrmFile}
         />
 
     case 'character_animation':
@@ -897,15 +933,16 @@ export const Settings = ({
       </div>
 
       <input
+        id="vrm-file-input"
         type="file"
-        className="hidden"
-        accept=".vrm"
+        className="sr-only"
+        accept=".vrm,.VRM,model/gltf-binary"
         ref={vrmFileInputRef}
         onChange={handleChangeVrmFile}
       />
       <input
         type="file"
-        className="hidden"
+        className="sr-only"
         accept=".jpg,.jpeg,.png,.gif,.webp"
         ref={bgImgFileInputRef}
         onChange={handleChangeBgImgFile}

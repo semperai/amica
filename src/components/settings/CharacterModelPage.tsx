@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import { clsx } from "clsx";
 import { BasicPage } from "./common";
 import { updateConfig } from "@/utils/config";
-import { TextButton } from "@/components/textButton";
 import { VrmData } from '@/features/vrmStore/vrmData';
 import { Viewer } from '@/features/vrmViewer/viewer';
 
@@ -16,20 +15,31 @@ export function CharacterModelPage({
   setVrmUrl,
   setVrmSaveType,
   setSettingsUpdated,
-  handleClickOpenVrmFile,
+  onPickVrmFile,
 }: {
   viewer: Viewer;
   vrmHash: string;
   vrmUrl: string;
   vrmSaveType: string;
-  vrmList: VrmData[],
+  vrmList: VrmData[];
   setVrmHash: (hash: string) => void;
   setVrmUrl: (url: string) => void;
   setVrmSaveType: (saveType: string) => void;
   setSettingsUpdated: (updated: boolean) => void;
-  handleClickOpenVrmFile: () => void;
+  onPickVrmFile: (file: File) => void;
 }) {
   const { t } = useTranslation();
+
+  const handleLoadVrmClick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".vrm,.VRM";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) onPickVrmFile(file);
+    };
+    input.click();
+  };
 
   return (
     <BasicPage
@@ -73,14 +83,14 @@ export function CharacterModelPage({
             </button>
           )}
         </div>
-        <TextButton
-          className="rounded-t-none text-lg ml-4 px-8 shadow-lg bg-secondary hover:bg-secondary-hover active:bg-secondary-active"
-          onClick={handleClickOpenVrmFile}
+        <button
+          type="button"
+          onClick={handleLoadVrmClick}
+          className="px-4 py-2 text-white font-bold rounded-lg rounded-t-none text-lg ml-4 px-8 shadow-lg bg-secondary hover:bg-secondary-hover active:bg-secondary-active cursor-pointer inline-block"
         >
           {t("Load VRM")}
-        </TextButton>
+        </button>
       </BasicPage>
-  
   );
 }
 

@@ -10,6 +10,7 @@ interface VrmStoreContextType {
     getCurrentVrm: () => VrmData | undefined;
     vrmList: VrmData[];
     vrmListAddFile: (file: File, viewer: Viewer) => void;
+    addVrmFromStored: (hash: string, url: string) => void;
     isLoadingVrmList: boolean;
     setIsLoadingVrmList: Dispatch<SetStateAction<boolean>>;
 };
@@ -22,6 +23,7 @@ export const VrmStoreContext = createContext<VrmStoreContextType>({
     getCurrentVrm: () => {return undefined;},
     vrmList: vrmInitList,
     vrmListAddFile: () => {},
+    addVrmFromStored: () => {},
     isLoadingVrmList: false, setIsLoadingVrmList: () => {}
 });
 
@@ -29,23 +31,40 @@ export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Eleme
     const [isLoadingVrmList, setIsLoadingVrmList] = useState(true);
     const [loadedVrmList, vrmListDispatch] = useReducer(vrmStoreReducer, vrmInitList);
     const vrmListAddFile = (file: File, viewer: Viewer) => {
+        console.log("[VRM] vrmListAddFile вызван", { fileName: file.name, size: file.size });
         vrmListDispatch({ type: VrmStoreActionType.addItem, itemFile: file, callback: (callbackProp: AddItemCallbackType) => {
+            console.log("[VRM] addItem callback: blob → url готов, загружаем в viewer", callbackProp.url);
             viewer.loadVrm(callbackProp.url, (progress: string) => {
-              // TODO handle loading progress
+              console.log("[VRM] loadVrm progress:", progress);
             })
               .then(() => {return new Promise(resolve => setTimeout(resolve, 300));})
               .then(() => {
+                console.log("[VRM] loadVrm завершён, сохраняем config и делаем скриншот");
                 updateConfig("vrm_url", callbackProp.url);
                 updateConfig("vrm_hash", callbackProp.hash);
                 updateConfig("vrm_save_type", "local");
                 viewer.getScreenshotBlob((thumbBlob: Blob | null) => {
-                  if (!thumbBlob) return;
+                  if (!thumbBlob) {
+                    console.warn("[VRM] getScreenshotBlob вернул null");
+                    return;
+                  }
+                  console.log("[VRM] Скриншот получен, обновляем thumb в списке");
                   vrmListDispatch({ type: VrmStoreActionType.updateVrmThumb, url: callbackProp.url, thumbBlob, vrmList: callbackProp.vrmList, callback: (updatedThumbVrmList: VrmData[]) => {
                     vrmListDispatch({ type: VrmStoreActionType.setVrmList, vrmList: updatedThumbVrmList });
                   }});
                 });
+              })
+              .catch((err) => {
+                console.error("[VRM] Ошибка при загрузке VRM в viewer:", err);
               });
         }});
+    };
+
+    const addVrmFromStored = (hash: string, url: string) => {
+        vrmListDispatch({
+            type: VrmStoreActionType.appendVrm,
+            vrmData: new VrmData(hash, url, "/vrm/thumb-placeholder.jpg", "local"),
+        });
     };
 
     useEffect(() => {
@@ -60,7 +79,7 @@ export const VrmStoreProvider = ({ children }: PropsWithChildren<{}>): JSX.Eleme
     }
 
     return (
-        <VrmStoreContext.Provider value={{getCurrentVrm: getCurrentVrm, vrmList: loadedVrmList, vrmListAddFile, isLoadingVrmList, setIsLoadingVrmList}}>
+        <VrmStoreContext.Provider value={{getCurrentVrm: getCurrentVrm, vrmList: loadedVrmList, vrmListAddFile, addVrmFromStored, isLoadingVrmList, setIsLoadingVrmList}}>
             {children}
         </VrmStoreContext.Provider>
     );

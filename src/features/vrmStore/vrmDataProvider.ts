@@ -14,8 +14,10 @@ export class VrmDataProvider {
         this.db.close();
     }
     
-    public addItem(hash: string, saveType: 'local' | 'web', vrmData: string = "", vrmUrl: string = "", thumbData: string = ""): void {
-        this.db.vrms.put(new VrmDbModel(hash, saveType, vrmData, vrmUrl, thumbData));
+    public addItem(hash: string, saveType: 'local' | 'web', vrmData: string = "", vrmUrl: string = "", thumbData: string = ""): Promise<void> {
+        return this.db.vrms.put(new VrmDbModel(hash, saveType, vrmData, vrmUrl, thumbData))
+            .then(() => { console.log("[VRM] IndexedDB: запись vrms.put успешна, hash =", hash); })
+            .catch((err) => { console.error("[VRM] IndexedDB: ошибка vrms.put", err); throw err; });
     }
 
     public async getItems(): Promise<VrmDbModel[]> {

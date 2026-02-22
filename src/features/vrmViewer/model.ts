@@ -291,9 +291,14 @@ export class Model {
   }
 
   private async fadeToAction(
-    destAction: THREE.AnimationAction,
+    destAction: THREE.AnimationAction | undefined,
     duration: number,
   ) {
+    if (destAction == null) {
+      this._currentAction?.stop();
+      this._currentAction = undefined;
+      return;
+    }
     let previousAction = this._currentAction;
     this._currentAction = destAction;
 
@@ -391,7 +396,7 @@ export class Model {
       this.modifyAnimationPosition(clip, weight);
     }
 
-    const idleAction = this._currentAction!;
+    const idleAction = this._currentAction;
     const VRMAaction = mixer.clipAction(clip);
     VRMAaction.clampWhenFinished = true;
     VRMAaction.loop = THREE.LoopOnce;
@@ -399,7 +404,7 @@ export class Model {
 
     const restoreState = () => {
       mixer.removeEventListener("finished", restoreState);
-      this.fadeToAction(idleAction, 1);
+      this.fadeToAction(idleAction ?? undefined, 1);
     };
 
     mixer.addEventListener("finished", restoreState);

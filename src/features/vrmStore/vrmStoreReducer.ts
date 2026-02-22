@@ -1,4 +1,4 @@
-import { hashCode } from "@/components/settings/common";
+import { hashCodeLarge } from "@/components/settings/common";
 import { VrmData } from "./vrmData";
 import { vrmDataProvider } from "./vrmDataProvider";
 import VrmDbModel from "./vrmDbModel";
@@ -11,11 +11,13 @@ export type VrmDispatchAction = {
     url?: string;
     thumbBlob?: Blob;
     vrmList?: VrmData[];
+    vrmData?: VrmData;
     callback?: (props: any) => any;
 };
 
 export enum VrmStoreActionType {
     addItem,
+    appendVrm,
     updateVrmThumb,
     setVrmList,
     loadFromLocalStorage
@@ -28,14 +30,21 @@ export const vrmStoreReducer = (state: VrmData[], action: VrmDispatchAction): Vr
             if (action.itemFile && action.callback)
                 newState = addItem(state, action.itemFile, action.callback);
             break;
+        case VrmStoreActionType.appendVrm:
+            if (action.vrmData)
+                newState = [...state, action.vrmData];
+            break;
         case VrmStoreActionType.updateVrmThumb:
             newState = updateVrmThumb(state, action);
+            break;
         case VrmStoreActionType.setVrmList:
             if (action.vrmList && action.vrmList.length)
                 newState = action.vrmList;
+            break;
         case VrmStoreActionType.loadFromLocalStorage:
             if (action.vrmList && action.callback)
-                newState = LoadFromLocalStorage(action)
+                newState = LoadFromLocalStorage(action);
+            break;
         default:
             break;
     }
@@ -49,17 +58,42 @@ export type AddItemCallbackType = {
 }
 
 const addItem = (vrmList: VrmData[], file: File, callback: (prop: AddItemCallbackType) => any): VrmData[] => {
+    console.log("[VRM] addItem: начало", { fileName: file.name, size: file.size });
     let loadedVrmList = vrmList;
     const blob = new Blob([file], { type: "application/octet-stream" });
     const url = window.URL.createObjectURL(blob);
-    BlobToBase64(blob).then((data: string) => {
-        const hash = hashCode(data);
-        if (loadedVrmList.findIndex((vrm: VrmData) => vrm.hashEquals(hash)) == -1) {
-            loadedVrmList = [...loadedVrmList, new VrmData(hash, url, '/vrm/thumb-placeholder.jpg', 'local')];
-            vrmDataProvider.addItem(hash, 'local', data);
-            callback({ url, vrmList: loadedVrmList, hash });
-        }
-    });
+    console.log("[VRM] addItem: blob создан, objectURL =", url);
+    BlobToBase64(blob)
+        .then((data: string) => {
+            if (!data || typeof data !== "string") {
+                console.error("[VRM] addItem: BlobToBase64 вернул пустой или не строку");
+                return;
+            }
+            console.log("[VRM] addItem: BlobToBase64 готов, длина base64:", data.length);
+            let hash: string;
+            try {
+                hash = hashCodeLarge(data);
+            } catch (e) {
+                console.error("[VRM] addItem: ошибка hashCode", e);
+                return;
+            }
+            const exists = loadedVrmList.findIndex((vrm: VrmData) => vrm.hashEquals(hash)) !== -1;
+            console.log("[VRM] addItem: hash =", hash, "уже в списке?", exists);
+            if (!exists) {
+                loadedVrmList = [...loadedVrmList, new VrmData(hash, url, '/vrm/thumb-placeholder.jpg', 'local')];
+                return vrmDataProvider
+                    .addItem(hash, 'local', data)
+                    .then(() => {
+                        console.log("[VRM] addItem: IndexedDB записан, вызываем callback");
+                        callback({ url, vrmList: loadedVrmList, hash });
+                    });
+            } else {
+                console.log("[VRM] addItem: модель с таким hash уже есть, callback не вызываем");
+            }
+        })
+        .catch((err) => {
+            console.error("[VRM] addItem: ошибка BlobToBase64 или цепочки", err);
+        });
     return vrmList;
 };
 

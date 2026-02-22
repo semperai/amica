@@ -88,6 +88,7 @@ export function FormRow({label, children}: {
 }
 
 export function basename(path: string) {
+  if (!path || typeof path !== 'string') return "";
   const a = path.split("/");
   return a[a.length - 1];
 }
@@ -104,6 +105,18 @@ export function hashCode(str: string): string {
       hash  = ((hash << 5) - hash + str.charCodeAt(i++)) << 0;
   }
   return hash.toString();
+}
+
+/** Хеш для больших строк (VRM base64): берём начало, конец и длину, чтобы не блокировать UI. */
+const SAMPLE_SIZE = 100000;
+export function hashCodeLarge(str: string): string {
+  const len = str.length;
+  if (len <= SAMPLE_SIZE * 2) return hashCode(str);
+  let h = 0;
+  for (let i = 0; i < SAMPLE_SIZE; i++) h = ((h << 5) - h + str.charCodeAt(i)) << 0;
+  for (let i = len - SAMPLE_SIZE; i < len; i++) h = ((h << 5) - h + str.charCodeAt(i)) << 0;
+  h = ((h << 5) - h + len) << 0;
+  return h.toString();
 }
 
 export type Link = {
