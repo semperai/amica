@@ -2,7 +2,7 @@
 // run i18next
 export default {
   defaultNamespace: 'common',
-  locales: ['en', 'zh', 'de', 'ka'],
+  locales: ['en', 'zh', 'de', 'ka', 'ru'],
   output: 'src/i18n/locales/$LOCALE/$NAMESPACE.json',
   input: ["src/**/*.{ts,tsx}"],
   keepRemoved: true,
