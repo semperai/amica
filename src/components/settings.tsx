@@ -71,6 +71,7 @@ import { SystemPromptPage } from './settings/SystemPromptPage';
 import { AmicaLifePage } from "./settings/AmicaLifePage";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
+import { MiniMaxSettingsPage } from "./settings/MiniMaxSettingsPage";
 import { ExternalAPIPage } from "./settings/ExternalAPIPage";
 import { KokoroSettingsPage } from "./settings/KokoroSettingsPage";
 
@@ -105,6 +106,9 @@ export const Settings = ({
   const [openRouterApiKey, setOpenRouterApiKey] = useState(config("openrouter_apikey"));
   const [openRouterUrl, setOpenRouterUrl] = useState(config("openrouter_url"));
   const [openRouterModel, setOpenRouterModel] = useState(config("openrouter_model"));
+  const [miniMaxApiKey, setMiniMaxApiKey] = useState(config("minimax_apikey"));
+  const [miniMaxUrl, setMiniMaxUrl] = useState(config("minimax_url"));
+  const [miniMaxModel, setMiniMaxModel] = useState(config("minimax_model"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -280,6 +284,7 @@ export const Settings = ({
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
     moshiUrl,
     openRouterApiKey, openRouterUrl, openRouterModel,
+    miniMaxApiKey, miniMaxUrl, miniMaxModel,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,
@@ -363,7 +368,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings", "minimax_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'language':
@@ -523,6 +528,17 @@ export const Settings = ({
         setOpenRouterApiKey={setOpenRouterApiKey}
         openRouterModel={openRouterModel}
         setOpenRouterModel={setOpenRouterModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'minimax_settings':
+      return <MiniMaxSettingsPage
+        miniMaxApiKey={miniMaxApiKey}
+        setMiniMaxApiKey={setMiniMaxApiKey}
+        miniMaxUrl={miniMaxUrl}
+        setMiniMaxUrl={setMiniMaxUrl}
+        miniMaxModel={miniMaxModel}
+        setMiniMaxModel={setMiniMaxModel}
         setSettingsUpdated={setSettingsUpdated}
         />
 
