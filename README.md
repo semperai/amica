@@ -57,6 +57,7 @@ The various features of Amica mainly use and support the following technologies:
   - [KoboldCpp](https://github.com/LostRuins/koboldcpp)
   - [Oobabooga](https://github.com/oobabooga/text-generation-webui/wiki)
   - [OpenRouter](https://openrouter.ai/) (access to multiple AI models)
+  - [MiniMax](https://platform.minimaxi.com/) (MiniMax-M2.7, M2.5, M2.5-highspeed models)
 - Text-to-Speech
   - [Eleven Labs API](https://elevenlabs.io/)
   - [Speech T5](https://huggingface.co/microsoft/speecht5_tts)
@@ -102,6 +103,14 @@ To use OpenRouter as a chat backend, set the following environment variables in 
 - `NEXT_PUBLIC_OPENROUTER_APIKEY`: Your OpenRouter API key (required)
 - `NEXT_PUBLIC_OPENROUTER_URL`: Custom OpenRouter API URL (optional, defaults to https://openrouter.ai/api/v1)
 - `NEXT_PUBLIC_OPENROUTER_MODEL`: Default OpenRouter model (optional, defaults to openai/gpt-3.5-turbo)
+
+#### MiniMax Configuration
+
+To use MiniMax as a chat backend, set the following environment variables in your `.env.local` file:
+
+- `NEXT_PUBLIC_MINIMAX_APIKEY`: Your MiniMax API key (required, get one at https://platform.minimaxi.com)
+- `NEXT_PUBLIC_MINIMAX_URL`: Custom MiniMax API URL (optional, defaults to https://api.minimax.io/v1)
+- `NEXT_PUBLIC_MINIMAX_MODEL`: Default MiniMax model (optional, defaults to MiniMax-M2.7)
 
 ```bash
 amica

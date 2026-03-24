@@ -42,6 +42,7 @@ import isDev from '@/utils/isDev';
 
 import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isIdle";
 import { getOpenRouterChatResponseStream } from './openRouterChat';
+import { getMiniMaxChatResponseStream } from './minimaxChat';
 import { handleUserInput } from '../externalAPI/externalAPI';
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
 
@@ -733,6 +734,8 @@ export class Chat {
         return getKoboldAiChatResponseStream(messages);
       case 'openrouter':
         return getOpenRouterChatResponseStream(messages);
+      case 'minimax':
+        return getMiniMaxChatResponseStream(messages);
     }
 
     return getEchoChatResponseStream(messages);

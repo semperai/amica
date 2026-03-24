@@ -15,6 +15,7 @@ const chatbotBackends = [
   {key: "koboldai",   label: "KoboldAI"},
   {key: "moshi",      label: "Moshi"},
   {key: "openrouter", label: "OpenRouter"},
+  {key: "minimax",    label: "MiniMax"},
 ];
 
 function idToTitle(id: string): string {
@@ -75,7 +76,7 @@ export function ChatbotBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["arbius_llm", "chatgpt", "llamacpp", "ollama", "koboldai", "moshi"].includes(chatbotBackend) && (
+        { ["arbius_llm", "chatgpt", "llamacpp", "ollama", "koboldai", "moshi", "minimax"].includes(chatbotBackend) && (
           <li className="py-4">
             <FormRow label={`${t("Configure")} ${t(idToTitle(chatbotBackend))}`}>
               <button
