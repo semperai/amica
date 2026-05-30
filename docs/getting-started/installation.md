@@ -59,6 +59,24 @@ make llama-server -j 4
 
 Now go to [http://127.0.0.1:8080](http://127.0.0.1:8080) in browser and test it works.
 
+### Local Deiphobe Backend
+
+Amica can also call the local Deiphobe CLI as its chatbot backend.
+
+In the UI, set:
+
+```text
+Settings -> ChatBot -> ChatBot Backend -> Deiphobe
+Settings -> ChatBot -> Deiphobe -> Repo Root: /home/kyler/ClawDawg
+Settings -> ChatBot -> Deiphobe -> Command: ./ops/scripts/bus/deiphobe
+Settings -> ChatBot -> Deiphobe -> User ID: uther-voice
+Settings -> ChatBot -> Deiphobe -> Session ID: voice-avatar-test
+Settings -> ChatBot -> Deiphobe -> Namespace: voice
+Settings -> ChatBot -> Deiphobe -> Timeout Seconds: 120
+```
+
+This uses the local Deiphobe session scope and does not touch Matrix or any remote runtime.
+
 
 ### Local Audio
 

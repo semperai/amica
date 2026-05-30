@@ -39,6 +39,7 @@ import { CharacterAnimationPage } from './settings/CharacterAnimationPage';
 import { ChatbotBackendPage } from './settings/ChatbotBackendPage';
 import { ArbiusLLMSettingsPage } from './settings/ArbiusLLMSettingsPage';
 import { ChatGPTSettingsPage } from './settings/ChatGPTSettingsPage';
+import { DeiphobeSettingsPage } from './settings/DeiphobeSettingsPage';
 import { LlamaCppSettingsPage } from './settings/LlamaCppSettingsPage';
 import { OllamaSettingsPage } from './settings/OllamaSettingsPage';
 import { KoboldAiSettingsPage } from './settings/KoboldAiSettingsPage';
@@ -94,6 +95,12 @@ export const Settings = ({
   const [openAIApiKey, setOpenAIApiKey] = useState(config("openai_apikey"));
   const [openAIUrl, setOpenAIUrl] = useState(config("openai_url"));
   const [openAIModel, setOpenAIModel] = useState(config("openai_model"));
+  const [deiphobeRepoRoot, setDeiphobeRepoRoot] = useState(config("deiphobe_repo_root"));
+  const [deiphobeCommand, setDeiphobeCommand] = useState(config("deiphobe_command"));
+  const [deiphobeUserId, setDeiphobeUserId] = useState(config("deiphobe_user_id"));
+  const [deiphobeSessionId, setDeiphobeSessionId] = useState(config("deiphobe_session_id"));
+  const [deiphobeNamespace, setDeiphobeNamespace] = useState(config("deiphobe_namespace"));
+  const [deiphobeTimeoutSeconds, setDeiphobeTimeoutSeconds] = useState(config("deiphobe_timeout_seconds"));
   const [llamaCppUrl, setLlamaCppUrl] = useState(config("llamacpp_url"));
   const [llamaCppStopSequence, setLlamaCppStopSequence] = useState(config("llamacpp_stop_sequence"));
   const [ollamaUrl, setOllamaUrl] = useState(config("ollama_url"));
@@ -275,6 +282,7 @@ export const Settings = ({
     chatbotBackend,
     arbiusLLMModelId,
     openAIApiKey, openAIUrl, openAIModel,
+    deiphobeRepoRoot, deiphobeCommand, deiphobeUserId, deiphobeSessionId, deiphobeNamespace, deiphobeTimeoutSeconds,
     llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
@@ -363,7 +371,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "deiphobe_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'language':
@@ -476,6 +484,23 @@ export const Settings = ({
         setOpenAIUrl={setOpenAIUrl}
         openAIModel={openAIModel}
         setOpenAIModel={setOpenAIModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'deiphobe_settings':
+      return <DeiphobeSettingsPage
+        deiphobeRepoRoot={deiphobeRepoRoot}
+        setDeiphobeRepoRoot={setDeiphobeRepoRoot}
+        deiphobeCommand={deiphobeCommand}
+        setDeiphobeCommand={setDeiphobeCommand}
+        deiphobeUserId={deiphobeUserId}
+        setDeiphobeUserId={setDeiphobeUserId}
+        deiphobeSessionId={deiphobeSessionId}
+        setDeiphobeSessionId={setDeiphobeSessionId}
+        deiphobeNamespace={deiphobeNamespace}
+        setDeiphobeNamespace={setDeiphobeNamespace}
+        deiphobeTimeoutSeconds={deiphobeTimeoutSeconds}
+        setDeiphobeTimeoutSeconds={setDeiphobeTimeoutSeconds}
         setSettingsUpdated={setSettingsUpdated}
         />
 

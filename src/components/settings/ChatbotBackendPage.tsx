@@ -9,6 +9,7 @@ const chatbotBackends = [
   {key: "echo",       label: "Echo"},
   {key: "arbius_llm", label: "Arbius"},
   {key: "chatgpt",    label: "ChatGPT"},
+  {key: "deiphobe",   label: "Deiphobe"},
   {key: "llamacpp",   label: "LLama.cpp"},
   ...isTauri() ? [] : [{key: "windowai", label: "Window.ai"}], // Hides Window.ai when using the desktop app
   {key: "ollama",     label: "Ollama"},
@@ -55,7 +56,7 @@ export function ChatbotBackendPage({
   return (
     <BasicPage
       title={t("Chatbot Backend")}
-      description={t("Chatbot_Backend_desc", "Select the chatbot backend to use. Echo simply responds with what you type, it is used for testing and demonstration. ChatGPT is a commercial chatbot API from OpenAI, however there are multiple compatible API providers which can be used in lieu of OpenAI. LLama.cpp is a free and open source chatbot backend.")}
+      description={t("Chatbot_Backend_desc", "Select the chatbot backend to use. Echo simply responds with what you type, it is used for testing and demonstration. ChatGPT is a commercial chatbot API from OpenAI, however there are multiple compatible API providers which can be used in lieu of OpenAI. Deiphobe is a local CLI-backed backend that keeps its own session scope. LLama.cpp is a free and open source chatbot backend.")}
     >
       <ul role="list" className="divide-y divide-gray-100 max-w-xs">
         <li className="py-4">
@@ -75,7 +76,7 @@ export function ChatbotBackendPage({
             </select>
           </FormRow>
         </li>
-        { ["arbius_llm", "chatgpt", "llamacpp", "ollama", "koboldai", "moshi"].includes(chatbotBackend) && (
+        { ["arbius_llm", "chatgpt", "deiphobe", "llamacpp", "ollama", "koboldai", "moshi"].includes(chatbotBackend) && (
           <li className="py-4">
             <FormRow label={`${t("Configure")} ${t(idToTitle(chatbotBackend))}`}>
               <button
