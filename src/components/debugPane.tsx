@@ -4,6 +4,7 @@ import { IconButton } from "@/components/iconButton";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { clsx } from "clsx";
 import { config } from "@/utils/config";
+import { BackendStatusLine } from "@/components/backendStatusLine";
 
 const TOTAL_ITEMS_TO_SHOW = 100;
 
@@ -80,6 +81,9 @@ export function DebugPane({ onClickClose }: {
             <span className="px-1"><span className="text-xs text-gray-500">tts: </span><span className="text-xs text-gray-400">{config("tts_backend")}</span></span>
             <span className="px-1"><span className="text-xs text-gray-500">stt: </span><span className="text-xs text-gray-400">{config("stt_backend")}</span></span>
             <span className="px-1"><span className="text-xs text-gray-500">bid: </span><span className="text-xs text-gray-400">{process.env.NEXT_PUBLIC_CONFIG_BUILD_ID}</span></span>
+          </div>
+          <div className="mt-2">
+            <BackendStatusLine inline />
           </div>
         </div>
         <div className="p-2 bg-gray-50">

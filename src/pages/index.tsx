@@ -59,6 +59,7 @@ import { langs } from '@/i18n/langs';
 import { VrmStoreProvider } from "@/features/vrmStore/vrmStoreContext";
 import { AmicaLifeContext } from "@/features/amicaLife/amicaLifeContext";
 import { ChatModeText } from "@/components/chatModeText";
+import { BackendStatusLine } from "@/components/backendStatusLine";
 
 import { TimestampedPrompt } from "@/features/amicaLife/eventHandler";
 import { handleChatLogs } from "@/features/externalAPI/externalAPI";
@@ -379,6 +380,8 @@ export default function Home() {
       </VrmStoreProvider>
       
       <MessageInputContainer isChatProcessing={chatProcessing} />
+
+      <BackendStatusLine />
 
       {/* main menu */}
       <div className="absolute z-10 m-2">
