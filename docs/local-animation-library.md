@@ -116,3 +116,15 @@ That will:
 - preserve a safe filename
 - refresh `src/paths.ts`
 - print a ready-to-run one-shot curl payload
+
+## Local Dev Server Port Note
+
+The External API handler reads runtime config through `NEXT_PUBLIC_DEVELOPMENT_BASE_URL`.
+
+If `npm run dev` falls back to a port like `3001` instead of `3000`, point the dev environment at the active port before starting Amica:
+
+```bash
+NEXT_PUBLIC_DEVELOPMENT_BASE_URL=http://localhost:3001 npm run dev
+```
+
+Without that, `amicaHandler` can fetch config from the wrong base URL and treat the External API as disabled.
