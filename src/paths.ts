@@ -1,0 +1,4 @@
+export const bgImages = ["/bg/bg-arbius1.jpg","/bg/bg-arbius2.jpg","/bg/bg-forest1.jpg","/bg/bg-landscape1.jpg","/bg/bg-landscape2.jpg","/bg/bg-landscape3.jpg","/bg/bg-room1.jpg","/bg/bg-room2.jpg","/bg/bg-sunset1.jpg","/bg/bg-town1.jpg"];
+export const vrmList = ["/vrm/AvatarSample_A.vrm","/vrm/AvatarSample_B.vrm","/vrm/AvatarSample_C.vrm","/vrm/AvatarSample_D.vrm","/vrm/deiphobe.vrm"];
+export const speechT5SpeakerEmbeddingsList = ["/speecht5_speaker_embeddings/cmu_us_awb_arctic-wav-arctic_a0002.bin","/speecht5_speaker_embeddings/cmu_us_slt_arctic-wav-arctic_a0001.bin"];
+export const animationList = ["/animations/dance.vrma","/animations/greeting.vrma","/animations/idle_loop.vrma","/animations/modelPose.vrma","/animations/peaceSign.vrma","/animations/shoot.vrma","/animations/showFullBody.vrma","/animations/spin.vrma","/animations/squat.vrma"];
