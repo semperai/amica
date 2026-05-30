@@ -1,0 +1,16 @@
+{
+  "idle": "/animations/Relax.vrma",
+  "thinking": "/animations/Thinking.vrma",
+  "listening": "/animations/LookAround.vrma",
+  "searching": "/animations/LookAround.vrma",
+  "happy": "/animations/Clapping.vrma",
+  "success": "/animations/Clapping.vrma",
+  "goodbye": "/animations/Goodbye.vrma",
+  "surprised": "/animations/Surprised.vrma",
+  "sad": "/animations/Sad.vrma",
+  "concern": "/animations/Sad.vrma",
+  "boundary": "/animations/Angry.vrma",
+  "warm": "/animations/Blush.vrma",
+  "standby": "/animations/Sleepy.vrma",
+  "energetic": "/animations/Jump.vrma"
+}

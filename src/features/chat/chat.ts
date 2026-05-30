@@ -45,6 +45,10 @@ import { isCharacterIdle, characterIdleTime, resetIdleTimer } from "@/utils/isId
 import { getOpenRouterChatResponseStream } from './openRouterChat';
 import { handleUserInput } from '../externalAPI/externalAPI';
 import { loadVRMAnimation } from '@/lib/VRMAnimation/loadVRMAnimation';
+import {
+  resolveAnimationStatePath,
+  selectAnimationStateFromExpression,
+} from "@/features/vrmViewer/animationState";
 
 type Speak = {
   audioBuffer: ArrayBuffer | null;
@@ -456,6 +460,11 @@ export class Chat {
             requestAnimationFrame(() => { this.viewer?.resetCameraLerp(); });
             break;
 
+          case 'animation_state':
+            console.log('Animation state received:', data);
+            await this.playAnimationState(data);
+            break;
+
           case 'playback':
             console.log('Playback flag received:', data);
             this.viewer?.startRecording();
@@ -554,6 +563,7 @@ export class Chat {
     let isThinking = false;
     let rolePlay = "";
     let receivedMessage = "";
+    let animationStateTriggered = false;
 
     let firstTokenEncountered = false;
     let firstSentenceEncountered = false;
@@ -596,6 +606,16 @@ export class Chat {
                 streamIdx: streamIdx,
               });
             } 
+
+            if (!animationStateTriggered) {
+              const animationState = selectAnimationStateFromExpression(
+                aiTalks[0]?.expression,
+              );
+              if (animationState) {
+                animationStateTriggered = true;
+                void this.playAnimationState(animationState);
+              }
+            }
 
             // thought bubble
             this.thoughtBubbleMessage(isThinking, aiTalks[0].text);
@@ -809,6 +829,38 @@ export class Chat {
     } catch (e: any) {
       console.error("getVisionResponse", e.toString());
       this.alert?.error("Failed to get vision response", e.toString());
+    }
+  }
+
+  private async playAnimationState(animationState: string | null | undefined) {
+    if (!this.viewer?.model) {
+      console.warn("Skipping animation_state playback because the model is not ready.");
+      return;
+    }
+
+    const resolvedPath = await resolveAnimationStatePath(animationState);
+
+    try {
+      const animation = await loadVRMAnimation(resolvedPath);
+      if (!animation) {
+        console.warn(
+          `No VRM animation could be loaded for state "${animationState}" (${resolvedPath}).`,
+        );
+        return;
+      }
+
+      await this.viewer.model.playAnimation(
+        animation,
+        resolvedPath.split("/").pop() || resolvedPath,
+      );
+      requestAnimationFrame(() => {
+        this.viewer?.resetCameraLerp();
+      });
+    } catch (error) {
+      console.warn(
+        `Failed to play animation state "${animationState}" from ${resolvedPath}:`,
+        error,
+      );
     }
   }
 }

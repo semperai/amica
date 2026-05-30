@@ -61,6 +61,37 @@ curl -sS -i -X POST http://localhost:3000/api/amicaHandler/ \
 
 Swap `idle_loop.vrma` for any other filename in `public/animations` after you have refreshed paths.
 
+## Abstract Animation States
+
+Amica can also resolve abstract Deiphobe animation states instead of raw filenames.
+
+Put the state map here:
+
+```text
+public/deiphobe/animation-state-map.json
+```
+
+Example:
+
+```json
+{
+  "idle": "/animations/Relax.vrma",
+  "thinking": "/animations/Thinking.vrma",
+  "listening": "/animations/LookAround.vrma"
+}
+```
+
+Use `animation_state` in the reasoning/chat payload instead of hardcoding a VRMA filename:
+
+```json
+{
+  "text": "I found it, Uther.",
+  "animation_state": "success"
+}
+```
+
+Amica resolves the state to the actual animation file on the avatar side. Unknown states fall back to `idle`, and manual filename triggering still works.
+
 ## Save Character Is Not Required
 
 You do not need the share/save flow to test local animation playback.
@@ -85,4 +116,3 @@ That will:
 - preserve a safe filename
 - refresh `src/paths.ts`
 - print a ready-to-run one-shot curl payload
-
