@@ -16,7 +16,8 @@
     "act": "act -j test",
     "tauri": "tauri",
     "generate:paths": "npx node scripts/generate_paths.js",
-    "splash": "cp ./public/splashscreen.html out/"
+    "splash": "cp ./public/splashscreen.html out/",
+    "dev:deiphobe": "bash scripts/start_deiphobe_shell.sh"
   },
   "dependencies": {
     "@charcoal-ui/icons": "^3.15.0",
