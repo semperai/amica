@@ -31,7 +31,8 @@ If you just want a browser-safe local HTTP server for Amica, use the small shim 
     ```
 
 4. Optional voice tuning:
-    - Set `PIPER_MODEL=en_US-lessac-medium` or another Piper voice before starting the server.
+    - The local shim defaults to `PIPER_MODEL=en_US-amy-medium`.
+    - Set `PIPER_MODEL=en_US-amy-medium` or another Piper voice before starting the server.
     - The shim sends CORS headers and returns `audio/wav`, so browser fetches work without a separate proxy.
 
 5. Quick test:

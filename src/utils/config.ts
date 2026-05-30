@@ -85,7 +85,7 @@ export const defaults = {
   coquiLocal_voiceid: process.env.NEXT_PUBLIC_COQUILOCAL_VOICEID ?? 'p240',
   kokoro_url: process.env.NEXT_PUBLIC_KOKORO_URL ?? 'http://localhost:8080',
   kokoro_voice: process.env.NEXT_PUBLIC_KOKORO_VOICE ?? 'af_bella',
-  piper_url: process.env.NEXT_PUBLIC_PIPER_URL ?? 'https://i-love-amica.com:5000/tts',
+  piper_url: process.env.NEXT_PUBLIC_PIPER_URL ?? 'http://127.0.0.1:5000/tts',
   elevenlabs_apikey: process.env.NEXT_PUBLIC_ELEVENLABS_APIKEY ??'',
   elevenlabs_voiceid: process.env.NEXT_PUBLIC_ELEVENLABS_VOICEID ?? '21m00Tcm4TlvDq8ikWAM',
   elevenlabs_model: process.env.NEXT_PUBLIC_ELEVENLABS_MODEL ?? 'eleven_monolingual_v1',
@@ -143,6 +143,31 @@ if (typeof window !== "undefined") {
 }
 
 export function config(key: string): string {
+  if (key === "piper_url") {
+    const localDefault = 'http://127.0.0.1:5000/tts';
+    const legacyDemoUrl = 'https://i-love-amica.com:5000/tts';
+
+    if (typeof localStorage !== "undefined" && localStorage.hasOwnProperty(prefixed(key))) {
+      const stored = (<any>localStorage).getItem(prefixed(key));
+      if (stored === legacyDemoUrl) {
+        (<any>localStorage).setItem(prefixed(key), localDefault);
+        return localDefault;
+      }
+      return stored!;
+    }
+
+    if (serverConfig && serverConfig.hasOwnProperty(key)) {
+      const serverValue = serverConfig[key];
+      if (serverValue === legacyDemoUrl) {
+        serverConfig[key] = localDefault;
+        return localDefault;
+      }
+      return serverValue;
+    }
+
+    return (<any>defaults)[key];
+  }
+
   if (typeof localStorage !== "undefined" && localStorage.hasOwnProperty(prefixed(key))) {
     return (<any>localStorage).getItem(prefixed(key))!;
   }
