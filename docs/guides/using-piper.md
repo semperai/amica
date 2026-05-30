@@ -7,6 +7,42 @@ Navigate to [Piper](https://github.com/rhasspy/piper) and follow the setup instr
 
 ## Setting Up Piper Locally
 
+### Fastest Local WSL Path
+
+If you just want a browser-safe local HTTP server for Amica, use the small shim in this repo.
+
+1. Create a venv for Piper and install the Piper CLI:
+    ```bash
+    cd ~/ClawDawg/amica
+    python3 -m venv .venv-piper
+    source .venv-piper/bin/activate
+    pip install piper-tts
+    ```
+
+2. Start the local Piper-compatible HTTP server:
+    ```bash
+    python scripts/local_piper_server.py
+    ```
+
+3. Point Amica at the local endpoint:
+    ```text
+    Settings -> Text-to-Speech -> TTS Backend -> Piper
+    Settings -> Text-to-Speech -> Piper -> URL = http://127.0.0.1:5000/tts
+    ```
+
+4. Optional voice tuning:
+    - Set `PIPER_MODEL=en_US-lessac-medium` or another Piper voice before starting the server.
+    - The shim sends CORS headers and returns `audio/wav`, so browser fetches work without a separate proxy.
+
+5. Quick test:
+    ```bash
+    curl -o /tmp/piper-test.wav "http://127.0.0.1:5000/tts?text=hello"
+    file /tmp/piper-test.wav
+    ```
+
+6. Keep SpeechT5 as a fallback:
+    - If the Piper server is down, switch Amica back to `SpeechT5` in the TTS backend selector.
+
 ### Method 1: Setup via Docker
 
 1. Clone the artibex/piper repository:
