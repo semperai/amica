@@ -15,7 +15,7 @@
     "test:ci": "jest --ci --reporters='./github-actions-reporter.js'",
     "act": "act -j test",
     "tauri": "tauri",
-    "generate:paths": "npx node scripts/generate_paths.js",
+    "generate:paths": "node scripts/generate_paths.js",
     "splash": "cp ./public/splashscreen.html out/",
     "dev:deiphobe": "bash scripts/start_deiphobe_shell.sh"
   },
