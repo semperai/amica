@@ -1,4 +1,6 @@
 import { handleConfig, serverConfig } from "@/features/externalAPI/externalAPI";
+import { normalizeChatbotBackend } from "@/features/chat/chatbotBackend";
+import { resolveHostAwareLocalUrl } from "@/utils/hostAwareUrl";
 
 export const defaults = {
   // AllTalk TTS specific settings
@@ -29,7 +31,7 @@ export const defaults = {
   animation_url: process.env.NEXT_PUBLIC_ANIMATION_URL ?? '/animations/idle_loop.vrma',
   animation_procedural: process.env.NEXT_PUBLIC_ANIMATION_PROCEDURAL ?? 'false',
   voice_url: process.env.NEXT_PUBLIC_VOICE_URL ?? '',
-  chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'openai',
+  chatbot_backend: process.env.NEXT_PUBLIC_CHATBOT_BACKEND ?? 'deiphobe',
   arbius_llm_model_id: process.env.NEXT_PUBLIC_ARBIUS_LLM_MODEL_ID ?? 'default',
   openai_apikey: process.env.NEXT_PUBLIC_OPENAI_APIKEY ?? 'default',
   openai_url: process.env.NEXT_PUBLIC_OPENAI_URL ?? 'https://i-love-amica.com',
@@ -40,6 +42,8 @@ export const defaults = {
   deiphobe_session_id: process.env.NEXT_PUBLIC_DEIPHOBE_SESSION_ID ?? 'voice-avatar-test',
   deiphobe_namespace: process.env.NEXT_PUBLIC_DEIPHOBE_NAMESPACE ?? 'voice',
   deiphobe_timeout_seconds: process.env.NEXT_PUBLIC_DEIPHOBE_TIMEOUT_SECONDS ?? '120',
+  deiphobe_private_mode: process.env.NEXT_PUBLIC_DEIPHOBE_PRIVATE_MODE ?? 'false',
+  deiphobe_private_memory_root: process.env.NEXT_PUBLIC_DEIPHOBE_PRIVATE_MEMORY_ROOT ?? '',
   llamacpp_url: process.env.NEXT_PUBLIC_LLAMACPP_URL ?? 'http://127.0.0.1:8080',
   llamacpp_stop_sequence: process.env.NEXT_PUBLIC_LLAMACPP_STOP_SEQUENCE ?? '(End)||[END]||Note||***||You:||User:||</s>',
   ollama_url: process.env.NEXT_PUBLIC_OLLAMA_URL ?? 'http://localhost:11434',
@@ -143,6 +147,38 @@ if (typeof window !== "undefined") {
 }
 
 export function config(key: string): string {
+  if (key === "chatbot_backend") {
+    const normalize = (value: string) => {
+      const normalized = normalizeChatbotBackend(value);
+      if (normalized !== value) {
+        console.warn(
+          `Unsupported chatbot_backend "${value}" normalized to "${normalized}"`,
+        );
+      }
+      return normalized;
+    };
+
+    if (typeof localStorage !== "undefined" && localStorage.hasOwnProperty(prefixed(key))) {
+      const stored = (<any>localStorage).getItem(prefixed(key))!;
+      const normalized = normalize(stored);
+      if (normalized !== stored) {
+        (<any>localStorage).setItem(prefixed(key), normalized);
+      }
+      return normalized;
+    }
+
+    if (serverConfig && serverConfig.hasOwnProperty(key)) {
+      const serverValue = serverConfig[key];
+      const normalized = normalize(serverValue);
+      if (normalized !== serverValue) {
+        serverConfig[key] = normalized;
+      }
+      return normalized;
+    }
+
+    return normalize((<any>defaults)[key]);
+  }
+
   if (key === "piper_url") {
     const localDefault = 'http://127.0.0.1:5000/tts';
     const legacyDemoUrl = 'https://i-love-amica.com:5000/tts';
@@ -151,21 +187,21 @@ export function config(key: string): string {
       const stored = (<any>localStorage).getItem(prefixed(key));
       if (stored === legacyDemoUrl) {
         (<any>localStorage).setItem(prefixed(key), localDefault);
-        return localDefault;
+        return resolveHostAwareLocalUrl(localDefault);
       }
-      return stored!;
+      return resolveHostAwareLocalUrl(stored!);
     }
 
     if (serverConfig && serverConfig.hasOwnProperty(key)) {
       const serverValue = serverConfig[key];
       if (serverValue === legacyDemoUrl) {
         serverConfig[key] = localDefault;
-        return localDefault;
+        return resolveHostAwareLocalUrl(localDefault);
       }
-      return serverValue;
+      return resolveHostAwareLocalUrl(serverValue);
     }
 
-    return (<any>defaults)[key];
+    return resolveHostAwareLocalUrl((<any>defaults)[key]);
   }
 
   if (typeof localStorage !== "undefined" && localStorage.hasOwnProperty(prefixed(key))) {

@@ -101,6 +101,8 @@ export const Settings = ({
   const [deiphobeSessionId, setDeiphobeSessionId] = useState(config("deiphobe_session_id"));
   const [deiphobeNamespace, setDeiphobeNamespace] = useState(config("deiphobe_namespace"));
   const [deiphobeTimeoutSeconds, setDeiphobeTimeoutSeconds] = useState(config("deiphobe_timeout_seconds"));
+  const [deiphobePrivateMode, setDeiphobePrivateMode] = useState(config("deiphobe_private_mode"));
+  const [deiphobePrivateMemoryRoot, setDeiphobePrivateMemoryRoot] = useState(config("deiphobe_private_memory_root"));
   const [llamaCppUrl, setLlamaCppUrl] = useState(config("llamacpp_url"));
   const [llamaCppStopSequence, setLlamaCppStopSequence] = useState(config("llamacpp_stop_sequence"));
   const [ollamaUrl, setOllamaUrl] = useState(config("ollama_url"));
@@ -282,7 +284,7 @@ export const Settings = ({
     chatbotBackend,
     arbiusLLMModelId,
     openAIApiKey, openAIUrl, openAIModel,
-    deiphobeRepoRoot, deiphobeCommand, deiphobeUserId, deiphobeSessionId, deiphobeNamespace, deiphobeTimeoutSeconds,
+    deiphobeRepoRoot, deiphobeCommand, deiphobeUserId, deiphobeSessionId, deiphobeNamespace, deiphobeTimeoutSeconds, deiphobePrivateMode, deiphobePrivateMemoryRoot,
     llamaCppUrl, llamaCppStopSequence,
     ollamaUrl, ollamaModel,
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
@@ -293,7 +295,7 @@ export const Settings = ({
     speechT5SpeakerEmbeddingsUrl,
     openAITTSApiKey, openAITTSUrl, openAITTSModel, openAITTSVoice,
     piperUrl,
-    rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,,rvcResampleSr,rvcRmsMixRate,rvcProtect,
+    rvcUrl,rvcEnabled,rvcModelName,rvcIndexPath,rvcF0upKey,rvcF0Method,rvcIndexRate,rvcFilterRadius,rvcResampleSr,rvcRmsMixRate,rvcProtect,
     coquiLocalUrl,coquiLocalVoiceId,
     localXTTSUrl,
     kokoroUrl, kokoroVoice,
@@ -501,6 +503,10 @@ export const Settings = ({
         setDeiphobeNamespace={setDeiphobeNamespace}
         deiphobeTimeoutSeconds={deiphobeTimeoutSeconds}
         setDeiphobeTimeoutSeconds={setDeiphobeTimeoutSeconds}
+        deiphobePrivateMode={deiphobePrivateMode}
+        setDeiphobePrivateMode={setDeiphobePrivateMode}
+        deiphobePrivateMemoryRoot={deiphobePrivateMemoryRoot}
+        setDeiphobePrivateMemoryRoot={setDeiphobePrivateMemoryRoot}
         setSettingsUpdated={setSettingsUpdated}
         />
 
