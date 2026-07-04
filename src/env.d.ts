@@ -5,6 +5,11 @@ declare namespace NodeJS {
     NEXT_PUBLIC_OPENROUTER_URL?: string;
     NEXT_PUBLIC_OPENROUTER_MODEL?: string;
 
+    // Requesty Configuration
+    NEXT_PUBLIC_REQUESTY_APIKEY?: string;
+    NEXT_PUBLIC_REQUESTY_URL?: string;
+    NEXT_PUBLIC_REQUESTY_MODEL?: string;
+
     // Existing environment variables (preserving for type safety)
     NEXT_PUBLIC_CHATBOT_BACKEND?: string;
     NEXT_PUBLIC_OPENAI_APIKEY?: string;
