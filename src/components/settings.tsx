@@ -71,6 +71,7 @@ import { SystemPromptPage } from './settings/SystemPromptPage';
 import { AmicaLifePage } from "./settings/AmicaLifePage";
 import { useVrmStoreContext } from "@/features/vrmStore/vrmStoreContext";
 import { OpenRouterSettings } from "./settings/OpenRouterSettingsPage";
+import { RequestySettings } from "./settings/RequestySettingsPage";
 import { ExternalAPIPage } from "./settings/ExternalAPIPage";
 import { KokoroSettingsPage } from "./settings/KokoroSettingsPage";
 
@@ -105,6 +106,9 @@ export const Settings = ({
   const [openRouterApiKey, setOpenRouterApiKey] = useState(config("openrouter_apikey"));
   const [openRouterUrl, setOpenRouterUrl] = useState(config("openrouter_url"));
   const [openRouterModel, setOpenRouterModel] = useState(config("openrouter_model"));
+  const [requestyApiKey, setRequestyApiKey] = useState(config("requesty_apikey"));
+  const [requestyUrl, setRequestyUrl] = useState(config("requesty_url"));
+  const [requestyModel, setRequestyModel] = useState(config("requesty_model"));
 
   const [ttsBackend, setTTSBackend] = useState(config("tts_backend"));
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState(config("elevenlabs_apikey"));
@@ -363,7 +367,7 @@ export const Settings = ({
 
     case 'chatbot':
       return <MenuPage
-        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings"]}
+        keys={["chatbot_backend", "name", "system_prompt", "arbius_llm_settings", "chatgpt_settings", "llamacpp_settings", "ollama_settings", "koboldai_settings", "moshi_settings", "openrouter_settings", "requesty_settings"]}
         menuClick={handleMenuClick} />;
 
     case 'language':
@@ -523,6 +527,17 @@ export const Settings = ({
         setOpenRouterApiKey={setOpenRouterApiKey}
         openRouterModel={openRouterModel}
         setOpenRouterModel={setOpenRouterModel}
+        setSettingsUpdated={setSettingsUpdated}
+        />
+
+    case 'requesty_settings':
+      return <RequestySettings
+        requestyUrl={requestyUrl}
+        setRequestyUrl={setRequestyUrl}
+        requestyApiKey={requestyApiKey}
+        setRequestyApiKey={setRequestyApiKey}
+        requestyModel={requestyModel}
+        setRequestyModel={setRequestyModel}
         setSettingsUpdated={setSettingsUpdated}
         />
 
