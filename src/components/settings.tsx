@@ -284,6 +284,7 @@ export const Settings = ({
     koboldAiUrl, koboldAiUseExtra, koboldAiStopSequence,
     moshiUrl,
     openRouterApiKey, openRouterUrl, openRouterModel,
+    requestyApiKey, requestyUrl, requestyModel,
     ttsBackend,
     elevenlabsApiKey, elevenlabsVoiceId,
     speechT5SpeakerEmbeddingsUrl,

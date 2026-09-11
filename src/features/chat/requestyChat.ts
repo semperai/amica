@@ -30,14 +30,23 @@ export async function getRequestyChatResponseStream(messages: Message[]): Promis
     })
   });
 
-  const reader = response.body?.getReader();
-  if (!response.ok || !reader) {
-    const error = await response.json();
-    // Handle Requesty-specific error format
-    if (error.error?.message) {
-      throw new Error(`Requesty error: ${error.error.message}`);
+  if (!response.ok) {
+    let message = `Requesty request failed with status ${response.status}`;
+    try {
+      const error = await response.json();
+      // Handle Requesty-specific error format
+      if (error.error?.message) {
+        message = `Requesty error: ${error.error.message}`;
+      }
+    } catch {
+      // error body was not JSON, keep the status based message
     }
-    throw new Error(`Requesty request failed with status ${response.status}`);
+    throw new Error(message);
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error('Requesty response has no body');
   }
 
   const stream = new ReadableStream({
