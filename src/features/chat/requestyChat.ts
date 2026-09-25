@@ -52,42 +52,64 @@ export async function getRequestyChatResponseStream(messages: Message[]): Promis
   const stream = new ReadableStream({
     async start(controller: ReadableStreamDefaultController) {
       const decoder = new TextDecoder("utf-8");
+      // a read can end anywhere inside an SSE record, so keep the unfinished
+      // line between reads and only parse complete events
+      let buffer = "";
+      let dataLines: string[] = [];
+      let sawData = false;
+      let finished = false;
+
+      const dispatchEvent = () => {
+        if (dataLines.length === 0) {
+          return;
+        }
+        const data = dataLines.join("\n");
+        dataLines = [];
+        sawData = true;
+        if (data.trim() === "[DONE]") {
+          finished = true;
+          return;
+        }
+        const messagePiece = parseRequestyStreamEvent(data);
+        if (messagePiece) {
+          controller.enqueue(messagePiece);
+        }
+      };
+
+      const handleLine = (line: string) => {
+        if (line === "") {
+          // a blank line ends the current event
+          dispatchEvent();
+        } else if (line.startsWith("data:")) {
+          dataLines.push(line.slice(5).trimStart());
+        }
+        // comments (":") and other SSE fields are ignored
+      };
+
       try {
-        // sometimes the response is chunked, so we need to combine the chunks
-        let combined = "";
-        while (true) {
+        while (!finished) {
           const { done, value } = await reader.read();
-          if (done) break;
-          const data = decoder.decode(value);
-          const chunks = data
-            .split("data:")
-            .filter((val) => !!val && val.trim() !== "[DONE]");
-
-          for (const chunk of chunks) {
-            // skip comments
-            if (chunk.length > 0 && chunk[0] === ":") {
-              continue;
-            }
-            combined += chunk;
-
-            try {
-              const json = JSON.parse(combined);
-              const messagePiece = json.choices[0].delta.content;
-              combined = "";
-              if (!!messagePiece) {
-                controller.enqueue(messagePiece);
-              }
-            } catch (error) {
-              console.error(error);
-            }
+          buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
+          const lines = buffer.split(/\r\n|\r|\n/);
+          buffer = done ? "" : lines.pop() ?? "";
+          for (const line of lines) {
+            handleLine(line);
+            if (finished) break;
+          }
+          if (done) {
+            dispatchEvent();
+            break;
           }
         }
+        if (!sawData) {
+          throw new Error('Requesty stream ended without any data');
+        }
+        controller.close();
       } catch (error) {
         console.error(error);
         controller.error(error);
       } finally {
-        reader?.releaseLock();
-        controller.close();
+        reader.releaseLock();
       }
     },
     async cancel() {
@@ -96,4 +118,24 @@ export async function getRequestyChatResponseStream(messages: Message[]): Promis
     }
   });
   return stream;
+}
+
+/**
+ * Parses the data of one Requesty stream event and returns its text delta.
+ * Throws on malformed events so the caller sees the failure instead of an empty reply.
+ */
+export function parseRequestyStreamEvent(data: string): string | undefined {
+  let json: any;
+  try {
+    json = JSON.parse(data);
+  } catch {
+    throw new Error('Requesty sent a stream event that is not valid JSON');
+  }
+  if (json?.error) {
+    throw new Error(`Requesty error: ${json.error.message ?? 'stream failed'}`);
+  }
+  if (!Array.isArray(json?.choices)) {
+    throw new Error('Requesty sent a stream event without choices');
+  }
+  return json.choices[0]?.delta?.content ?? undefined;
 }
