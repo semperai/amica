@@ -72,6 +72,38 @@ describe("Requesty chat stream", () => {
     await expect(readAll(stream)).resolves.toBe("ab");
   });
 
+  test("keeps a multiline event whole when CRLF is split across one byte reads", async () => {
+    const raw = 'data: {"choices":\r\ndata: [{"delta":{"content":"hi"}}]}\r\n\r\ndata: [DONE]\r\n\r\n';
+    mockStreamResponse(raw.split(""));
+    const stream = await getRequestyChatResponseStream([]);
+    await expect(readAll(stream)).resolves.toBe("hi");
+  });
+
+  test("errors the stream when only [DONE] arrives", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    mockStreamResponse(["data: [DONE]\n\n"]);
+    const stream = await getRequestyChatResponseStream([]);
+    await expect(readAll(stream)).rejects.toThrow("without any data");
+  });
+
+  test("cancels the response body when [DONE] arrives before EOF", async () => {
+    const encoder = new TextEncoder();
+    let cancelled = false;
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode(event("done") + "data: [DONE]\n\n"));
+        // the server keeps the connection open after [DONE]
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+    global.fetch = (async () => new Response(body, { status: 200 })) as typeof fetch;
+    const stream = await getRequestyChatResponseStream([]);
+    await expect(readAll(stream)).resolves.toBe("done");
+    expect(cancelled).toBe(true);
+  });
+
   test("errors the stream on a malformed event", async () => {
     jest.spyOn(console, "error").mockImplementation(() => {});
     mockStreamResponse([event("ok"), "data: {not json\n\n"]);

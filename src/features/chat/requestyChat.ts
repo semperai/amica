@@ -58,6 +58,7 @@ export async function getRequestyChatResponseStream(messages: Message[]): Promis
       let dataLines: string[] = [];
       let sawData = false;
       let finished = false;
+      let readerDone = false;
 
       const dispatchEvent = () => {
         if (dataLines.length === 0) {
@@ -65,12 +66,13 @@ export async function getRequestyChatResponseStream(messages: Message[]): Promis
         }
         const data = dataLines.join("\n");
         dataLines = [];
-        sawData = true;
         if (data.trim() === "[DONE]") {
           finished = true;
           return;
         }
         const messagePiece = parseRequestyStreamEvent(data);
+        // only a parsed event counts as data, a bare [DONE] is still an empty reply
+        sawData = true;
         if (messagePiece) {
           controller.enqueue(messagePiece);
         }
@@ -89,9 +91,13 @@ export async function getRequestyChatResponseStream(messages: Message[]): Promis
       try {
         while (!finished) {
           const { done, value } = await reader.read();
+          readerDone = done;
           buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
-          const lines = buffer.split(/\r\n|\r|\n/);
-          buffer = done ? "" : lines.pop() ?? "";
+          // a trailing \r may be the first half of a CRLF split across reads,
+          // so hold it back until the next read shows what follows
+          const carry = !done && buffer.endsWith("\r") ? "\r" : "";
+          const lines = (carry ? buffer.slice(0, -1) : buffer).split(/\r\n|\r|\n/);
+          buffer = done ? "" : (lines.pop() ?? "") + carry;
           for (const line of lines) {
             handleLine(line);
             if (finished) break;
@@ -109,6 +115,14 @@ export async function getRequestyChatResponseStream(messages: Message[]): Promis
         console.error(error);
         controller.error(error);
       } finally {
+        if (!readerDone) {
+          // stopped before EOF ([DONE] or an error), so close the connection too
+          try {
+            await reader.cancel();
+          } catch {
+            // nothing more to do if the body is already gone
+          }
+        }
         reader.releaseLock();
       }
     },
