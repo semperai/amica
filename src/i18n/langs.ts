@@ -2,6 +2,7 @@ import en from "./locales/en/common.json";
 import zh from "./locales/zh/common.json";
 import de from "./locales/de/common.json";
 import ka from "./locales/ka/common.json";
+import ru from "./locales/ru/common.json";
 
 // const langs: any = Object.entries({en, zh}).reduce((arr, [key, value]) => {
 //     return {...arr, [key] : { translation: value} }
@@ -24,5 +25,9 @@ export const langs: any = {
     nativeName: 'ქართული',
     translation: ka,
   },
+  ru: {
+    nativeName: 'Русский',
+    translation: ru,
+  }
 }
 
